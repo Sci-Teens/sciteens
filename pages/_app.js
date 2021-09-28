@@ -1,14 +1,18 @@
 import 'tailwindcss/tailwind.css'
 import Layout from '../components/Layout'
-import { AppWrapper } from '../context/AppContext';
+import { AppWrapper } from '../context/state';
+import { FirebaseAppProvider, FirestoreProvider, useFirestoreDocData, useFirestore, useFirebaseApp } from 'reactfire';
+import firebaseConfig from '../firebaseConfig'
 
 function MyApp({ Component, pageProps }) {
   return (
-    <AppWrapper>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
-    </AppWrapper>
+    <FirebaseAppProvider firebaseConfig={firebaseConfig}>
+      <AppWrapper>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </AppWrapper>
+    </FirebaseAppProvider>
   )
 }
 
