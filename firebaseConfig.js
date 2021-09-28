@@ -1,5 +1,5 @@
 // Initialize Cloud Firestore through Firebase
-import { initializeApp } from "firebase/app"
+import { initializeApp, getApps } from "firebase/app"
 import { getFirestore } from "firebase/firestore"
 import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "@firebase/auth";
@@ -16,20 +16,20 @@ const firebaseConfig = {
     measurementId: process.env.NEXT_PUBLIC_FB_MEASUREMENT_ID
 };
 
-// let app = null;
+console.log(getApps().length)
+let app = null;
+app = initializeApp(firebaseConfig);
 
-export default firebaseConfig
+let a = null
+if (process.env.NODE_ENV == 'production' && process.browser === true) {
+    a = getAnalytics();
+}
 
-// if (!firebase.apps.length) {
-//     app = initializeApp(firebaseConfig);
+// export const auth = getAuth(app)
+// export const db = getFirestore(app)
+// export const storage = getStorage(app)
+// export const analytics = a
 
-//     if (process.env.NODE_ENV == 'production' && process.client === true) {
-//         const analytics = getAnalytics();
-//         export const analytics = getAnalytics()
-//     }
-//     const db = getFirestore();
-// }
-
-// export const auth = getAuth()
-// export const db = getFirestore()
-// export const storage = getStorage()
+export const auth = getAuth(app)
+export const db = getFirestore(app)
+export const storage = getStorage(app)
