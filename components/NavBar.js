@@ -5,10 +5,10 @@ export default function NavBar() {
     const router = useRouter()
 
     return (
-        <nav className="bg-white w-full border-b-2 border-gray-300 z-50 flex justify-between h-16 items-center">
+        <nav className="bg-white w-full shadow z-50 flex justify-between h-16 items-center">
             <div className="inline-block md:w-1/2">
                 <Link href="/">
-                    Home
+                    <img className="h-16 ml-4" src={'../assets/sciteens_logo_initials.svg'} alt="" />
                 </Link>
             </div>
             <div className="mr-4 md:w-1/2 flex items-center justify-end">

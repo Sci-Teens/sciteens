@@ -29,9 +29,9 @@ export default function Home() {
         </div>
 
         {/* Mission statement & more */}
-        <div className="flex flex-row justify-between bg-gray-100 rounded-xl mx-14 px-10 py-12">
+        <div className="flex flex-row justify-between bg-gray-100 rounded-xl shadow-md mx-14 px-10 py-12">
           <div className="w-1/3">
-            <h2 className="text-4xl font-semibold">We offer <span className="text-sciteensLightGreen-regular font-bold">science</span> for the masses.</h2>
+            <h2 className="text-5xl font-semibold">By <span className="text-sciteensLightGreen-regular font-bold">teens</span>, for <span className="text-sciteensLightGreen-regular font-bold"> teens</span> </h2>
           </div>
           <div className="w-1/4 rounded-lg">
             <h2 className="text-3xl font-semibold mx-auto mb-2">We're on a mission.</h2>
