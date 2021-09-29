@@ -73,7 +73,7 @@ export default function Footer() {
                         <img src="" alt="YouTube" />
                     </a>
                 </div>
-                <p className="text-center">© SciTeens Inc. 2021</p>
+                <p className="text-center">&copy; SciTeens Inc. {new Date().getFullYear()}</p>
             </div>
         </footer>
     )

@@ -1,17 +1,20 @@
 import 'tailwindcss/tailwind.css'
 import Layout from '../components/Layout'
-import { AppWrapper } from '../context/state';
+import { AppContext } from '../context/context';
+import { useProfileData } from '../context/hooks'
+
 // import { FirebaseAppProvider } from 'reactfire';
-import firebaseConfig from '../firebaseConfig'
 
 function MyApp({ Component, pageProps }) {
+  const profileData = useProfileData()
+
   return (
     // <FirebaseAppProvider firebaseConfig={firebaseConfig}>
-    <AppWrapper>
+    <AppContext.Provider value={profileData}>
       <Layout>
         <Component {...pageProps} />
       </Layout>
-    </AppWrapper>
+    </AppContext.Provider>
     // </FirebaseAppProvider>
   )
 }

@@ -2,10 +2,8 @@ import { async } from '@firebase/util'
 import Head from 'next/head'
 import Link from 'next/link'
 
-import { signInWithPopup, GoogleAuthProvider } from '@firebase/auth'
-import { auth } from '../../firebaseConfig'
 
-export default function MentorSignUp({ e_email, e_password, signing_in }) {
+export default function MentorSignIn({ e_email, e_password, signing_in }) {
     return (
         <>
             <Head>
@@ -99,14 +97,4 @@ export function getStaticProps() {
             signing_in: false,
         }, // will be passed to the page component as props
     }
-}
-
-async function SignIn() {
-    const provider = new GoogleAuthProvider()
-    try {
-        const res = await signInWithPopup(auth, provider)
-    } catch (e) {
-        console.error(e.message)
-    }
-    return true;
 }
