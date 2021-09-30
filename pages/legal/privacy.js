@@ -12,7 +12,7 @@ export default function privacy() {
                     <div className="w-1/4">
                         <div className="sticky top-1/2 transform -translate-y-1/2 ">
                             <h2 className="text-xl font-semibold mb-1">Table of Contents</h2>
-                            <ul className="text-sm text-gray-700">
+                            <ul className="text-sm text-sciteensGreen-dark ml-2">
                                 <li>
                                     <a href="#privacy1" className="hover:underline">What Information Do We Collect?</a>
                                 </li>
@@ -519,7 +519,13 @@ export default function privacy() {
                                 <br />
                                 John Sutor
                                 <br />
-                                ADD NEW ADDRESS
+                                2195 W Tennessee St
+                                <br />
+                                Unit 217
+                                <br />
+                                Talahassee, FL 32304
+                                <br />
+                                United States
                             </p>
                         </div>
 

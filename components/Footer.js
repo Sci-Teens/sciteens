@@ -29,10 +29,10 @@ export default function Footer() {
                             <a href='/legal/privacy'>Privacy</a>
                         </li>
                         <li>
-                            <a>Terms</a>
+                            <a href='/legal/terms'>Terms</a>
                         </li>
                         <li>
-                            <a>Cookies</a>
+                            <a href='/legal/gdpr'>Cookies</a>
                         </li>
                     </ul>
                 </div>
