@@ -98,7 +98,7 @@ export default function terms() {
                         {/* Term 1 */}
                         <div>
                             <h2 id="term1" className="text-2xl mb-2">AGREEMENT TO TERMS</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 These Terms of Use constitute a legally binding agreement made between you, whether personally or on behalf of an
                                 entity (“you”) and SciTeens Inc., doing business as SciTeens ("SciTeens", “we”, “us”, or “our”), concerning your
                                 access to and use of the http://sciteens.org website as well as any other media form, media channel, mobile website
@@ -128,7 +128,7 @@ export default function terms() {
                         {/* Term 2 */}
                         <div>
                             <h2 id="term2" className="text-2xl mb-2">INTELLECTUAL PROPERTY RIGHTS</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 Unless otherwise indicated, the Site is our proprietary property and all source code, databases, functionality, software,
                                 website designs, audio, video, text, photographs, and graphics on the Site (collectively, the “Content”) and the trademarks,
                                 service marks, and logos contained therein (the “Marks”) are owned or controlled by us or licensed to us, and are protected
@@ -149,7 +149,7 @@ export default function terms() {
                             <p className="text-gray-700 mb-2">
                                 By using the Site, you represent and warrant that:
                             </p>
-                            <ul className="list-inside list-decimal text-gray-700 mb-4 ml-4">
+                            <ul className="list-inside list-decimal text-gray-700 mb-10 ml-4">
                                 <li>
                                     All registration information you submit will be true, accurate, current, and complete.
                                 </li>
@@ -182,7 +182,7 @@ export default function terms() {
                         {/* Term 4 */}
                         <div>
                             <h2 id="term4" className="text-2xl mb-2">USER REGISTRATION</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 You may be required to register with the Site. You agree to keep your password confidential and will be responsible for all
                                 use of your account and password. We reserve the right to remove, reclaim, or change a username you select if we determine,
                                 in our sole discretion, that such username is inappropriate, obscene, or otherwise objectionable.
@@ -197,7 +197,7 @@ export default function terms() {
                                 used in connection with any commercial endeavors except those that are specifically endorsed or approved by us. As a user
                                 of the Site, you agree not to:
                             </p>
-                            <ul className="list-inside list-decimal text-gray-700 mb-4 ml-4">
+                            <ul className="list-inside list-decimal text-gray-700 mb-10 ml-4">
                                 <li>
                                     Systematically retrieve data or other content from the Site to create or compile, directly or indirectly, a collection,
                                     compilation, database, or directory without written permission from us.
@@ -352,7 +352,7 @@ export default function terms() {
                                     preference, or physical handicap.
                                 </li>
                             </ul>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 Any use of the Site in violation of the foregoing violates these Terms of Use and may result in, among other things,
                                 termination or suspension of your rights to use the Site.
                             </p>
@@ -361,7 +361,7 @@ export default function terms() {
                         {/* Term 7 */}
                         <div>
                             <h2 id="term7" className="text-2xl mb-2">CONTRIBUTION LICENSE</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 By posting your Contributions to any part of the Site, you automatically grant, and you represent and warrant that you have the
                                 right to grant, to us an unrestricted, unlimited, irrevocable, perpetual, non-exclusive, transferable, royalty-free, fully-paid,
                                 worldwide right, and license to host, use, copy, reproduce, disclose, sell, resell, publish, broadcast, retitle, archive, store,
@@ -386,7 +386,7 @@ export default function terms() {
                         {/* Term 8 */}
                         <div>
                             <h2 id="term8" className="text-2xl mb-2">SUBMISSIONS</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 You acknowledge and agree that any questions, comments, suggestions, ideas, feedback, or other information regarding the Site
                                 ("Submissions") provided by you to us are non-confidential and shall become our sole property. We shall own exclusive rights,
                                 including all intellectual property rights, and shall be entitled to the unrestricted use and dissemination of these Submissions
@@ -400,7 +400,7 @@ export default function terms() {
                         {/* Term 9 */}
                         <div>
                             <h2 id="term9" className="text-2xl mb-2">THIRD-PARTY WEBSITE AND CONTENT</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 The Site may contain (or you may be sent via the Site) links to other websites ("Third-Party Websites") as well as articles,
                                 photographs, text, graphics, pictures, designs, music, sound, video, information, applications, software, and other content or
                                 items belonging to or originating from third parties ("Third-Party Content"). Such Third-Party Websites and Third-Party Content
@@ -427,7 +427,7 @@ export default function terms() {
                             <p className="text-gray-700 mb-4">
                                 We reserve the right, but not the obligation, to:
                             </p>
-                            <ul className="list-inside list-decimal text-gray-700 mb-4 ml-4">
+                            <ul className="list-inside list-decimal text-gray-700 mb-10 ml-4">
                                 <li>
                                     Monitor the Site for violations of these Terms of Use.
                                 </li>
@@ -453,7 +453,7 @@ export default function terms() {
                         {/* Term 11 */}
                         <div>
                             <h2 id="term11" className="text-2xl mb-2">PRIVACY POLICY</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 We care about data privacy and security. Please review our Privacy Policy: https://sciteens.org/legal/privacy. By using the Site,
                                 you agree to be bound by our Privacy Policy, which is incorporated into these Terms of Use. Please be advised the Site is hosted
                                 in the United States. If you access the Site from any other region of the world with laws or other requirements governing personal
@@ -469,7 +469,7 @@ export default function terms() {
                         {/* Term 12 */}
                         <div>
                             <h2 id="term12" className="text-2xl mb-2">COPYRIGHT INFRINGEMENTS</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 We respect the intellectual property rights of others. If you believe that any material available on or through the Site infringes
                                 upon any copyright you own or control, please immediately notify us using the contact information provided below (a
                                 “Notification”). A copy of your Notification will be sent to the person who posted or stored the material addressed in the
@@ -482,7 +482,7 @@ export default function terms() {
                         {/* Term 13 */}
                         <div>
                             <h2 id="term13" className="text-2xl mb-2">TERM AND TERMINATION</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 These Terms of Use shall remain in full force and effect while you use the Site. WITHOUT LIMITING ANY OTHER PROVISION OF THESE
                                 TERMS OF USE, WE RESERVE THE RIGHT TO, IN OUR SOLE DISCRETION AND WITHOUT NOTICE OR LIABILITY, DENY ACCESS TO AND USE OF THE
                                 SITE (INCLUDING BLOCKING CERTAIN IP ADDRESSES), TO ANY PERSON FOR ANY REASON OR FOR NO REASON, INCLUDING WITHOUT LIMITATION
@@ -498,7 +498,7 @@ export default function terms() {
                         {/* Term 14 */}
                         <div>
                             <h2 id="term14" className="text-2xl mb-2">MODIFICATIONS AND INTERRUPTIONS</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 We reserve the right to change, modify, or remove the contents of the Site at any time or for any reason at our sole discretion
                                 without notice. However, we have no obligation to update any information on our Site. We also reserve the right to modify or
                                 discontinue all or part of the Site without notice at any time. We will not be liable to you or any third party for any
@@ -515,7 +515,7 @@ export default function terms() {
                         {/* Term 15 */}
                         <div>
                             <h2 id="term15" className="text-2xl mb-2">GOVERNING LAW</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 These Terms of Use and your use of the Site are governed by and construed in accordance with the laws of the State of Florida
                                 applicable to agreements made and to be entirely performed within the State of Florida, without regard to its conflict of law
                                 principles.
@@ -526,7 +526,7 @@ export default function terms() {
                         <div>
                             <h2 id="term16" className="text-2xl mb-2">DISPUTE RESOLUTION</h2>
                             <p className="text-lg mb-2">Informal Negotiations</p>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-6">
                                 To expedite resolution and control the cost of any dispute, controversy, or claim related to these Terms of Use (each a "Dispute"
                                 and collectively, the “Disputes”) brought by either you or us (individually, a “Party” and collectively, the “Parties”), the
                                 Parties agree to first attempt to negotiate any Dispute (except those Disputes expressly provided below) informally for at least
@@ -534,7 +534,7 @@ export default function terms() {
                                 other Party.
                             </p>
                             <p className="text-lg mb-2">Binding Arbitration</p>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-6">
                                 If the Parties are unable to resolve a Dispute through informal negotiations, the Dispute (except those Disputes expressly
                                 excluded below) will be finally and exclusively resolved through binding arbitration. YOU UNDERSTAND THAT WITHOUT THIS PROVISION,
                                 YOU WOULD HAVE THE RIGHT TO SUE IN COURT AND HAVE A JURY TRIAL. The arbitration shall be commenced and conducted under the
@@ -558,14 +558,14 @@ export default function terms() {
                                 above, and the Parties agree to submit to the personal jurisdiction of that court.
                             </p>
                             <p className="text-lg mb-2">Restrictions</p>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-6">
                                 The Parties agree that any arbitration shall be limited to the Dispute between the Parties individually. To the full extent
                                 permitted by law, (a) no arbitration shall be joined with any other proceeding; (b) there is no right or authority for any
                                 Dispute to be arbitrated on a class-action basis or to utilize class action procedures; and (c) there is no right or authority
                                 for any Dispute to be brought in a purported representative capacity on behalf of the general public or any other persons.
                             </p>
                             <p className="text-lg mb-2">Exceptions to Informal Negotiations and Arbitration</p>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 The Parties agree that the following Disputes are not subject to the above provisions concerning informal negotiations and
                                 binding arbitration: (a) any Disputes seeking to enforce or protect, or concerning the validity of, any of the intellectual
                                 property rights of a Party; (b) any Dispute related to, or arising from, allegations of theft, piracy, invasion of privacy,
@@ -579,7 +579,7 @@ export default function terms() {
                         {/* Term 17 */}
                         <div>
                             <h2 id="term17" className="text-2xl mb-2">CORRECTIONS</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 There may be information on the Site that contains typographical errors, inaccuracies, or omissions, including descriptions,
                                 pricing, availability, and various other information. We reserve the right to correct any errors, inaccuracies, or omissions
                                 and to change or update the information on the Site at any time, without prior notice.
@@ -589,7 +589,7 @@ export default function terms() {
                         {/* Term 18 */}
                         <div>
                             <h2 id="term18" className="text-2xl mb-2">DISCLAIMER</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 THE SITE IS PROVIDED ON AN AS-IS AND AS-AVAILABLE BASIS. YOU AGREE THAT YOUR USE OF THE SITE AND OUR SERVICES WILL BE AT YOUR
                                 SOLE RISK. TO THE FULLEST EXTENT PERMITTED BY LAW, WE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, IN CONNECTION WITH THE SITE
                                 AND YOUR USE THEREOF, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
@@ -612,7 +612,7 @@ export default function terms() {
                         {/* Term 19 */}
                         <div>
                             <h2 id="term19" className="text-2xl mb-2">LIMITATIONS OF LIABILITY</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 IN NO EVENT WILL WE OR OUR DIRECTORS, EMPLOYEES, OR AGENTS BE LIABLE TO YOU OR ANY THIRD PARTY FOR ANY DIRECT, INDIRECT,
                                 CONSEQUENTIAL, EXEMPLARY, INCIDENTAL, SPECIAL, OR PUNITIVE DAMAGES, INCLUDING LOST PROFIT, LOST REVENUE, LOSS OF DATA, OR
                                 OTHER DAMAGES ARISING FROM YOUR USE OF THE SITE, EVEN IF WE HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
@@ -652,7 +652,7 @@ export default function terms() {
                                     Any overt harmful act toward any other user of the Site with whom you connected via the Site.
                                 </li>
                             </ul>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 Notwithstanding the foregoing, we reserve the right, at your expense, to assume the exclusive defense and control of any matter
                                 for which you are required to indemnify us, and you agree to cooperate, at your expense, with our defense of such claims. We
                                 will use reasonable efforts to notify you of any such claim, action, or proceeding which is subject to this indemnification
@@ -663,7 +663,7 @@ export default function terms() {
                         {/* Term 21 */}
                         <div>
                             <h2 id="term21" className="text-2xl mb-2">USER DATA</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 We will maintain certain data that you transmit to the Site for the purpose of managing the performance of the Site, as well as
                                 data relating to your use of the Site. Although we perform regular routine backups of data, you are solely responsible for all
                                 data that you transmit or that relates to any activity you have undertaken using the Site. You agree that we shall have no
@@ -675,7 +675,7 @@ export default function terms() {
                         {/* Term 22 */}
                         <div>
                             <h2 id="term22" className="text-2xl mb-2">ELECTRONIC COMMUNICATIONS, TRANSACTIONS, AND SIGNATURES</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 Visiting the Site, sending us emails, and completing online forms constitute electronic communications. You consent to receive
                                 electronic communications, and you agree that all agreements, notices, disclosures, and other communications we provide to you
                                 electronically, via email and on the Site, satisfy any legal requirement that such communication be in writing. YOU HEREBY
@@ -689,7 +689,7 @@ export default function terms() {
                         {/* Term 23 */}
                         <div>
                             <h2 id="term23" className="text-2xl mb-2">CALIFORNIA USERS AND RESIDENTS</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 If any complaint with us is not satisfactorily resolved, you can contact the Complaint Assistance Unit of the Division of Consumer
                                 Services of the California Department of Consumer Affairs in writing at 1625 North Market Blvd., Suite N 112, Sacramento,
                                 California 95834 or by telephone at (800) 952-5210 or (916) 445-1254.
@@ -699,7 +699,7 @@ export default function terms() {
                         {/* Term 24 */}
                         <div>
                             <h2 id="term24" className="text-2xl mb-2">MISCELLANEOUS</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 These Terms of Use and any policies or operating rules posted by us on the Site or in respect to the Site constitute the entire
                                 agreement and understanding between you and us. Our failure to exercise or enforce any right or provision of these Terms of
                                 Use shall not operate as a waiver of such right or provision. These Terms of Use operate to the fullest extent permissible by
