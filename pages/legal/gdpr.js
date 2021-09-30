@@ -8,8 +8,8 @@ export default function gdpr() {
             </Head>
 
             <main>
-                <div className="flex flex-row justify-around py-8">
-                    <div className="w-1/4">
+                <div className="flex flex-row justify-evenly py-8">
+                    <div className="hidden lg:flex lg:flex-col w-1/4">
                         <div className="sticky top-1/2 transform -translate-y-1/2 ">
                             <h2 className="text-xl font-semibold mb-1">Table of Contents</h2>
                             <ul className="text-sm text-sciteensGreen-dark ml-2">
@@ -41,7 +41,7 @@ export default function gdpr() {
                             </ul>
                         </div>
                     </div>
-                    <div className="w-2/3">
+                    <div className="mx-8 md:mx-12 lg:mx-0 lg:w-2/3">
                         <h1 className="text-3xl">COOKIE POLICY</h1>
                         <p className="text-gray-700 mt-1 mb-8 whitespace-pre-line">Last Updated 9/30/2021</p>
                         <p className="text-gray-700 mb-10">
