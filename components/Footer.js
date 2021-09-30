@@ -26,7 +26,7 @@ export default function Footer() {
                     <p className="text-black font-semibold mb-2">LEGAL</p>
                     <ul>
                         <li>
-                            <a>Privacy</a>
+                            <a href='/legal/privacy'>Privacy</a>
                         </li>
                         <li>
                             <a>Terms</a>
