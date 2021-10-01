@@ -5,7 +5,7 @@ import { useRouter } from "next/router"
 import { sendPasswordResetEmail } from "@firebase/auth"
 import isEmail from "validator/lib/isEmail"
 
-export default function StudentSignIn() {
+export default function Reset() {
 
     const [email, setEmail] = useState('')
     const [error_email, setErrorEmail] = useState('')

@@ -8,7 +8,7 @@ import isEmail from 'validator/lib/isEmail'
 import { doc, getDoc } from '@firebase/firestore';
 import { useFirestore, useAuth } from 'reactfire';
 
-export default function StudentSignIn() {
+export default function MentorSignIn() {
     const f_signin_errors = {
         "auth/invalid-email": "Email address or password is invalid (if logging in with Gmail, try using the button below)",
         "auth/user-disabled":
