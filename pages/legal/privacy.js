@@ -8,11 +8,11 @@ export default function privacy() {
             </Head>
 
             <main>
-                <div className="flex flex-row justify-around py-8">
-                    <div className="w-1/4">
+                <div className="flex flex-row justify-evenly py-8">
+                    <div className="hidden lg:flex lg:flex-col w-1/4">
                         <div className="sticky top-1/2 transform -translate-y-1/2 ">
                             <h2 className="text-xl font-semibold mb-1">Table of Contents</h2>
-                            <ul className="text-sm text-gray-700">
+                            <ul className="text-sm text-sciteensGreen-dark ml-2">
                                 <li>
                                     <a href="#privacy1" className="hover:underline">What Information Do We Collect?</a>
                                 </li>
@@ -69,10 +69,10 @@ export default function privacy() {
                             </ul>
                         </div>
                     </div>
-                    <div className="w-2/3">
+                    <div className="mx-8 md:mx-12 lg:mx-0 lg:w-2/3">
                         <h1 className="text-3xl">PRIVACY POLICY</h1>
                         <p className="text-gray-700 mt-1 mb-8 whitespace-pre-line">Last Updated 9/30/2021</p>
-                        <p className="text-gray-700 mb-12">Thank you for choosing to be part of our community at SciTeens
+                        <p className="text-gray-700 mb-10">Thank you for choosing to be part of our community at SciTeens
                             Inc., doing business as SciTeens (“SciTeens”, “we”, “us”, or “our”). We are committed to protecting
                             your personal information and your right to privacy. If you have any questions or concerns about our
                             policy, or our practices with regards to your personal information, please contact us at
@@ -93,7 +93,7 @@ export default function privacy() {
                         <div>
                             <h2 id="privacy1" className="text-2xl mb-2">WHAT INFORMATION DO WE COLLECT?</h2>
                             <p className="text-lg mb-2">Personal information you disclose to us</p>
-                            <p className="text-gray-700 mb-4">In Short: We collect personal information that you provide to
+                            <p className="text-gray-700 mb-6">In Short: We collect personal information that you provide to
                                 us. We collect personal information that you voluntarily provide to us when registering at the
                                 Services expressing an interest in obtaining information about us or our products and services,
                                 when participating in activities on the Services (such as posting messages in our online forums or
@@ -120,7 +120,7 @@ export default function privacy() {
                             </p>
 
                             <p className="text-lg mb-2">Information automatically collected</p>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-6">
                                 In Short: Some information — such as IP address and/or browser and device characteristics — is
                                 collected automatically when you visit our Services. We automatically collect certain information
                                 when you visit, use or navigate the Services. This information does not reveal your specific
@@ -138,7 +138,7 @@ export default function privacy() {
                             </p>
 
                             <p className="text-lg mb-2">Information collected from other sources</p>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 In Short: We may collect limited data from public databases, marketing partners, social media platforms,
                                 and other outside sources. We may obtain information about your from other sources, such as public
                                 databases, joint marketing partners, social media platforms (such as Facebook), as well as from other
@@ -165,7 +165,7 @@ export default function privacy() {
                                 processing grounds we rely on next to each purpose listed below. We use the information we
                                 collect or receive:
                             </p>
-                            <ul className="list-inside list-decimal text-gray-700 mb-4 ml-4">
+                            <ul className="list-inside list-decimal text-gray-700 mb-10 ml-4">
                                 <li>
                                     To facilitate account creation and logon process. If you choose to link your account
                                     with us to a third party account (such as your Google or Facebook account), we use the
@@ -238,7 +238,7 @@ export default function privacy() {
                                 More specifically, we may need to process your data or share your personal information in the
                                 following situations:
                             </p>
-                            <ul className="list-inside list-decimal text-gray-700 mb-4 ml-4">
+                            <ul className="list-inside list-decimal text-gray-700 mb-10 ml-4">
                                 <li>
                                     Vendors, Consultants and Other Third-Party Service Providers. We may share your data
                                     with third party vendors, service providers, contractors or agents who perform services
@@ -283,7 +283,7 @@ export default function privacy() {
                                 processing practices. If we have processed your data based on your consent and you wish
                                 to revoke your consent, please contact us.
                             </p>
-                            <ul className="list-inside list-decimal text-gray-700 mb-4 ml-4">
+                            <ul className="list-inside list-decimal text-gray-700 mb-10 ml-4">
                                 <li>
                                     <b>Allow Users to Connect to their Third-Party Accounts </b>
                                     Google account
@@ -314,7 +314,7 @@ export default function privacy() {
                         {/* Privacy 5 */}
                         <div>
                             <h2 id="privacy5" className="text-2xl mb-2">DO WE USE COOKIES AND OTHER TRACKING TECHNOLOGIES?</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 In Short: We may use cookies and other tracking technologies to collect and store your
                                 information. We may use cookies and similar tracking technologies (like web beacons and
                                 pixels) to access or store information. Specific information about how we use such
@@ -325,7 +325,7 @@ export default function privacy() {
                         {/* Privacy 6 */}
                         <div>
                             <h2 id="privacy6" className="text-2xl mb-2">DO WE USE GOOGLE MAPS?</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 In Short: Yes, we use Google Maps for the purpose of providing better service. This website,
                                 mobile application, or Facebook application uses Google Maps APIs. You may find the Google
                                 Maps APIs Terms of Service at <a href="https://cloud.google.com/maps-platform/terms"
@@ -340,7 +340,7 @@ export default function privacy() {
                         {/* Privacy 7 */}
                         <div>
                             <h2 id="privacy7" className="text-2xl mb-2">HOW DO WE HANDLE YOUR SOCIAL LOGINS?</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 In Short: If you choose to register or log in to our services using a social media account,
                                 we may have access to certain information about you. Our Services offer you the ability to
                                 register and login using your third party social media account details (like your Facebook
@@ -360,7 +360,7 @@ export default function privacy() {
                         {/* Privacy 8 */}
                         <div>
                             <h2 id="privacy8" className="text-2xl mb-2">HOW LONG DO WE KEEP YOUR INFORMATION?</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 In Short: We keep your information for as long as necessary to fulfill the purposes outlined
                                 in this privacy policy unless otherwise required by law. We will only keep your personal
                                 information for as long as it is necessary for the purposes set out in this privacy policy,
@@ -377,7 +377,7 @@ export default function privacy() {
                         {/* Privacy 9 */}
                         <div>
                             <h2 id="privacy9" className="text-2xl mb-2">HOW DO WE KEEP YOUR INFORMATION SAFE?</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 In Short: We aim to protect your personal information through a system of organizational
                                 and technical security measures. We have implemented appropriate technical and organizational
                                 security measures designed to protect the security of any personal information we process.
@@ -404,7 +404,7 @@ export default function privacy() {
                                 If you would at any time like to review or change the information in your account or terminate
                                 your account, you can:
                             </p>
-                            <ul className="list-inside list-decimal text-gray-700 mb-4">
+                            <ul className="list-inside list-decimal text-gray-700 mb-6">
                                 <li>
                                     Log into your account settings and update your user account.
                                 </li>
@@ -412,7 +412,7 @@ export default function privacy() {
                                     Contact us using the contact information provided.
                                 </li>
                             </ul>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 Upon your request to terminate your account, we will deactivate or delete your account and
                                 information from our active databases. However, some information may be retained in our files
                                 to prevent fraud, troubleshoot problems, assist with any investigations, enforce our Terms of
@@ -433,7 +433,7 @@ export default function privacy() {
                         {/* Privacy 11 */}
                         <div>
                             <h2 id="privacy11" className="text-2xl mb-2">DATA BREACH</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 A privacy breach occurs when there is unauthorized access to or collection, use, disclosure
                                 or disposal of personal information. You will be notified about data breaches when SciTeens
                                 Inc. believes you are likely to be at risk or serious harm. For example, a data breach may
@@ -449,7 +449,7 @@ export default function privacy() {
                         {/* Privacy 12 */}
                         <div>
                             <h2 id="privacy12" className="text-2xl mb-2">CONTROLS FOR DO-NOT-TRACK FEATURES</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 Most web browsers and some mobile operating systems and mobile applications include a
                                 Do-Not-Track (“DNT”) feature or setting you can activate to signal your privacy preference
                                 not to have data about your online browsing activities monitored and collected. No uniform
@@ -464,7 +464,7 @@ export default function privacy() {
                         {/* Privacy 13 */}
                         <div>
                             <h2 id="privacy13" className="text-2xl mb-2">DO CALIFORNIA RESIDENTS HAVE SPECIFIC PRIVACY RIGHTS?</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 In Short: Yes, if you are a resident of California, you are granted specific rights regarding
                                 access to your personal information. California Civil Code Section 1798.83, also known as the
                                 “Shine The Light” law, permits our users who are California residents to request and obtain from
@@ -485,7 +485,7 @@ export default function privacy() {
                         {/* Privacy 14 */}
                         <div>
                             <h2 id="privacy14" className="text-2xl mb-2">DO WE MAKE UPDATES TO THIS POLICY?</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 In Short: Yes, we will update this policy as necessary to stay compliant with relevant laws. We
                                 may update this privacy policy from time to time. The updated version will be indicated by an
                                 updated “Revised” date and the updated version will be effective as soon as it is accessible. If
@@ -499,7 +499,7 @@ export default function privacy() {
                         <div>
                             <h2 id="privacy15" className="text-2xl mb-2">HOW CAN YOU REVIEW, UPDATE, OR DELETE THE DATA WE
                                 COLLECT FROM YOU?</h2>
-                            <p className="text-gray-700 mb-4">
+                            <p className="text-gray-700 mb-10">
                                 Based on the laws of some countries, you may have the right to request access to the personal
                                 information we collect from you, change that information, or delete it in some circumstances.
                                 To request to review, update, or delete your personal information, please submit a request by
@@ -519,7 +519,13 @@ export default function privacy() {
                                 <br />
                                 John Sutor
                                 <br />
-                                ADD NEW ADDRESS
+                                2195 W Tennessee St
+                                <br />
+                                Unit 217
+                                <br />
+                                Talahassee, FL 32304
+                                <br />
+                                United States
                             </p>
                         </div>
 
