@@ -2,9 +2,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/router';
 
 import { signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, getAdditionalUserInfo } from '@firebase/auth'
-import { useContext, useReducer, useState } from 'react'
+import { useContext, useState } from 'react'
 import { AppContext } from '../../context/context'
-import { onChildAdded } from '@firebase/database'
 import isEmail from 'validator/lib/isEmail'
 import { doc, getDoc } from '@firebase/firestore';
 import { useFirestore, useAuth } from 'reactfire';
@@ -32,12 +31,12 @@ export default function StudentSignIn() {
     const [error_password, setErrorPassword] = useState('');
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const [loadConfig, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
     const firestore = useFirestore()
     const auth = useAuth()
     const router = useRouter()
 
-    const { profile, setProfile } = useContext(AppContext)
+    const { setProfile } = useContext(AppContext)
 
     async function emailSignIn(event) {
         event.preventDefault()
@@ -183,7 +182,7 @@ export default function StudentSignIn() {
             </button >
             <div className="mt-4 flex justify-end">
                 <p className="text-gray-700">
-                    New here?
+                    New here?&nbsp;
                     <Link href="/signup/student"
 
                     >
