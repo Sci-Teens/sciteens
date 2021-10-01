@@ -2,11 +2,12 @@ import Link from 'next/link'
 import { useRouter } from 'next/router';
 
 import { signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, getAdditionalUserInfo } from '@firebase/auth'
-import { auth } from '../../firebaseConfig'
 import { useContext, useReducer, useState } from 'react'
 import { AppContext } from '../../context/context'
 import { onChildAdded } from '@firebase/database'
 import isEmail from 'validator/lib/isEmail'
+import { doc, getDoc } from '@firebase/firestore';
+import { useFirestore, useAuth } from 'reactfire';
 
 export default function StudentSignIn() {
     const f_signin_errors = {
@@ -32,22 +33,25 @@ export default function StudentSignIn() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [loadConfig, setLoading] = useState(false);
+    const firestore = useFirestore()
+    const auth = useAuth()
+    const router = useRouter()
 
-    const { user, profile } = useContext(AppContext)
+    const { profile, setProfile } = useContext(AppContext)
 
     async function emailSignIn(event) {
         event.preventDefault()
         setLoading(true)
         try {
             const res = await signInWithEmailAndPassword(auth, email, password)
-            const router = useRouter()
-            router.push(`/profile/${profile.slug}`)
+            const prof = await getDoc(doc(firestore, 'profiles', res.user.uid))
+            setProfile(prof.data())
+            router.push(`/profile/${prof.data().slug}`)
         }
 
         catch (e) {
             console.log(e.code)
-            console.log(f_signin_errors[e.code])
-            setErrorEmail(f_signin_errors[e.code])
+            f_signin_errors[e.code] ? setErrorEmail(f_signin_errors[e.code]) : setErrorEmail("Sign in failed. Please try again or create an account.")
             setEmail("")
             setLoading(false)
         }
@@ -80,14 +84,15 @@ export default function StudentSignIn() {
         try {
             const res = await signInWithPopup(auth, provider)
             const addInfo = await getAdditionalUserInfo(res)
-            const router = useRouter()
+            const prof = await getDoc(doc(firestore, 'profiles', res.user.uid))
+            setProfile(prof.data())
 
-            if (addInfo.isNewUser()) {
+            if (addInfo.isNewUser) {
                 // Complete profile
                 router.push('/signup/finish')
             }
             else {
-                router.push(`/profile/${profile.slug}`)
+                router.push(`/profile/${prof.data().slug}`)
             }
         } catch (e) {
             console.error(e)
@@ -173,7 +178,7 @@ export default function StudentSignIn() {
                 className="p-2 shadow bg-white rounded w-full mb-2 hover:shadow-md flex items-center justify-center"
                 onClick={providerSignIn}
             >
-                <img src="@/assets/g-logo.png" alt="Google Logo" className="h-5 w-5 mr-2" />
+                <img src="../../public/assets/icons/Google.png" alt="Google Logo" className="h-5 w-5 mr-2" />
                 Sign in with Google
             </button >
             <div className="mt-4 flex justify-end">

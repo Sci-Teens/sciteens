@@ -16,9 +16,11 @@ export const AppContext = createContext({
         "Space Science": "https://source.unsplash.com/VZ_GDBK98FQ/",
     },
     profile: {},
+    setProfile: () => { },
     user: {},
     notifications: [],
 });
+
 
 // export function AppWrapper({ children }) {
 //     let sharedState = {

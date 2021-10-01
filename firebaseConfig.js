@@ -16,20 +16,22 @@ const firebaseConfig = {
     measurementId: process.env.NEXT_PUBLIC_FB_MEASUREMENT_ID
 };
 
-console.log(getApps().length)
-let app = null;
-app = initializeApp(firebaseConfig);
+export default firebaseConfig
 
-let a = null
-if (process.env.NODE_ENV == 'production' && process.browser === true) {
-    a = getAnalytics();
-}
+// console.log(getApps().length)
+// let app = null;
+// app = initializeApp(firebaseConfig);
+
+// let a = null
+// if (process.env.NODE_ENV == 'production' && process.browser === true) {
+//     a = getAnalytics();
+// }
+
+// // export const auth = getAuth(app)
+// // export const db = getFirestore(app)
+// // export const storage = getStorage(app)
+// // export const analytics = a
 
 // export const auth = getAuth(app)
 // export const db = getFirestore(app)
 // export const storage = getStorage(app)
-// export const analytics = a
-
-export const auth = getAuth(app)
-export const db = getFirestore(app)
-export const storage = getStorage(app)
