@@ -7,11 +7,14 @@ export default function StudentSignUp() {
     const [birthday, setBirthday] = useState('')
     const [ethnicity, setEthnicity] = useState('Cuban')
     const [race, setRace] = useState('American Indian or Alaska Native')
+    const [terms, setTerms] = useState(false)
+    const [loading, setLoading] = useState(false)
 
     const [error_name, setErrorName] = useState('')
     const [error_birthday, setErrorBirthday] = useState('')
-    const [error_ethnicity, setErrorEthnicity] = useState('Cuban')
-    const [error_race, setErrorRace] = useState('American Indian or Alaska Native')
+    const [error_ethnicity, setErrorEthnicity] = useState('')
+    const [error_race, setErrorRace] = useState('')
+    const [error_terms, setErrorTerms] = useState('')
 
     async function finishSignUp() {
 
@@ -58,7 +61,7 @@ export default function StudentSignUp() {
                     value={last_name}
                     name="last-name"
                     required
-                    className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${errpr_name
+                    className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_name
                         ? 'border-red-700 text-red-800 placeholder-red-700'
                         : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`}
 
@@ -72,6 +75,9 @@ export default function StudentSignUp() {
                 </p>
 
                 <label for="birthday" className="uppercase text-gray-600">Birthday</label>
+                <input type="date" id="birthday" name="birthday" className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_birthday
+                    ? 'border-red-700 text-red-800 placeholder-red-700'
+                    : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`} />
                 <p
                     className={`text-sm mb-4 ${error_birthday ? 'text-red-800' : 'text-gray-700'}`}
                 >
@@ -140,7 +146,7 @@ export default function StudentSignUp() {
                             I accept the terms of service.
                         </label>
                         <p v-if="e_terms" className="text-sm text-red-800">
-                            {{ e_terms }}
+                            {error_terms}
                         </p>
                     </div>
                     <button
