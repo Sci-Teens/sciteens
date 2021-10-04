@@ -1,9 +1,8 @@
-import { async } from "@firebase/util"
 import { useState } from "react"
 import isNumeric from 'validator/lib/isNumeric'
 import { doc, updateDoc } from '@firebase/firestore';
 import { updateProfile } from "@firebase/auth";
-import { useFirestore, useUser, useAuth } from 'reactfire';
+import { useFirestore, useUser } from 'reactfire';
 import { useRouter } from "next/router";
 import moment from 'moment';
 
@@ -52,36 +51,36 @@ export default function FinishSignUp() {
     async function onChange(e, target) {
         switch (target) {
             case "first_name":
+                setFirstName(e.target.value.trim())
+
                 if (isNumeric(e.target.value.trim()) || e.target.value.trim().length < 1) {
-                    setFirstName(e.target.value.trim())
                     setErrorName('Please use a valid name')
                 }
 
                 else {
-                    setFirstName(e.target.value.trim())
                     setErrorName('')
                 }
                 break;
             case "last_name":
+                setLastName(e.target.value.trim())
+
                 if (isNumeric(e.target.value.trim()) || e.target.value.trim().length < 1) {
-                    setLastName(e.target.value.trim())
                     setErrorName('Please use a valid name')
                 }
 
                 else {
-                    setLastName(e.target.value.trim())
                     setErrorName('')
                 }
                 break;
             case "birthday":
+                setBirthday(e.target.value)
+
                 console.log(e.target.value)
                 if (moment(e.target.value).isAfter(moment().subtract(13, 'years')) || e.target.value.length < 1) {
-                    setBirthday(e.target.value)
                     setErrorBirthday('You must be 13 years old or older to use SciTeens')
                 }
 
                 else {
-                    setBirthday(e.target.value)
                     setErrorBirthday('')
                 }
                 break;
@@ -214,6 +213,7 @@ export default function FinishSignUp() {
                         <input
                             onChange={() => { setTerms(!terms) }}
                             id="terms"
+                            required
                             value={terms}
                             type="checkbox"
                             name="terms"
