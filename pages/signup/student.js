@@ -1,24 +1,182 @@
 import { async } from "@firebase/util"
 import { useState } from "react"
+import { useContext } from "react";
+import isNumeric from 'validator/lib/isNumeric'
+import isEmail from "validator/lib/isEmail";
+import { doc, updateDoc } from '@firebase/firestore';
+import { updateProfile } from "@firebase/auth";
+import { AppContext } from '../../context/context'
+import { useFirestore, useAuth } from 'reactfire';
+import { signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, getAdditionalUserInfo } from '@firebase/auth'
+import { useRouter } from "next/router";
+import moment from 'moment';
+import Link from "next/link";
 
 export default function StudentSignUp() {
+    const f_signup_errors = {
+        "auth/invalid-email": "Email address is invalid",
+        "auth/email-already-in-use": "This email is already in use",
+        "auth/weak-password": "The password provided is weak",
+        "Please verify your email before signing in":
+            "Please verify your email before signing in",
+    }
+
     const [first_name, setFirstName] = useState('')
     const [last_name, setLastName] = useState('')
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
     const [birthday, setBirthday] = useState('')
     const [ethnicity, setEthnicity] = useState('Cuban')
     const [race, setRace] = useState('American Indian or Alaska Native')
+    const [terms, setTerms] = useState(false)
+    const [loading, setLoading] = useState(false)
 
     const [error_name, setErrorName] = useState('')
+    const [error_email, setErrorEmail] = useState('')
+    const [error_password, setErrorPassword] = useState('')
     const [error_birthday, setErrorBirthday] = useState('')
-    const [error_ethnicity, setErrorEthnicity] = useState('Cuban')
-    const [error_race, setErrorRace] = useState('American Indian or Alaska Native')
+    const [error_terms, setErrorTerms] = useState('')
+
+    const firestore = useFirestore()
+    const auth = useAuth()
+    const router = useRouter()
+    const { setProfile } = useContext(AppContext)
 
     async function finishSignUp() {
+        if (!terms) {
+            setErrorTerms('You must accept the terms and conditions')
+        }
 
+        else {
+            try {
+                setLoading(true)
+                await updateDoc(doc(firestore, 'profiles', user.uid), {
+                    display: first_name + " " + last_name,
+                    birthday: moment(birthday).toISOString(),
+                    race: race,
+                    ethnicity: ethnicity,
+                })
+                await updateProfile(user, { displayName: first_name + " " + last_name })
+                router.push('/dashboard')
+            }
+
+            catch {
+                setLoading(false)
+                setErrorName('We were unable to complete your profile at this time')
+            }
+        }
     }
 
     async function onChange(e, target) {
+        switch (target) {
+            case "first_name":
+                setFirstName(e.target.value.trim())
 
+                if (isNumeric(e.target.value.trim()) || e.target.value.trim().length < 1) {
+                    setErrorName('Please use a valid name')
+                }
+
+                else {
+                    setErrorName('')
+                }
+                break;
+            case "last_name":
+                setLastName(e.target.value.trim())
+
+                if (isNumeric(e.target.value.trim()) || e.target.value.trim().length < 1) {
+                    setErrorName('Please use a valid name')
+                }
+
+                else {
+                    setErrorName('')
+                }
+                break;
+            case "birthday":
+                setBirthday(e.target.value)
+
+                if (moment(e.target.value).isAfter(moment().subtract(13, 'years')) || e.target.value.length < 1) {
+                    setErrorBirthday('You must be 13 years old or older to use SciTeens')
+                }
+
+                else {
+                    setErrorBirthday('')
+                }
+                break;
+            case "email":
+                setEmail(e.target.value)
+                if (e.target.value == "" || !isEmail(e.target.value)) {
+                    setErrorEmail("Please input a valid email");
+                }
+                else {
+                    setErrorEmail("")
+                }
+                break;
+            case "password":
+                setPassword(e.target.value)
+                if (e.target.value.length < 6) {
+                    setErrorPassword("Please input a valid password")
+                } else {
+                    setErrorPassword("")
+                }
+                break;
+        }
+    }
+
+    async function emailSignUp(event) {
+        event.preventDefault()
+        setLoading(true)
+        try {
+            const res = await createUserWithEmailAndPassword(auth, email, password)
+            const profile = {
+                display: first_name + " " + last_name,
+                authorized: true, // Only students are authorized upon signup
+                slug: unique_slug,
+                about: "",
+                fields: [],
+                programs: [],
+                links: [],
+                joined: date,
+                birthday: moment(birthday).toISOString(),
+                institution: "",
+                position: "",
+                race: race,
+                ethnicity: ethnicity,
+                subs_p: [],
+                subs_e: [],
+                mentor: false,
+            }
+            await setDoc(doc(firestore, 'profiles', res.user.uid), profile)
+            setProfile(profile)
+            router.push(`/profile/${profile.slug}`)
+        }
+
+        catch (e) {
+            console.log(e.code)
+            f_signup_errors[e.code] ? setErrorEmail(f_signup_errors[e.code]) : setErrorEmail("Sign in failed. Please try again or create an account.")
+            setEmail("")
+            setLoading(false)
+        }
+    }
+
+    async function providerSignIn() {
+        const provider = new GoogleAuthProvider()
+        try {
+            const res = await signInWithPopup(auth, provider)
+            const addInfo = await getAdditionalUserInfo(res)
+            const prof = await getDoc(doc(firestore, 'profiles', res.user.uid))
+            setProfile(prof.data())
+
+            if (addInfo.isNewUser) {
+                // Complete profile
+                router.push('/signup/finish')
+            }
+            else {
+                router.push(`/profile/${prof.data().slug}`)
+            }
+        } catch (e) {
+            console.error(e)
+        }
+        return true;
     }
 
     return (
@@ -26,18 +184,18 @@ export default function StudentSignUp() {
             className="relative mx-auto px-4 mt-8 mb-4 z-30 text-left w-full md:w-96"
         >
             <h1 className="text-2xl">
-                Just a few more things.
+                Student Sign-up
             </h1>
             <p className="text-gray-700 mb-2">
-                Before you can get started on SciTeens, please fill out a few more things
-                about yourself.
+                Having an account allows you to share your projects , find events tailored to your interests, and receive mentorship.
             </p>
 
-            <form onSubmit={finishSignUp}>
+            <form onSubmit={emailSignUp}>
                 <label for="first-name" className="uppercase text-gray-600">
                     First Name
                 </label>
                 <input
+                    onChange={e => onChange(e, 'first_name')}
                     value={first_name}
                     name="first-name"
                     required
@@ -55,10 +213,11 @@ export default function StudentSignUp() {
                     Last Name
                 </label>
                 <input
+                    onChange={e => onChange(e, 'last_name')}
                     value={last_name}
                     name="last-name"
                     required
-                    className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${errpr_name
+                    className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_name
                         ? 'border-red-700 text-red-800 placeholder-red-700'
                         : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`}
 
@@ -71,7 +230,54 @@ export default function StudentSignUp() {
                     {error_name}
                 </p>
 
+                <label for="email" className="uppercase text-gray-600">
+                    Email
+                </label>
+                <input
+                    value={email}
+                    onChange={e => onChange(e, "email")}
+                    name="email"
+                    required
+                    className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_email
+                        ? 'border-red-700 text-red-800 placeholder-red-700'
+                        : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`}
+                    type="email"
+                    placeholder="Enter your account email..."
+                    aria-label="email"
+                />
+                <p className="text-sm text-red-800 mb-4">
+                    {error_email}
+                </p>
+
+                <label for="password" className="uppercase text-gray-600">
+                    Password
+                </label>
+                <input
+                    value={password}
+                    onChange={e => onChange(e, "password")}
+                    name="password"
+                    required
+                    className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_password
+                        ? 'border-red-700 text-red-800 placeholder-red-700'
+                        : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`}
+                    type="password"
+                    placeholder="Enter your password..."
+                    aria-label="password"
+                />
+                <p className="text-sm text-red-800 mb-4">
+                    {error_password}
+                </p>
+
                 <label for="birthday" className="uppercase text-gray-600">Birthday</label>
+                <input
+                    required
+                    min={moment().subtract(13, 'years')}
+                    onChange={e => onChange(e, 'birthday')}
+                    value={birthday} type="date"
+                    id="birthday" name="birthday"
+                    className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_birthday
+                        ? 'border-red-700 text-red-800 placeholder-red-700'
+                        : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`} />
                 <p
                     className={`text-sm mb-4 ${error_birthday ? 'text-red-800' : 'text-gray-700'}`}
                 >
@@ -84,6 +290,7 @@ export default function StudentSignUp() {
 
                 <label for="ethnicity" className="uppercase text-gray-600">Ethnicity</label>
                 <select
+                    onChange={e => setEthnicity(e.target.value)}
                     name="ethnicity"
                     id="ethnicity"
                     value={ethnicity}
@@ -103,6 +310,7 @@ export default function StudentSignUp() {
 
                 <label for="race" className="uppercase text-gray-600">Race</label>
                 <select
+                    onChange={e => setRace(e.target.value)}
                     name="race"
                     id="race"
                     value={race}
@@ -130,8 +338,10 @@ export default function StudentSignUp() {
                 <div className="flex justify-between items-center my-2">
                     <div>
                         <input
+                            onChange={() => { setTerms(!terms) }}
                             id="terms"
-                            v-model="terms"
+                            required
+                            value={terms}
                             type="checkbox"
                             name="terms"
                             className="form-checkbox active:outline-none text-sciteensLightGreen-regular leading-tight"
@@ -140,25 +350,51 @@ export default function StudentSignUp() {
                             I accept the terms of service.
                         </label>
                         <p v-if="e_terms" className="text-sm text-red-800">
-                            {{ e_terms }}
+                            {error_terms}
                         </p>
                     </div>
                     <button
                         type="submit"
-                        disabled={loading}
-                        className="bg-sciteensLightGreen-regular text-white rounded-lg p-2 hover:bg-sciteensLightGreen-dark shadow outline-none"
-                        onClick={finishSignUp}
+                        disabled={loading || error_name || error_birthday || error_email || error_password}
+                        className="bg-sciteensLightGreen-regular text-white rounded-lg p-2 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
+                        onClick={emailSignUp}
                     >
                         Finish
-                        <img
-                            v-if="loading"
-                            src="~/assets/loading.svg"
-                            alt="Loading Spinner"
-                            className="h-5 w-5 inline-block"
-                        />
+                        {
+                            loading &&
+                            <img
+                                src="~/assets/loading.svg"
+                                alt="Loading Spinner"
+                                className="h-5 w-5 inline-block"
+                            />
+                        }
+
                     </button>
                 </div >
             </form >
+            <div className="mb-8 mt-4 w-full h-3 border-b border-gray-300 text-center">
+                <span className="p-2 bg-white">
+                    OR
+                </span>
+            </div>
+            <button
+                className="p-2 shadow bg-white rounded w-full mb-2 hover:shadow-md flex items-center justify-center"
+                onClick={providerSignIn}
+            >
+                <img src="../../public/assets/icons/Google.png" alt="Google Logo" className="h-5 w-5 mr-2" />
+                Sign in with Google
+            </button >
+            <div class="mt-4 flex justify-end">
+                <p class="text-gray-700">
+                    Have an account?&nbsp;
+                    <Link href="/signin/student"
+
+                    >
+                        <a class="font-bold">Sign in</a>
+                    </Link>
+                </p>
+            </div>
         </div >
+
     )
 }
