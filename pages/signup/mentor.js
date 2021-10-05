@@ -6,7 +6,7 @@ import { doc, updateDoc } from '@firebase/firestore';
 import { updateProfile } from "@firebase/auth";
 import { AppContext } from '../../context/context'
 import { useFirestore, useAuth } from 'reactfire';
-import { createUserWithEmailAndPassword, RecaptchaVerifier } from '@firebase/auth'
+import { createUserWithEmailAndPassword, RecaptchaVerifier, sendEmailVerification } from '@firebase/auth'
 import { useRouter } from "next/router";
 import moment from 'moment';
 import Link from 'next/link'
@@ -164,8 +164,9 @@ export default function MentorSignUp() {
                 mentor: true,
             }
             await setDoc(doc(firestore, 'profiles', res.user.uid), profile)
+            await sendEmailVerification(res.user)
             setProfile(profile)
-            router.push(`/profile/${profile.slug}`)
+            router.push('/signup/thanks')
         }
 
         catch (e) {
@@ -350,7 +351,7 @@ export default function MentorSignUp() {
                         >
                         <option value="Prefer not to answer">Prefer not to answer</option>
                     </select>
-                    <div id="recaptcha-container" className="w-full">
+                    <div id="recaptcha-container" className="flex w-full justify-center">
                     </div>
                     <div className="flex justify-between items-center my-2">
                         <div>
