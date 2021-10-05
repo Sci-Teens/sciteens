@@ -116,7 +116,7 @@ export default function FinishSignUp() {
                     type="text"
                     placeholder="Enter your first name..."
                     aria-label="name"
-                    maxlength="50"
+                    maxLength="50"
                 />
                 <div className="mb-4"></div>
 
@@ -135,7 +135,7 @@ export default function FinishSignUp() {
                     type="text"
                     placeholder="Enter your last name..."
                     aria-label="name"
-                    maxlength="50"
+                    maxLength="50"
                 />
                 <p className="text-sm text-red-800 mb-4">
                     {error_name}

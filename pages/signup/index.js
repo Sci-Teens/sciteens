@@ -18,7 +18,7 @@ export default function SignUpIndex() {
                 </Link>
             </div>
             <div class="flex flex-wrap mx-auto justify-center">
-                <Link href="signup-student">
+                <Link href="/signup/student">
                     <div class="rounded bg-white shadow h-56 w-56 m-6 hover:shadow-md">
                         {show_student_info ?
                             <div v-if="show_student_info" class="relative pt-1/6">

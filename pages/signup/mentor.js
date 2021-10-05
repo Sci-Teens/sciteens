@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useContext } from "react";
 import isNumeric from 'validator/lib/isNumeric'
 import isEmail from "validator/lib/isEmail";
@@ -6,7 +6,7 @@ import { doc, updateDoc } from '@firebase/firestore';
 import { updateProfile } from "@firebase/auth";
 import { AppContext } from '../../context/context'
 import { useFirestore, useAuth } from 'reactfire';
-import { createUserWithEmailAndPassword } from '@firebase/auth'
+import { createUserWithEmailAndPassword, RecaptchaVerifier } from '@firebase/auth'
 import { useRouter } from "next/router";
 import moment from 'moment';
 import Link from 'next/link'
@@ -30,6 +30,7 @@ export default function MentorSignUp() {
     const [race, setRace] = useState('American Indian or Alaska Native')
     const [terms, setTerms] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [recaptchaSolved, setRecaptchaSolved] = useState(false)
 
     const [error_name, setErrorName] = useState('')
     const [error_email, setErrorEmail] = useState('')
@@ -41,6 +42,25 @@ export default function MentorSignUp() {
     const auth = useAuth()
     const router = useRouter()
     const { setProfile } = useContext(AppContext)
+
+    useEffect(async () => {
+        if (process.browser && !document.getElementById('recaptcha-container').hasChildNodes()) {
+            const recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
+                'size': 'normal',
+                'callback': (response) => {
+                    setRecaptchaSolved(true)
+                },
+                'expired-callback': () => {
+                    setRecaptchaSolved(false)
+                }
+            }, auth);
+            const recaptchaId = await recaptchaVerifier.render()
+            const verified = await recaptchaVerifier.verify()
+            if (verified.length) {
+                setRecaptchaSolved(true)
+            }
+        }
+    })
 
     async function finishSignUp() {
         if (!terms) {
@@ -181,7 +201,7 @@ export default function MentorSignUp() {
                     type="text"
                     placeholder="Enter your first name..."
                     aria-label="name"
-                    maxlength="50"
+                    maxLength="50"
                 />
                 <div className="mb-4"></div>
 
@@ -200,7 +220,7 @@ export default function MentorSignUp() {
                     type="text"
                     placeholder="Enter your last name..."
                     aria-label="name"
-                    maxlength="50"
+                    maxLength="50"
                 />
                 <p className="text-sm text-red-800 mb-4">
                     {error_name}
@@ -259,7 +279,7 @@ export default function MentorSignUp() {
                     type="text"
                     placeholder="Enter your place of work..."
                     aria-label="name"
-                    maxlength="50"
+                    maxLength="50"
                 />
                 <p className="text-sm text-red-800 mb-4">
                     {error_institution}
@@ -325,7 +345,8 @@ export default function MentorSignUp() {
                     >
                     <option value="Prefer not to answer">Prefer not to answer</option>
                 </select>
-
+                <div id="recaptcha-container" className="w-full">
+                </div>
                 <div className="flex justify-between items-center my-2">
                     <div>
                         <input
@@ -346,7 +367,7 @@ export default function MentorSignUp() {
                     </div>
                     <button
                         type="submit"
-                        disabled={loading || error_name || error_institution || error_email || error_password}
+                        disabled={loading || error_name || error_institution || error_email || error_password || !recaptchaSolved}
                         className="bg-sciteensLightGreen-regular text-white rounded-lg p-2 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
                         onClick={emailSignUp}
                     >
