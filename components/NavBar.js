@@ -1,8 +1,13 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useSigninCheck } from 'reactfire'
+import { useContext } from 'react'
+import { AppContext } from '../context/context'
 
 export default function NavBar() {
     const router = useRouter()
+    const { status, data: signInCheckResult } = useSigninCheck();
+    const { profile } = useContext(AppContext);
 
     return (
         <nav className="bg-white w-full shadow z-50 flex justify-between h-16 items-center">
@@ -42,6 +47,21 @@ export default function NavBar() {
                         Donate
                     </a>
                 </Link>
+                {status === "success" && signInCheckResult?.signedIn === true ?
+                    <div>
+                        <Link href={`/profile/${profile?.slug}`} >
+                            <div className="h-10 w-10 rounded-full border-4 border-white hover:border-gray-100 hover:shadow-inner">
+                                <img src={signInCheckResult.user.photoURL} className="object-contain rounded-full" />
+                            </div>
+                        </Link>
+                    </div> :
+                    <div>
+                        <Link href="/signup" >
+                            <a className={`p-2 hover:bg-sciteensLightGreen-dark bg-sciteensLightGreen-regular text-white rounded-lg hidden lg:block mr-2 shadow`}>
+                                Sign Up
+                            </a>
+                        </Link>
+                    </div>}
             </div>
         </nav>
     )

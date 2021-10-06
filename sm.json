@@ -1,0 +1,10 @@
+{
+    "apiEndpoint": "https://sciteens.cdn.prismic.io/api/v2",
+    "libraries": [
+        "@/slices",
+        "@/my-slices/new-library",
+        "essential-slices"
+    ],
+    "_latest": "0.1.0",
+    "storybook": "http://localhost:8888"
+}
