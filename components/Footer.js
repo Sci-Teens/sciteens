@@ -1,9 +1,9 @@
 export default function Footer() {
     return (
-        <footer className="w-full bg-gray-100 text-gray-700 py-12">
-            <div className="flex flex-col md:flex-row ml-10 md:ml-0 justify-around">
+        <footer className="px-10 md:px-24 bg-sciteensGreen-regular text-gray-100 pt-12 pb-8">
+            <div className="flex flex-col md:flex-row mr-0 md:mr-12 justify-between">
                 <div className="w-1/8 mb-8 md:mb-0">
-                    <p className="text-black font-semibold mb-1 md:mb-2">ORGANIZATION</p>
+                    <p className="text-white font-semibold mb-1 md:mb-2">ORGANIZATION</p>
                     <ul>
                         <li>
                             <a>About</a>
@@ -23,7 +23,7 @@ export default function Footer() {
                     </ul>
                 </div>
                 <div className="w-1/8 mb-8 md:mb-0">
-                    <p className="text-black font-semibold mb-1 md:mb-2">LEGAL</p>
+                    <p className="text-white font-semibold mb-1 md:mb-2">LEGAL</p>
                     <ul>
                         <li>
                             <a href='/legal/privacy'>Privacy</a>
@@ -37,7 +37,7 @@ export default function Footer() {
                     </ul>
                 </div>
                 <div className="w-1/8 mb-8 md:mb-0">
-                    <p className="text-black font-semibold mb-1 md:mb-2">LANGUAGE</p>
+                    <p className="text-white font-semibold mb-1 md:mb-2">LANGUAGE</p>
                     <ul>
                         <li>
                             <a>English</a>
@@ -47,40 +47,26 @@ export default function Footer() {
                         </li>
                     </ul>
                 </div>
-                <div className="w-1/2 md:w-1/5">
-                    <p className="text-black font-semibold mb-2">PARTNERS</p>
-                    <div className="grid grid-rows-2 grid-cols-2 gap-8">
-                        <a href="https://www.google.com/nonprofits/" target="_blank" rel="noopener noreferrer">
-                            <img className="w-1/2" src={'../assets/logos/Google.png'} alt="Google" />
+                <div className="w-1/8 mb-8 md:mb-0">
+                    <p className="text-white font-semibold mb-2">FOLLOW US</p>
+                    <div className="flex flex-row">
+                        <a href="https://www.facebook.com/SciTeensinfo" target="_blank" rel="noopener noreferrer">
+                            <img className="h-6 mr-4" src={'../assets/icons/facebook-flat.svg'} alt="Facebook" />
                         </a>
-                        <a href="https://www.bio.fsu.edu/ysp/" target="_blank" rel="noopener noreferrer">
-                            <img className="w-1/2" src={'../assets/logos/FSU.png'} alt="FSU" />
+                        <a href="https://www.instagram.com/sci.teens/" target="_blank" rel="noopener noreferrer">
+                            <img className="h-6 mr-4" src={'../assets/icons/instagram.svg'} alt="Instagram" />
                         </a>
-                        <a href="https://city.yale.edu/" target="_blank" rel="noopener noreferrer">
-                            <img className="w-1/2" src={'../assets/logos/Yale.png'} alt="Yale" />
+                        <a href="https://www.linkedin.com/company/sciteens/" target="_blank" rel="noopener noreferrer">
+                            <img className="h-6 mr-4" src={'../assets/icons/linkedin-flat.svg'} alt="LinkedIn" />
                         </a>
-                        <a href="https://innovation.mit.edu/opportunity/mit-ideas-global-challenge/" target="_blank" rel="noopener noreferrer">
-                            <img className="w-1/2" src={'../assets/logos/MIT.png'} alt="MIT" />
+                        <a href="https://www.youtube.com/channel/UCXnyAT9TOrXywV0M6HbhaRA" target="_blank" rel="noopener noreferrer">
+                            <img className="h-6" src={'../assets/icons/youtube.svg'} alt="YouTube" />
                         </a>
                     </div>
                 </div>
             </div>
-            <div className="mt-8 mx-auto border-t-2 border-gray-300 w-11/12">
-                <div className="flex flex-row justify-center mt-6 mb-4">
-                    <a href="https://www.facebook.com/SciTeensinfo" target="_blank" rel="noopener noreferrer">
-                        <img className="h-6 md:h-8 mr-4" src={'../assets/icons/facebook-flat.svg'} alt="Facebook" />
-                    </a>
-                    <a href="https://www.instagram.com/sci.teens/" target="_blank" rel="noopener noreferrer">
-                        <img className="h-6 md:h-8 mr-4" src={'../assets/icons/instagram.svg'} alt="Instagram" />
-                    </a>
-                    <a href="https://www.linkedin.com/company/sciteens/" target="_blank" rel="noopener noreferrer">
-                        <img className="h-6 md:h-8 mr-4" src={'../assets/icons/linkedin-flat.svg'} alt="Linkedin" />
-                    </a>
-                    <a href="https://www.youtube.com/channel/UCXnyAT9TOrXywV0M6HbhaRA" target="_blank" rel="noopener noreferrer">
-                        <img className="h-6 md:h-8" src={'../assets/icons/youtube.svg'} alt="YouTube" />
-                    </a>
-                </div>
-                <p className="text-center">&copy; SciTeens Inc. {new Date().getFullYear()}</p>
+            <div className="mt-8 mx-auto border-t-2 border-gray-100">
+                <p className="text-left mt-4">&copy; SciTeens Inc. {new Date().getFullYear()}</p>
             </div>
         </footer>
     )
