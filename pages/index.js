@@ -125,7 +125,7 @@ export default function Home() {
           <div className="w-[60%] grid grid-cols-2 grid-rows-2">
             <a href="https://www.google.com/nonprofits/" className="py-8 transition-shadow hover:shadow-2xl"
               target="_blank" rel="noopener noreferrer">
-              <img src={'../assets/logos/Google.png'} className="m-auto h-20" alt="Google" />
+              <img src={'../assets/logos/Google_fullsize.png'} className="m-auto h-20" alt="Google" />
             </a>
             <a href="https://innovation.mit.edu/opportunity/mit-ideas-global-challenge/"
               className="py-8 transition-shadow hover:shadow-2xl" target="_blank" rel="noopener noreferrer">
