@@ -10,7 +10,7 @@ export default function NavBar() {
     const { profile } = useContext(AppContext);
 
     return (
-        <nav className="bg-white w-full shadow z-50 flex justify-between h-16 items-center">
+        <nav className="bg-white w-11/12 shadow rounded-lg z-50 mx-auto mt-4 flex justify-between h-16 items-center">
             <div className="inline-block md:w-1/2">
                 <Link href="/">
                     <img className="h-16 ml-4" src={'../assets/sciteens_logo_initials.svg'} alt="" />

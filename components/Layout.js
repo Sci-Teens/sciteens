@@ -15,7 +15,7 @@ export default function Layout({ children }) {
         <AuthProvider sdk={auth}>
             <FirestoreProvider sdk={firestore}>
                 <StorageProvider sdk={storage}>
-                    <html className="w-full h-full font-sciteens">
+                    <html className="w-full h-full font-sciteens bg-backgroundGreen">
                         <NavBar></NavBar>
                         <div className="min-h-screen">{children}</div>
                         <Footer></Footer>
