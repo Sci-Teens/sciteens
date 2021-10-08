@@ -3,10 +3,15 @@ import { RichText } from 'prismic-reactjs';
 export const config = { amp: 'hybrid' };
 var Prismic = require("@prismicio/client");
 import moment from 'moment';
+import Image from 'next/image'
 // import { useRouter } from 'next/router'
 
 function Article({ article }) {
     const isAmp = useAmp()
+
+    const imageLoader = ({ src, width, height }) => {
+        return `${src}?w=${width || 582}&h=${height || 389}`
+    }
 
     const about_the_author = article.data.body.map((slice, index) => {
         if (slice.slice_type == "about_the_author") {
@@ -14,8 +19,8 @@ function Article({ article }) {
                 <div key={index} className="inline-block">
                     <h3>About the Author</h3>
                     <div className="flex flex-col lg:flex-row items-center">
-                        <img className="rounded-full h-20 w-20 mr-4" src={slice.primary.headshot.url} />
-                        <p>{RichText.asText(slice.primary.information)}</p>
+                        <Image className="rounded-full h-20 w-20" height="256" width="256" loader={imageLoader} src={slice.primary.headshot.url} />
+                        <p className="ml-4">{RichText.asText(slice.primary.information)}</p>
                     </div>
                 </div>
             )
@@ -25,16 +30,39 @@ function Article({ article }) {
         }
     })
 
+    const interviews = article.data.body.map((slice, index) => {
+        if (slice.slice_type == "interview") {
+            return (
+                slice.items.map((interview, ix) => {
+                    return (
+                        <div key={ix} className="inline-block">
+                            <div className="flex flex-col lg:flex-row items-center">
+                                <Image className="rounded-full h-20 w-20" height="64" width="64" loader={imageLoader} src={interview.headshot.url} />
+                                <h4 className="ml-4" style={{ marginTop: 0, marginBottom: 0 }}>{RichText.asText(interview.information)}</h4>
+                            </div>
+                            {RichText.render(interview.interview)}
+                        </div>
+                    )
+                }))
+
+        }
+        else {
+            return null
+        }
+    })
+
     const author_image = article.data.body.map((slice, index) => {
         if (slice.slice_type == "about_the_author") {
             return (
-                <img className="rounded-full h-16 w-16 mr-4" src={slice.primary.headshot.url} />
+                // <img src={slice.primary.headshot.url} />
+                <Image className="rounded-full h-16 w-16" height="64" width="64" loader={imageLoader} src={slice.primary.headshot.url} />
             )
         }
         else {
             return null
         }
     })
+
     // const router = useRouter()
     return (
         <>
@@ -52,19 +80,20 @@ function Article({ article }) {
                             <div className="border-b-2 mt-2"></div>
                             <div className="flex items-center">
                                 {author_image}
-                                <p className="font-semibold">
+                                <p className="font-semibold ml-4">
                                     Written by {article.data.author} <br /> {moment(article.data.date).format('MMMM DD, YYYY')}
                                 </p>
                             </div>
                         </div>
                         <div>
                             {/* Image Slider */}
-                            <img src={article.data.image.url} className="w-full mt-0" style={{ marginTop: '0' }} />
+                            <Image loader={imageLoader} src={article.data.image.url} width="582" height="389" className="w-full mt-0" />
 
-                            <div >
+                            <div>
                                 {RichText.render(article.data.text)}
                             </div>
-                            {/* Interview */}
+                            <h3>Interview</h3>
+                            {interviews}
                             {about_the_author}
 
                         </div>
