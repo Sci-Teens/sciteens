@@ -47,8 +47,8 @@ export default function Home() {
               bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px] border-sciteensLightGreen-regular 
               border-opacity-40 h-12 w-12 mr-4 whitespace-nowrap">2</p>
                 <p className="text-lg">SciTeens was started by a group of teens just like you trying to get started in the
-                  STEM field. Because of this, we know how intimidating it can be trying to get started with your own research
-                  projects. We want to put an end to this intimidation and make STEM research fun and easy for everyone.</p>
+                  STEM fields. Because of this, we know how intimidating it can be to begin your own research projects. We
+                  want to put an end to this intimidation and make STEM research accesible and rewarding for everyone.</p>
               </div>
             </div>
             <div className="flex flex-row md:flex-col">
@@ -56,18 +56,16 @@ export default function Home() {
                 <p className="flex flex-shrink-0 justify-center items-center text-sciteensLightGreen-regular text-xl font-bold 
               bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px] border-sciteensLightGreen-regular 
               border-opacity-40 h-12 w-12 mr-4 whitespace-nowrap">3</p>
-                <p className="text-lg">With SciTeens you can share your knowledge and research by writing articles or creating
-                  projects. All of your work can be viewed by other SciTeens users, giving you access to unique opportunities
-                  through collaboration with your peers or mentorship by accomplished scholars in the STEM fields.</p>
+                <p className="text-lg">With SciTeens you can share your knowledge and research by writing articles or
+                  creating projects. Your work can be viewed by other SciTeens users, giving you access to unique opportunities
+                  through collaboration with your peers and mentorship by accomplished scholars in the STEM fields.</p>
               </div>
               <div className="flex flex-row bg-white shadow p-5 rounded-lg mb-8 ml-0 md:ml-4">
                 <p className="flex flex-shrink-0 justify-center items-center text-sciteensLightGreen-regular text-xl font-bold 
               bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px] border-sciteensLightGreen-regular 
               border-opacity-40 h-12 w-12 mr-4 whitespace-nowrap">4</p>
-                <p className="text-lg">All it takes is a spark of inspiration, the willingness to work with your peers in
-                  the STEM field, and an account to get started doing scientific research and making a difference in your
-                  area of study; so why not <a href='/signup' className="text-sciteensLightGreen-regular
-                  hover:text-sciteensLightGreen-dark font-semibold">get started</a>.</p>
+                <p className="text-lg">All it takes is a spark of inspiration, the willingness to work with your peers, and
+                  an account to get started doing scientific research and making a difference in your area of study.</p>
               </div>
             </div>
           </div>
@@ -75,7 +73,7 @@ export default function Home() {
 
 
         {/* Open Source & Testimonials */}
-        <div className="mb-48 bg-backgroundGreen">
+        <div className="mb-48">
           <h2 className="ml-24 text-4xl font-semibold max-w-2xl mb-12">SciTeens takes pride in its open source and
             collaborative platform, but let our users do the talking for us.</h2>
           <div className="relative flex flex-row justify-between mx-24 z-10">
@@ -120,14 +118,56 @@ export default function Home() {
 
 
         {/* Featured Media */}
-        <div>
-          <p className="my-56 text-center text-4xl">Featured media here</p>
+        <div className="mb-48">
+          <h2 className="ml-24 text-4xl font-semibold max-w-2xl mb-12">Featured Media</h2>
+          <div className="grid grid-rows-3 grid-cols-1 lg:grid-rows-2 lg:grid-cols-2 mx-24">
+            <a href="https://www.neonscience.org/impact/observatory-blog/sciteens-data-science-and-ecology-gen-z"
+              className="col-span-1 row-span-1 lg:row-span-2 bg-white rounded-lg shadow overflow-hidden mr-0 lg:mr-4 mb-4 lg:mb-0"
+              target="_blank" rel="noopener noreferrer">
+              <div className="h-full flex flex-row lg:flex-col">
+                <div className="relative h-full overflow-hidden w-1/2 lg:w-auto">
+                  <img src={'./assets/featured_media/neon.png'} alt="NSF Neon Logo" className="absolute top-0 w-full h-full object-cover transition hover:scale-105 duration-700" />
+                </div>
+                <div className="p-10 bg-white z-10 w-1/2 lg:w-auto">
+                  <p className="text-3xl font-semibold mb-1">SciTeens: Data Science and Ecology for Gen Z</p>
+                  <p className="text-xl text-gray-700">February 10, 2021</p>
+                </div>
+              </div>
+            </a>
+            <a href="https://news.mit.edu/2019/ideas-challenge-social-ventures-0430"
+              className="relative row-span-1 col-span-1 bg-white rounded-lg shadow overflow-hidden ml-0 lg:ml-4 mb-4 mt-4 lg:mt-0"
+              target="_blank" rel="noopener noreferrer">
+              <div className="h-full flex flex-row">
+                <div className="relative h-full w-1/2">
+                  <img src={'./assets/featured_media/ideas.jpg'} alt="" className="absolute top-0 w-full h-full object-cover transition hover:scale-105 duration-700" />
+                </div>
+                <div className="p-10 bg-white z-10 w-1/2">
+                  <p className="text-3xl font-semibold mb-1">IDEAS challenge showcases social ventures at MIT</p>
+                  <p className="text-xl text-gray-700">April 30, 2019</p>
+                </div>
+              </div>
+            </a>
+            <a href="https://news.fsu.edu/multimedia/radio/2020/08/03/young-scholars-online-program-turns-students-into-scientists/"
+              className="row-span-1 col-span-1 bg-white rounded-lg shadow overflow-hidden h-72 ml-0 lg:ml-4 mt-4"
+              target="_blank" rel="noopener noreferrer">
+              <div className="h-full flex flex-row lg:flex-row-reverse">
+                <div className="relative h-full w-1/2">
+                  <img src={'./assets/featured_media/ysp.jpg'} alt="" className="absolute top-0 w-full h-full object-cover transition hover:scale-105 duration-700" />
+                </div>
+                <div className="p-10 bg-white z-10 w-1/2">
+                  <p className="text-3xl font-semibold mb-1">Young Scholars Online Program turns students into
+                    scientists</p>
+                  <p className="text-xl text-gray-700">August 3, 2020</p>
+                </div>
+              </div>
+            </a>
+          </div>
         </div>
 
 
         {/* Partners */}
         <div className="flex flex-row justify-between mx-24 mb-24">
-          <div className="">
+          <div>
             <h2 className="text-4xl font-semibold max-w-2xl mb-2">Partners & Programs</h2>
             <p className="text-lg">If you'd like to support us, please consider <a href='/donate'
               className="font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark">donating</a>.</p>
