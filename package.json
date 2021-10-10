@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@prismicio/client": "^5.1.0",
+    "@tailwindcss/aspect-ratio": "^0.3.0",
     "@tailwindcss/typography": "^0.4.1",
     "firebase": "^9.1.0",
     "lodash.debounce": "^4.0.8",
