@@ -84,14 +84,15 @@ export default function StudentSignIn() {
         try {
             const res = await signInWithPopup(auth, provider)
             const addInfo = await getAdditionalUserInfo(res)
-            const prof = await getDoc(doc(firestore, 'profiles', res.user.uid))
-            setProfile(prof.data())
 
             if (addInfo.isNewUser) {
                 // Complete profile
+                await setDoc(doc(firestore, 'emails', res.user.uid), { email: res.user.email })
                 router.push('/signup/finish')
             }
             else {
+                const prof = await getDoc(doc(firestore, 'profiles', res.user.uid))
+                setProfile(prof.data())
                 router.push(`/profile/${prof.data().slug}`)
             }
         } catch (e) {
