@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useContext } from "react";
 import isNumeric from 'validator/lib/isNumeric'
 import isEmail from "validator/lib/isEmail";
-import { doc, updateDoc } from '@firebase/firestore';
+import { doc, setDoc, updateDoc } from '@firebase/firestore';
 import { updateProfile } from "@firebase/auth";
 import { AppContext } from '../../context/context'
 import { useFirestore, useAuth } from 'reactfire';
@@ -164,6 +164,7 @@ export default function MentorSignUp() {
                 mentor: true,
             }
             await setDoc(doc(firestore, 'profiles', res.user.uid), profile)
+            await setDoc(doc(firestore, 'emails', res.user.uid), { email: res.user.email })
             await sendEmailVerification(res.user)
             setProfile(profile)
             router.push('/signup/thanks')
@@ -297,7 +298,7 @@ export default function MentorSignUp() {
                         id="position"
                         onChange={(e) => setPosition(e.target.value)}
                         value={position}
-                        class="mb-4 appearance-none border-transparent border-2 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensGreen-regular bg-green-200 text-gray-700 placeholder-sciteensGreen-regular"
+                        className="mb-4 appearance-none border-transparent border-2 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensGreen-regular bg-green-200 text-gray-700 placeholder-sciteensGreen-regular"
                     >
                         <option selected value="Educator">Educator</option>
                         <option value="Professional">Professional</option>
@@ -390,13 +391,13 @@ export default function MentorSignUp() {
                         </button>
                     </div >
                 </form >
-                <div class="mt-4 flex justify-end">
-                    <p class="text-gray-700">
+                <div className="mt-4 flex justify-end">
+                    <p className="text-gray-700">
                         Have an account?&nbsp;
                         <Link href="/signin/mentor"
-                            class="font-bold"
+                            className="font-bold"
                         >
-                            <a class="font-bold">Sign in</a>
+                            <a className="font-bold">Sign in</a>
                         </Link>
                     </p>
                 </div>

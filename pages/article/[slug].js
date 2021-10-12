@@ -5,6 +5,7 @@ var Prismic = require("@prismicio/client");
 import moment from 'moment';
 import Image from 'next/image'
 import Head from 'next/head'
+import htmlSerializer from '../../htmlserializer';
 // import { useRouter } from 'next/router'
 
 function Article({ article }) {
@@ -98,7 +99,7 @@ function Article({ article }) {
                                 <Image loader={imageLoader} src={article.data.image.url} width="582" height="389" className="w-full mt-0 object-contain" />
 
                                 <div>
-                                    {RichText.render(article.data.text)}
+                                    <RichText render={article.data.text} htmlSerializer={htmlSerializer} />
                                 </div>
                                 {interviews}
                                 {about_the_author}

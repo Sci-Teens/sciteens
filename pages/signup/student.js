@@ -146,6 +146,7 @@ export default function StudentSignUp() {
                 mentor: false,
             }
             await setDoc(doc(firestore, 'profiles', res.user.uid), profile)
+            await setDoc(doc(firestore, 'emails', res.user.uid), { email: res.user.email })
             await sendEmailVerification(res.user)
             setProfile(profile)
             router.push('/signup/thanks')
@@ -391,13 +392,13 @@ export default function StudentSignUp() {
                     <img src="/assets/logos/Google.png" alt="Google Logo" className="h-5 w-5 mr-2" />
                     Sign in with Google
                 </button >
-                <div class="mt-4 flex justify-end">
-                    <p class="text-gray-700">
+                <div className="mt-4 flex justify-end">
+                    <p className="text-gray-700">
                         Have an account?&nbsp;
                         <Link href="/signin/student"
 
                         >
-                            <a class="font-bold">Sign in</a>
+                            <a className="font-bold">Sign in</a>
                         </Link>
                     </p>
                 </div>

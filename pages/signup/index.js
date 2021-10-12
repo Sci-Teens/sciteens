@@ -13,39 +13,39 @@ export default function SignUpIndex() {
                 <title>Sign Up for SciTeens</title>
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <main class="flex flex-col justify-center items-center text-center">
-                <h1 class="text-4xl">
+            <main className="flex flex-col justify-center items-center text-center">
+                <h1 className="text-4xl">
                     I am a
                 </h1>
-                <div class="mx-auto">
+                <div className="mx-auto">
                     Have an account?&nbsp;
                     <Link href="/signin/student" >
-                        <a class="font-bold">Sign In instead</a>
+                        <a className="font-bold">Sign In instead</a>
                     </Link>
                 </div>
-                <div class="flex flex-wrap mx-auto justify-center">
+                <div className="flex flex-wrap mx-auto justify-center">
                     <Link href="/signup/student">
-                        <div class="rounded bg-white shadow h-56 w-56 m-6 hover:shadow-md">
+                        <a className="rounded bg-white shadow h-56 w-56 m-6 hover:shadow-md">
                             {show_student_info ?
-                                <div class="relative pt-8">
+                                <div className="relative pt-8">
                                     <img
                                         src="/assets/zondicons/close-solid.svg"
                                         alt="Close"
-                                        class="h-6 w-6 absolute top-0 right-0 m-2"
+                                        className="h-6 w-6 absolute top-0 right-0 m-2"
                                         onClick={e => {
                                             e.preventDefault();
                                             setShowStudentInfo(!show_student_info)
                                         }}
                                     />
-                                    <h2 class="text-xl text-sciteensGreen-regular mx-2">
+                                    <h2 className="text-xl text-sciteensGreen-regular mx-2">
                                         Sign up as a student if you are currently in high school or
                                         between the ages of 14 and 18.
                                     </h2>
-                                </div> : <div class="relative">
+                                </div> : <div className="relative">
                                     <img
                                         src="/assets/zondicons/question.svg"
                                         alt="Question"
-                                        class="h-6 w-6 absolute top-0 right-0 m-2"
+                                        className="h-6 w-6 absolute top-0 right-0 m-2"
                                         onClick={e => {
                                             e.preventDefault();
                                             setShowStudentInfo(!show_student_info)
@@ -54,40 +54,40 @@ export default function SignUpIndex() {
                                     <img
                                         src="/assets/student.svg"
                                         alt="Student Icon"
-                                        class="h-40 p-4 mx-auto"
+                                        className="h-40 p-4 mx-auto"
                                     />
-                                    <h2 class="text-xl text-sciteensGreen-regular">
+                                    <h2 className="text-xl text-sciteensGreen-regular">
                                         Student
                                     </h2>
                                 </div>}
-                        </div>
+                        </a>
 
                     </Link>
                     <Link href="/signup/mentor"
 
                     >
-                        <div class="rounded bg-white shadow h-56 w-56 m-6 hover:shadow-md">
+                        <a className="rounded bg-white shadow h-56 w-56 m-6 hover:shadow-md">
                             {show_mentor_info ?
-                                <div class="relative pt-8">
+                                <div className="relative pt-8">
                                     <img
                                         src="/assets/zondicons/close-solid.svg"
                                         alt="Close"
-                                        class="h-6 w-6 absolute top-0 right-0 m-2"
+                                        className="h-6 w-6 absolute top-0 right-0 m-2"
                                         onClick={e => {
                                             e.preventDefault();
                                             setShowMentorInfo(!show_mentor_info)
                                         }}
                                     />
-                                    <h2 class="text-lg text-sciteensGreen-regular mx-2">
+                                    <h2 className="text-lg text-sciteensGreen-regular mx-2">
                                         Sign up as a mentor if you are in higher academia or industry, and
                                         want to mentor STEM high school students.
                                     </h2>
                                 </div> :
-                                <div class="relative">
+                                <div className="relative">
                                     <img
                                         src="/assets/zondicons/question.svg"
                                         alt="Question"
-                                        class="h-6 w-6 absolute top-0 right-0 m-2"
+                                        className="h-6 w-6 absolute top-0 right-0 m-2"
                                         onClick={e => {
                                             e.preventDefault();
                                             setShowMentorInfo(!show_mentor_info)
@@ -96,23 +96,23 @@ export default function SignUpIndex() {
                                     <img
                                         src="/assets/mentor.svg"
                                         alt="Student Icon"
-                                        class="h-40 p-4 mx-auto"
+                                        className="h-40 p-4 mx-auto"
                                     />
-                                    <h2 class="text-xl text-sciteensGreen-regular">
+                                    <h2 className="text-xl text-sciteensGreen-regular">
                                         Mentor
                                     </h2>
                                 </div>}
-                        </div>
+                        </a>
 
                     </Link>
                 </div >
-                <div class="mx-auto mb-1/4">
-                    <p class="text-gray-700">
+                <div className="mx-auto mb-1/4">
+                    <p className="text-gray-700">
                         Neither of the above?&nbsp;
                         <Link href="/getinvolved"
 
                         >
-                            <a class="font-bold">See how you can help</a>
+                            <a className="font-bold">See how you can help</a>
 
                         </Link>
                     </p>

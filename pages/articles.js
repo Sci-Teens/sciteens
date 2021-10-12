@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image';
 import { RichText } from 'prismic-reactjs';
 import { useRouter } from "next/router"
+import Head from 'next/head';
 
 
 function Articles({ articles }) {
@@ -14,11 +15,11 @@ function Articles({ articles }) {
 
     const articlesComponent = articles.results.map((article, index) => {
 
-        const author_image = article.data.body.map((slice, index) => {
+        const author_image = article.data.body.map((slice, ix) => {
             if (slice.slice_type == "about_the_author") {
                 return (
                     // <img src={slice.primary.headshot.url} />
-                    <div className="relative h-8 w-8 lg:h-16 lg:w-16">
+                    <div className="relative h-8 w-8 lg:h-16 lg:w-16" key={index}>
                         <Image className="rounded-full h-8 w-8 lg:h-16 lg:w-16" height={64} width={64} loader={imageLoader} src={slice.primary.headshot.url} />
                     </div>
                 )
@@ -50,65 +51,72 @@ function Articles({ articles }) {
         )
     })
     return (
-        <div className="w-full">
-            <h1 class="text-4xl py-4 text-left ml-4">
-                📰 Latest Articles
-            </h1>
-            {articlesComponent}
-            <p className="my-4 w-full flex flex-row items-center justify-center space-x-4">
-                <Link href={`/articles?page=${router.query?.page && router.query?.page > 1 ? Number(router.query?.page) - 1 : 1}`} disabled={!router.query?.page || router.query?.page === 1}>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" className="fill-current text-sciteensGreen-regular h-8"><path d="M7.05 9.293L6.343 10 12 15.657l1.414-1.414L9.172 10l4.242-4.243L12 4.343z" />
-                    </svg>
-                </Link>
-                <Link href={`/articles?page=1`}>
-                    <button className="text-sciteensGreen-regular font-bold">
-                        1
-                    </button>
-                </Link>
-                {
-                    (router.query?.page && router.query?.page > 3 && router.query?.page <= articles.total_pages) &&
-                    <div className="text-sciteensGreen-regular font-bold">
-                        ...
-                    </div>
-                }
-                <Link href={`/articles?page=${router.query?.page && router.query?.page > 2 && router.query?.page <= articles.total_pages ? Number(router.query?.page) - 1 : 2}`}>
-                    <button className="text-sciteensGreen-regular font-bold">
-                        {router.query?.page && router.query?.page > 2 && router.query?.page <= articles.total_pages ? Number(router.query?.page) - 1 : 2}
-                    </button>
-                </Link>
-
-                {
-                    (router.query?.page && router.query?.page > 2 && router.query?.page < articles.total_pages) &&
-                    <div className="text-sciteensGreen-regular font-bold">
-                        {router.query?.page}
-                    </div>
-                }
-                {
-                    (router.query?.page < articles.total_pages - 1) &&
-                    <Link href={`/articles?page=${router.query?.page && router.query?.page > 2 && router.query?.page < articles.total_pages - 1 ? Number(router.query?.page) + 1 : 3}`}>
-                        <button className="text-sciteensGreen-regular font-bold">
-                            {router.query?.page && router.query?.page > 2 && router.query?.page < articles.total_pages - 1 ? Number(router.query?.page) + 1 : 3}
+        <>
+            <Head>
+                <title>Articles Page {router?.query?.page ? router.query.page : 1}</title>
+                <link rel="icon" href="/favicon.ico" />
+            </Head>
+            <div className="w-full">
+                <h1 className="text-4xl py-4 text-left ml-4">
+                    📰 Latest Articles
+                </h1>
+                {articlesComponent}
+                <p className="my-4 w-full flex flex-row items-center justify-center space-x-4">
+                    <Link href={`/articles?page=${router.query?.page && router.query?.page > 1 ? Number(router.query?.page) - 1 : 1}`} disabled={!router.query?.page || router.query?.page === 1}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" className="fill-current text-sciteensGreen-regular h-8 hover:text-sciteensGreen-dark hover:cursor-pointer"><path d="M7.05 9.293L6.343 10 12 15.657l1.414-1.414L9.172 10l4.242-4.243L12 4.343z" />
+                        </svg>
+                    </Link>
+                    <Link href={`/articles?page=1`}>
+                        <button className="text-sciteensGreen-regular font-bold hover:text-sciteensGreen-dark">
+                            1
                         </button>
                     </Link>
-                }
+                    {
+                        (router.query?.page && router.query?.page > 3 && router.query?.page <= articles.total_pages) &&
+                        <div className="text-sciteensGreen-regular font-bold hover:text-sciteensGreen-dark">
+                            ...
+                        </div>
+                    }
+                    <Link href={`/articles?page=${router.query?.page && router.query?.page > 2 && router.query?.page <= articles.total_pages ? Number(router.query?.page) - 1 : 2}`}>
+                        <button className="text-sciteensGreen-regular font-bold hover:text-sciteensGreen-dark">
+                            {router.query?.page && router.query?.page > 2 && router.query?.page <= articles.total_pages ? Number(router.query?.page) - 1 : 2}
+                        </button>
+                    </Link>
 
-                {
-                    (router.query?.page && router.query?.page < articles.total_pages - 2) &&
-                    <div className="text-sciteensGreen-regular font-bold">
-                        ...
-                    </div>
-                }
-                <Link href={`/articles?page=${articles.total_pages}`}>
-                    <button className="text-sciteensGreen-regular font-bold">
-                        {articles.total_pages}
-                    </button>
-                </Link>
-                <Link href={`/articles?page=${router.query?.page && router.query?.page < articles.total_pages ? Number(router.query?.page) + 1 : articles.total_pages}`} disabled={!router.query?.page || router.query?.page === articles.total_pages}>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" className="fill-current text-sciteensGreen-regular h-8"><path d="M12.95 10.707l.707-.707L8 4.343 6.586 5.757 10.828 10l-4.242 4.243L8 15.657l4.95-4.95z" />
-                    </svg>
-                </Link>
-            </p>
-        </div>
+                    {
+                        (router.query?.page && router.query?.page > 2 && router.query?.page < articles.total_pages) &&
+                        <div className="text-sciteensGreen-regular font-bold hover:text-sciteensGreen-dark">
+                            {router.query?.page}
+                        </div>
+                    }
+                    {
+                        (router.query?.page < articles.total_pages - 1) &&
+                        <Link href={`/articles?page=${router.query?.page && router.query?.page > 2 && router.query?.page < articles.total_pages - 1 ? Number(router.query?.page) + 1 : 3}`}>
+                            <button className="text-sciteensGreen-regular font-bold hover:text-sciteensGreen-dark">
+                                {router.query?.page && router.query?.page > 2 && router.query?.page < articles.total_pages - 1 ? Number(router.query?.page) + 1 : 3}
+                            </button>
+                        </Link>
+                    }
+
+                    {
+                        (router.query?.page && router.query?.page < articles.total_pages - 2) &&
+                        <div className="text-sciteensGreen-regular font-bold hover:text-sciteensGreen-dark">
+                            ...
+                        </div>
+                    }
+                    <Link href={`/articles?page=${articles.total_pages}`}>
+                        <button className="text-sciteensGreen-regular font-bold hover:text-sciteensGreen-dark">
+                            {articles.total_pages}
+                        </button>
+                    </Link>
+                    <Link href={`/articles?page=${router.query?.page && router.query?.page < articles.total_pages ? Number(router.query?.page) + 1 : articles.total_pages}`} disabled={!router.query?.page || router.query?.page === articles.total_pages}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" className="fill-current text-sciteensGreen-regular h-8 hover:text-sciteensGreen-dark hover:cursor-pointer"><path d="M12.95 10.707l.707-.707L8 4.343 6.586 5.757 10.828 10l-4.242 4.243L8 15.657l4.95-4.95z" />
+                        </svg>
+                    </Link>
+                </p>
+            </div>
+        </>
+
     )
 }
 
@@ -124,7 +132,6 @@ export async function getServerSideProps({ query }) {
             page: query?.page ? query?.page : 1
         }
         )
-        console.log(articles)
 
         return {
             props: { articles }
