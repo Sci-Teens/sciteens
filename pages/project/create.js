@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import moment from "moment"
 import Head from "next/head"
 import { useFirestore, useSigninCheck } from "reactfire"
@@ -44,6 +44,12 @@ export default function CreateProject() {
     const firestore = useFirestore()
 
     const router = useRouter()
+
+    useEffect(() => {
+        if (status == "success" && !signInCheckResult?.signedIn) {
+            router.push("/signup")
+        }
+    })
 
     const createProject = (e) => {
         e.preventDefault()
@@ -309,10 +315,6 @@ export default function CreateProject() {
             </div>
 
         </>)
-    }
-
-    else if (status == "success" && !signInCheckResult.signedIn) {
-        { router.push("/signin") }
     }
 
     else if (status == "loading") {
