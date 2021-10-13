@@ -8,7 +8,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="-mt-10">
+      <main className="">
         {/* Landing screen */}
         <div className="h-screen flex flex-wrap flex-row items-center justify-between mx-10 md:mx-16 lg:mx-24 mb-12 animate__animated animate__fadeInDown">
           <div className="w-min">
@@ -31,7 +31,7 @@ export default function Home() {
 
         {/* Mission Statement & Information */}
         <div className="mb-32 md:mb-48">
-          <h2 className="text-center text-xl md:text-3xl lg:text-5xl font-semibold mb-12">Furthering the accessibility of science, <br />one
+          <h2 className="text-center text-xl md:text-3xl lg:text-5xl font-semibold mb-12 mx-12 md:mx-32 lg:mx-56">Furthering the accessibility of science, one
             student at a time.</h2>
           <div className="flex flex-col lg:flex-row mx-10 md:mx-16 lg:mx-24">
             <div className="flex flex-col">
@@ -102,15 +102,15 @@ export default function Home() {
           <div className="flex flex-row justify-evenly md:justify-between px-0 md:px-24 pt-32 pb-10 text-white text-center bg-sciteensGreen-regular">
             <div className="w-[30%] md:w-[45%] lg:w-[30%] mr-10">
               <p className="text-3xl md:text-4xl lg:text-5xl font-semibold">400+</p>
-              <p className="text-sm md:text-lg text-gray-100">Monthly Active Users</p>
+              <p className="text-sm md:text-base text-gray-300">Monthly Active Users</p>
             </div>
             <div className="w-[30%] md:w-[45%] lg:w-[30%]">
               <p className="text-3xl md:text-4xl lg:text-5xl font-semibold">50</p>
-              <p className="text-sm md:text-lg text-gray-100">Schools</p>
+              <p className="text-sm md:text-base text-gray-300">Schools</p>
             </div>
             <div className="hidden lg:flex flex-col w-[45%] lg:w-[30%]">
               <p className="text-4xl lg:text-5xl font-semibold">7</p>
-              <p className="text-lg text-gray-100">Countries</p>
+              <p className="text-base text-gray-300">Countries</p>
             </div>
           </div>
           <img src={'./assets/svgs/lower_block.svg'} alt="" />
