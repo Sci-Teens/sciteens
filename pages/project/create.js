@@ -4,9 +4,10 @@ import Head from "next/head"
 import { useFirestore, useSigninCheck } from "reactfire"
 import { collection, query, startAt, endAt, orderBy, limit, getDocs } from "@firebase/firestore"
 import Error from 'next/error'
-import router from "next/router"
+import { useRouter } from "next/router"
 import isEmail from 'validator/lib/isEmail'
 import debounce from "lodash/debounce";
+import FileUpload from "../../components/FileUpload"
 
 export default function CreateProject() {
     const [title, setTitle] = useState('')
@@ -15,16 +16,34 @@ export default function CreateProject() {
     const [abstract, setAbstract] = useState('')
     const [member, setMember] = useState('')
     const [members, setMembers] = useState([])
-    const [fields, setFields] = useState([])
+    const [field_names] = useState([
+        "Biology",
+        "Chemistry",
+        "Cognitive Science",
+        "Computer Science",
+        "Earth Science",
+        "Electrical Engineering",
+        "Environmental Science",
+        "Mathematics",
+        "Mechanical Engineering",
+        "Medicine",
+        "Physics",
+        "Space Science",
+    ])
+    const [field_values, setFieldValues] = useState(new Array(field_names.length).fill(false))
+    const [files, setFiles] = useState({})
 
     const [error_title, setErrorTitle] = useState('')
     const [error_start_date, setErrorStartDate] = useState('')
     const [error_end_date, setErrorEndDate] = useState('')
     const [error_abstract, setErrorAbstract] = useState('')
     const [error_member, setErrorMember] = useState('')
+    const [error_file, setErrorFile] = useState('')
 
     const { status, data: signInCheckResult } = useSigninCheck();
     const firestore = useFirestore()
+
+    const router = useRouter()
 
     const createProject = (e) => {
         e.preventDefault()
@@ -89,6 +108,13 @@ export default function CreateProject() {
                     validateEmail(e.target.value)
                 }
                 break;
+
+            case "fields":
+                const id = e.target.id
+                const index = field_names.indexOf(id)
+                let temp = [...field_values]
+                temp[index] = !temp[index]
+                setFieldValues([...temp])
         }
     }
 
@@ -256,141 +282,29 @@ export default function CreateProject() {
                     <label for="fields" className="uppercase text-gray-600">
                         Fields
                     </label>
-                    <div className="text-gray-600">
-                        <input
-                            id="biology"
-                            v-model="fields"
-                            className="form-checkbox active:outline-none text-sciteensLightGreen-regular"
-                            type="checkbox"
-                            value="Biology"
-                        />
-                        <label for="biology">
-                            Biology
-                            <br />
-                        </label>
-                        <input
-                            id="chemistry"
-                            v-model="fields"
-                            className="form-checkbox active:outline-none text-sciteensLightGreen-regular"
-                            type="checkbox"
-                            value="Chemistry"
-                        />
-                        <label for="chemistry">
-                            Chemistry
-                            <br />
-                        </label>
-                        <input
-                            id="cognitive_science"
-                            v-model="fields"
-                            className="form-checkbox active:outline-none text-sciteensLightGreen-regular"
-                            type="checkbox"
-                            value="Cognitive Science"
-                        />
-                        <label for="cognitive_science">
-                            Cognitive Science
-                            <br />
-                        </label>
-                        <input
-                            id="computer_science"
-                            v-model="fields"
-                            className="form-checkbox active:outline-none text-sciteensLightGreen-regular"
-                            type="checkbox"
-                            value="Computer Science"
-                        />
-                        <label for="computer_science">
-                            Computer Science
-                            <br />
-                        </label>
-                        <input
-                            id="earth_science"
-                            v-model="fields"
-                            className="form-checkbox active:outline-none text-sciteensLightGreen-regular"
-                            type="checkbox"
-                            value="Earth Science"
-                        />
-                        <label for="earth_science">
-                            Earth Science
-                            <br />
-                        </label>
-                        <input
-                            id="electrical_engineering"
-                            v-model="fields"
-                            className="form-checkbox active:outline-none text-sciteensLightGreen-regular"
-                            type="checkbox"
-                            value="Electrical Engineering"
-                        />
-                        <label for="electrical_engineering">
-                            Electrical Engineering
-                            <br />
-                        </label>
-                        <input
-                            id="environmental_science"
-                            v-model="fields"
-                            className="form-checkbox active:outline-none text-sciteensLightGreen-regular"
-                            type="checkbox"
-                            value="Environmental Science"
-                        />
-                        <label for="environmental_science">
-                            Environmental Science
-                            <br />
-                        </label>
-                        <input
-                            id="mathematics"
-                            v-model="fields"
-                            className="form-checkbox active:outline-none text-sciteensLightGreen-regular"
-                            type="checkbox"
-                            value="Mathematics"
-                        />
-                        <label for="mathematics">
-                            Mathematics
-                            <br />
-                        </label>
-                        <input
-                            id="mechanical_engineering"
-                            v-model="fields"
-                            className="form-checkbox active:outline-none text-sciteensLightGreen-regular"
-                            type="checkbox"
-                            value="Mechanical Engineering"
-                        />
-                        <label for="mechanical_engineering">
-                            Mechanical Engineering
-                            <br />
-                        </label>
-                        <input
-                            id="medicine"
-                            v-model="fields"
-                            className="form-checkbox active:outline-none text-sciteensLightGreen-regular"
-                            type="checkbox"
-                            value="Medicine"
-                        />
-                        <label for="medicine">
-                            Medicine
-                            <br />
-                        </label>
-                        <input
-                            id="physics"
-                            v-model="fields"
-                            className="form-checkbox active:outline-none text-sciteensLightGreen-regular"
-                            type="checkbox"
-                            value="Physics"
-                        />
-                        <label for="physics">
-                            Physics
-                            <br />
-                        </label>
-                        <input
-                            id="space_science"
-                            v-model="fields"
-                            className="form-checkbox active:outline-none text-sciteensLightGreen-regular"
-                            type="checkbox"
-                            value="Space Science"
-                        />
-                        <label for="space_science">
-                            Space Science
-                            <br />
-                        </label>
-                    </div>
+                    {
+                        field_names.map((field, index) => {
+                            return (
+                                <div>
+                                    <input
+                                        id={field}
+                                        className="form-checkbox active:outline-none text-sciteensLightGreen-regular mr-2"
+                                        type="checkbox"
+                                        value={field_values[index]}
+                                        checked={field_values[index]}
+                                        onChange={e => onChange(e, "fields")}
+                                    />
+                                    <label for={field} className="text-gray-700">
+                                        {field}
+                                        <br />
+                                    </label>
+                                </div>
 
+                            )
+                        })
+                    }
+                    <div className="mb-4"></div>
+                    <FileUpload></FileUpload>
                 </form>
             </div>
 
@@ -398,7 +312,7 @@ export default function CreateProject() {
     }
 
     else if (status == "success" && !signInCheckResult.signedIn) {
-        router.push("/signin")
+        { router.push("/signin") }
     }
 
     else if (status == "loading") {
