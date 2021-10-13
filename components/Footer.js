@@ -3,7 +3,7 @@ export default function Footer() {
         <footer>
             <img src={'./assets/svgs/footer.svg'} alt="" />
             <div className="px-10 md:px-24 bg-sciteensGreen-regular text-gray-100 pt-4 pb-8">
-                <div className="flex flex-col md:flex-row mr-0 md:mr-12 justify-between">
+                <div className="flex flex-col md:flex-row mr-0 lg:mr-12 justify-between">
                     <div className="w-1/8 mb-8 md:mb-0">
                         <p className="text-white font-semibold mb-1 md:mb-2">ORGANIZATION</p>
                         <ul>
