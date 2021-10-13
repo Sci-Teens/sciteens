@@ -317,11 +317,11 @@ export default function CreateProject() {
         </>)
     }
 
-    else if (status == "loading") {
-        return <span>loading...</span>
-    }
-
     else if (status == "error") {
         return <Error statusCode={404} ></Error>
+    }
+
+    else {
+        return <span>loading...</span>
     }
 }
