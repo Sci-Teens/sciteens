@@ -1,8 +1,9 @@
 import { useState, useCallback, useEffect } from "react"
 import moment from "moment"
 import Head from "next/head"
-import { useFirestore, useSigninCheck } from "reactfire"
-import { collection, query, startAt, endAt, orderBy, limit, getDocs } from "@firebase/firestore"
+import { useFirestore, useSigninCheck, useStorage } from "reactfire"
+import { collection, query, startAt, endAt, orderBy, limit, getDocs, addDoc } from "@firebase/firestore"
+import { getStorage, ref, uploadBytes } from "@firebase/storage"
 import Error from 'next/error'
 import { useRouter } from "next/router"
 import isEmail from 'validator/lib/isEmail'
@@ -60,6 +61,7 @@ export default function CreateProject() {
 
     const { status, data: signInCheckResult } = useSigninCheck();
     const firestore = useFirestore()
+    const storage = useStorage()
 
     const router = useRouter()
 
@@ -69,37 +71,70 @@ export default function CreateProject() {
         }
     })
 
-    const createProject = (e) => {
+    const createProject = async (e) => {
         e.preventDefault()
-        console.log(e)
+        setLoading(true)
+        try {
+            const res = await addDoc(collection(firestore, 'projects'), {
+                title: title.trim(),
+                start: start_date ? moment(start_date).toISOString() : moment().toISOString(),
+                end: end_date ? moment(end_date).toISOString() : "",
+                abstract: abstract.trim(),
+                need_mentor: false,
+                links: [],
+                date: moment().toISOString(),
+                subscribers: [],
+                fields: field_names.filter((item, i) => field_values[i]),
+                emails: members,
+                member_uids: [signInCheckResult.user.uid],
+            })
+            for (const f of files) {
+                const fileRef = ref(storage, `projects/${res.id}/${f.name}`);
+                await uploadBytes(fileRef, f)
+            }
+            router.push(`/project/${res.id}`)
+            setLoading(false)
+        }
+
+        catch (error) {
+            setErrorTitle("We couldn't create your project at this time")
+            console.error(error)
+            setLoading(false)
+        }
+
     }
 
     const onDrop = useCallback(fs => {
-        fs.forEach((f) => {
+        for (const f of fs) {
             const reader = new FileReader()
 
             reader.onabort = () => setErrorFile('File reading was aborted')
             reader.onerror = () => setErrorFile('Failed to read the file')
             reader.onload = () => setErrorFile('')
 
-            if (file_extensions.includes(f.type) || f.name.includes(".docx") || f.name.includes(".pptx")) {
+            if (!(file_extensions.includes(f.type) || f.name.includes(".docx") || f.name.includes(".pptx"))) {
+                setErrorFile("This file format is not accepted")
+
+            }
+
+            else if (f.size > 8000000) {
+                setErrorFile("This file is too large")
+            }
+
+            else {
                 reader.readAsDataURL(f)
                 console.log(f)
                 setFiles([...new Set([...files, f])])
             }
-
-            else {
-                setErrorFile("This file format is not accepted")
-            }
-        })
+        }
     })
 
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
+    const { acceptedFiles, getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
 
     async function onChange(e, target) {
         switch (target) {
             case "title":
-                setTitle(e.target.value.trim())
+                setTitle(e.target.value)
                 if (e.target.value.trim() == "") {
                     setErrorTitle("Please fill out your project title")
                 }
@@ -193,12 +228,19 @@ export default function CreateProject() {
         }, 500), []
         )
 
-    const removeElement = (e) => {
+    const removeMember = (e) => {
         e.preventDefault()
         let temp = [...members]
         const ix = e.target.getAttribute("name")
         temp.splice(ix, 1)
         setMembers([...temp])
+    }
+
+    const removeFile = (e, id) => {
+        e.preventDefault()
+        let temp = [...files]
+        temp.splice(id, 1)
+        setFiles([...temp])
     }
 
     if (status == "success" && signInCheckResult.signedIn) {
@@ -317,7 +359,7 @@ export default function CreateProject() {
                         members.map((m, index) =>
 
                             <p className="p-2">
-                                <button name={index} className="h-3 w-3 mr-2 fill-current hover:text-red-900" onClick={e => removeElement(e)}>
+                                <button name={index} className="h-3 w-3 mr-2 fill-current hover:text-red-900" onClick={e => removeMember(e)}>
                                     <svg name={index} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 8.586L2.929 1.515 1.515 2.929 8.586 10l-7.071 7.071 1.414 1.414L10 11.414l7.071 7.071 1.414-1.414L11.414 10l7.071-7.071-1.414-1.414L10 8.586z" /></svg>
                                 </button>
                                 {m}
@@ -363,9 +405,9 @@ export default function CreateProject() {
                     </p>
                     <div className="flex flex-col items-center space-y-2">
                         {
-                            files.map(f => {
+                            files.map((f, id) => {
                                 return (
-                                    <File file={f}></File>
+                                    <File file={f} id={id} removeFile={removeFile}></File>
                                 )
                             })
                         }
