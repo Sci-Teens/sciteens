@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="enable-background:new 0 0 128 128;" version="1.1" viewBox="0 0 128 128" xml:space="preserve"><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g><g><g><path d="M104,126H24c-5.514,0-10-4.486-10-10V12c0-5.514,4.486-10,10-10h40.687     c2.671,0,5.183,1.041,7.07,2.929l39.314,39.314c1.889,1.889,2.929,4.399,2.929,7.07V116C114,121.514,109.514,126,104,126z M24,6     c-3.309,0-6,2.691-6,6v104c0,3.309,2.691,6,6,6h80c3.309,0,6-2.691,6-6V51.313c0-1.579-0.641-3.125-1.757-4.242L68.929,7.757     C67.796,6.624,66.289,6,64.687,6H24z" style="fill:#00B8DF;"/></g><g><rect height="6" style="fill:#00B8DF;" width="10" x="47" y="112"/></g><g><rect height="6" style="fill:#00B8DF;" width="10" x="37" y="118"/></g><g><rect height="6" style="fill:#00B8DF;" width="10" x="47" y="100"/></g><g><rect height="6" style="fill:#00B8DF;" width="10" x="37" y="106"/></g><g><rect height="6" style="fill:#00B8DF;" width="10" x="47" y="88"/></g><g><rect height="6" style="fill:#00B8DF;" width="10" x="37" y="94"/></g><g><rect height="6" style="fill:#00B8DF;" width="10" x="47" y="76"/></g><g><rect height="6" style="fill:#00B8DF;" width="10" x="37" y="82"/></g><g><rect height="6" style="fill:#00B8DF;" width="10" x="47" y="64"/></g><g><rect height="6" style="fill:#00B8DF;" width="10" x="37" y="70"/></g><g><path d="M56,29H40c-1.1,0-2,0.9-2,2v25c0,1.1,0.9,2,2,2h16c1.1,0,2-0.9,2-2V31C58,29.9,57.1,29,56,29z      M53,45H43V34h10V45z" style="fill:#00B8DF;"/></g></g></g><g/>
+	
+	<metadata>
+		<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:dc="http://purl.org/dc/elements/1.1/">
+			<rdf:Description about="https://iconscout.com/legal#licenses" dc:title="File, Zip, Archive, Document, Rar, Winrar, Winzip" dc:description="File, Zip, Archive, Document, Rar, Winrar, Winzip" dc:publisher="Iconscout" dc:date="2016-12-14" dc:format="image/svg+xml" dc:language="en">
+				<dc:creator>
+					<rdf:Bag>
+						<rdf:li>Igor Verizub</rdf:li>
+					</rdf:Bag>
+				</dc:creator>
+			</rdf:Description>
+		</rdf:RDF>
+    </metadata></svg>

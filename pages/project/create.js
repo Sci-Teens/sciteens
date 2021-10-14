@@ -7,9 +7,11 @@ import Error from 'next/error'
 import { useRouter } from "next/router"
 import isEmail from 'validator/lib/isEmail'
 import debounce from "lodash/debounce";
-import FileUpload from "../../components/FileUpload"
+import { useDropzone } from 'react-dropzone'
+import File from '../../components/File'
 
 export default function CreateProject() {
+    const [loading, setLoading] = useState(false)
     const [title, setTitle] = useState('')
     const [start_date, setStartDate] = useState('')
     const [end_date, setEndDate] = useState('')
@@ -31,7 +33,23 @@ export default function CreateProject() {
         "Space Science",
     ])
     const [field_values, setFieldValues] = useState(new Array(field_names.length).fill(false))
-    const [files, setFiles] = useState({})
+    const [file_extensions] = useState([
+        "text/html",
+        "image/png",
+        "image/jpg",
+        "image/jpeg",
+        "application/pdf",
+        "application/vnd.ms-word",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-powerpoint",
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "application/x-ipynb+json",
+        "application/vnd.jupyter",
+        "application/vnd.jupyter.cells",
+        "application/vnd.jupyter.dragindex",
+    ])
+    const [files, setFiles] = useState([])
 
     const [error_title, setErrorTitle] = useState('')
     const [error_start_date, setErrorStartDate] = useState('')
@@ -53,8 +71,30 @@ export default function CreateProject() {
 
     const createProject = (e) => {
         e.preventDefault()
-
+        console.log(e)
     }
+
+    const onDrop = useCallback(fs => {
+        fs.forEach((f) => {
+            const reader = new FileReader()
+
+            reader.onabort = () => setErrorFile('File reading was aborted')
+            reader.onerror = () => setErrorFile('Failed to read the file')
+            reader.onload = () => setErrorFile('')
+
+            if (file_extensions.includes(f.type) || f.name.includes(".docx") || f.name.includes(".pptx")) {
+                reader.readAsDataURL(f)
+                console.log(f)
+                setFiles([...new Set([...files, f])])
+            }
+
+            else {
+                setErrorFile("This file format is not accepted")
+            }
+        })
+    })
+
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
 
     async function onChange(e, target) {
         switch (target) {
@@ -310,10 +350,48 @@ export default function CreateProject() {
                         })
                     }
                     <div className="mb-4"></div>
-                    <FileUpload></FileUpload>
+                    <div {...getRootProps()} className={`w-full h-40 border-2 ${error_file ? 'bg-red-200 hover:bg-red-300' : 'bg-green-200 hover:bg-green-300'}  rounded-lg text-gray-700 border-gray-600 border-dashed flex items-center justify-center text-center`}>
+                        <input {...getInputProps()} />
+                        {
+                            isDragActive ?
+                                <p>Drop the files here ...</p> :
+                                <p>Drag 'n' drop some files here,<br /> or click to select files</p>
+                        }
+                    </div>
+                    <p className="text-sm text-red-800 mb-4">
+                        {error_file}
+                    </p>
+                    <div className="flex flex-col items-center space-y-2">
+                        {
+                            files.map(f => {
+                                return (
+                                    <File file={f}></File>
+                                )
+                            })
+                        }
+                    </div>
+
+                    <div className="w-full flex justify-end mt-4">
+                        <button
+                            type="submit"
+                            disabled={loading || error_abstract || error_start_date || error_end_date || error_file || error_title}
+                            className="bg-sciteensLightGreen-regular text-white rounded-lg p-2 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
+                            onClick={e => createProject(e)}
+                        >
+                            Create
+                            {
+                                loading &&
+                                <img
+                                    src="~/assets/loading.svg"
+                                    alt="Loading Spinner"
+                                    className="h-5 w-5 inline-block"
+                                />
+                            }
+                        </button>
+                    </div>
+
                 </form>
             </div>
-
         </>)
     }
 
