@@ -1,12 +1,12 @@
 import { doc } from "@firebase/firestore";
-import { listAll, ref } from "@firebase/storage";
+import { listAll, ref, getDownloadURL, getMetadata } from "@firebase/storage";
 import { useFirestore, useFirestoreDocData, useStorage } from "reactfire";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import Image from "next/image";
 import Error from 'next/error'
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 
 
@@ -18,6 +18,8 @@ function Project({ query }) {
     const projectRef = doc(firestore, 'projects', query.id);
     const { status, data: project } = useFirestoreDocData(projectRef);
 
+    const [files, setFiles] = useState([])
+
     useEffect(async () => {
         const filesRef = ref(storage, `projects/${query.id}`);
 
@@ -26,14 +28,26 @@ function Project({ query }) {
         try {
             const res = await listAll(filesRef)
             console.log(res)
-            for (const f of res.items) {
-                console.log(f)
+            for (const r of res.items) {
+                const url = await getDownloadURL(r)
+                const xhr = new XMLHttpRequest();
+                xhr.responseType = 'blob';
+                xhr.onload = (e) => {
+                    const blob = xhr.response;
+                    if (xhr.status == 200) {
+                        console.log(blob)
+                        setFiles([...files, blob])
+                    }
+                };
+                xhr.open('GET', url);
+                xhr.send();
+
             }
         }
         catch (e) {
             console.error(e)
         }
-    })
+    }, [""])
 
     if (status === 'loading') {
         return <span>loading... {status}</span>;
