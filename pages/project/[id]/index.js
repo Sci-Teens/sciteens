@@ -30,12 +30,14 @@ function Project({ query }) {
             console.log(res)
             for (const r of res.items) {
                 const url = await getDownloadURL(r)
+                const metadata = await getMetadata(r)
                 const xhr = new XMLHttpRequest();
                 xhr.responseType = 'blob';
                 xhr.onload = (e) => {
                     const blob = xhr.response;
                     if (xhr.status == 200) {
                         console.log(blob)
+                        blob.name = metadata.name
                         setFiles([...files, blob])
                     }
                 };
