@@ -43,7 +43,7 @@ export default function Layout({ children }) {
                         ${visibleNav ? "translate-y-0" : "-translate-y-32"}`}>
                             <NavBar />
                         </div>
-                        <div className={`min-h-screen ${visibleNav && "pt-16"}`}>{children}</div>
+                        <div className="pt-16">{children}</div>
                         <Footer />
                     </html>
                 </StorageProvider>

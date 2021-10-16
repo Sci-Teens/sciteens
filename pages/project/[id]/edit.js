@@ -97,7 +97,6 @@ export default function UpdateProject({ query }) {
             setFieldValues(temp_fields)
 
             const res = await listAll(filesRef)
-            let temp_files = []
             for (const r of res.items) {
                 const url = await getDownloadURL(r)
                 const metadata = await getMetadata(r)
@@ -105,21 +104,20 @@ export default function UpdateProject({ query }) {
                 xhr.responseType = 'blob';
                 xhr.onload = () => {
                     const blob = xhr.response;
-                    console.log(blob)
                     if (xhr.status == 200) {
                         blob.name = metadata.name
-                        temp_files.push(blob)
+                        setFiles(oldFiles => [...oldFiles, blob])
                     }
                 };
                 xhr.open('GET', url);
                 xhr.send();
             }
-            setFiles(temp_files)
         }
         catch (e) {
             router.push(`/project/${query.id}`)
         }
     }, [])
+
 
     const updateProject = async (e) => {
         e.preventDefault()

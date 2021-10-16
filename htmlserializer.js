@@ -11,11 +11,11 @@ export default function htmlSerializer(type, element, content, children) {
 
         // Don't wrap images in a <p> tag
         case Elements.image:
-            return (<Image src={element.url} width={582} height={389} loader={imageLoader} class="w-full" />)
+            return (<Image src={element.url} width={582} height={389} loader={imageLoader} className="w-full" />)
 
         case Elements.embed:
             return (
-                <div data-oembed={element.oembed.embed_url} data-oembed-type={element.oembed.type} data-oembed-provider={element.oembed.provider_name} class="w-full flex items-center justify-center" dangerouslySetInnerHTML={{ __html: element.oembed.html }}>
+                <div data-oembed={element.oembed.embed_url} data-oembed-type={element.oembed.type} data-oembed-provider={element.oembed.provider_name} className="w-full flex items-center justify-center" dangerouslySetInnerHTML={{ __html: element.oembed.html }}>
                 </div>
             );
 

@@ -292,7 +292,7 @@ export default function MentorSignUp() {
                         {error_institution}
                     </p>
 
-                    <label for="position" class="uppercase text-gray-600">I am a(n)</label>
+                    <label for="position" className="uppercase text-gray-600">I am a(n)</label>
                     <select
                         name="position"
                         id="position"

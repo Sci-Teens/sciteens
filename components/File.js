@@ -8,7 +8,7 @@ export default function RenderFile({ file, id, removeFile }) {
                     <img
                         src="/assets/files/file-document-powerpoint-presentation-report-44515.svg"
                         alt="Powerpoint Icon"
-                        class="h-11 w-11 m-1"
+                        className="h-11 w-11 m-1"
                     />
                     <div className="ml-2 line-clamp-1 text-left flex-1">
                         <p>
@@ -19,7 +19,7 @@ export default function RenderFile({ file, id, removeFile }) {
                         </p>
                     </div>
                     <button className="fill-current text-red-600 h-4 w-4 m-1" onClick={e => removeFile(e, id)}>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zM11.4 10l2.83-2.83-1.41-1.41L10 8.59 7.17 5.76 5.76 7.17 8.59 10l-2.83 2.83 1.41 1.41L10 11.41l2.83 2.83 1.41-1.41L11.41 10z" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zM11.4 10l2.83-2.83-1.41-1.41L10 8.59 7.17 5.76 5.76 7.17 8.59 10l-2.83 2.83 1.41 1.41L10 11.41l2.83 2.83 1.41-1.41L11.41 10z" /></svg>
                     </button>
                 </a>
             )
@@ -30,7 +30,7 @@ export default function RenderFile({ file, id, removeFile }) {
                     <img
                         src="/assets/files/file-document-docx-text-type-word-writing-44508.svg"
                         alt="Word Icon"
-                        class="h-11 w-11 m-1"
+                        className="h-11 w-11 m-1"
                     />
                     <div className="ml-2 line-clamp-1 text-left flex-1">
                         <p>
@@ -41,7 +41,7 @@ export default function RenderFile({ file, id, removeFile }) {
                         </p>
                     </div>
                     <button className="fill-current text-red-600 h-4 w-4 m-1" onClick={e => removeFile(e, id)}>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zM11.4 10l2.83-2.83-1.41-1.41L10 8.59 7.17 5.76 5.76 7.17 8.59 10l-2.83 2.83 1.41 1.41L10 11.41l2.83 2.83 1.41-1.41L11.41 10z" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zM11.4 10l2.83-2.83-1.41-1.41L10 8.59 7.17 5.76 5.76 7.17 8.59 10l-2.83 2.83 1.41 1.41L10 11.41l2.83 2.83 1.41-1.41L11.41 10z" /></svg>
                     </button>
                 </a >
             )
@@ -52,7 +52,7 @@ export default function RenderFile({ file, id, removeFile }) {
                     <img
                         src="/assets/files/file-pdf-acrobat-document-adobe-pdf-icon-reader-44504.svg"
                         alt="PDF Icon"
-                        class="h-11 w-11 m-1"
+                        className="h-11 w-11 m-1"
                     />
                     <div className="ml-2 line-clamp-1 text-left flex-1">
                         <p>
@@ -63,7 +63,7 @@ export default function RenderFile({ file, id, removeFile }) {
                         </p>
                     </div>
                     <button className="fill-current text-red-600 h-4 w-4 m-1" onClick={e => removeFile(e, id)}>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zM11.4 10l2.83-2.83-1.41-1.41L10 8.59 7.17 5.76 5.76 7.17 8.59 10l-2.83 2.83 1.41 1.41L10 11.41l2.83 2.83 1.41-1.41L11.41 10z" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zM11.4 10l2.83-2.83-1.41-1.41L10 8.59 7.17 5.76 5.76 7.17 8.59 10l-2.83 2.83 1.41 1.41L10 11.41l2.83 2.83 1.41-1.41L11.41 10z" /></svg>
                     </button>
                 </a>
             )
@@ -76,7 +76,7 @@ export default function RenderFile({ file, id, removeFile }) {
                     <img
                         src={URL.createObjectURL(file)}
                         alt="Project Image"
-                        class="object-cover object-center rounded-l-lg h-12 w-12"
+                        className="object-cover object-center rounded-l-lg h-12 w-12"
                     />
                     <div className="ml-2 line-clamp-1 text-left flex-1">
                         <p>
@@ -87,7 +87,7 @@ export default function RenderFile({ file, id, removeFile }) {
                         </p>
                     </div>
                     <button className="fill-current text-red-600 h-4 w-4 m-1" onClick={e => removeFile(e, id)}>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zM11.4 10l2.83-2.83-1.41-1.41L10 8.59 7.17 5.76 5.76 7.17 8.59 10l-2.83 2.83 1.41 1.41L10 11.41l2.83 2.83 1.41-1.41L11.41 10z" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zM11.4 10l2.83-2.83-1.41-1.41L10 8.59 7.17 5.76 5.76 7.17 8.59 10l-2.83 2.83 1.41 1.41L10 11.41l2.83 2.83 1.41-1.41L11.41 10z" /></svg>
                     </button>
                 </a>
             )
@@ -99,7 +99,7 @@ export default function RenderFile({ file, id, removeFile }) {
                         v-else
                         src="/assets/files/file-doc-document-filetypes-text-word-xls-44511.svg"
                         alt="File Icon"
-                        class="h-11 w-11 m-1"
+                        className="h-11 w-11 m-1"
                     />
                     <div className="ml-2 line-clamp-1 text-left flex-1">
                         <p>
@@ -110,7 +110,7 @@ export default function RenderFile({ file, id, removeFile }) {
                         </p>
                     </div>
                     <button className="fill-current text-red-600 h-4 w-4 m-1" onClick={e => removeFile(e, id)}>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zM11.4 10l2.83-2.83-1.41-1.41L10 8.59 7.17 5.76 5.76 7.17 8.59 10l-2.83 2.83 1.41 1.41L10 11.41l2.83 2.83 1.41-1.41L11.41 10z" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zM11.4 10l2.83-2.83-1.41-1.41L10 8.59 7.17 5.76 5.76 7.17 8.59 10l-2.83 2.83 1.41 1.41L10 11.41l2.83 2.83 1.41-1.41L11.41 10z" /></svg>
                     </button>
                 </a>
             )
