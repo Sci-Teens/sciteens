@@ -8,6 +8,8 @@ import Error from 'next/error'
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import Discussion from "../../../components/Discussion";
+
 
 
 function Project({ query }) {
@@ -64,7 +66,7 @@ function Project({ query }) {
             <title>{project.title}</title>
             <link rel="icon" href="/favicon.ico" />
         </Head>
-        <article className="prose-sm lg:prose mx-auto px-4">
+        <article className="prose-sm lg:prose mx-auto px-4 lg:px-0">
             <div>
                 <h1>
                     {project.title}
@@ -79,6 +81,10 @@ function Project({ query }) {
                 <img src={project.image ? project.image : 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fgetwallpapers.com%2Fwallpaper%2Ffull%2F3%2F7%2F2%2F538871.jpg&f=1&nofb=1'} className="w-full mt-0 object-contain" />
             </div>
         </article>
+        <div className="max-w-prose mx-auto mb-4 px-4 lg:px-0">
+            <Discussion projectId={query.id}>
+            </Discussion>
+        </div>
     </>)
 }
 
