@@ -438,36 +438,36 @@ exports.newDiscussion = functions.firestore
         if (event.data().reply_to_id) {
             // Determine if user who submitted is a mentor or student 
             const user = await admin.auth().getUser(event.data().uid)
-            if (user.customClaims['mentor']) {
-                mailjet
-                    .post("send", { 'version': 'v3.1' })
-                    .request({
-                        "Messages": [
-                            {
-                                "From": {
-                                    "Email": "noreply@sciteens.org",
-                                    "Name": "SciTeens"
-                                },
-                                "To": [
-                                    {
-                                        "Email": "passenger1@example.com",
-                                        "Name": "passenger 1"
-                                    }
-                                ],
-                                "TemplateID": 1525200,
-                                "TemplateLanguage": true,
-                                "Subject": "New Feedback",
-                                "Variables": {
-                                    "studentOrMentor": "mentor"
+
+            // Fetch the original discussion comment 
+            const originalComment = await admin.firestore().doc(`projects/${projectID}/discussion/${event.data().reply_to_id}`).get()
+
+            const originalUser = await admin.auth().getUser(originalComment.data().uid)
+            return mailjet
+                .post("send", { 'version': 'v3.1' })
+                .request({
+                    "Messages": [
+                        {
+                            "From": {
+                                "Email": "noreply@sciteens.org",
+                                "Name": "SciTeens"
+                            },
+                            "To": [
+                                {
+                                    "Email": originalUser.email,
+                                    "Name": originalUser.displayName
                                 }
+                            ],
+                            "TemplateID": 1525200,
+                            "TemplateLanguage": true,
+                            "Subject": "New Feedback",
+                            "Variables": {
+                                "studentOrMentor": user.customClaims['mentor'] ? "mentor" : "student",
+                                "projectLink": `https://sciteens.org/project/${projectID}#${event.id}`
                             }
-                        ]
-                    })
-            }
-
-            else {
-
-            }
+                        }
+                    ]
+                })
         }
 
     })
@@ -720,7 +720,7 @@ exports.newProjectInvite = functions.firestore
     .onCreate((event) => {
         let id = event.id;
         let emails = event.data().emails;
-        let data = event.data().project_data;
+        let title = event.data().title;
 
         emails.forEach((email) => {
             // Fetch the user from email
@@ -731,7 +731,7 @@ exports.newProjectInvite = functions.firestore
                     // Fetch the user's profile, and add them to the project
                     admin
                         .firestore()
-                        .collection("profiles-minified")
+                        .collection("profiles")
                         .doc(user.uid)
                         .get()
                         .then((profile) => {
@@ -757,10 +757,10 @@ exports.newProjectInvite = functions.firestore
                                     notifications: admin.firestore.FieldValue.arrayUnion({
                                         date: new Date().getTime(),
                                         message:
-                                            "You've been invited to join the project " + data.title,
+                                            "You've been invited to join the project " + title,
                                         type: "project",
-                                        project_id: id,
-                                        project_slug: data.slug,
+                                        project_id: event.id,
+                                        project_slug: '',
                                         seen: false,
                                     }),
                                 });
@@ -791,7 +791,7 @@ exports.newProjectInvite = functions.firestore
                             TemplateLanguage: true,
                             Subject: "Project Update",
                             Variables: {
-                                projectName: data.title,
+                                projectName: title,
                                 projectLink: "https://sciteens.org/project/" + event.id,
                             },
                         },

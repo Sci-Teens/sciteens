@@ -133,8 +133,11 @@ export default function UpdateProject({ query }) {
                 date: moment().toISOString(),
                 subscribers: [],
                 fields: field_names.filter((item, i) => field_values[i]),
-                emails: members,
                 member_uids: [signInCheckResult.user.uid],
+            })
+            await setDoc(doc(firestore, 'project-invites', res.id), {
+                emails: members,
+                title: title.trim(),
             })
             for (const f of files) {
                 const fileRef = ref(storage, `projects/${query.id}/${f.name}`);

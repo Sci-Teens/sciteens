@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react"
 import moment from "moment"
 import Head from "next/head"
 import { useFirestore, useSigninCheck, useStorage } from "reactfire"
-import { collection, query, startAt, endAt, orderBy, limit, getDocs, addDoc } from "@firebase/firestore"
+import { collection, query, startAt, endAt, orderBy, limit, getDocs, addDoc, setDoc, doc } from "@firebase/firestore"
 import { getStorage, ref, uploadBytes } from "@firebase/storage"
 import Error from 'next/error'
 import { useRouter } from "next/router"
@@ -85,8 +85,11 @@ export default function CreateProject() {
                 date: moment().toISOString(),
                 subscribers: [],
                 fields: field_names.filter((item, i) => field_values[i]),
-                emails: members,
                 member_uids: [signInCheckResult.user.uid],
+            })
+            await setDoc(doc(firestore, 'project-invites', res.id), {
+                emails: members,
+                title: title.trim(),
             })
             for (const f of files) {
                 const fileRef = ref(storage, `projects/${res.id}/${f.name}`);
