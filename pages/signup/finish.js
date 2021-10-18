@@ -11,7 +11,7 @@ export default function FinishSignUp() {
     const [first_name, setFirstName] = useState('')
     const [last_name, setLastName] = useState('')
     const [birthday, setBirthday] = useState('')
-    const [ethnicity, setEthnicity] = useState('Cuban')
+    const [gender, setGender] = useState('Male')
     const [race, setRace] = useState('American Indian or Alaska Native')
     const [terms, setTerms] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -36,7 +36,7 @@ export default function FinishSignUp() {
                     display: first_name + " " + last_name,
                     birthday: moment(birthday).toISOString(),
                     race: race,
-                    ethnicity: ethnicity,
+                    gender: gender,
                 })
                 await updateProfile(user, { displayName: first_name + " " + last_name })
                 router.push('/dashboard')
@@ -165,23 +165,17 @@ export default function FinishSignUp() {
                         }
                     </p>
 
-                    <label for="ethnicity" className="uppercase text-gray-600">Ethnicity</label>
+                    <label for="gender" className="uppercase text-gray-600">Gender</label>
                     <select
-                        onChange={e => setEthnicity(e.target.value)}
-                        name="ethnicity"
-                        id="ethnicity"
-                        value={ethnicity}
+                        onChange={e => setGender(e.target.value)}
+                        name="gender"
+                        id="gender"
+                        value={gender}
                         className="mb-4 appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
                     >
-                        <option selected value="Cuban">Cuban</option>
-                        <option value="Mexican">Mexican</option>
-                        <option value="Puerto Rican">Puerto Rican</option>
-                        <option value="Another Hispanic, Latino, or Spanish origin"
-                        >Another Hispanic, Latino, or Spanish origin</option
-                        >
-                        <option value="Not of Hispanic, Latino, or Spanish origin"
-                        >Not of Hispanic, Latino, or Spanish origin</option
-                        >
+                        <option selected value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
                         <option value="Prefer not to answer">Prefer not to answer</option>
                     </select>
 
@@ -193,22 +187,25 @@ export default function FinishSignUp() {
                         value={race}
                         className="mb-4 appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
                     >
-                        <option selected value="American Indian or Alaska Native"
-                        >American Indian or Alaska Native</option
-                        >
+                        <option selected value="American Indian or Alaska Native">
+                            American Indian or Alaska Native
+                        </option>
                         <option
                             value="Asian (including Indian subcontinent and Philippines origin)"
-                        >Asian (including Indian subcontinent and Philippines origin)</option
-                        >
+                        >Asian (including Indian subcontinent and Philippines origin)
+                        </option>
                         <option value="Black or African American"
-                        >Black or African American</option
-                        >
+                        >Black or African American
+                        </option>
+                        <option value="Hispanic or Latino"
+                        >Hispanic or Latino
+                        </option>
                         <option value="White (including Middle Eastern origin)"
-                        >White (including Middle Eastern origin)</option
-                        >
+                        >White (including Middle Eastern origin)
+                        </option>
                         <option value="Native Hawaiian or Other Pacific Islander"
-                        >Native Hawaiian or Other Pacific Islander</option
-                        >
+                        >Native Hawaiian or Other Pacific Islander
+                        </option>
                         <option value="Prefer not to answer">Prefer not to answer</option>
                     </select>
 
