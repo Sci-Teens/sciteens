@@ -1,6 +1,23 @@
 import Head from 'next/head'
+import { useState, useEffect } from 'react'
+import render from '../components/LoadDesk'
 
 export default function Home() {
+
+  const [rendered, setRendered] = useState(false)
+
+  async function renderDesk() {
+    if (!rendered) {
+      let target = document.getElementById("canvas")
+      await render(target.offsetWidth, target.offsetHeight)
+      await setRendered(true)
+    }
+  }
+
+  useEffect(() => {
+    renderDesk()
+  }, [])
+
   return (
     <div>
       <Head>
@@ -8,11 +25,11 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="">
+      <main className="mt-0 lg:-mt-20">
         {/* Landing screen */}
         <div className="h-screen flex flex-wrap flex-row items-center justify-between mx-10 md:mx-16 lg:mx-24 mb-12 animate__animated animate__fadeInDown">
           <div className="w-min">
-            <h1 className="text-3xl md:text-5xl lg:text-6xl whitespace-nowrap">Science, Simplified 🧪</h1>
+            <h1 className="text-3xl md:text-5xl lg:text-6xl whitespace-nowrap">Science, simplified.</h1>
             <p className="text-sm md:text-lg mt-4 mb-8">Share your work, get feedback from mentors and peers, and find great scientific
               opportunities and resources available and accessible to you. Oh yeah, and it's free.
               Only here on SciTeens.
@@ -23,8 +40,8 @@ export default function Home() {
               <a className="text-gray-700 text-base md:text-xl p-4 ml-2 hover:underline active:bg-green-700">About</a>
             </div>
           </div>
-          <div className="w-min">
-            <div className="bg-black w-32 md:w-96  h-32 md:h-96 rounded-full" />
+          <div className="relative w-full lg:w-1/2 h-1/2 lg:h-full">
+            <div id="canvas" className="absolute top-8 lg:top-1/2 translate-y-0 lg:-translate-y-1/2 w-full aspect-w-4 aspect-h-3 z-0" />
           </div>
         </div>
 

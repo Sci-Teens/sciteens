@@ -24,6 +24,7 @@
     "react-dropzone": "^11.4.2",
     "reactfire": "^4.2.0",
     "swr": "^1.0.1",
+    "three": "^0.133.1",
     "validator": "^13.6.0"
   },
   "devDependencies": {

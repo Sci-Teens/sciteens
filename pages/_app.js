@@ -10,7 +10,7 @@ function MyApp({ Component, pageProps }) {
   const [profile, setProfile] = useState({})
 
   return (
-    <>
+    <div className="w-full h-full font-sciteens bg-backgroundGreen">
       <Head>
         <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet" />
         <title>Welcome to SciTeens</title>
@@ -24,7 +24,7 @@ function MyApp({ Component, pageProps }) {
           </Layout>
         </AppContext.Provider>
       </FirebaseAppProvider >
-    </>
+    </div>
   )
 }
 
