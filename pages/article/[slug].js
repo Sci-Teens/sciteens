@@ -77,7 +77,7 @@ function Article({ article }) {
                             <title>{RichText.asText(article.data.title)}</title>
                             <link rel="icon" href="/favicon.ico" />
                         </Head>
-                        <article className="prose-sm lg:prose mx-auto px-4">
+                        <article className="prose-sm lg:prose mx-auto px-4 overflow-hidden break-words">
                             <div>
                                 <h1>
                                     {RichText.asText(article.data.title)}

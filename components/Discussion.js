@@ -104,7 +104,7 @@ export default function Discussion({ type, projectId }) {
                         ? 'border-red-700 text-red-800 placeholder-red-700'
                         : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`}
                     type="textarea"
-                    placeholder="Enter a relevant comment..."
+                    placeholder={discussion?.length ? "Enter a relevant comment..." : "Be the first to post..."}
                     aria-label="comment"
                     maxLength="1000"
                 >
@@ -171,7 +171,7 @@ export default function Discussion({ type, projectId }) {
                             </div>
                         </div>
                     )
-                }) : <p className="text-center">Be the first to post!</p>
+                }) : <></>
             }
         </div>
     )

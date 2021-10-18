@@ -53,6 +53,13 @@ function Projects() {
             </Link >
         )
     })
+
+    const loadingComponent = (new Array(10)).fill(1).map(() => {
+        return (
+            <div className="p-4 h-16 bg-gray-100 shadow rounded-lg z-50 mt-4"></div>
+        )
+    })
+
     return (
         <>
             <Head>
@@ -63,7 +70,7 @@ function Projects() {
                 <h1 className="text-4xl py-4 text-left ml-4">
                     📰 Latest Projects
                 </h1>
-                {projectsComponent}
+                {projects?.length ? projectsComponent : loadingComponent}
             </div>
         </>
 
