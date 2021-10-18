@@ -20,14 +20,22 @@ export default function Layout({ children }) {
         let previousY = document.documentElement.scrollTop
         document.addEventListener('scroll', function () {
             let currentY = document.documentElement.scrollTop
-            if (currentY - previousY >= 200) {
-                setVisibleNav(false)
-                previousY = currentY
-            }
-            if (previousY - currentY >= 200) {
+
+            // If you're within 350px from the top of the page, the scrollbar is always visible
+            if (currentY <= 350) {
                 setVisibleNav(true)
                 previousY = currentY
+            } else {
+                if (currentY - previousY >= 200) {
+                    setVisibleNav(false)
+                    previousY = currentY
+                }
+                if (previousY - currentY >= 200) {
+                    setVisibleNav(true)
+                    previousY = currentY
+                }
             }
+
         })
         return () => {
             document.removeEventListener('scroll', function () { })
@@ -38,16 +46,14 @@ export default function Layout({ children }) {
         <AuthProvider sdk={auth}>
             <FirestoreProvider sdk={firestore}>
                 <StorageProvider sdk={storage}>
-                    <html className="w-full h-full font-sciteens bg-backgroundGreen">
-                        <div className={`fixed z-50 w-full transition-transform duration-300 transform 
+                    <div className={`fixed z-50 w-full transition-transform duration-300 transform 
                         ${visibleNav ? "translate-y-0" : "-translate-y-32"}`}>
-                            <NavBar />
-                        </div>
-                        <div className="pt-16">{children}</div>
-                        <Footer />
-                    </html>
+                        <NavBar />
+                    </div>
+                    <div className="pt-20">{children}</div>
+                    <Footer />
                 </StorageProvider>
             </FirestoreProvider>
-        </AuthProvider>
+        </AuthProvider >
     )
 }
