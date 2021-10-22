@@ -1,11 +1,12 @@
-import { useState } from "react"
+import { useState, useContext, useEffect } from "react"
 import isNumeric from 'validator/lib/isNumeric'
-import { doc, updateDoc } from '@firebase/firestore';
+import { doc, updateDoc, setDoc, getDoc } from '@firebase/firestore';
 import { updateProfile } from "@firebase/auth";
 import { useFirestore, useUser } from 'reactfire';
 import { useRouter } from "next/router";
 import moment from 'moment';
 import Head from "next/head";
+import { AppContext } from '../../context/context'
 
 export default function FinishSignUp() {
     const [first_name, setFirstName] = useState('')
@@ -24,6 +25,39 @@ export default function FinishSignUp() {
     const { data: user } = useUser();
     const router = useRouter()
 
+    const { setProfile } = useContext(AppContext)
+
+    useEffect(() => {
+        if (router.isReady) {
+            setFirstName(router?.query?.first_name ? router.query.first_name : '')
+            setLastName(router?.query?.last_name ? router.query.last_name : '')
+        }
+    }, [router])
+
+    async function createUniqueSlug(check_slug, num) {
+        const slugDoc = doc(firestore, 'profile-slugs', check_slug)
+        const slugRef = await getDoc(slugDoc)
+
+        if (slugRef.exists()) {
+            if (num == 1) {
+                check_slug = check_slug + "-" + 1;
+            } else {
+                check_slug = check_slug.replace(
+                    /[0-9]+(?!.*[0-9])/,
+                    function (match) {
+                        return parseInt(match, 10) + 1;
+                    }
+                );
+            }
+
+            // check_slug = check_slug + "-" + num;
+            num += 1;
+            return create_unique_slug(check_slug, num);
+        } else {
+            return check_slug;
+        }
+    }
+
     async function finishSignUp() {
         if (!terms) {
             setErrorTerms('You must accept the terms and conditions')
@@ -32,14 +66,32 @@ export default function FinishSignUp() {
         else {
             try {
                 setLoading(true)
-                await updateDoc(doc(firestore, 'profiles', user.uid), {
+                const unique_slug = createUniqueSlug(first_name + "-" + last_name, 1)
+                const profile = {
                     display: first_name + " " + last_name,
+                    authorized: true, // Only students are authorized upon signup
+                    slug: unique_slug,
+                    about: "",
+                    fields: [],
+                    programs: [],
+                    links: [],
+                    joined: date,
                     birthday: moment(birthday).toISOString(),
+                    institution: "",
+                    position: "",
                     race: race,
                     gender: gender,
-                })
+                    subs_p: [],
+                    subs_e: [],
+                    mentor: false,
+                }
+                await setDoc(doc(firestore, 'profiles', user.uid), profile)
+                await setDoc(doc(firestore, 'profile-slugs', unique_slug), { slug: unique_slug })
+                await setDoc(doc(firestore, 'emails', user.uid), { email: user.email })
+                await sendEmailVerification(user)
                 await updateProfile(user, { displayName: first_name + " " + last_name })
-                router.push('/dashboard')
+                setProfile(profile)
+                router.push('/signup/thanks')
             }
 
             catch {

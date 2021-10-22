@@ -32,6 +32,10 @@ function Projects() {
 
     }, [])
 
+    const imageLoader = ({ src, width, height }) => {
+        return `${src}/${width || 256}x${height || 256}`
+    }
+
     const projectsComponent = projects.map((project, index) => {
 
         return (
@@ -39,7 +43,7 @@ function Projects() {
 
                 <div className="p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center">
                     <div className="h-full w-1/4 lg:w-1/12 relative">
-                        <image src="" alt="Project Image"></image>
+                        <Image src={"https://source.unsplash.com/collection/1677633/"} alt="Project Image" height={128} width={128} loader={imageLoader}></Image>
                     </div>
                     <div className="ml-4 w-3/4 lg:w-11/12">
                         <h3 className="font-semibold text-lg">{project.title}</h3>

@@ -2,13 +2,14 @@ import { useAmp } from 'next/amp'
 import { RichText } from 'prismic-reactjs';
 export const config = { amp: 'hybrid' };
 var Prismic = require("@prismicio/client");
+import Link from 'next/link';
 import moment from 'moment';
 import Image from 'next/image'
 import Head from 'next/head'
 import htmlSerializer from '../../htmlserializer';
 // import { useRouter } from 'next/router'
 
-function Article({ article }) {
+function Article({ article, recommendations }) {
     const isAmp = useAmp()
 
     const imageLoader = ({ src, width, height }) => {
@@ -67,6 +68,24 @@ function Article({ article }) {
         }
     })
 
+    const recommendationsRendered = recommendations.map((a) => {
+        <Link key={a.uid} href={`/article/${a.uid}`}>
+            <div className="p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center w-full">
+                <div className="h-full w-1/4 lg:w-1/12 relative">
+                    <Image className="rounded-lg object-cover flex-shrink-0" loader={imageLoader} src={a.data.image.url} width={256} height={256} />
+                </div>
+                <div className="ml-4 w-3/4 lg:w-11/12">
+                    <h3 className="font-semibold text-lg">{RichText.asText(a.data.title)}</h3>
+                    <p className="hidden lg:block">{a.data.description}</p>
+                    <div className="flex flex-row items-center mt-2">
+                        {author_image}
+                        <p className="ml-2">By {a.data.author}</p>
+                    </div>
+                </div>
+            </div>
+        </Link >
+    })
+
     // const router = useRouter()
     return (
         <>
@@ -106,6 +125,12 @@ function Article({ article }) {
 
                             </div>
                         </article>
+                        {/* Recommendations */}
+                        <div className="mt-4 max-w-prose">
+                            Recommendations
+                            {recommendationsRendered}
+                        </div>
+
                     </>
             }
         </>
@@ -122,8 +147,13 @@ export async function getServerSideProps({ query }) {
         const article = await client.getByUID(
             'blog', query?.slug
         )
+        const recommendationsQuery = await client.query([
+            Prismic.Predicates.at("document.type", "blog"),
+            Prismic.Predicates.any("document.tags", article.tags),
+        ]);
+        const recommendations = recommendationsQuery.results.slice(0, 5)
         return {
-            props: { article }
+            props: { article, recommendations }
         }
     }
     catch (e) {

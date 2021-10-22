@@ -1,13 +1,27 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useSigninCheck } from 'reactfire'
-import { useContext } from 'react'
+import { useSigninCheck, useAuth } from 'reactfire'
+import { useContext, useState } from 'react'
 import { AppContext } from '../context/context'
+import { signOut } from '@firebase/auth'
+import { debounce } from 'lodash'
 
 export default function NavBar() {
     const router = useRouter()
+    const auth = useAuth()
     const { status, data: signInCheckResult } = useSigninCheck();
     const { profile } = useContext(AppContext);
+
+    const [showMenu, setShowMenu] = useState(false)
+
+    function handleShowMenu() {
+        showMenu ? setTimeout(e => setShowMenu(false), 500) : setShowMenu(true)
+    }
+
+    async function handleSignOut() {
+        signOut(auth)
+    }
+
 
     return (
         <nav className="bg-white mx-4 shadow rounded-lg z-50 mt-3 flex justify-between h-16 items-center">
@@ -48,12 +62,16 @@ export default function NavBar() {
                     </a>
                 </Link>
                 {status === "success" && signInCheckResult?.signedIn === true ?
-                    <div>
+                    <div onMouseEnter={handleShowMenu} onMouseLeave={handleShowMenu}>
                         <Link href={`/profile/${profile?.slug}`} >
-                            <div className="h-10 w-10 rounded-full border-4 border-white hover:border-gray-100 hover:shadow-inner">
+                            <div className="relative h-10 w-10 rounded-full border-4 border-white hover:border-gray-100 hover:shadow-inner" >
                                 <img src={signInCheckResult.user.photoURL} className="object-contain rounded-full" />
                             </div>
-                        </Link>
+                        </Link>                        {
+                            showMenu && <div className="p-4 rounded-lg bg-white absolute shadow-lg top-20 w-32 right-4" onClick={handleSignOut}>
+                                Sign Out
+                            </div>
+                        }
                     </div> :
                     <div>
                         <Link href="/signup" >
@@ -61,7 +79,8 @@ export default function NavBar() {
                                 Sign Up
                             </a>
                         </Link>
-                    </div>}
+                    </div>
+                }
             </div>
         </nav>
     )

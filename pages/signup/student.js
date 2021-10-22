@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useContext } from "react";
 import isNumeric from 'validator/lib/isNumeric'
 import isEmail from "validator/lib/isEmail";
-import { doc, updateDoc } from '@firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc } from '@firebase/firestore';
 import { updateProfile } from "@firebase/auth";
 import { AppContext } from '../../context/context'
 import { useFirestore, useAuth } from 'reactfire';
@@ -43,8 +43,29 @@ export default function StudentSignUp() {
     const router = useRouter()
     const { setProfile } = useContext(AppContext)
 
+    async function createUniqueSlug(check_slug, num) {
+        const slugDoc = doc(firestore, 'profile-slugs', check_slug)
+        const slugRef = await getDoc(slugDoc)
 
+        if (slugRef.exists()) {
+            if (num == 1) {
+                check_slug = check_slug + "-" + 1;
+            } else {
+                check_slug = check_slug.replace(
+                    /[0-9]+(?!.*[0-9])/,
+                    function (match) {
+                        return parseInt(match, 10) + 1;
+                    }
+                );
+            }
 
+            // check_slug = check_slug + "-" + num;
+            num += 1;
+            return create_unique_slug(check_slug, num);
+        } else {
+            return check_slug;
+        }
+    }
 
     useEffect(async () => {
         if (process.browser && !document.getElementById('recaptcha-container').hasChildNodes()) {
@@ -64,8 +85,6 @@ export default function StudentSignUp() {
             }
         }
     })
-
-
 
     async function onChange(e, target) {
         switch (target) {
@@ -127,6 +146,7 @@ export default function StudentSignUp() {
         setLoading(true)
         try {
             const res = await createUserWithEmailAndPassword(auth, email, password)
+            const unique_slug = createUniqueSlug(first_name + "-" + last_name, 1)
             const profile = {
                 display: first_name + " " + last_name,
                 authorized: true, // Only students are authorized upon signup
@@ -146,8 +166,10 @@ export default function StudentSignUp() {
                 mentor: false,
             }
             await setDoc(doc(firestore, 'profiles', res.user.uid), profile)
+            await setDoc(doc(firestore, 'profile-slugs', unique_slug), { slug: unique_slug })
             await setDoc(doc(firestore, 'emails', res.user.uid), { email: res.user.email })
             await sendEmailVerification(res.user)
+            await updateProfile(res.user, { displayName: first_name + " " + last_name })
             setProfile(profile)
             router.push('/signup/thanks')
         }
@@ -165,14 +187,15 @@ export default function StudentSignUp() {
         try {
             const res = await signInWithPopup(auth, provider)
             const addInfo = await getAdditionalUserInfo(res)
-            const prof = await getDoc(doc(firestore, 'profiles', res.user.uid))
-            setProfile(prof.data())
-
             if (addInfo.isNewUser) {
                 // Complete profile
-                router.push('/signup/finish')
+                await setDoc(doc(firestore, 'emails', res.user.uid), { email: res.user.email })
+                router.push(`/signup/finish${res.user.displayName ? `?first_name=${res.user.displayName.split(' ')[0]}&last_name=${res.user.displayName.split(' ')[1]}` : ''}`)
             }
+
             else {
+                const prof = await getDoc(doc(firestore, 'profiles', res.user.uid))
+                setProfile(prof.data())
                 router.push(`/profile/${prof.data().slug}`)
             }
         } catch (e) {

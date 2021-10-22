@@ -44,6 +44,30 @@ export default function MentorSignUp() {
     const router = useRouter()
     const { setProfile } = useContext(AppContext)
 
+    async function createUniqueSlug(check_slug, num) {
+        const slugDoc = doc(firestore, 'profile-slugs', check_slug)
+        const slugRef = await getDoc(slugDoc)
+
+        if (slugRef.exists()) {
+            if (num == 1) {
+                check_slug = check_slug + "-" + 1;
+            } else {
+                check_slug = check_slug.replace(
+                    /[0-9]+(?!.*[0-9])/,
+                    function (match) {
+                        return parseInt(match, 10) + 1;
+                    }
+                );
+            }
+
+            // check_slug = check_slug + "-" + num;
+            num += 1;
+            return create_unique_slug(check_slug, num);
+        } else {
+            return check_slug;
+        }
+    }
+
     useEffect(async () => {
         if (process.browser && !document.getElementById('recaptcha-container').hasChildNodes()) {
             const recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
@@ -145,6 +169,7 @@ export default function MentorSignUp() {
         setLoading(true)
         try {
             const res = await createUserWithEmailAndPassword(auth, email, password)
+            const unique_slug = createUniqueSlug(first_name + "-" + last_name, 1)
             const profile = {
                 display: first_name + " " + last_name,
                 authorized: true, // Only students are authorized upon signup
@@ -164,6 +189,7 @@ export default function MentorSignUp() {
                 mentor: true,
             }
             await setDoc(doc(firestore, 'profiles', res.user.uid), profile)
+            await setDoc(doc(firestore, 'profile-slugs', unique_slug), { slug: unique_slug })
             await setDoc(doc(firestore, 'emails', res.user.uid), { email: res.user.email })
             await sendEmailVerification(res.user)
             setProfile(profile)
