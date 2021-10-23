@@ -30,8 +30,10 @@ export default async function render(width, height) {
     // Loading manager to show desk image before desk 3d model is loaded
     const loadManager = new THREE.LoadingManager(() => {
         const loadingScreen = document.getElementById('loading-screen');
-        loadingScreen.style.zIndex = -1
-        container.classList.remove('scale-75')
+        if (loadingScreen) {
+            loadingScreen.style.zIndex = -1
+            container.classList.remove('scale-75')
+        }
     });
 
 
