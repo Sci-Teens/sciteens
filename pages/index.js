@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import { useState, useEffect } from 'react'
-import render from './LoadDesk.js'
+import render from '../components/LoadDesk.js'
 
 export default function Home() {
 
@@ -47,7 +47,7 @@ export default function Home() {
             <div id="loading-screen" className="absolute p-4 z-20 transition-all duration-300 bg-backgroundGreen">
               <img src={'/assets/desktop-preview.png'} alt="" className="scale-75" />
             </div>
-            <div id="canvas" className="transition-all duration-1000 scale-75" />
+            <div id="canvas" className="transition-all duration-[1300ms] scale-75" />
           </div>
         </div>
 
