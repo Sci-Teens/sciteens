@@ -19,7 +19,7 @@ export default async function render(width, height) {
     container.appendChild(renderer.domElement);
 
     // Light that brightens whole model
-    const light = new THREE.AmbientLight(0x404040); // soft white light
+    const light = new THREE.AmbientLight(0x404040, 1.5); // soft white light
     scene.add(light);
 
     // Sun-like light that brightens front
@@ -55,17 +55,17 @@ export default async function render(width, height) {
                 requestAnimationFrame(animate);
                 gltf.scene.rotation.y += rotation;
                 renderer.render(scene, camera);
+
             };
 
             animate();
         },
         // called while loading is progressing
         function (xhr) {
+            console.log("Model " + (Math.floor(xhr.loaded * 100 / 173632)) + "% Loaded")
         },
         function (error) {
             console.log(error)
         }
     );
-
-    // document.getElementById('blocker').style.visibility = 'hidden'
 }
