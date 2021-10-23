@@ -28,9 +28,9 @@ export default function Home() {
 
       <main className="mt-0 lg:-mt-20">
         {/* Landing screen */}
-        <div className="relative h-screen">
-          <div className="relative z-20 h-full max-w-2xl flex flex-col justify-center ml-10 md:ml-16 lg:ml-24 mb-12">
-            <h1 className="text-3xl md:text-5xl lg:text-6xl whitespace-nowrap">Science, simplified.</h1>
+        <div className="relative h-screen text-center xl:text-left">
+          <div className="relative z-20 h-full w-auto lg:max-w-2xl flex flex-col lg:justify-center mx-5 md:mx-16 lg:ml-24 mb-12 pt-24">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl whitespace-nowrap">Science, simplified.</h1>
             <p className="text-sm md:text-lg mt-4 mb-8">Share your work, get feedback from mentors and peers, and find great scientific
               opportunities and resources available and accessible to you. Oh yeah, and it's free.
               Only here on SciTeens.
@@ -46,8 +46,8 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          <div id="canvas-container" className="absolute grid grid-rows-1 grid-cols-1 items-center right-16 top-0 h-full w-[40%]">
-            <div id="loading-screen" className="absolute p-4 z-20 transition-all duration-300 bg-backgroundGreen">
+          <div id="canvas-container" className="absolute grid grid-rows-1 grid-cols-1 items-center right-10 left-10 md:right-24 md:left-24 lg:right-16 lg:left-auto top-28 lg:top-0 h-full lg:w-[40%]">
+            <div id="loading-screen" className="absolute z-10 transition-all duration-300 bg-backgroundGreen">
               <img src={'./assets/desktop-preview.png'} alt="" className="scale-75" />
             </div>
             <div id="canvas" className="transition-all duration-[1300ms] scale-75" />
@@ -59,7 +59,7 @@ export default function Home() {
         <div className="mb-32 md:mb-48">
           <h2 className="text-center text-xl md:text-3xl lg:text-5xl font-semibold mb-12 mx-12 md:mx-32 lg:mx-56">Furthering the accessibility of science, one
             student at a time.</h2>
-          <div className="flex flex-col lg:flex-row mx-10 md:mx-16 lg:mx-24">
+          <div className="flex flex-col lg:flex-row mx-5 md:mx-16 lg:mx-24">
             <div className="flex flex-col">
               <div className="flex flex-row bg-white shadow p-5 rounded-lg mb-8 mr-0 lg:mr-4">
                 <p className="flex flex-shrink-0 justify-center items-center text-sciteensLightGreen-regular text-base md:text-lg lg:text-xl font-bold 
@@ -102,7 +102,7 @@ export default function Home() {
         <div className="mb-32 md:mb-48">
           <h2 className="text-center text-xl md:text-3xl lg:text-5xl font-semibold mb-12 mx-12 md:mx-28 lg:mx-48">SciTeens takes pride in its open source and
             collaborative platform, but let our users do the talking for us.</h2>
-          <div className="relative flex flex-col md:flex-row items-center md:items-stretch justify-between mx-10 md:mx-16 lg:mx-24 z-10">
+          <div className="relative flex flex-col md:flex-row items-center md:items-stretch justify-between mx-5 md:mx-16 lg:mx-24 z-10">
             <div className="bg-white shadow p-5 rounded-lg w-auto md:w-[45%] lg:w-[30%] mb-8 md:mb-0">
               <img src={'./assets/zondicons/education.svg'} className="h-10 mb-6" alt="" />
               <p className="text-sm lg:text-base mb-4">
@@ -146,13 +146,13 @@ export default function Home() {
         {/* Featured Media */}
         <div className="mb-32 md:mb-48">
           <h2 className="text-center text-xl md:text-3xl lg:text-5xl font-semibold mb-12">Featured Media</h2>
-          <div className="grid grid-rows-3 grid-cols-1 lg:grid-rows-2 lg:grid-cols-2 mx-10 md:mx-16 lg:mx-24">
+          <div className="grid grid-rows-3 grid-cols-1 lg:grid-rows-2 lg:grid-cols-2 mx-5 md:mx-16 lg:mx-24">
             <a href="https://www.neonscience.org/impact/observatory-blog/sciteens-data-science-and-ecology-gen-z"
-              className="col-span-1 row-span-1 lg:row-span-2 bg-white rounded-lg shadow overflow-hidden mr-0 lg:mr-4 mb-4 lg:mb-0"
+              className="group col-span-1 row-span-1 lg:row-span-2 bg-white rounded-lg shadow overflow-hidden mr-0 lg:mr-4 mb-4 lg:mb-0"
               target="_blank" rel="noopener noreferrer">
               <div className="h-full flex flex-col md:flex-row lg:flex-col">
                 <div className="relative h-full overflow-hidden w-full md:w-1/2 lg:w-auto">
-                  <img src={'./assets/featured_media/neon.png'} alt="NSF Neon Logo" className="absolute top-0 w-full h-full object-cover transition hover:scale-105 duration-700" />
+                  <img src={'./assets/featured_media/neon.png'} alt="NSF Neon Logo" className="absolute top-0 w-full h-full object-cover transition group-hover:scale-105 duration-700" />
                 </div>
                 <div className="p-4 md:p-10 bg-white z-10 w-full md:w-1/2 lg:w-auto">
                   <p className="text-base md:text-2xl font-semibold mb-1">SciTeens: Data Science and Ecology for Gen Z</p>
@@ -161,11 +161,11 @@ export default function Home() {
               </div>
             </a>
             <a href="https://news.mit.edu/2019/ideas-challenge-social-ventures-0430"
-              className="relative row-span-1 col-span-1 bg-white rounded-lg shadow overflow-hidden ml-0 lg:ml-4 mb-4 mt-4 lg:mt-0"
+              className="group  row-span-1 col-span-1 bg-white rounded-lg shadow overflow-hidden ml-0 lg:ml-4 mb-4 mt-4 lg:mt-0"
               target="_blank" rel="noopener noreferrer">
               <div className="h-full flex flex-col md:flex-row">
                 <div className="relative h-full w-full md:w-1/2">
-                  <img src={'./assets/featured_media/ideas.jpg'} alt="" className="absolute top-0 w-full h-full object-cover transition hover:scale-105 duration-700" />
+                  <img src={'./assets/featured_media/ideas.jpg'} alt="" className="absolute top-0 w-full h-full object-cover transition group-hover:scale-105 duration-700" />
                 </div>
                 <div className="p-4 md:p-10 bg-white z-10 w-full md:w-1/2">
                   <p className="text-base md:text-2xl font-semibold mb-1">IDEAS challenge showcases social ventures at MIT</p>
@@ -174,16 +174,16 @@ export default function Home() {
               </div>
             </a>
             <a href="https://news.fsu.edu/multimedia/radio/2020/08/03/young-scholars-online-program-turns-students-into-scientists/"
-              className="row-span-1 col-span-1 bg-white rounded-lg shadow overflow-hidden h-60 md:h-60 lg:h-72 ml-0 lg:ml-4 mt-4"
+              className="group row-span-1 col-span-1 bg-white rounded-lg shadow overflow-hidden h-72 md:h-auto ml-0 lg:ml-4 mt-4"
               target="_blank" rel="noopener noreferrer">
               <div className="h-full flex flex-col md:flex-row lg:flex-row-reverse">
                 <div className="relative h-full w-full md:w-1/2">
-                  <img src={'./assets/featured_media/ysp.jpg'} alt="" className="absolute top-0 w-full h-full object-cover transition hover:scale-105 duration-700" />
+                  <img src={'./assets/featured_media/ysp.jpg'} alt="" className="absolute top-0 w-full h-full object-cover transition group-hover:scale-105 duration-700" />
                 </div>
                 <div className="p-4 md:p-10 bg-white z-10 w-full md:w-1/2">
                   <p className="text-base md:text-2xl font-semibold mb-1">Young Scholars Online Program turns students into
                     scientists</p>
-                  <p className="text-sm md:text-lg text-gray-700">August 3, 2020</p>
+                  <p className="text-sm md:text-lg text-gray-700 pb-5">August 3, 2020</p>
                 </div>
               </div>
             </a>
@@ -192,7 +192,7 @@ export default function Home() {
 
 
         {/* Partners */}
-        <div className="flex flex-col lg:flex-row justify-between mx-10 md:mx-16 lg:mx-24 mb-24">
+        <div className="flex flex-col lg:flex-row justify-between mx-5 md:mx-16 lg:mx-24 mb-24">
           <div>
             <h2 className="text-center lg:text-left text-xl md:text-3xl lg:text-5xl font-semibold max-w-2xl mb-2">Partners & Programs</h2>
             <p className="text-center lg:text-left text-sm md:text-xl">If you'd like to support us, please consider <a href='/donate'
