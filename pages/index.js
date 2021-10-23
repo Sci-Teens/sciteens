@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import { useState, useEffect } from 'react'
 import render from '../components/LoadDesk.js'
+import Link from 'next/link'
 
 export default function Home() {
 
@@ -31,13 +32,18 @@ export default function Home() {
           <div className="relative z-20 h-full max-w-2xl flex flex-col justify-center ml-10 md:ml-16 lg:ml-24 mb-12">
             <h1 className="text-3xl md:text-5xl lg:text-6xl whitespace-nowrap">Science, simplified.</h1>
             <p className="text-sm md:text-lg mt-4 mb-8">Share your work, get feedback from mentors and peers, and find great scientific
-              opportunities and resources available and accessible to you.Oh yeah, and it's free.
+              opportunities and resources available and accessible to you. Oh yeah, and it's free.
               Only here on SciTeens.
             </p>
             <div>
-              <a className="bg-sciteensLightGreen-regular text-white text-base md:text-xl 
-              rounded-lg shadow-md p-3 md:p-4 mr-2 hover:bg-sciteensLightGreen-dark">Get Started</a>
-              <a className="text-gray-700 text-base md:text-xl p-4 ml-2 hover:underline active:bg-green-700">About</a>
+              <Link href="/signup">
+                <a className="bg-sciteensLightGreen-regular text-white text-base md:text-xl rounded-lg shadow-md p-3 md:p-4 mr-2 hover:bg-sciteensLightGreen-dark">
+                  Get Started
+                </a>
+              </Link>
+              <Link href="/about">
+                <a className="text-gray-700 text-base md:text-xl p-4 ml-2 hover:underline active:bg-green-700">About</a>
+              </Link>
             </div>
           </div>
           <div id="canvas-container" className="absolute grid grid-rows-1 grid-cols-1 items-center right-16 top-0 h-full w-[40%]">
