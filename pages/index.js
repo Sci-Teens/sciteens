@@ -1,21 +1,24 @@
 import Head from 'next/head'
 import { useState, useEffect } from 'react'
-import render from '../components/LoadDesk'
+import render from './LoadDesk.js'
 
 export default function Home() {
 
   const [rendered, setRendered] = useState(false)
 
-  async function renderDesk() {
+  function renderDesk(canvas) {
     if (!rendered) {
-      let target = document.getElementById("canvas")
-      await render(target.offsetWidth, target.offsetHeight)
-      await setRendered(true)
+      render(canvas.offsetWidth, canvas.offsetWidth)
+      setRendered(true)
     }
   }
 
   useEffect(() => {
-    renderDesk()
+    let canvas = document.getElementById("canvas")
+    // let loadingScreen = document.getElementById("loading-screen")
+    // loadingScreen.style.height = canvas.offsetHeight
+    // loadingScreen.style.width = canvas.offsetWidth
+    renderDesk(canvas)
   }, [])
 
   return (
@@ -27,21 +30,24 @@ export default function Home() {
 
       <main className="mt-0 lg:-mt-20">
         {/* Landing screen */}
-        <div className="h-screen flex flex-wrap flex-row items-center justify-between mx-10 md:mx-16 lg:mx-24 mb-12 animate__animated animate__fadeInDown">
-          <div className="w-min">
+        <div className="relative h-screen">
+          <div className="relative z-20 h-full max-w-2xl flex flex-col justify-center ml-10 md:ml-16 lg:ml-24 mb-12">
             <h1 className="text-3xl md:text-5xl lg:text-6xl whitespace-nowrap">Science, simplified.</h1>
             <p className="text-sm md:text-lg mt-4 mb-8">Share your work, get feedback from mentors and peers, and find great scientific
-              opportunities and resources available and accessible to you. Oh yeah, and it's free.
+              opportunities and resources available and accessible to you.Oh yeah, and it's free.
               Only here on SciTeens.
             </p>
             <div>
               <a className="bg-sciteensLightGreen-regular text-white text-base md:text-xl 
-            rounded-lg shadow-md p-3 md:p-4 mr-2 hover:bg-sciteensLightGreen-dark">Get Started</a>
+              rounded-lg shadow-md p-3 md:p-4 mr-2 hover:bg-sciteensLightGreen-dark">Get Started</a>
               <a className="text-gray-700 text-base md:text-xl p-4 ml-2 hover:underline active:bg-green-700">About</a>
             </div>
           </div>
-          <div className="relative w-full lg:w-1/2 h-1/2 lg:h-full">
-            <div id="canvas" className="absolute top-8 lg:top-1/2 translate-y-0 lg:-translate-y-1/2 w-full aspect-w-4 aspect-h-3 z-0" />
+          <div id="canvas-container" className="absolute grid grid-rows-1 grid-cols-1 items-center right-16 top-0 h-full w-[40%]">
+            <div id="loading-screen" className="absolute p-4 z-20 transition-all duration-300 bg-backgroundGreen">
+              <img src={'/assets/desktop-preview.png'} alt="" className="scale-75" />
+            </div>
+            <div id="canvas" className="transition-all duration-1000 scale-75" />
           </div>
         </div>
 
@@ -54,33 +60,33 @@ export default function Home() {
             <div className="flex flex-col">
               <div className="flex flex-row bg-white shadow p-5 rounded-lg mb-8 mr-0 lg:mr-4">
                 <p className="flex flex-shrink-0 justify-center items-center text-sciteensLightGreen-regular text-base md:text-lg lg:text-xl font-bold 
-              bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px] border-sciteensLightGreen-regular 
-              border-opacity-40 h-9 lg:h-12 w-9 lg:w-12 mr-4 whitespace-nowrap">1</p>
+        bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px]border-sciteensLightGreen-regular
+        border-opacity-40 h-9 lg:h-12 w-9 lg:w-12 mr-4 whitespace-nowrap">1</p>
                 <p className="text-xs md:text-base lg:text-lg">We strive to bridge the gap between education and opportunity, particularly for
                   students from low-resource areas who do not have an extensive STEM support network.</p>
               </div>
               <div className="flex flex-row bg-white shadow p-5 rounded-lg mb-8 mr-0 lg:mr-4">
                 <p className="flex flex-shrink-0 justify-center items-center text-sciteensLightGreen-regular text-base md:text-lg lg:text-xl font-bold 
-              bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px] border-sciteensLightGreen-regular 
-              border-opacity-40 h-9 lg:h-12 w-9 lg:w-12 mr-4 whitespace-nowrap">2</p>
+        bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px]border-sciteensLightGreen-regular
+        border-opacity-40 h-9 lg:h-12 w-9 lg:w-12 mr-4 whitespace-nowrap">2</p>
                 <p className="text-xs md:text-base lg:text-lg">SciTeens was started by a group of teens just like you trying to get started in the
-                  STEM fields. Because of this, we know how intimidating it can be to begin your own research projects. We
+                  STEM fields.Because of this, we know how intimidating it can be to begin your own research projects.We
                   want to put an end to this intimidation and make STEM research accesible and rewarding for everyone.</p>
               </div>
             </div>
             <div className="flex flex-col">
               <div className="flex flex-row bg-white shadow p-5 rounded-lg  mb-8 ml-0 lg:ml-4">
                 <p className="flex flex-shrink-0 justify-center items-center text-sciteensLightGreen-regular text-base md:text-lg lg:text-xl font-bold 
-              bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px] border-sciteensLightGreen-regular 
-              border-opacity-40 h-9 lg:h-12 w-9 lg:w-12 mr-4 whitespace-nowrap">3</p>
+        bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px]border-sciteensLightGreen-regular
+        border-opacity-40 h-9 lg:h-12 w-9 lg:w-12 mr-4 whitespace-nowrap">3</p>
                 <p className="text-xs md:text-base lg:text-lg">With SciTeens you can share your knowledge and research by writing articles or
-                  creating projects. Your work can be viewed by other SciTeens users, giving you access to unique opportunities
+                  creating projects.Your work can be viewed by other SciTeens users, giving you access to unique opportunities
                   through collaboration with your peers and mentorship by accomplished scholars in the STEM fields.</p>
               </div>
               <div className="flex flex-row bg-white shadow p-5 rounded-lg mb-8 ml-0 lg:ml-4">
                 <p className="flex flex-shrink-0 justify-center items-center text-sciteensLightGreen-regular text-base md:text-lg lg:text-xl font-bold 
-              bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px] border-sciteensLightGreen-regular 
-              border-opacity-40 h-9 lg:h-12 w-9 lg:w-12 mr-4 whitespace-nowrap">4</p>
+        bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px]border-sciteensLightGreen-regular
+        border-opacity-40 h-9 lg:h-12 w-9 lg:w-12 mr-4 whitespace-nowrap">4</p>
                 <p className="text-xs md:text-base lg:text-lg">All it takes is a spark of inspiration, the willingness to work with your peers, and
                   an account to get started doing scientific research and making a difference in your area of study.</p>
               </div>
@@ -98,7 +104,7 @@ export default function Home() {
               <img src={'./assets/zondicons/education.svg'} className="h-10 mb-6" alt="" />
               <p className="text-sm lg:text-base mb-4">
                 "I want to first thank the members and founders of SciTeens for bringing such a wonderful and amazing opportunity
-                we are having. I would love to thank all the mentors who were taking most of their time mentoring us as well
+                we are having.I would love to thank all the mentors who were taking most of their time mentoring us as well
                 helping us coming up with best projects."
               </p>
               <p className="text-lg lg:text-xl">- <span className="font-semibold">Elisha M.</span>, Zimbabwe</p>
@@ -208,9 +214,9 @@ export default function Home() {
             </a>
           </div>
         </div>
-      </main>
+      </main >
 
 
-    </div>
+    </div >
   )
 }

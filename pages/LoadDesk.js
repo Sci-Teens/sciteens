@@ -9,7 +9,7 @@ export default async function render(width, height) {
     scene.background = backgroundColor
 
     const camera = new THREE.PerspectiveCamera(35, width / height, .1, 1000);
-    camera.position.z = 0.8
+    camera.position.z = 0.85
     scene.add(camera);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -27,8 +27,16 @@ export default async function render(width, height) {
     pointLight.position.set(50, 50, 50);
     scene.add(pointLight);
 
+    // Loading manager to show desk image before desk 3d model is loaded
+    const loadManager = new THREE.LoadingManager(() => {
+        const loadingScreen = document.getElementById('loading-screen');
+        loadingScreen.style.zIndex = -1
+        container.classList.remove('scale-75')
+    });
+
+
     // Instantiate a loader
-    const loader = new GLTFLoader();
+    const loader = new GLTFLoader(loadManager);
 
     // Load a glTF resource
     await loader.load(
@@ -39,11 +47,13 @@ export default async function render(width, height) {
             scene.add(gltf.scene);
             gltf.scene.rotateX(-49.9)
             gltf.scene.position.y = -0.1
-            gltf.scene.rotation.y = 550
+            gltf.scene.rotation.y = 550.2
+
+            let rotation = window.innerWidth < 750 ? 0.005 : 0.0013
 
             const animate = function () {
                 requestAnimationFrame(animate);
-                gltf.scene.rotation.y += 0.001;
+                gltf.scene.rotation.y += rotation;
                 renderer.render(scene, camera);
             };
 
