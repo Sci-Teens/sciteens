@@ -4,13 +4,61 @@ import Image from 'next/image';
 import { RichText } from 'prismic-reactjs';
 import { useRouter } from "next/router"
 import Head from 'next/head';
-
+import { useEffect, useState, useMemo } from 'react';
 
 function Articles({ articles }) {
     const router = useRouter()
+    const [search, setSearch] = useState('')
+    const [field, setField] = useState('All')
+    const [field_names] = useState([
+        "All",
+        "Biology",
+        "Chemistry",
+        "Cognitive Science",
+        "Computer Science",
+        "Earth Science",
+        "Electrical Engineering",
+        "Environmental Science",
+        "Mathematics",
+        "Mechanical Engineering",
+        "Medicine",
+        "Physics",
+        "Space Science",
+    ])
 
     const imageLoader = ({ src, width, height }) => {
         return `${src}?fit=crop&crop=faces&w=${width || 256}&h=${height || 256}`
+    }
+
+    useEffect(() => {
+        if (router?.isReady) {
+            setSearch(router.query?.search ? router.query.search : '')
+            setField(router.query?.field ? router.query.field : '')
+        }
+    }, [router])
+
+    async function handleChange(e, target) {
+        e.preventDefault();
+        switch (target) {
+            case 'searchbar':
+                setSearch(e.target.value)
+        }
+    }
+
+    async function handleSearch(e) {
+        e.preventDefault()
+        let q = {}
+        if (search) {
+            q.search = search
+        }
+        if (field) {
+            q.field = field
+        }
+        router.push({
+            pathname: '/articles',
+            query: q
+        })
+        // router.push(`/articles?${search.trim() ? 'search=' + search.trim() : ''}${field ? '&field=' + field : ''}`)
     }
 
     const articlesComponent = articles.results.map((article, index) => {
@@ -50,70 +98,61 @@ function Articles({ articles }) {
             </Link >
         )
     })
+
+
     return (
         <>
             <Head>
                 <title>Articles Page {router?.query?.page ? router.query.page : 1}</title>
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <div className="w-full">
+            <div className="w-full min-h-screen">
                 <h1 className="text-4xl py-4 text-left ml-4">
-                    📰 Latest Articles
+                    📰 Articles
                 </h1>
+                <form onSubmit={e => handleSearch(e)} className="py-4 mx-4 flex">
+                    <select
+                        onChange={e => setField(e.target.value)}
+                        name="field"
+                        id="field"
+                        value={field}
+                        className="appearance-none border-transparent border-2 bg-green-200 mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
+                    >
+                        {
+                            field_names.map((name) => {
+                                return (
+                                    <option value={name}>
+                                        {name}
+                                    </option>
+                                )
+                            })
+                        }
+                    </select>
+                    <input
+                        onChange={e => handleChange(e, 'searchbar')}
+                        value={search}
+                        name="search"
+                        required
+                        className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular`}
+                        type="text"
+                        placeholder="Search articles...."
+                        aria-label="search"
+                        maxLength="100"
+                    />
+                    <button type="submit" className="bg-sciteensLightGreen-regular text-white rounded-lg p-2 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
+                        onClick={e => handleSearch(e)}>
+                        Search
+                    </button>
+                </form>
                 {articlesComponent}
-                <p className="my-4 w-full flex flex-row items-center justify-center space-x-4">
-                    <Link href={`/articles?page=${router.query?.page && router.query?.page > 1 ? Number(router.query?.page) - 1 : 1}`} disabled={!router.query?.page || router.query?.page === 1}>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" className="fill-current text-sciteensGreen-regular h-8 hover:text-sciteensGreen-dark hover:cursor-pointer"><path d="M7.05 9.293L6.343 10 12 15.657l1.414-1.414L9.172 10l4.242-4.243L12 4.343z" />
-                        </svg>
-                    </Link>
-                    <Link href={`/articles?page=1`}>
-                        <button className="text-sciteensGreen-regular font-bold hover:text-sciteensGreen-dark">
-                            1
-                        </button>
-                    </Link>
-                    {
-                        (router.query?.page && router.query?.page > 3 && router.query?.page <= articles.total_pages) &&
-                        <div className="text-sciteensGreen-regular font-bold hover:text-sciteensGreen-dark">
-                            ...
-                        </div>
-                    }
-                    <Link href={`/articles?page=${router.query?.page && router.query?.page > 2 && router.query?.page <= articles.total_pages ? Number(router.query?.page) - 1 : 2}`}>
-                        <button className="text-sciteensGreen-regular font-bold hover:text-sciteensGreen-dark">
-                            {router.query?.page && router.query?.page > 2 && router.query?.page <= articles.total_pages ? Number(router.query?.page) - 1 : 2}
-                        </button>
-                    </Link>
-
-                    {
-                        (router.query?.page && router.query?.page > 2 && router.query?.page < articles.total_pages) &&
-                        <div className="text-sciteensGreen-regular font-bold hover:text-sciteensGreen-dark">
-                            {router.query?.page}
-                        </div>
-                    }
-                    {
-                        (router.query?.page < articles.total_pages - 1) &&
-                        <Link href={`/articles?page=${router.query?.page && router.query?.page > 2 && router.query?.page < articles.total_pages - 1 ? Number(router.query?.page) + 1 : 3}`}>
-                            <button className="text-sciteensGreen-regular font-bold hover:text-sciteensGreen-dark">
-                                {router.query?.page && router.query?.page > 2 && router.query?.page < articles.total_pages - 1 ? Number(router.query?.page) + 1 : 3}
-                            </button>
-                        </Link>
-                    }
-
-                    {
-                        (router.query?.page && router.query?.page < articles.total_pages - 2) &&
-                        <div className="text-sciteensGreen-regular font-bold hover:text-sciteensGreen-dark">
-                            ...
-                        </div>
-                    }
-                    <Link href={`/articles?page=${articles.total_pages}`}>
-                        <button className="text-sciteensGreen-regular font-bold hover:text-sciteensGreen-dark">
-                            {articles.total_pages}
-                        </button>
-                    </Link>
-                    <Link href={`/articles?page=${router.query?.page ? router.query?.page < articles.total_pages ? Number(router.query?.page) + 1 : articles.total_pages : 2}`} disabled={!router.query?.page || router.query?.page === articles.total_pages}>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" className="fill-current text-sciteensGreen-regular h-8 hover:text-sciteensGreen-dark hover:cursor-pointer"><path d="M12.95 10.707l.707-.707L8 4.343 6.586 5.757 10.828 10l-4.242 4.243L8 15.657l4.95-4.95z" />
-                        </svg>
-                    </Link>
-                </p>
+                {
+                    articles.length &&
+                    <div className="mx-auto text-center mt-20">
+                        <i className="font-semibold text-xl">
+                            Sorry, we couldn't find any searches related to {router?.query.search}
+                        </i>
+                    </div>
+                }
             </div>
         </>
 
@@ -125,13 +164,21 @@ export async function getServerSideProps({ query }) {
     try {
         const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
         const client = Prismic.client(apiEndpoint)
-        const articles = await client.query(
-            Prismic.Predicates.at("document.type", "blog"), {
-            orderings: `[document.first_publication_date desc]`,
-            pageSize: 10,
-            page: query?.page ? query?.page : 1
+        let predicates = []
+        if (query.search) {
+            predicates.push(Prismic.Predicates.fulltext('document', query.search))
         }
-        )
+        if (query.field && query.field != "All") {
+            predicates.push(Prismic.Predicates.at("document.tags", [query.field]))
+        }
+        const articles = await client.query([
+            Prismic.Predicates.at("document.type", "blog"),
+            ...predicates
+        ],
+            {
+                orderings: `[document.first_publication_date desc]`,
+                pageSize: 10,
+            })
 
         return {
             props: { articles }
