@@ -3,11 +3,24 @@ import Layout from '../components/Layout'
 import { AppContext } from '../context/context';
 import firebaseConfig from '../firebaseConfig';
 import { FirebaseAppProvider } from 'reactfire';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 
 function MyApp({ Component, pageProps }) {
-  const [profile, setProfile] = useState({})
+  const [profile, setUserProfile] = useState({})
+
+  function setProfile(p) {
+    setUserProfile(p)
+    if (process.browser) {
+      window.localStorage.setItem('profile', JSON.stringify(p))
+    }
+  }
+
+  useEffect(() => {
+    if (process.browser) {
+      setUserProfile(JSON.parse(window.localStorage.getItem('profile')))
+    }
+  }, [])
 
   return (
     <div className="w-full h-full font-sciteens bg-backgroundGreen">
@@ -19,7 +32,7 @@ function MyApp({ Component, pageProps }) {
       < FirebaseAppProvider firebaseConfig={firebaseConfig} >
         <AppContext.Provider value={{ profile, setProfile }}>
           <Layout>
-            <span>Profile is{Object.keys(profile)}</span>
+            <span>profile is {profile ? Object.keys(profile) : ''}</span>
             <Component {...pageProps} />
           </Layout>
         </AppContext.Provider>

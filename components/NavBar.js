@@ -10,7 +10,7 @@ export default function NavBar() {
     const router = useRouter()
     const auth = useAuth()
     const { status, data: signInCheckResult } = useSigninCheck();
-    const { profile } = useContext(AppContext);
+    const { profile, setProfile } = useContext(AppContext);
 
     const [showMenu, setShowMenu] = useState(false)
 
@@ -19,6 +19,7 @@ export default function NavBar() {
     }
 
     async function handleSignOut() {
+        setProfile({})
         signOut(auth)
     }
 
@@ -63,7 +64,7 @@ export default function NavBar() {
                 </Link>
                 {status === "success" && signInCheckResult?.signedIn === true ?
                     <div onMouseEnter={handleShowMenu} onMouseLeave={handleShowMenu}>
-                        <Link href={`/profile/${profile?.slug}`} >
+                        <Link href={`/profile/${profile?.slug ? profile.slug : ''}`} >
                             <div className="relative h-10 w-10 rounded-full border-4 border-white hover:border-gray-100 hover:shadow-inner" >
                                 <img src={signInCheckResult.user.photoURL} className="object-contain rounded-full" />
                             </div>
