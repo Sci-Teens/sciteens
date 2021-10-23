@@ -6,14 +6,62 @@ import moment from 'moment';
 import Image from 'next/image'
 import Head from 'next/head'
 import htmlSerializer from '../../htmlserializer';
+import { useState, useEffect } from 'react';
+import File from '../../components/File'
 // import { useRouter } from 'next/router'
 
 function Course({ course }) {
+    const [files, setFiles] = useState([])
 
     const imageLoader = ({ src, width, height }) => {
-        return `${src}?fit=crop&crop=faces&w=${width || 582}&h=${height || 389}`
+        return `${src}?fit=crop&crop=faces&w=${width || 582}&h=${height || 386}`
     }
 
+    useEffect(async () => {
+        try {
+            for (const r of course.data.files) {
+                const url = r.file.url
+                const xhr = new XMLHttpRequest();
+                xhr.responseType = 'blob';
+                xhr.onload = (e) => {
+                    const blob = xhr.response;
+                    if (xhr.status == 200) {
+                        console.log(blob)
+                        blob.name = r.file.name
+                        setFiles(fs => [...fs, blob])
+                    }
+                };
+                xhr.open('GET', url);
+                xhr.send();
+            }
+        }
+        catch (e) {
+            console.error(e)
+        }
+    }, [])
+
+    const lessonComponent = course.data.body.map((slice, index) => {
+        if (slice.slice_type == "lesson") {
+            return (
+                <tr key={index}>
+                    <td className="p-2">
+                        {moment(slice.primary.date).calendar(null, { sameElse: 'MMMM DD, YYYY' })}
+                    </td>
+                    <td className="p-2">
+                        {RichText.asText(slice.primary.title)}
+                    </td>
+                    <td className="p-2">
+                        <a
+                            href={slice.primary.lesson_link.url}
+                            target="_blank"
+                        >
+                            View
+                        </a>
+                    </td>
+                </tr>
+            )
+        }
+    })
     // const router = useRouter()
     return (
         <>
@@ -44,13 +92,46 @@ function Course({ course }) {
                 </div>
                 <div>
                     {/* Image Slider */}
-                    <Image loader={imageLoader} src={course.data.image_main.url} width="582" height="389" className="w-full mt-0 object-contain" />
+                    <Image loader={imageLoader} src={course.data.image_main.url} width="582" height="250" className="w-full mt-0 object-contain" />
 
                     <div>
                         <RichText render={course.data.about} htmlSerializer={htmlSerializer} />
                     </div>
                 </div>
             </article>
+            <div className="w-full max-w-prose mx-auto">
+                <h2 className="text-lg font-semibold mb-2">
+                    Lessons
+                </h2>
+                <table
+                    class="table-auto w-full shadow rounded mb-4"
+                >
+                    <tr
+                        class="bg-gray-200 rounded-t-md text-center border-b border-gray-400"
+                    >
+                        <th class="p-2">Date</th>
+                        <th class="p-2">Lesson</th>
+                        <th class="p-2">Notebook</th>
+                    </tr>
+                    {lessonComponent}
+                </table>
+                {
+                    files?.length && <>
+                        <h2 className="text-lg font-semibold mb-2">
+                            Files
+                        </h2>
+                        <div className="flex flex-col items-center space-y-2">
+                            {
+                                files.map((f, id) => {
+                                    return <File file={f} id={id} key={f.name}></File>
+                                })
+                            }
+                        </div>
+                    </>
+                }
+
+            </div>
+
         </>
     )
 

@@ -6,6 +6,7 @@ import Head from "next/head";
 import Image from "next/image";
 import Error from 'next/error'
 import Link from "next/link";
+import File from '../../../components/File'
 import { useEffect, useState } from "react";
 
 import Discussion from "../../../components/Discussion";
@@ -40,7 +41,7 @@ function Project({ query }) {
                     if (xhr.status == 200) {
                         console.log(blob)
                         blob.name = metadata.name
-                        setFiles([...files, blob])
+                        setFiles(fs => [...fs, blob])
                     }
                 };
                 xhr.open('GET', url);
@@ -82,6 +83,16 @@ function Project({ query }) {
             </div>
         </article>
         <div className="max-w-prose mx-auto mb-4 px-4 lg:px-0">
+            <h2 className="text-lg font-semibold mb-2">
+                Files
+            </h2>
+            <div className="flex flex-col items-center space-y-2">
+                {
+                    files.map((f, id) => {
+                        return <File file={f} id={id} key={f.name}></File>
+                    })
+                }
+            </div>
             <Discussion projectId={query.id}>
             </Discussion>
         </div>
