@@ -737,7 +737,7 @@ exports.newProjectInvite = functions.firestore
                         .then((profile) => {
                             return admin
                                 .firestore()
-                                .collection("profiles")
+                                .collection("projects")
                                 .doc(id)
                                 .update({
                                     member_arr: admin.firestore.FieldValue.arrayUnion({
@@ -749,20 +749,14 @@ exports.newProjectInvite = functions.firestore
                         })
                         .then(() => {
                             console.log("Added user: " + user.displayName);
-                            admin
+                            return admin
                                 .firestore()
-                                .collection("notifications")
-                                .doc(user.uid)
+                                .collection("projects")
+                                .doc(id)
                                 .update({
-                                    notifications: admin.firestore.FieldValue.arrayUnion({
-                                        date: new Date().getTime(),
-                                        message:
-                                            "You've been invited to join the project " + title,
-                                        type: "project",
-                                        project_id: event.id,
-                                        project_slug: '',
-                                        seen: false,
-                                    }),
+                                    member_uids: admin.firestore.FieldValue.arrayUnion(
+                                        user.uid
+                                    ),
                                 });
                         });
                 })

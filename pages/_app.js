@@ -18,7 +18,11 @@ function MyApp({ Component, pageProps }) {
 
   useEffect(() => {
     if (process.browser) {
-      setUserProfile(JSON.parse(window.localStorage.getItem('profile')))
+      const p = JSON.parse(window.localStorage.getItem('profile'))
+
+      if (p) {
+        setUserProfile(p)
+      }
     }
   }, [])
 
