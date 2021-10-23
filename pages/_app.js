@@ -32,7 +32,6 @@ function MyApp({ Component, pageProps }) {
       < FirebaseAppProvider firebaseConfig={firebaseConfig} >
         <AppContext.Provider value={{ profile, setProfile }}>
           <Layout>
-            <span>profile is {profile ? Object.keys(profile) : ''}</span>
             <Component {...pageProps} />
           </Layout>
         </AppContext.Provider>
