@@ -52,6 +52,11 @@ export default function NavBar() {
                         Projects
                     </a>
                 </Link>
+                <Link href="/courses" >
+                    <a className={`p-2 hover:bg-gray-200 hover:shadow-inner text-gray-700 rounded-lg hidden lg:block mr-2 ${router.basePath.includes('courses') ? 'text-sciteensGreen-regular underline' : 'text-gray-700'}`}>
+                        Courses
+                    </a>
+                </Link>
                 <Link href="/getinvolved" >
                     <a className={`p-2 hover:bg-gray-200 hover:shadow-inner text-gray-700 rounded-lg hidden lg:block mr-2 ${router.basePath.includes('getinvolved') ? 'text-sciteensGreen-regular underline' : 'text-gray-700'}`}>
                         Get Involved
