@@ -18,7 +18,10 @@ function MyApp({ Component, pageProps }) {
 
   useEffect(() => {
     if (process.browser) {
-      const p = JSON.parse(window.localStorage.getItem('profile'))
+      let p
+      if (window.localStorage.getItem('profile') != 'undefined') {
+        p = JSON.parse(window.localStorage.getItem('profile'))
+      }
 
       if (p) {
         setUserProfile(p)
