@@ -15,9 +15,6 @@ export default function Home() {
 
   useEffect(() => {
     let canvas = document.getElementById("canvas")
-    // let loadingScreen = document.getElementById("loading-screen")
-    // loadingScreen.style.height = canvas.offsetHeight
-    // loadingScreen.style.width = canvas.offsetWidth
     renderDesk(canvas)
   }, [])
 
@@ -45,7 +42,7 @@ export default function Home() {
           </div>
           <div id="canvas-container" className="absolute grid grid-rows-1 grid-cols-1 items-center right-16 top-0 h-full w-[40%]">
             <div id="loading-screen" className="absolute p-4 z-20 transition-all duration-300 bg-backgroundGreen">
-              <img src={'/assets/desktop-preview.png'} alt="" className="scale-75" />
+              <img src={'./assets/desktop-preview.png'} alt="" className="scale-75" />
             </div>
             <div id="canvas" className="transition-all duration-[1300ms] scale-75" />
           </div>
