@@ -205,189 +205,193 @@ export default function StudentSignUp() {
     }
 
     return (
-        <div
-
-        >
+        <div>
             <Head>
                 <title>Student Sign Up</title>
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <main className="relative mx-auto px-4 mt-8 mb-4 z-30 text-left w-full md:w-96">
-                <h1 className="text-2xl">
-                    Student Sign-up
-                </h1>
-                <p className="text-gray-700 mb-2">
-                    Having an account allows you to share your projects , find events tailored to your interests, and receive mentorship.
-                </p>
-
-                <form onSubmit={emailSignUp}>
-                    <label for="first-name" className="uppercase text-gray-600">
-                        First Name
-                    </label>
-                    <input
-                        onChange={e => onChange(e, 'first_name')}
-                        value={first_name}
-                        name="first-name"
-                        required
-                        className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_name
-                            ? 'border-red-700 text-red-800 placeholder-red-700'
-                            : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`}
-                        type="text"
-                        placeholder="Enter your first name..."
-                        aria-label="name"
-                        maxLength="50"
-                    />
-                    <div className="mb-4"></div>
-
-                    <label for="last-name" className="uppercase text-gray-600 mt-4">
-                        Last Name
-                    </label>
-                    <input
-                        onChange={e => onChange(e, 'last_name')}
-                        value={last_name}
-                        name="last-name"
-                        required
-                        className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_name
-                            ? 'border-red-700 text-red-800 placeholder-red-700'
-                            : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`}
-
-                        type="text"
-                        placeholder="Enter your last name..."
-                        aria-label="name"
-                        maxLength="50"
-                    />
-                    <p className="text-sm text-red-800 mb-4">
-                        {error_name}
+            <main>
+                <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow-none md:shadow">
+                    <h1 className="text-3xl text-center font-semibold mb-2">
+                        Student Sign-up
+                    </h1>
+                    <p className="text-gray-700 text-center mb-6">
+                        Creating an account allows you to share your projects, find events tailored to your interests, and receive mentorship.
                     </p>
 
-                    <label for="email" className="uppercase text-gray-600">
-                        Email
-                    </label>
-                    <input
-                        value={email}
-                        onChange={e => onChange(e, "email")}
-                        name="email"
-                        required
-                        className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_email
-                            ? 'border-red-700 text-red-800 placeholder-red-700'
-                            : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`}
-                        type="email"
-                        placeholder="Enter your account email..."
-                        aria-label="email"
-                    />
-                    <p className="text-sm text-red-800 mb-4">
-                        {error_email}
-                    </p>
+                    <form onSubmit={emailSignUp}>
+                        <div className="flex flex-row">
+                            <div className="mr-1">
+                                <label for="first-name" className="uppercase text-gray-600">
+                                    First Name
+                                </label>
+                                <input
+                                    onChange={e => onChange(e, 'first_name')}
+                                    value={first_name}
+                                    name="first-name"
+                                    required
+                                    className={`appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none ${error_name
+                                        ? 'border-red-700 text-red-800 placeholder-red-700'
+                                        : 'focus:border-sciteensLightGreen-regular focus:bg-white text-gray-700 placeholder-sciteensGreen-regular'}`}
+                                    type="text"
+                                    aria-label="name"
+                                    maxLength="50"
+                                />
+                                <div className="mb-4"></div>
+                            </div>
 
-                    <label for="password" className="uppercase text-gray-600">
-                        Password
-                    </label>
-                    <input
-                        value={password}
-                        onChange={e => onChange(e, "password")}
-                        name="password"
-                        required
-                        className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_password
-                            ? 'border-red-700 text-red-800 placeholder-red-700'
-                            : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`}
-                        type="password"
-                        placeholder="Enter your password..."
-                        aria-label="password"
-                    />
-                    <p className="text-sm text-red-800 mb-4">
-                        {error_password}
-                    </p>
+                            <div className="ml-1">
+                                <label for="last-name" className="uppercase text-gray-600 mt-4">
+                                    Last Name
+                                </label>
+                                <input
+                                    onChange={e => onChange(e, 'last_name')}
+                                    value={last_name}
+                                    name="last-name"
+                                    required
+                                    className={`appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none ${error_name
+                                        ? 'border-red-700 text-red-800 placeholder-red-700'
+                                        : 'focus:border-sciteensLightGreen-regular focus:bg-white text-gray-700 placeholder-sciteensGreen-regular'}`}
 
-                    <label for="birthday" className="uppercase text-gray-600">Birthday</label>
-                    <input
-                        required
-                        min={moment().subtract(13, 'years')}
-                        onChange={e => onChange(e, 'birthday')}
-                        value={birthday} type="date"
-                        id="birthday" name="birthday"
-                        className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_birthday
-                            ? 'border-red-700 text-red-800 placeholder-red-700'
-                            : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`} />
-                    <p
-                        className={`text-sm mb-4 ${error_birthday ? 'text-red-800' : 'text-gray-700'}`}
-                    >
-                        {
-                            error_birthday
-                                ? error_birthday
-                                : "Your date of birth. You must be 13 years of age or older to use SciTeens"
-                        }
-                    </p>
+                                    type="text"
+                                    aria-label="name"
+                                    maxLength="50"
+                                />
+                                <p className="text-sm text-red-800 mb-4">
+                                    {error_name}
+                                </p>
+                            </div>
+                        </div>
 
-                    <label for="gender" className="uppercase text-gray-600">Gender</label>
-                    <select
-                        onChange={e => setGender(e.target.value)}
-                        name="gender"
-                        id="gender"
-                        value={gender}
-                        className="mb-4 appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
-                    >
-                        <option selected value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
-                        <option value="Prefer not to answer">Prefer not to answer</option>
-                    </select>
+                        <label for="email" className="uppercase text-gray-600">
+                            Email
+                        </label>
+                        <input
+                            value={email}
+                            onChange={e => onChange(e, "email")}
+                            name="email"
+                            required
+                            className={`appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none ${error_email
+                                ? 'border-red-700 text-red-800 placeholder-red-700'
+                                : 'focus:border-sciteensLightGreen-regular focus:bg-white text-gray-700 placeholder-sciteensGreen-regular'}`}
+                            type="email"
+                            aria-label="email"
+                        />
+                        <p className="text-sm text-red-800 mb-4">
+                            {error_email}
+                        </p>
 
-                    <label for="race" className="uppercase text-gray-600">Race</label>
-                    <select
-                        onChange={e => setRace(e.target.value)}
-                        name="race"
-                        id="race"
-                        value={race}
-                        className="mb-4 appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
-                    >
-                        <option selected value="American Indian or Alaska Native">
-                            American Indian or Alaska Native
-                        </option>
-                        <option
-                            value="Asian (including Indian subcontinent and Philippines origin)"
-                        >Asian (including Indian subcontinent and Philippines origin)
-                        </option>
-                        <option value="Black or African American"
-                        >Black or African American
-                        </option>
-                        <option value="Hispanic or Latino"
-                        >Hispanic or Latino
-                        </option>
-                        <option value="White (including Middle Eastern origin)"
-                        >White (including Middle Eastern origin)
-                        </option>
-                        <option value="Native Hawaiian or Other Pacific Islander"
-                        >Native Hawaiian or Other Pacific Islander
-                        </option>
-                        <option value="Prefer not to answer">Prefer not to answer</option>
-                    </select>
-                    <div id="recaptcha-container" className="flex w-full justify-center">
-                    </div>
-                    <div className="flex justify-between items-center my-2">
+                        <label for="password" className="uppercase text-gray-600">
+                            Password
+                        </label>
+                        <input
+                            value={password}
+                            onChange={e => onChange(e, "password")}
+                            name="password"
+                            required
+                            className={`appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none ${error_password
+                                ? 'border-red-700 text-red-800 placeholder-red-700'
+                                : 'focus:border-sciteensLightGreen-regular focus:bg-white text-gray-700 placeholder-sciteensGreen-regular'}`}
+                            type="password"
+                            aria-label="password"
+                        />
+                        <p className="text-sm text-red-800 mb-4">
+                            {error_password}
+                        </p>
+
+                        <label for="birthday" className="uppercase text-gray-600">Birthday</label>
+                        <input
+                            required
+                            min={moment().subtract(13, 'years')}
+                            onChange={e => onChange(e, 'birthday')}
+                            value={birthday} type="date"
+                            id="birthday" name="birthday"
+                            className={`appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none ${error_birthday
+                                ? 'border-red-700 text-red-800 placeholder-red-700'
+                                : 'focus:border-sciteensLightGreen-regular focus:bg-white text-gray-700 placeholder-sciteensGreen-regular'}`} />
+                        <p
+                            className={`text-sm mb-4 ${error_birthday ? 'text-red-800' : 'text-gray-700'}`}>
+                            {
+                                error_birthday
+                                    ? error_birthday
+                                    : "You must be 13 years of age or older to use SciTeens"
+                            }
+                        </p>
+
+                        <label for="gender" className="uppercase text-gray-600">Gender</label>
+                        <select
+                            onChange={e => setGender(e.target.value)}
+                            name="gender"
+                            id="gender"
+                            value={gender}
+                            className="mb-4 appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:placeholder-gray-700 focus:bg-white focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
+                        >
+                            <option selected value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                            <option value="Prefer not to answer">Prefer not to answer</option>
+                        </select>
+
+                        <label for="race" className="uppercase text-gray-600">Race</label>
+                        <select
+                            onChange={e => setRace(e.target.value)}
+                            name="race"
+                            id="race"
+                            value={race}
+                            className="mb-4 appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:placeholder-gray-700 focus:bg-white focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
+                        >
+                            <option selected value="American Indian or Alaska Native">
+                                American Indian or Alaska Native
+                            </option>
+                            <option
+                                value="Asian (including Indian subcontinent and Philippines origin)"
+                            >Asian (including Indian subcontinent and Philippines origin)
+                            </option>
+                            <option value="Black or African American"
+                            >Black or African American
+                            </option>
+                            <option value="Hispanic or Latino"
+                            >Hispanic or Latino
+                            </option>
+                            <option value="White (including Middle Eastern origin)"
+                            >White (including Middle Eastern origin)
+                            </option>
+                            <option value="Native Hawaiian or Other Pacific Islander"
+                            >Native Hawaiian or Other Pacific Islander
+                            </option>
+                            <option value="Prefer not to answer">Prefer not to answer</option>
+                        </select>
+                        <div id="recaptcha-container" className="flex w-full justify-center mb-4">
+                        </div>
                         <div>
-                            <input
-                                onChange={() => { setTerms(!terms) }}
-                                id="terms"
-                                required
-                                value={terms}
-                                type="checkbox"
-                                name="terms"
-                                className="form-checkbox active:outline-none text-sciteensLightGreen-regular leading-tight"
-                            />
-                            <label for="terms" className="text-sm text-gray-600">
-                                I accept the terms of service.
-                            </label>
-                            <p v-if="e_terms" className="text-sm text-red-800">
+                            <div className="flex flex-row">
+                                <input
+                                    onChange={() => { setTerms(!terms) }}
+                                    id="terms"
+                                    required
+                                    value={terms}
+                                    type="checkbox"
+                                    name="terms"
+                                    className="form-checkbox active:outline-none text-sciteensLightGreen-regular leading-tight my-auto mr-2"
+                                />
+                                <label for="terms" className="text-sm text-gray-600 whitespace-nowrap">
+                                    <div className="flex flex-row">
+                                        I have read and accept the <Link href='/legal/terms'><p className="text-sciteensLightGreen-regular font-semibold"> terms</p></Link> and
+                                        <Link href='/legal/privacy'><p className="text-sciteensLightGreen-regular font-semibold"> privacy</p></Link>.
+                                    </div>
+                                </label>
+                            </div>
+                            <p v-if="e_terms" className="text-sm text-red-800 mb-6">
                                 {error_terms}
                             </p>
                         </div>
                         <button
                             type="submit"
                             disabled={loading || error_name || error_birthday || error_email || error_password || !recaptchaSolved}
-                            className="bg-sciteensLightGreen-regular text-white rounded-lg p-2 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
+                            className="bg-sciteensLightGreen-regular text-white text-lg font-semibold rounded-lg p-2 w-full hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
                             onClick={emailSignUp}
                         >
-                            Finish
+                            Create Account
                             {
                                 loading &&
                                 <img
@@ -398,32 +402,30 @@ export default function StudentSignUp() {
                             }
 
                         </button>
-                    </div >
-                </form >
-                <div className="mb-8 mt-4 w-full h-3 border-b border-gray-300 text-center">
-                    <span className="p-2 bg-white">
-                        OR
-                    </span>
+                    </form >
+                    <div className="mb-8 mt-4 w-full h-3 border-b border-gray-300 text-center">
+                        <span className="p-2 bg-white">
+                            OR
+                        </span>
+                    </div>
+                    <button
+                        className="p-3 shadow bg-white rounded-lg w-full mb-2 hover:shadow-md flex items-center justify-center"
+                        onClick={providerSignIn}
+                    >
+                        <img src="/assets/logos/Google.png" alt="Google Logo" className="h-5 w-5 mr-2" />
+                        Sign in with Google
+                    </button >
+                    <div className="mt-4 flex justify-center">
+                        <p className="text-gray-700">
+                            Have an account?&nbsp;
+                            <Link href="/signin/student">
+                                <a className="font-bold">Sign in</a>
+                            </Link>
+                        </p>
+                    </div>
                 </div>
-                <button
-                    className="p-2 shadow bg-white rounded w-full mb-2 hover:shadow-md flex items-center justify-center"
-                    onClick={providerSignIn}
-                >
-                    <img src="/assets/logos/Google.png" alt="Google Logo" className="h-5 w-5 mr-2" />
-                    Sign in with Google
-                </button >
-                <div className="mt-4 flex justify-end">
-                    <p className="text-gray-700">
-                        Have an account?&nbsp;
-                        <Link href="/signin/student"
 
-                        >
-                            <a className="font-bold">Sign in</a>
-                        </Link>
-                    </p>
-                </div>
             </main>
-
         </div >
 
     )
