@@ -13,41 +13,11 @@ export default function Layout({ children }) {
     const auth = getAuth(app);
     const storage = getStorage(app)
 
-    // Functionality for showing/removing navbar based on scroll behavior
-    const [visibleNav, setVisibleNav] = useState(true)
-
-    useEffect(() => {
-        let previousY = document.documentElement.scrollTop
-        document.addEventListener('scroll', function () {
-            let currentY = document.documentElement.scrollTop
-
-            // If you're within 350px from the top of the page, the scrollbar is always visible
-            if (currentY <= 350) {
-                setVisibleNav(true)
-                previousY = currentY
-            } else {
-                if (currentY - previousY >= 200) {
-                    setVisibleNav(false)
-                    previousY = currentY
-                }
-                if (previousY - currentY >= 200) {
-                    setVisibleNav(true)
-                    previousY = currentY
-                }
-            }
-
-        })
-        return () => {
-            document.removeEventListener('scroll', function () { })
-        }
-    }, [])
-
     return (
         <AuthProvider sdk={auth}>
             <FirestoreProvider sdk={firestore}>
                 <StorageProvider sdk={storage}>
-                    <div className={`fixed z-50 w-full transition-transform duration-300 transform 
-                        ${visibleNav ? "translate-y-0" : "-translate-y-32"}`}>
+                    <div className="fixed z-50 w-full">
                         <NavBar />
                     </div>
                     <div className="pt-20">{children}</div>

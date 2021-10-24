@@ -64,7 +64,9 @@ export default async function render(width, height) {
         },
         // called while loading is progressing
         function (xhr) {
-            console.log("Model " + (Math.floor(xhr.loaded * 100 / 173632)) + "% Loaded")
+            if (xhr.loaded === 173632) {
+                console.log("Model loaded");
+            }
         },
         function (error) {
             console.log(error)
