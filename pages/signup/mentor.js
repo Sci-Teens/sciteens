@@ -212,7 +212,7 @@ export default function MentorSignUp() {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <main>
-                <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow-none md:shadow">
+                <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow">
                     <h1 className="text-3xl text-center font-semibold mb-2">
                         Mentor on SciTeens
                     </h1>

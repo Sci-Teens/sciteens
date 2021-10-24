@@ -135,7 +135,7 @@ export default function NavBar() {
                             </div> :
                             <div>
                                 <Link href="/signup" >
-                                    <a className={`p-2 hover:bg-sciteensLightGreen-dark bg-sciteensLightGreen-regular text-white rounded-lg hidden lg:block mr-2 shadow`}>
+                                    <a className={`p-2 hover:bg-sciteensLightGreen-dark bg-sciteensLightGreen-regular text-white rounded-lg hidden lg:block mr-2 shadow whitespace-nowrap`}>
                                         Sign Up
                                     </a>
                                 </Link>
@@ -202,7 +202,7 @@ export default function NavBar() {
                             <div onClick={() => setShowMobileNav(false)} className={`flex flex-row py-3 px-6 rounded-lg mb-4
                             ${router.pathname.includes('signup') ? "underline bg-gray-100" : ""}`}>
                                 <img src={'assets/zondicons/user-add.svg'} alt="" className="h-6 my-auto mr-4" />
-                                <p>Sign Up</p>
+                                <p className="whitespace-nowrap">Sign Up</p>
                             </div>
                         </Link>
                     }
