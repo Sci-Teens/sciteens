@@ -125,9 +125,8 @@ export default function About() {
             image: "tasman.jpg",
             about:
                 "Taz's passions consist of aggressively screaming into microphones and catching salamanders.",
-        },])
-    members.sort(() => Math.random() - 0.5);
-    useEffect(setMembers(setMembers, [""]))
+        },].sort(() => Math.random() - 0.5))
+
     return (
         <div>
             <main className="w-full">
@@ -138,7 +137,7 @@ export default function About() {
                     </h1>
                     <div className="flex flex-col-reverse lg:flex-row items-center mb-8">
                         <p className="text-base lg:text-lg mb-4">
-                            Inspired and driven by our curiosity towards the sciences, we participated in science fairs across South Florida throughout high school. With every competition, we met more of our remarkably bright and motivated peers from all backgrounds. They felt that doing research and competing in science fairs came with many barriers to entry, particularly as their schools lacked the necessary frameworks and guidance. This apparent unequal distribution of resources troubled us, so we came together and created SciTeens.
+                            Inspired and driven by our curiosity towards the sciences, we participated in science fairs across South Florida throughout high school.With every competition, we met more of our remarkably bright and motivated peers from all backgrounds.They felt that doing research and competing in science fairs came with many barriers to entry, particularly as their schools lacked the necessary frameworks and guidance.This apparent unequal distribution of resources troubled us, so we came together and created SciTeens.
                         </p>
                         <img src={'./assets/beaker_purple.jpg'} className="rounded-full w-56 h-56 ml-4 object-cover mb-4 lg:mb-0" alt="" />
 
@@ -147,16 +146,16 @@ export default function About() {
                         <img src={'./assets/student_laptop.jpg'} className="rounded-full w-56 h-56 mr-4 object-cover mb-4 lg:mb-0" alt="" />
 
                         <p className="text-base lg:text-lg mb-4 mr-4">
-                            Our mission is to bridge the gap between education and opportunity—particularly for under-resourced students—by providing them with mentorship and community on our free online platform. We envision an educational environment where students from all backgrounds have equal access to the resources and network necessary to pursue careers in STEM. By helping students find niche STEM programs in their area to connect them to mentors who can remotely guide them through a project, we’re here to usher in a diverse generation of STEM leaders. We support projects and programs in almost every scientific field and seek to foster an inclusive and supportive virtual environment for learning and growth.
+                            Our mission is to bridge the gap between education and opportunity—particularly for under-resourced students—by providing them with mentorship and community on our free online platform.We envision an educational environment where students from all backgrounds have equal access to the resources and network necessary to pursue careers in STEM.By helping students find niche STEM programs in their area to connect them to mentors who can remotely guide them through a project, we’re here to usher in a diverse generation of STEM leaders.We support projects and programs in almost every scientific field and seek to foster an inclusive and supportive virtual environment for learning and growth.
                         </p>
                     </div>
                     <div className="flex flex-col lg:flex-row items-center mb-8">
                         <div>
                             <p className="text-base lg:text-lg mb-4 font-bold">
-                                New to our platform? Sign up today as a student or mentor. Let’s revolutionize the way pre-collegiate science is conducted.
+                                New to our platform?Sign up today as a student or mentor.Let’s revolutionize the way pre-collegiate science is conducted.
                             </p>
                             <p className="text-base lg:text-lg mb-4">
-                                SciTeens Inc. is a registered 501(c)(3) not-for-profit entity. If we are not meeting expectations on how we can best serve you at any time, please
+                                SciTeens Inc.is a registered 501(c)(3) not-for-profit entity.If we are not meeting expectations on how we can best serve you at any time, please
                                 <a
                                     href="mailto:support@sciteens.org"
                                     class="text-sciteensGreen-regular font-bold"
@@ -183,11 +182,52 @@ export default function About() {
                     <div class="w-full flex flex-wrap">
                         <div class="w-full lg:w-1/2 lg:pr-8">
                             <div class="flex justify-end my-2 flex-row odd:flex-row-reverse items-center">
-
-
-
-
-
+                                {
+                                    members.slice(0, Math.floor(members.length / 2)).map((member, index) => {
+                                        return (
+                                            <div key={index} className="flex justify-end my-2 flex-row odd:flex-row-reverse items-center">
+                                                <div class="text-left mx-2">
+                                                    <h4 class="text-xl">
+                                                        {member.name}
+                                                    </h4>
+                                                    <p class="text-gray">
+                                                        {member.about}
+                                                    </p>
+                                                </div>
+                                                <img
+                                                    loading="lazy"
+                                                    src={`/assets/headshots/${member.image}`}
+                                                    alt={member.name}
+                                                    class="w-32 h-32 rounded-full shadow"
+                                                />
+                                            </div>
+                                        )
+                                    })
+                                }
+                            </div>
+                            <div class="flex justify-end my-2 flex-row odd:flex-row-reverse items-center">
+                                {
+                                    members.slice(Math.floor(members.length / 2), members.length).map((member, index) => {
+                                        return (
+                                            <div key={index} className="flex justify-end my-2 flex-row odd:flex-row-reverse items-center">
+                                                <div class="text-left mx-2">
+                                                    <h4 class="text-xl">
+                                                        {member.name}
+                                                    </h4>
+                                                    <p class="text-gray">
+                                                        {member.about}
+                                                    </p>
+                                                </div>
+                                                <img
+                                                    loading="lazy"
+                                                    src={`/assets/headshots/${member.image}`}
+                                                    alt={member.name}
+                                                    class="w-32 h-32 rounded-full shadow"
+                                                />
+                                            </div>
+                                        )
+                                    })
+                                }
                             </div>
                         </div>
                     </div>
@@ -242,142 +282,9 @@ export default function About() {
                             </div>
                         </div>
                     </div>
-
-
                 </div>
-
-            </main>
-        </div>
+            </main >
+        </div >
 
     )
 }
-
-
-
-//           <div
-//             v-for="member in team.slice(0, Math.floor(team.length / 2))"
-//             :key="member.name"
-//             class="flex justify-end my-2 flex-row odd:flex-row-reverse items-center"
-//           >
-//             <div class="text-left mx-2">
-//               <h4 class="text-xl">
-//                 {{ member.name }}
-//               </h4>
-//               <p class="text-gray">
-//                 {{ member.about }}
-//               </p>
-//             </div>
-//             <img
-//               loading="lazy"
-//               :src="getHeadshot(member.image)"
-//               :alt="member.name"
-//               class="w-32 h-32 rounded-full shadow"
-//             />
-//           </div>
-//         </div>
-//         <div class="w-full lg:w-1/2 lg:pl-8">
-//           <div
-//             v-for="member in team.slice(
-//               Math.floor(team.length / 2),
-//               team.length
-//             )"
-//             :key="member.name"
-//             class="flex justify-end my-2 flex-row odd:flex-row-reverse items-center"
-//           >
-//             <div class="text-left mx-2">
-//               <h4 class="text-xl">
-//                 {{ member.name }}
-//               </h4>
-//               <p class="text-gray">
-//                 {{ member.about }}
-//               </p>
-//             </div>
-//             <img
-//               loading="lazy"
-//               :src="getHeadshot(member.image)"
-//               :alt="member.name"
-//               class="w-32 h-32 rounded-full shadow"
-//             />
-
-
-
-
-
-
-// export default {
-//     name: "ViewAbout",
-//     mounted() {
-//         this.team = this.team.sort(() => Math.random() - 0.5);
-//     },
-//     data() {
-//         return {
-//             // All current team members
-//             team: [
-
-//             ],
-//         };
-//     },
-//     methods: {
-//         // Fetches the user's headshot
-//         getHeadshot(file) {
-//             var images = require.context("../assets/headshots", false, /\.jpg$/);
-//             return images(`./${file}`);
-//         },
-//     },
-//     head() {
-//         const i18nSeo = this.$nuxtI18nSeo();
-
-//         return {
-//             title: "About",
-//             titleTemplate: "%s | SciTeens",
-//             htmlAttrs: [i18nSeo.htmlAttrs],
-//             meta: [
-//                 {
-//                     hid: "description",
-//                     name: "description",
-//                     content: "Find out what we do, and what we're all about.",
-//                 },
-//                 {
-//                     hid: "twitter:card",
-//                     name: "twitter:card",
-//                     content: "Find out what we do, and what we're all about.",
-//                 },
-//                 {
-//                     hid: "twitter:title",
-//                     name: "twitter:title",
-//                     content: "About SciTeens",
-//                 },
-//                 {
-//                     hid: "twitter:description",
-//                     name: "twitter:description",
-//                     content: "Find out what we do, and what we're all about.",
-//                 },
-//                 {
-//                     hid: "twitter:image",
-//                     name: "twitter:image",
-//                     content: "https://sciteens.org/sciteens_logo_og.jpg",
-//                 },
-//                 {
-//                     hid: "og:title",
-//                     name: "og:title",
-//                     content: "About SciTeens",
-//                 },
-//                 {
-//                     hid: "og:description",
-//                     name: "og:description",
-//                     content: "Find out what we do, and what we're all about.",
-//                 },
-//                 {
-//                     hid: "og:image",
-//                     name: "og:image",
-//                     content: "https://sciteens.org/sciteens_logo_og.jpg",
-//                 },
-//                 ...i18nSeo.meta,
-//             ],
-//             link: [
-//                 { rel: "canonical", href: `https://sciteens.org/about` },
-//                 ...i18nSeo.link,
-//             ],
-//         };
-//     },
-// };

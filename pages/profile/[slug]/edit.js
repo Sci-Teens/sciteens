@@ -1,23 +1,18 @@
-import React, { useState, useCallback, useEffect, useReducer } from "react"
+import React, { useState, useCallback, useEffect, useContext } from "react"
 import moment from "moment"
-import Head from "next/head"
-import { useFirestore, useSigninCheck, useStorage } from "reactfire"
-import { collection, updateDoc, startAt, endAt, orderBy, limit, getDoc, doc } from "@firebase/firestore"
+import { useSigninCheck, useStorage } from "reactfire"
+import { collection, updateDoc, limit, getFirestore, query as firebase_query, where, getDocs } from "@firebase/firestore"
 import { listAll, ref, getDownloadURL, getMetadata, uploadBytes } from "@firebase/storage";
 import Error from 'next/error'
 import { useRouter } from "next/router"
-import isEmail from 'validator/lib/isEmail'
-import debounce from "lodash/debounce";
 import { useDropzone } from 'react-dropzone'
 import File from "../../../components/File"
 import Link from "next/link"
+import { AppContext } from '../../../context/context'
 
-export default function UpdateProject({ query }) {
+export default function UpdateProfilePage({ user_profile }) {
     const [loading, setLoading] = useState(false)
-    const [title, setTitle] = useState('')
-    const [start_date, setStartDate] = useState('')
-    const [end_date, setEndDate] = useState('')
-    const [abstract, setAbstract] = useState('')
+    const [about, setAbout] = useState('')
     const [member, setMember] = useState('')
     const [members, setMembers] = useState([])
     const [field_names] = useState([
@@ -53,49 +48,33 @@ export default function UpdateProject({ query }) {
     ])
     const [files, setFiles] = useState([])
 
-    const [error_title, setErrorTitle] = useState('')
-    const [error_start_date, setErrorStartDate] = useState('')
-    const [error_end_date, setErrorEndDate] = useState('')
-    const [error_abstract, setErrorAbstract] = useState('')
+    const [error_about, setErrorAbout] = useState('')
     const [error_member, setErrorMember] = useState('')
     const [error_file, setErrorFile] = useState('')
 
     const { status, data: signInCheckResult } = useSigninCheck();
-    const firestore = useFirestore()
     const storage = useStorage()
 
     const router = useRouter()
+    const { profile } = useContext(AppContext)
 
     useEffect(() => {
         if (status == "success" && !signInCheckResult?.signedIn) {
             router.push("/signup")
         }
+
+        else if (status == "success" && router.query.slug != profile.slug) {
+            router.back()
+        }
     })
 
     useEffect(async () => {
         setFiles([])
-        const projectRef = doc(firestore, 'projects', query.id)
-        const filesRef = ref(storage, `projects/${query.id}`);
+        const filesRef = ref(storage, `profiles/${profile.id}`);
+        setAbout(user_profile.about)
 
         // Find all the prefixes and items.
         try {
-            const projectDoc = await getDoc(projectRef)
-            const projectData = projectDoc.data()
-
-            setTitle(projectData.title)
-            setAbstract(projectData.abstract)
-            projectData.start && setStartDate(moment(projectData.start).format('yyyy-MM-DD'))
-            projectData.end && setEndDate(moment(projectData.end).format('yyyy-MM-DD'))
-            setFieldValues(projectData.fields)
-            let temp_fields = new Array(field_names.length).fill(false)
-            for (let i = 0; i < field_names.length; i++) {
-                if (projectData.fields.includes(field_names[i])) {
-
-                    temp_fields[i] = true
-                }
-            }
-            setFieldValues(temp_fields)
-
             const res = await listAll(filesRef)
             for (const r of res.items) {
                 const url = await getDownloadURL(r)
@@ -114,19 +93,17 @@ export default function UpdateProject({ query }) {
             }
         }
         catch (e) {
-            router.push(`/project/${query.id}`)
+            router.push(`/profile/${user_profile.id}`)
         }
     }, [])
 
 
-    const updateProject = async (e) => {
+    const updateProfile = async (e) => {
         e.preventDefault()
         setLoading(true)
         try {
-            const res = await updateDoc(doc(firestore, 'projects', query.id), {
-                title: title.trim(),
-                start: start_date ? moment(start_date).toISOString() : moment().toISOString(),
-                end: end_date ? moment(end_date).toISOString() : "",
+            const res = await updateDoc(doc(firestore, 'profile', profile.id), {
+                about: about.trim(),
                 abstract: abstract.trim(),
                 need_mentor: false,
                 links: [],
@@ -135,15 +112,11 @@ export default function UpdateProject({ query }) {
                 fields: field_names.filter((item, i) => field_values[i]),
                 member_uids: [signInCheckResult.user.uid],
             })
-            await setDoc(doc(firestore, 'project-invites', res.id), {
-                emails: members,
-                title: title.trim(),
-            })
             for (const f of files) {
-                const fileRef = ref(storage, `projects/${query.id}/${f.name}`);
+                const fileRef = ref(storage, `profiles/${profile.id}/${f.name}`);
                 await uploadBytes(fileRef, f)
             }
-            router.push(`/project/${query.id}`)
+            router.push(`/profile/${user_profile.slug}`)
             setLoading(false)
         }
 
@@ -174,7 +147,7 @@ export default function UpdateProject({ query }) {
 
             else {
                 reader.readAsDataURL(f)
-                setFiles([...new Set([...files, f])])
+                setFiles(oldfiles => [...new Set([...oldfiles, f])])
             }
         }
     })
@@ -183,105 +156,17 @@ export default function UpdateProject({ query }) {
 
     async function onChange(e, target) {
         switch (target) {
-            case "title":
-                setTitle(e.target.value)
+            case "about":
+                setAbout(e.target.value)
                 if (e.target.value.trim() == "") {
-                    setErrorTitle("Please fill out your project title")
+                    setErrorAbout("Please fill out your about section")
                 }
 
                 else {
-                    setErrorTitle("")
+                    setErrorAbout("")
                 }
                 break;
-
-            case "start_date":
-                setStartDate(e.target.value)
-                if (e.target.value == "") {
-                    setErrorStartDate("Please set a valid start date")
-                }
-
-                else {
-                    setErrorStartDate("")
-                }
-                break;
-
-            case "end_date":
-                setEndDate(e.target.value)
-                if (e.target.value == "") {
-                    setErrorEndDate("Please set a valid start date")
-                }
-
-                else {
-                    setErrorEndDate("")
-                }
-                break;
-
-            case "abstract":
-                setAbstract(e.target.value)
-                if (e.target.value == "") {
-                    setErrorAbstract("Please provide a brief overview of your project (or what you plan to complete for your project)")
-                }
-
-                else {
-                    setErrorAbstract("")
-                }
-                break;
-
-            case "member":
-                setMember(e.target.value)
-                if (!isEmail(e.target.value)) {
-                    setErrorMember("Please enter a valid email")
-                }
-
-                else {
-                    setErrorMember("")
-                    validateEmail(e.target.value)
-                }
-                break;
-
-            case "fields":
-                const id = e.target.id
-                const index = field_names.indexOf(id)
-                let temp = [...field_values]
-                temp[index] = !temp[index]
-                setFieldValues([...temp])
         }
-    }
-
-
-    const validateEmail =
-        useCallback(debounce(async (email) => {
-            try {
-                const emails = collection(firestore, 'emails')
-                const q = query(emails, orderBy('email'), startAt(email), endAt(email + "\u{f8ff}"), limit(3))
-                const res = await getDocs(q)
-                if (res.empty) {
-                    setErrorMember("That email address doesn't exist")
-                }
-                else {
-                    setErrorMember("")
-                    res.forEach(snap => {
-                        if (snap.data().email == email) {
-                            setMembers([...new Set([...members, email])])
-                            setMember('')
-                        }
-                    })
-                }
-            }
-
-            catch (e) {
-                setErrorMember("Couldn't look for that address")
-            }
-
-        }, 500), []
-        )
-
-    const removeMember = (e) => {
-        e.preventDefault()
-        let temp = [...members]
-        const ix = e.target.getAttribute("name")
-        temp.splice(ix, 1)
-        setMembers([...temp])
     }
 
     const removeFile = (e, id) => {
@@ -293,116 +178,35 @@ export default function UpdateProject({ query }) {
 
     if (status == "success" && signInCheckResult.signedIn) {
         return (<>
-            <Head>
-
-            </Head>
             <div className="relative mx-auto px-4 mt-8 mb-4 z-30 text-left w-full md:w-96">
                 <h1 className="text-2xl">
-                    Update your Project
+                    Update your Profile
                 </h1>
                 <p className="text-gray-700 mb-2">
-                    Here, you can update your project <span className="italic">{title}</span>.
+                    Edit your profile to add more information about yourself or to change your information.
                 </p>
-                <form onSubmit={(e) => updateProject(e)}>
-                    <label for="title" className="uppercase text-gray-600">
-                        Title
-                    </label>
-                    <input
-                        onChange={e => onChange(e, 'title')}
-                        value={title}
-                        name="title"
-                        required
-                        className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_title
-                            ? 'border-red-700 text-red-800 placeholder-red-700'
-                            : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`}
-                        type="text"
-                        placeholder="Enter your project title..."
-                        aria-label="title"
-                        maxLength="100"
-                    />
-                    <p className="text-sm text-red-800 mb-4">
-                        {error_title}
-                    </p>
-
-                    <label for="start-date" className="uppercase text-gray-600">Start Date</label>
-                    <input
-                        required
-                        min={moment()}
-                        onChange={e => onChange(e, 'start_date')}
-                        value={start_date} type="date"
-                        id="start-date" name="start-date"
-                        className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_start_date
-                            ? 'border-red-700 text-red-800 placeholder-red-700'
-                            : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`} />
-                    <p
-                        className={`text-sm mb-4 ${error_start_date ? 'text-red-800' : 'text-gray-700'}`}
-                    >
-                        {
-                            error_start_date
-                                ? error_start_date
-                                : "Your project's start date"
-                        }
-                    </p>
-
-                    <label for="end-date" className="uppercase text-gray-600">End Date</label>
-                    <input
-                        required
-                        min={moment()}
-                        onChange={e => onChange(e, 'end_date')}
-                        value={end_date} type="date"
-                        id="end-date" name="end-date"
-                        className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_end_date
-                            ? 'border-red-700 text-red-800 placeholder-red-700'
-                            : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`} />
-                    <p
-                        className={`text-sm mb-4 ${error_end_date ? 'text-red-800' : 'text-gray-700'}`}
-                    >
-                        {
-                            error_end_date
-                                ? error_end_date
-                                : "Your expected project end date"
-                        }
-                    </p>
-
-                    <label for="abstract" className="uppercase text-gray-600">
-                        Summary
+                <form onSubmit={(e) => updateProfile(e)}>
+                    <label for="about" className="uppercase text-gray-600">
+                        About
                     </label>
                     <textarea
-                        onChange={e => onChange(e, 'abstract')}
-                        value={abstract}
-                        name="abstract"
+                        onChange={e => onChange(e, 'about')}
+                        value={about}
+                        name="about"
+                        rows="7"
                         required
-                        className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_abstract
+                        className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_about
                             ? 'border-red-700 text-red-800 placeholder-red-700'
                             : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`}
                         type="textarea"
-                        placeholder="Enter a brief project summary..."
-                        aria-label="summary"
+                        placeholder="Tell us about yourself..."
+                        aria-label="about"
                         maxLength="1000"
                     />
                     <p className="text-sm text-red-800 mb-4">
-                        {error_abstract}
+                        {error_about}
                     </p>
 
-                    <label for="member" className="uppercase text-gray-600">
-                        Add Members
-                    </label>
-                    <input
-                        onChange={e => onChange(e, 'member')}
-                        value={member}
-                        name="member"
-                        required
-                        className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_member
-                            ? 'border-red-700 text-red-800 placeholder-red-700'
-                            : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`}
-                        type="email"
-                        placeholder="Enter a project member by email..."
-                        aria-label="title"
-                        maxLength="100"
-                    />
-                    <p className="text-sm text-red-800 mb-4">
-                        {error_member}
-                    </p>
                     {
                         members.map((m, index) =>
 
@@ -415,30 +219,6 @@ export default function UpdateProject({ query }) {
                         )
                     }
 
-                    <label for="fields" className="uppercase text-gray-600">
-                        Fields
-                    </label>
-                    {
-                        field_names.map((field, index) => {
-                            return (
-                                <div>
-                                    <input
-                                        id={field}
-                                        className="form-checkbox active:outline-none text-sciteensLightGreen-regular mr-2"
-                                        type="checkbox"
-                                        value={field_values[index]}
-                                        checked={field_values[index]}
-                                        onChange={e => onChange(e, "fields")}
-                                    />
-                                    <label for={field} className="text-gray-700">
-                                        {field}
-                                        <br />
-                                    </label>
-                                </div>
-
-                            )
-                        })
-                    }
                     <div className="mb-4"></div>
                     <div {...getRootProps()} className={`w-full h-40 border-2 ${error_file ? 'bg-red-200 hover:bg-red-300' : 'bg-green-200 hover:bg-green-300'}  rounded-lg text-gray-700 border-gray-600 border-dashed flex items-center justify-center text-center`}>
                         <input {...getInputProps()} />
@@ -460,16 +240,16 @@ export default function UpdateProject({ query }) {
                     </div>
 
                     <div className="w-full flex justify-end mt-4">
-                        <Link href={`/project/${query.id}`}>
+                        <Link href={`/profile/${user_profile.slug}`}>
                             <a className="rounded-lg p-2 bg-gray-200 opacity-50 hover:bg-opacity-100 shadow border-2 border-gray-500 outline-none disabled:opacity-50 mr-2">
                                 Cancel
                             </a>
                         </Link>
                         <button
                             type="submit"
-                            disabled={loading || error_abstract || error_start_date || error_end_date || error_file || error_title}
+                            disabled={loading || error_about || error_file}
                             className="bg-sciteensLightGreen-regular text-white rounded-lg p-2 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
-                            onClick={e => updateProject(e)}
+                            onClick={e => updateProfile(e)}
                         >
                             Update
                             {
@@ -497,5 +277,26 @@ export default function UpdateProject({ query }) {
 }
 
 export async function getServerSideProps({ query }) {
-    return { props: { query: query } }
+    const firestore = getFirestore()
+    const profilesRef = collection(firestore, "profiles");
+    const profileQuery = firebase_query(profilesRef, where("slug", "==", query.slug), limit(1));
+    const profileRes = await getDocs(profileQuery)
+    if (!profileRes.empty) {
+        let profile;
+        profileRes.forEach(p => {
+            if (p.exists) {
+                profile = {
+                    ...p.data(),
+                    id: p.id
+                }
+            }
+        })
+        return { props: { user_profile: profile } }
+    }
+
+    else {
+        return {
+            notFound: true,
+        }
+    }
 }

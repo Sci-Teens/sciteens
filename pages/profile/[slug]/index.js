@@ -8,10 +8,6 @@ import Link from "next/link";
 import moment from "moment";
 import { useEffect, useState } from "react";
 
-import Discussion from "../../../components/Discussion";
-
-
-
 function Project({ profile }) {
     const router = useRouter();
     const storage = useStorage()
