@@ -9,10 +9,17 @@ const client = new Client(process.env.NEXT_PUBLIC_GM_API_KEY);
 import debounce from "lodash/debounce";
 import moment from "moment";
 
-export default function Discussion({ type, projectId }) {
+export default function Discussion({ type, item_id }) {
     const { authStatus, data: signInCheckResult } = useSigninCheck();
     const firestore = useFirestore()
-    const discussionCollection = collection(firestore, 'projects', projectId, 'discussion');
+    let discussionCollection;
+    switch (type) {
+        case "projects":
+            discussionCollection = collection(firestore, 'projects', item_id, 'discussion');
+            break;
+        case "articles":
+            discussionCollection = collection(firestore, 'articles', item_id)
+    }
     const discussionQuery = query(discussionCollection, orderBy('date', 'asc'))
     const { data: discussion } = useFirestoreCollectionData(discussionQuery, {
         idField: 'id'
@@ -61,7 +68,7 @@ export default function Discussion({ type, projectId }) {
             document.getElementById('discussion-form').checkValidity()
         }
         e.preventDefault()
-        let commentDoc = await addDoc(collection(firestore, 'projects', projectId, 'discussion'), {
+        let commentDoc = await addDoc(collection(firestore, 'projects', item_id, 'discussion'), {
             date: (new Date()).toISOString(),
             uid: signInCheckResult.user.uid,
             display: signInCheckResult.user.displayName,

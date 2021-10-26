@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 export default function Footer() {
     return (
         <footer>
@@ -8,19 +10,35 @@ export default function Footer() {
                         <p className="text-white font-semibold mb-1 md:mb-2">ORGANIZATION</p>
                         <ul>
                             <li>
-                                <a>About</a>
+                                <Link href='/about'>
+                                    <a>
+                                        About
+                                    </a>
+                                </Link>
                             </li>
                             <li>
-                                <a>FAQ</a>
+                                <Link href='/faq'>
+                                    <a>
+                                        FAQ
+                                    </a>
+                                </Link>
                             </li>
                             <li>
-                                <a>Contact</a>
+                                <a href="mailto:info@sciteens.org" target="_blank">
+                                    Contact
+                                </a>
                             </li>
                             <li>
-                                <a>Get Involved</a>
+                                <Link href='/getinvolved'>
+                                    <a>
+                                        Get Involved
+                                    </a>
+                                </Link>
                             </li>
                             <li>
-                                <a>Feedback</a>
+                                <a href="https://docs.google.com/forms/d/e/1FAIpQLScbDPaXgLflGrV3NSXpOTSFYoU2dIcEFy-xT2Kz9-6dMUYotQ/viewform?usp=sf_link" target="_blank">
+                                    Feedback
+                                </a>
                             </li>
                         </ul>
                     </div>
@@ -28,13 +46,25 @@ export default function Footer() {
                         <p className="text-white font-semibold mb-1 md:mb-2">LEGAL</p>
                         <ul>
                             <li>
-                                <a href='/legal/privacy'>Privacy</a>
+                                <Link href='/legal/privacy'>
+                                    <a>
+                                        Privacy
+                                    </a>
+                                </Link>
                             </li>
                             <li>
-                                <a href='/legal/terms'>Terms</a>
+                                <Link href='/legal/terms'>
+                                    <a>
+                                        Terms
+                                    </a>
+                                </Link>
                             </li>
                             <li>
-                                <a href='/legal/gdpr'>Cookies</a>
+                                <Link href='/legal/gdpr'>
+                                    <a>
+                                        Cookies
+                                    </a>
+                                </Link>
                             </li>
                         </ul>
                     </div>

@@ -7,7 +7,8 @@ import moment from 'moment';
 import Image from 'next/image'
 import Head from 'next/head'
 import htmlSerializer from '../../htmlserializer';
-// import { useRouter } from 'next/router'
+import Discussion from '../../components/Discussion';
+import { useRouter } from 'next/router'
 
 function Article({ article, recommendations }) {
     const isAmp = useAmp()
@@ -86,7 +87,7 @@ function Article({ article, recommendations }) {
         </Link >
     })
 
-    // const router = useRouter()
+    const router = useRouter()
     return (
         <>
             {
@@ -130,7 +131,8 @@ function Article({ article, recommendations }) {
                             Recommendations
                             {recommendationsRendered}
                         </div>
-
+                        <Discussion type={"article"} item_id={router.query.slug}>
+                        </Discussion>
                     </>
             }
         </>
