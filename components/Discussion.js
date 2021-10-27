@@ -13,13 +13,7 @@ export default function Discussion({ type, item_id }) {
     const { authStatus, data: signInCheckResult } = useSigninCheck();
     const firestore = useFirestore()
     let discussionCollection;
-    switch (type) {
-        case "projects":
-            discussionCollection = collection(firestore, 'projects', item_id, 'discussion');
-            break;
-        case "articles":
-            discussionCollection = collection(firestore, 'articles', item_id)
-    }
+    discussionCollection = collection(firestore, type, item_id, 'discussion');
     const discussionQuery = query(discussionCollection, orderBy('date', 'asc'))
     const { data: discussion } = useFirestoreCollectionData(discussionQuery, {
         idField: 'id'
@@ -68,7 +62,7 @@ export default function Discussion({ type, item_id }) {
             document.getElementById('discussion-form').checkValidity()
         }
         e.preventDefault()
-        let commentDoc = await addDoc(collection(firestore, 'projects', item_id, 'discussion'), {
+        let commentDoc = await addDoc(collection(firestore, type, item_id, 'discussion'), {
             date: (new Date()).toISOString(),
             uid: signInCheckResult.user.uid,
             display: signInCheckResult.user.displayName,
@@ -76,6 +70,10 @@ export default function Discussion({ type, item_id }) {
             reply_to_id: replyingToId ? replyingToId : '',
             reply_to_name: replyingToName ? replyingToName : ''
         })
+        setComment('')
+        setReplyingToId('')
+        setReplyingToName('')
+        setLoading(false)
     }
 
     const handleReplyTo = (c) => {
@@ -166,7 +164,7 @@ export default function Discussion({ type, item_id }) {
                                         </p>
                                     </h4>
                                     <p className="text-gray-700 text-sm">
-                                        {moment(comment.date).calendar()}
+                                        {moment(comment.date).calendar(null, { sameElse: 'MMMM DD, YYYY' })}
                                     </p>
                                 </div>
                             </div>

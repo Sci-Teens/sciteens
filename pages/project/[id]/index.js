@@ -93,7 +93,7 @@ function Project({ query }) {
                     })
                 }
             </div>
-            <Discussion projectId={query.id}>
+            <Discussion type="projects" item_id={query.id}>
             </Discussion>
         </div>
     </>)

@@ -127,12 +127,15 @@ function Article({ article, recommendations }) {
                             </div>
                         </article>
                         {/* Recommendations */}
-                        <div className="mt-4 max-w-prose">
-                            Recommendations
-                            {recommendationsRendered}
+                        <div className="max-w-prose mx-auto mb-4 px-4 lg:px-0">
+                            <div className="mt-4">
+                                Recommendations
+                                {recommendationsRendered}
+                            </div>
+                            <Discussion type={"article"} item_id={router.query.slug}>
+                            </Discussion>
                         </div>
-                        <Discussion type={"article"} item_id={router.query.slug}>
-                        </Discussion>
+
                     </>
             }
         </>
