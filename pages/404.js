@@ -14,9 +14,9 @@ export default function FourOhFour() {
                 height="300"
                 src="https://www.youtube.com/embed/wiDpO99BT3w"
                 title="YouTube video player"
-                frameborder="0"
+                frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen
+                allowFullScreen
                 className="mx-auto overflow-hidden max-w-full">
             </iframe>
         </div>

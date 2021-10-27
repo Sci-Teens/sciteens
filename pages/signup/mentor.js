@@ -121,6 +121,10 @@ export default function MentorSignUp() {
                     setErrorName('Please use a valid name')
                 }
 
+                else if (e.target.value.trim().split(" ").length > 1) {
+                    setErrorName('Please only enter your first name (or connect it with hyphens)')
+                }
+
                 else {
                     setErrorName('')
                 }
@@ -129,6 +133,10 @@ export default function MentorSignUp() {
                 setLastName(e.target.value.trim())
                 if (isNumeric(e.target.value.trim()) || e.target.value.trim().length < 1) {
                     setErrorName('Please use a valid name')
+                }
+
+                else if (e.target.value.trim().split(" ").length > 1) {
+                    setErrorName('Please only enter your last name (or connect it with hyphens)')
                 }
 
                 else {
