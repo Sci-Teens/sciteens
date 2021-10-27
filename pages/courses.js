@@ -4,13 +4,58 @@ import Image from 'next/image';
 import { RichText } from 'prismic-reactjs';
 import { useRouter } from "next/router"
 import Head from 'next/head';
+import { useState, } from 'react';
 
 
 function Courses({ courses }) {
     const router = useRouter()
+    const [search, setSearch] = useState('')
+    const [field, setField] = useState('All')
+    const [field_names] = useState([
+        "All",
+        "Biology",
+        "Chemistry",
+        "Cognitive Science",
+        "Computer Science",
+        "Earth Science",
+        "Electrical Engineering",
+        "Environmental Science",
+        "Mathematics",
+        "Mechanical Engineering",
+        "Medicine",
+        "Physics",
+        "Space Science",
+    ])
 
     const imageLoader = ({ src, width, height }) => {
         return `${src}?fit=crop&crop=faces&w=${width || 256}&h=${height || 256}`
+    }
+
+    async function handleChange(e, target) {
+        e.preventDefault();
+        switch (target) {
+            case 'searchbar':
+                setSearch(e.target.value)
+        }
+    }
+
+    async function handleSearch(e) {
+        e.preventDefault()
+        let q = {}
+        q.search = search
+        router.push({
+            pathname: '/courses',
+            query: q
+        })
+    }
+
+    async function handleFieldSearch(field) {
+        let q = {}
+        q.field = field
+        router.push({
+            pathname: '/courses',
+            query: q
+        })
     }
 
     const coursesComponent = courses.results.map((course, index) => {
@@ -19,7 +64,7 @@ function Courses({ courses }) {
             <Link key={index} href={`/course/${course.uid}`}>
 
                 <div className="p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center">
-                    <div className="h-full w-1/4 lg:w-1/12 relative">
+                    <div className="h-full w-1/4 relative">
                         <Image className="rounded-lg object-cover flex-shrink-0" loader={imageLoader} src={course.data.image_main.url} width={256} height={256} />
 
                     </div>
@@ -38,11 +83,56 @@ function Courses({ courses }) {
                 <title>Courses</title>
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <div className="w-full">
+            <div className="sm:mb-12 lg:mb-24 lg:mx-16 xl:mx-32 lg:w-1/2">
                 <h1 className="text-4xl py-4 text-left ml-4">
                     📰 Latest Courses
                 </h1>
                 {coursesComponent}
+                {courses.length &&
+                    <div className="mx-auto text-center mt-20">
+                        <i className="font-semibold text-xl">
+                            Sorry, we couldn't find any searches related to {router?.query.search}
+                        </i>
+                    </div>
+                }
+
+                <div className="hidden lg:block w-0 lg:w-[30%] lg:ml-32">
+                    <div className="sticky top-1/2 transform -translate-y-1/2 w-full">
+                        <h2 className="text-xl text-gray-700 mb-2">Search Courses</h2>
+                        <form onSubmit={e => handleSearch(e)} className="flex flex-row">
+                            <input
+                                onChange={e => handleChange(e, 'searchbar')}
+                                value={search}
+                                name="search"
+                                required
+                                className={`appearance-none border-transparent border-2 bg-white w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensLightGreen-regular text-gray-700 shadow`}
+                                type="text"
+                                aria-label="search"
+                                maxLength="100"
+                            />
+                            <button type="submit" className="bg-sciteensLightGreen-regular text-white font-semibold rounded-lg px-4 py-2 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
+                                onClick={e => handleSearch(e)}>
+                                Search
+                            </button>
+                        </form>
+
+                        <hr className="bg-gray-300 my-8" />
+
+                        <h2 className="text-xl text-gray-700 mb-2">Topics</h2>
+                        <div className="flex flex-row flex-wrap">
+                            {
+                                field_names.map((field) => {
+                                    return (
+                                        <button onClick={() => handleFieldSearch(field)} className="text-sm px-3 py-2 bg-white rounded-full mr-4 mb-4 shadow">
+                                            {field}
+                                        </button>
+                                    )
+                                })
+                            }
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </>
 
@@ -54,12 +144,19 @@ export async function getServerSideProps({ query }) {
     try {
         const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
         const client = Prismic.client(apiEndpoint)
-        const courses = await client.query(
-            Prismic.Predicates.at("document.type", "course"), {
-            orderings: `[document.first_publication_date desc]`,
-            pageSize: 10,
-            page: query?.page ? query?.page : 1
+        if (query.search) {
+            predicates.push(Prismic.Predicates.fulltext('document', query.search))
         }
+        if (query.field && query.field != "All") {
+            predicates.push(Prismic.Predicates.at("document.tags", [query.field]))
+        }
+        const courses = await client.query(
+            Prismic.Predicates.at("document.type", "course"),
+            {
+                orderings: `[document.first_publication_date desc]`,
+                pageSize: 10,
+                page: query?.page ? query?.page : 1
+            }
         )
 
         return {

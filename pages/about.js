@@ -137,7 +137,7 @@ export default function About() {
                     </h1>
                     <div className="flex flex-col-reverse lg:flex-row items-center mb-8">
                         <p className="text-base lg:text-lg mb-4">
-                            Inspired and driven by our curiosity towards the sciences, we participated in science fairs across South Florida throughout high school.With every competition, we met more of our remarkably bright and motivated peers from all backgrounds.They felt that doing research and competing in science fairs came with many barriers to entry, particularly as their schools lacked the necessary frameworks and guidance.This apparent unequal distribution of resources troubled us, so we came together and created SciTeens.
+                            Inspired and driven by our curiosity towards the sciences, we participated in science fairs across South Florida throughout high school. With every competition, we met more of our remarkably bright and motivated peers from all backgrounds. They felt that doing research and competing in science fairs came with many barriers to entry, particularly as their schools lacked the necessary frameworks and guidance. This apparent unequal distribution of resources troubled us, so we came together and created SciTeens.
                         </p>
                         <img src={'./assets/beaker_purple.jpg'} className="rounded-full w-56 h-56 ml-4 object-cover mb-4 lg:mb-0" alt="" />
 
@@ -146,32 +146,30 @@ export default function About() {
                         <img src={'./assets/student_laptop.jpg'} className="rounded-full w-56 h-56 mr-4 object-cover mb-4 lg:mb-0" alt="" />
 
                         <p className="text-base lg:text-lg mb-4 mr-4">
-                            Our mission is to bridge the gap between education and opportunity—particularly for under-resourced students—by providing them with mentorship and community on our free online platform.We envision an educational environment where students from all backgrounds have equal access to the resources and network necessary to pursue careers in STEM.By helping students find niche STEM programs in their area to connect them to mentors who can remotely guide them through a project, we’re here to usher in a diverse generation of STEM leaders.We support projects and programs in almost every scientific field and seek to foster an inclusive and supportive virtual environment for learning and growth.
+                            Our mission is to bridge the gap between education and opportunity—particularly for under-resourced students—by providing them with mentorship and community on our free online platform. We envision an educational environment where students from all backgrounds have equal access to the resources and network necessary to pursue careers in STEM.By helping students find niche STEM programs in their area to connect them to mentors who can remotely guide them through a project, we’re here to usher in a diverse generation of STEM leaders. We support projects and programs in almost every scientific field and seek to foster an inclusive and supportive virtual environment for learning and growth.
                         </p>
                     </div>
                     <div className="flex flex-col lg:flex-row items-center mb-8">
                         <div>
                             <p className="text-base lg:text-lg mb-4 font-bold">
-                                New to our platform?Sign up today as a student or mentor.Let’s revolutionize the way pre-collegiate science is conducted.
+                                New to our platform? Sign up today as a student or mentor. Let’s revolutionize the way pre-collegiate science is conducted.
                             </p>
                             <p className="text-base lg:text-lg mb-4">
-                                SciTeens Inc.is a registered 501(c)(3) not-for-profit entity.If we are not meeting expectations on how we can best serve you at any time, please
+                                SciTeens Inc. is a registered 501(c)(3) not-for-profit entity. If we are not meeting expectations on how we can best serve you at any time, please
                                 <a
                                     href="mailto:support@sciteens.org"
                                     class="text-sciteensGreen-regular font-bold"
                                 >
-                                    reach out
+                                    &nbsp;reach out&nbsp;
                                 </a>
                                 to us to let us know how we can do better.
                             </p>
                         </div>
-                        <nuxt-link
-                            // this link needs to be fixed
-                            to="localePath({ name: 'signup' })"
-                            class="bg-sciteensLightGreen-regular text-white text-lg text-center rounded-lg shadow-md p-4 ml-4 hover:bg-sciteensLightGreen-dark w-2/3 lg:w-1/3"
-                        >
-                            Sign Up Today
-                        </nuxt-link>
+                        <Link href="/signup">
+                            <a className="bg-sciteensLightGreen-regular text-white text-lg text-center rounded-lg shadow-md p-4 ml-4 hover:bg-sciteensLightGreen-dark w-2/3 lg:w-1/3">
+                                Sign Up Today
+                            </a>
+                        </Link>
                     </div>
 
 
@@ -181,54 +179,52 @@ export default function About() {
                     </h2>
                     <div class="w-full flex flex-wrap">
                         <div class="w-full lg:w-1/2 lg:pr-8">
-                            <div class="flex justify-end my-2 flex-row odd:flex-row-reverse items-center">
-                                {
-                                    members.slice(0, Math.floor(members.length / 2)).map((member, index) => {
-                                        return (
-                                            <div key={index} className="flex justify-end my-2 flex-row odd:flex-row-reverse items-center">
-                                                <div class="text-left mx-2">
-                                                    <h4 class="text-xl">
-                                                        {member.name}
-                                                    </h4>
-                                                    <p class="text-gray">
-                                                        {member.about}
-                                                    </p>
-                                                </div>
-                                                <img
-                                                    loading="lazy"
-                                                    src={`/assets/headshots/${member.image}`}
-                                                    alt={member.name}
-                                                    class="w-32 h-32 rounded-full shadow"
-                                                />
+                            {
+                                members.slice(0, Math.floor(members.length / 2)).map((member, index) => {
+                                    return (
+                                        <div key={member.name} className="flex justify-end my-2 flex-row odd:flex-row-reverse items-center">
+                                            <div class="text-left mx-2">
+                                                <h4 class="text-xl">
+                                                    {member.name}
+                                                </h4>
+                                                <p class="text-gray">
+                                                    {member.about}
+                                                </p>
                                             </div>
-                                        )
-                                    })
-                                }
-                            </div>
-                            <div class="flex justify-end my-2 flex-row odd:flex-row-reverse items-center">
-                                {
-                                    members.slice(Math.floor(members.length / 2), members.length).map((member, index) => {
-                                        return (
-                                            <div key={index} className="flex justify-end my-2 flex-row odd:flex-row-reverse items-center">
-                                                <div class="text-left mx-2">
-                                                    <h4 class="text-xl">
-                                                        {member.name}
-                                                    </h4>
-                                                    <p class="text-gray">
-                                                        {member.about}
-                                                    </p>
-                                                </div>
-                                                <img
-                                                    loading="lazy"
-                                                    src={`/assets/headshots/${member.image}`}
-                                                    alt={member.name}
-                                                    class="w-32 h-32 rounded-full shadow"
-                                                />
+                                            <img
+                                                loading="lazy"
+                                                src={`/assets/headshots/${member.image}`}
+                                                alt={member.name}
+                                                class="w-32 h-32 rounded-full shadow"
+                                            />
+                                        </div>
+                                    )
+                                })
+                            }
+                        </div>
+                        <div class="w-full lg:w-1/2 lg:pr-8">
+                            {
+                                members.slice(Math.floor(members.length / 2), members.length).map((member, index) => {
+                                    return (
+                                        <div key={member.name} className="flex justify-end my-2 flex-row odd:flex-row-reverse items-center">
+                                            <div class="text-left mx-2">
+                                                <h4 class="text-xl">
+                                                    {member.name}
+                                                </h4>
+                                                <p class="text-gray">
+                                                    {member.about}
+                                                </p>
                                             </div>
-                                        )
-                                    })
-                                }
-                            </div>
+                                            <img
+                                                loading="lazy"
+                                                src={`/assets/headshots/${member.image}`}
+                                                alt={member.name}
+                                                class="w-32 h-32 rounded-full shadow"
+                                            />
+                                        </div>
+                                    )
+                                })
+                            }
                         </div>
                     </div>
 
