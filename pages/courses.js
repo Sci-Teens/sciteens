@@ -61,7 +61,7 @@ function Courses({ courses }) {
     const coursesComponent = courses.results.map((course, index) => {
 
         return (
-            <Link key={index} href={`/course/${course.uid}`}>
+            <Link key={course.uid} href={`/course/${course.uid}`}>
 
                 <div className="p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center">
                     <div className="h-full w-1/4 relative">
@@ -83,18 +83,21 @@ function Courses({ courses }) {
                 <title>Courses</title>
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <div className="sm:mb-12 lg:mb-24 lg:mx-16 xl:mx-32 lg:w-1/2">
-                <h1 className="text-4xl py-4 text-left ml-4">
-                    📰 Latest Courses
-                </h1>
-                {coursesComponent}
-                {courses.length &&
-                    <div className="mx-auto text-center mt-20">
-                        <i className="font-semibold text-xl">
-                            Sorry, we couldn't find any searches related to {router?.query.search}
-                        </i>
-                    </div>
-                }
+            <div className="min-h-screen mx-auto lg:mx-16 xl:mx-32 flex flex-row mt-8 mb-24">
+                <div className="w-11/12 md:w-[85%] mx-auto lg:mx-0 lg:w-[60%]">
+                    <h1 className="text-4xl py-4 text-left ml-4">
+                        📰 Latest Courses
+                    </h1>
+                    {coursesComponent}
+                    {courses.length &&
+                        <div className="mx-auto text-center mt-20">
+                            <i className="font-semibold text-xl">
+                                Sorry, we couldn't find any searches related to {router?.query.search}
+                            </i>
+                        </div>
+                    }
+                </div>
+
 
                 <div className="hidden lg:block w-0 lg:w-[30%] lg:ml-32">
                     <div className="sticky top-1/2 transform -translate-y-1/2 w-full">
@@ -144,14 +147,17 @@ export async function getServerSideProps({ query }) {
     try {
         const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
         const client = Prismic.client(apiEndpoint)
+        let predicates = []
         if (query.search) {
             predicates.push(Prismic.Predicates.fulltext('document', query.search))
         }
         if (query.field && query.field != "All") {
             predicates.push(Prismic.Predicates.at("document.tags", [query.field]))
         }
-        const courses = await client.query(
+        const courses = await client.query([
             Prismic.Predicates.at("document.type", "course"),
+            ...predicates,
+        ],
             {
                 orderings: `[document.first_publication_date desc]`,
                 pageSize: 10,
