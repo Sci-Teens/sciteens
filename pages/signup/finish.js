@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from "react"
-import isNumeric from 'validator/lib/isNumeric'
+import isAlpha from 'validator/lib/isAlpha'
 import { doc, updateDoc, setDoc, getDoc } from '@firebase/firestore';
 import { updateProfile } from "@firebase/auth";
 import { useFirestore, useUser } from 'reactfire';
@@ -66,7 +66,7 @@ export default function FinishSignUp() {
         else {
             try {
                 setLoading(true)
-                const unique_slug = createUniqueSlug(first_name + "-" + last_name, 1)
+                const unique_slug = await createUniqueSlug(first_name.toLowerCase() + "-" + last_name.toLowerCase(), 1)
                 const profile = {
                     display: first_name + " " + last_name,
                     authorized: true, // Only students are authorized upon signup
@@ -75,7 +75,7 @@ export default function FinishSignUp() {
                     fields: [],
                     programs: [],
                     links: [],
-                    joined: date,
+                    joined: moment.toISOString(),
                     birthday: moment(birthday).toISOString(),
                     institution: "",
                     position: "",
@@ -106,7 +106,7 @@ export default function FinishSignUp() {
             case "first_name":
                 setFirstName(e.target.value.trim())
 
-                if (isNumeric(e.target.value.trim()) || e.target.value.trim().length < 1) {
+                if (!isAlpha(e.target.value.trim()) || e.target.value.trim().length < 1) {
                     setErrorName('Please use a valid name')
                 }
 
@@ -121,7 +121,7 @@ export default function FinishSignUp() {
             case "last_name":
                 setLastName(e.target.value.trim())
 
-                if (isNumeric(e.target.value.trim()) || e.target.value.trim().length < 1) {
+                if (!isAlpha(e.target.value.trim()) || e.target.value.trim().length < 1) {
                     setErrorName('Please use a valid name')
                 }
 
@@ -208,7 +208,6 @@ export default function FinishSignUp() {
                     <label for="birthday" className="uppercase text-gray-600">Birthday</label>
                     <input
                         required
-                        min={moment().subtract(13, 'years')}
                         onChange={e => onChange(e, 'birthday')}
                         value={birthday} type="date"
                         id="birthday" name="birthday"

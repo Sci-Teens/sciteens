@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useContext } from "react";
-import isNumeric from 'validator/lib/isNumeric'
+import isAlpha from 'validator/lib/isAlpha'
 import isEmail from "validator/lib/isEmail";
 import { doc, getDoc, setDoc, updateDoc } from '@firebase/firestore';
 import { updateProfile } from "@firebase/auth";
@@ -91,7 +91,7 @@ export default function StudentSignUp() {
             case "first_name":
                 setFirstName(e.target.value.trim())
 
-                if (isNumeric(e.target.value.trim()) || e.target.value.trim().length < 1) {
+                if (!isAlpha(e.target.value.trim()) || e.target.value.trim().length < 1) {
                     setErrorName('Please use a valid name')
                 }
 
@@ -106,7 +106,7 @@ export default function StudentSignUp() {
             case "last_name":
                 setLastName(e.target.value.trim())
 
-                if (isNumeric(e.target.value.trim()) || e.target.value.trim().length < 1) {
+                if (!isAlpha(e.target.value.trim()) || e.target.value.trim().length < 1) {
                     setErrorName('Please use a valid name')
                 }
 
@@ -120,7 +120,6 @@ export default function StudentSignUp() {
                 break;
             case "birthday":
                 setBirthday(e.target.value)
-
                 if (moment(e.target.value).isAfter(moment().subtract(13, 'years')) || e.target.value.length < 1) {
                     setErrorBirthday('You must be 13 years old or older to use SciTeens')
                 }
@@ -139,10 +138,42 @@ export default function StudentSignUp() {
                 }
                 break;
             case "password":
+                const isWhitespace = /^(?=.*\s)/;
+                const isContainsSymbol =
+                    /^(?=.*[~`!@#$%^&*()--+={}\[\]|\\:;"'<>,.?/_₹])/;
+                const isContainsUppercase = /^(?=.*[A-Z])/;
+                const isContainsLowercase = /^(?=.*[a-z])/;
+                const isContainsNumber = /^(?=.*[0-9])/;
+                const isValidLength = /^.{10,16}$/;
+
                 setPassword(e.target.value)
-                if (e.target.value.length < 6) {
-                    setErrorPassword("Please input a valid password")
-                } else {
+                if (isWhitespace.test(e.target.value)) {
+                    setErrorPassword("Password must not contain Whitespaces")
+                }
+
+
+                else if (!isContainsUppercase.test(e.target.value)) {
+                    setErrorPassword("Password must have at least one Uppercase Character")
+                }
+
+                else if (!isContainsLowercase.test(e.target.value)) {
+                    setErrorPassword("Password must have at least one Lowercase Character")
+                }
+
+                else if (!isContainsNumber.test(e.target.value)) {
+                    setErrorPassword("Password must contain at least one Digit")
+                }
+
+
+                else if (!isContainsSymbol.test(e.target.value)) {
+                    setErrorPassword("Password must contain at least one Special Symbol")
+                }
+
+                else if (!isValidLength.test(e.target.value)) {
+                    setErrorPassword("Password must be 10-16 Characters Long.")
+                }
+
+                else {
                     setErrorPassword("")
                 }
                 break;
@@ -152,31 +183,79 @@ export default function StudentSignUp() {
     async function emailSignUp(event) {
         event.preventDefault()
         setLoading(true)
+        let res;
+        let unique_slug;
+        const profile = {
+            display: first_name + " " + last_name,
+            authorized: true, // Only students are authorized upon signup
+            slug: unique_slug,
+            about: "",
+            fields: [],
+            programs: [],
+            links: [],
+            joined: moment.toISOString(),
+            birthday: moment(birthday).toISOString(),
+            institution: "",
+            position: "",
+            race: race,
+            gender: gender,
+            subs_p: [],
+            subs_e: [],
+            mentor: false,
+        }
+
         try {
-            const res = await createUserWithEmailAndPassword(auth, email, password)
-            const unique_slug = createUniqueSlug(first_name + "-" + last_name, 1)
-            const profile = {
-                display: first_name + " " + last_name,
-                authorized: true, // Only students are authorized upon signup
-                slug: unique_slug,
-                about: "",
-                fields: [],
-                programs: [],
-                links: [],
-                joined: date,
-                birthday: moment(birthday).toISOString(),
-                institution: "",
-                position: "",
-                race: race,
-                gender: gender,
-                subs_p: [],
-                subs_e: [],
-                mentor: false,
-            }
+            res = await createUserWithEmailAndPassword(auth, email, password)
+        }
+
+        catch (e) {
+            f_signup_errors[e.code] ? setErrorEmail(f_signup_errors[e.code]) : setErrorEmail("Couldn't create an accound at this time")
+            setEmail("")
+        }
+
+        try {
+            const unique_slug = await createUniqueSlug(first_name.toLowerCase() + "-" + last_name.toLowerCase(), 1)
+            console.log(unique_slug)
+        }
+
+        catch (e) {
+            console.log("Couldn't create unique slug")
+        }
+
+        try {
             await setDoc(doc(firestore, 'profiles', res.user.uid), profile)
+        }
+
+        catch (e) {
+            setErrorEmail("Couldn't create an accound at this time")
+        }
+
+        try {
             await setDoc(doc(firestore, 'profile-slugs', unique_slug), { slug: unique_slug })
+        }
+
+        catch (e) {
+            console.log('couldn\'t set profile slug')
+        }
+
+        try {
             await setDoc(doc(firestore, 'emails', res.user.uid), { email: res.user.email })
+        }
+
+        catch (e) {
+
+        } console.log("couldn't set user email at this time")
+
+        try {
             await sendEmailVerification(res.user)
+
+        }
+
+        catch (e) {
+            console.log("Couldn't send verification email")
+        }
+
+        try {
             await updateProfile(res.user, { displayName: first_name + " " + last_name })
             setProfile(profile)
             router.push('/signup/thanks')
@@ -310,7 +389,6 @@ export default function StudentSignUp() {
                         <label for="birthday" className="uppercase text-gray-600">Birthday</label>
                         <input
                             required
-                            min={moment().subtract(13, 'years')}
                             onChange={e => onChange(e, 'birthday')}
                             value={birthday} type="date"
                             id="birthday" name="birthday"

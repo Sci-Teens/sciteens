@@ -69,10 +69,42 @@ export default function StudentSignIn() {
                 }
                 break;
             case "password":
+                const isWhitespace = /^(?=.*\s)/;
+                const isContainsSymbol =
+                    /^(?=.*[~`!@#$%^&*()--+={}\[\]|\\:;"'<>,.?/_₹])/;
+                const isContainsUppercase = /^(?=.*[A-Z])/;
+                const isContainsLowercase = /^(?=.*[a-z])/;
+                const isContainsNumber = /^(?=.*[0-9])/;
+                const isValidLength = /^.{10,16}$/;
+
                 setPassword(e.target.value)
-                if (e.target.value.length < 6) {
-                    setErrorPassword("Please input a valid password")
-                } else {
+                if (isWhitespace.test(e.target.value)) {
+                    setErrorPassword("Password must not contain Whitespaces")
+                }
+
+
+                else if (!isContainsUppercase.test(e.target.value)) {
+                    setErrorPassword("Password must have at least one Uppercase Character")
+                }
+
+                else if (!isContainsLowercase.test(e.target.value)) {
+                    setErrorPassword("Password must have at least one Lowercase Character")
+                }
+
+                else if (!isContainsNumber.test(e.target.value)) {
+                    setErrorPassword("Password must contain at least one Digit")
+                }
+
+
+                else if (!isContainsSymbol.test(e.target.value)) {
+                    setErrorPassword("Password must contain at least one Special Symbol")
+                }
+
+                else if (!isValidLength.test(e.target.value)) {
+                    setErrorPassword("Password must be 10-16 Characters Long.")
+                }
+
+                else {
                     setErrorPassword("")
                 }
                 break;

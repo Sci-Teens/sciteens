@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useContext } from "react";
-import isNumeric from 'validator/lib/isNumeric'
+import isAlpha from 'validator/lib/isAlpha'
 import isEmail from "validator/lib/isEmail";
 import { doc, setDoc, updateDoc } from '@firebase/firestore';
 import { updateProfile } from "@firebase/auth";
@@ -117,7 +117,7 @@ export default function MentorSignUp() {
             case "first_name":
                 setFirstName(e.target.value.trim())
 
-                if (isNumeric(e.target.value.trim()) || e.target.value.trim().length < 1) {
+                if (!isAlpha(e.target.value.trim()) || e.target.value.trim().length < 1) {
                     setErrorName('Please use a valid name')
                 }
 
@@ -131,7 +131,7 @@ export default function MentorSignUp() {
                 break;
             case "last_name":
                 setLastName(e.target.value.trim())
-                if (isNumeric(e.target.value.trim()) || e.target.value.trim().length < 1) {
+                if (!isAlpha(e.target.value.trim()) || e.target.value.trim().length < 1) {
                     setErrorName('Please use a valid name')
                 }
 
@@ -153,16 +153,48 @@ export default function MentorSignUp() {
                 }
                 break;
             case "password":
+                const isWhitespace = /^(?=.*\s)/;
+                const isContainsSymbol =
+                    /^(?=.*[~`!@#$%^&*()--+={}\[\]|\\:;"'<>,.?/_₹])/;
+                const isContainsUppercase = /^(?=.*[A-Z])/;
+                const isContainsLowercase = /^(?=.*[a-z])/;
+                const isContainsNumber = /^(?=.*[0-9])/;
+                const isValidLength = /^.{10,16}$/;
+
                 setPassword(e.target.value)
-                if (e.target.value.length < 6) {
-                    setErrorPassword("Please input a valid password")
-                } else {
+                if (isWhitespace.test(e.target.value)) {
+                    setErrorPassword("Password must not contain Whitespaces")
+                }
+
+
+                else if (!isContainsUppercase.test(e.target.value)) {
+                    setErrorPassword("Password must have at least one Uppercase Character")
+                }
+
+                else if (!isContainsLowercase.test(e.target.value)) {
+                    setErrorPassword("Password must have at least one Lowercase Character")
+                }
+
+                else if (!isContainsNumber.test(e.target.value)) {
+                    setErrorPassword("Password must contain at least one Digit")
+                }
+
+
+                else if (!isContainsSymbol.test(e.target.value)) {
+                    setErrorPassword("Password must contain at least one Special Symbol")
+                }
+
+                else if (!isValidLength.test(e.target.value)) {
+                    setErrorPassword("Password must be 10-16 Characters Long.")
+                }
+
+                else {
                     setErrorPassword("")
                 }
                 break;
             case "institution":
                 setInstitution(e.target.value.trim())
-                if (isNumeric(e.target.value.trim()) || e.target.value.trim().length < 1) {
+                if (!isAlpha(e.target.value.trim()) || e.target.value.trim().length < 1) {
                     setErrorInstitution('Please provide a valid institution')
                 }
 
@@ -177,7 +209,7 @@ export default function MentorSignUp() {
         setLoading(true)
         try {
             const res = await createUserWithEmailAndPassword(auth, email, password)
-            const unique_slug = createUniqueSlug(first_name + "-" + last_name, 1)
+            const unique_slug = await createUniqueSlug(first_name.toLowerCase() + "-" + last_name.toLowerCase(), 1)
             const profile = {
                 display: first_name + " " + last_name,
                 authorized: true, // Only students are authorized upon signup
@@ -186,7 +218,7 @@ export default function MentorSignUp() {
                 fields: [],
                 programs: [],
                 links: [],
-                joined: date,
+                joined: moment.toISOString(),
                 birthday: "",
                 institution: institution,
                 position: position,

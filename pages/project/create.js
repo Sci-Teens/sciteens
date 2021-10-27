@@ -282,7 +282,6 @@ export default function CreateProject() {
                     <label for="start-date" className="uppercase text-gray-600">Start Date</label>
                     <input
                         required
-                        min={moment()}
                         onChange={e => onChange(e, 'start_date')}
                         value={start_date} type="date"
                         id="start-date" name="start-date"
@@ -302,7 +301,6 @@ export default function CreateProject() {
                     <label for="end-date" className="uppercase text-gray-600">End Date</label>
                     <input
                         required
-                        min={moment()}
                         onChange={e => onChange(e, 'end_date')}
                         value={end_date} type="date"
                         id="end-date" name="end-date"
