@@ -23,7 +23,6 @@ function Projects() {
                     ...p.data(),
                 }])
             })
-            console.log(projects)
         }
 
         catch (e) {
@@ -49,7 +48,9 @@ function Projects() {
                         <h3 className="font-semibold text-lg">{project.title}</h3>
                         <p className="hidden lg:block">{project.abstract}</p>
                         <div className="flex flex-row items-center mt-2">
-                            <p className="ml-2">By {project.members}</p>
+                            <p className="ml-2">By {project.member_arr.map((member) => {
+                                return member.display + " "
+                            })}</p>
                         </div>
                     </div>
 
