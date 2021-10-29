@@ -48,7 +48,12 @@ function Articles({ articles }) {
     async function handleSearch(e) {
         e.preventDefault()
         let q = {}
-        q.search = search
+        if (search) {
+            q.search = search
+        }
+        if (field) {
+            q.field = field
+        }
         router.push({
             pathname: '/articles',
             query: q
@@ -63,6 +68,7 @@ function Articles({ articles }) {
             pathname: '/articles',
             query: q
         })
+        setField(field)
     }
 
     function trimArticleDescription(summary) {
@@ -157,10 +163,11 @@ function Articles({ articles }) {
                         <h2 className="text-xl text-gray-700 mb-2">Topics</h2>
                         <div className="flex flex-row flex-wrap">
                             {
-                                field_names.map((field) => {
+                                field_names.map((f) => {
                                     return (
-                                        <button onClick={() => handleFieldSearch(field)} className="text-sm px-3 py-2 bg-white rounded-full mr-4 mb-4 shadow">
-                                            {field}
+                                        <button key={f} onClick={() => handleFieldSearch(f)} className={`text-sm px-3 py-2 rounded-full mr-4 mb-4 shadow
+                                        ${f == field ? "bg-sciteensLightGreen-regular text-white" : "bg-white"}`}>
+                                            {f}
                                         </button>
                                     )
                                 })
