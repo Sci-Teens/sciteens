@@ -140,15 +140,15 @@ export default function StudentSignIn() {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <main>
-                <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow">
+                <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow rounded-lg">
                     <h1 className="text-3xl text-center font-semibold mb-2">
                         Student Sign-in
                     </h1>
                     <p className="text-gray-700 text-center mb-6">
-                        Having an account allows you to share your projects , find events tailored to your interests, and receive mentorship. Are you a mentor?&nbsp;
+                        Having an account allows you to share your projects, find events tailored to your interests, and receive mentorship. Are you a mentor?&nbsp;
                         <Link href="/signin/mentor">
                             <a className="font-bold cursor-pointer">
-                                Sign in
+                                Sign in here.
                             </a>
                         </Link>
                     </p>
@@ -191,7 +191,7 @@ export default function StudentSignIn() {
 
                         <div className="flex flex-col justify-between my-2">
                             <Link href="/signin/reset">
-                                <a className="text-gray-600 text-sm rounded p-2 flex-1 mr-1 mb-2">Forgot password?</a>
+                                <a className="text-gray-600 text-sm rounded py-2 flex-1 mr-1 mb-2">Forgot password?</a>
 
                             </Link>
 

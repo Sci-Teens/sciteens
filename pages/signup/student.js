@@ -298,7 +298,7 @@ export default function StudentSignUp() {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <main>
-                <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow">
+                <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow rounded-lg">
                     <h1 className="text-3xl text-center font-semibold mb-2">
                         Student Sign-up
                     </h1>
@@ -462,8 +462,8 @@ export default function StudentSignUp() {
                                 />
                                 <label for="terms" className="text-sm text-gray-600 whitespace-nowrap">
                                     <div className="flex flex-row">
-                                        I have read and accept the <Link href='/legal/terms'><p className="text-sciteensLightGreen-regular font-semibold"> terms</p></Link> and
-                                        <Link href='/legal/privacy'><p className="text-sciteensLightGreen-regular font-semibold"> privacy</p></Link>.
+                                        I have read and accept the <Link href='/legal/terms'><a className="text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark"> terms</a></Link> and
+                                        <Link href='/legal/privacy'><a className="text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark"> privacy</a></Link>.
                                     </div>
                                 </label>
                             </div>
