@@ -83,15 +83,15 @@ export default function Discussion({ type, item_id }) {
     }
 
     return (
-        <div className="w-full">
+        <div className="w-full mb-12">
             <form onSubmit={e => postComment(e)}>
                 <label for="comment" className="uppercase text-gray-600">
                     Discussion
                 </label>
                 {
-                    replyingToId && <div className={`rounded-t-lg p-2 bg-green-200 ${error_comment
+                    replyingToId && <div className={`rounded-t-lg p-2 bg-white ${error_comment
                         ? 'border-red-700 text-red-800 placeholder-red-700'
-                        : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`}>
+                        : 'focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensLightGreen-regular'}`}>
                         Replying to&nbsp;
                         <a href={`#${replyingToId}`} className="font-semibold">
                             {replyingToName}
@@ -105,9 +105,9 @@ export default function Discussion({ type, item_id }) {
                     id="comment"
                     required
                     rows="3"
-                    className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight ${replyingToId ? 'rounded-b' : 'rounded'} focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_comment
+                    className={`appearance-none border-transparent border-2 bg-white shadow focus:shadow-lg w-full mr-3 p-2 leading-tight ${replyingToId ? 'rounded-b' : 'rounded'} focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_comment
                         ? 'border-red-700 text-red-800 placeholder-red-700'
-                        : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`}
+                        : 'focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensLightGreen-regular'}`}
                     type="textarea"
                     placeholder={discussion?.length ? "Enter a relevant comment..." : "Be the first to post..."}
                     aria-label="comment"
@@ -147,7 +147,7 @@ export default function Discussion({ type, item_id }) {
             {discussion?.length ?
                 discussion.map((comment, key) => {
                     return (
-                        <div id={comment.id} key={comment.date} className={`p-4 rounded-lg shadow bg-white my-2 ${router.isReady && router.basePath.includes(comment.id) && 'bg-gray-200'} ${replyingToId === comment.id && 'border-sciteensGreen-regular border-2'}`}>
+                        <div id={comment.id} key={comment.date} className={`p-4 rounded-lg shadow bg-white my-2 ${router.isReady && router.basePath.includes(comment.id) && 'bg-gray-200'} ${replyingToId === comment.id && 'border-sciteensLightGreen-regular border-2'}`}>
                             <div className="flex w-full justify-between">
                                 <div className="w-full">
                                     <h4>

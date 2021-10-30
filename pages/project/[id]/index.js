@@ -55,7 +55,15 @@ function Project({ query }) {
     }, [""])
 
     if (status === 'loading') {
-        return <span>loading... {status}</span>;
+        return <div className="prose-sm lg:prose mx-auto mt-4 mb-24">
+            <div className="w-full h-12 bg-gray-200 rounded-lg" />
+            <div className="w-full h-8 mt-8 bg-gray-200 rounded-lg" />
+            <div className="w-full h-8 mt-8 bg-gray-200 rounded-lg" />
+            <div className="w-full h-64 mt-8 bg-gray-200 rounded-lg" />
+            <div className="w-full h-8 mt-8 bg-gray-200 rounded-lg" />
+            <div className="w-full h-24 mt-8 bg-gray-200 rounded-lg" />
+
+        </div>
     }
 
     else if (status === 'error') {
