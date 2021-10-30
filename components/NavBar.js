@@ -165,14 +165,14 @@ export default function NavBar() {
                     <Link href="/articles">
                         <div onClick={() => setShowMobileNav(false)} className={`flex flex-row py-3 px-6 rounded-lg mb-4
                         ${router.pathname.includes('articles') ? "underline bg-gray-100" : ""}`}>
-                            <img src={'assets/zondicons/folder.svg'} alt="" className="h-6 my-auto mr-4" />
+                            <img src={'assets/zondicons/news-paper.svg'} alt="" className="h-6 my-auto mr-4" />
                             <p>Articles</p>
                         </div>
                     </Link>
                     <Link href="/projects" >
                         <div onClick={() => setShowMobileNav(false)} className={`flex flex-row py-3 px-6 rounded-lg mb-4
                         ${router.pathname.includes('projects') ? "underline bg-gray-100" : ""}`}>
-                            <img src={'assets/zondicons/news-paper.svg'} alt="" className="h-6 my-auto mr-4" />
+                            <img src={'assets/zondicons/folder.svg'} alt="" className="h-6 my-auto mr-4" />
                             <p>Projects</p>
                         </div>
                     </Link>

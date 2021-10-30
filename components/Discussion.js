@@ -83,7 +83,7 @@ export default function Discussion({ type, item_id }) {
     }
 
     return (
-        <div className="w-full mb-12">
+        <div className="w-full mb-12 mt-6">
             <form onSubmit={e => postComment(e)}>
                 <label for="comment" className="uppercase text-gray-600">
                     Discussion
@@ -107,9 +107,9 @@ export default function Discussion({ type, item_id }) {
                     rows="3"
                     className={`appearance-none border-transparent border-2 bg-white shadow focus:shadow-lg w-full mr-3 p-2 leading-tight ${replyingToId ? 'rounded-b' : 'rounded'} focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_comment
                         ? 'border-red-700 text-red-800 placeholder-red-700'
-                        : 'focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensLightGreen-regular'}`}
+                        : 'focus:border-sciteensLightGreen-regular text-gray-700'}`}
                     type="textarea"
-                    placeholder={discussion?.length ? "Enter a relevant comment..." : "Be the first to post..."}
+                    placeholder={discussion?.length ? "Enter a relevant comment..." : "Start the conversation..."}
                     aria-label="comment"
                     maxLength="1000"
                 >

@@ -69,7 +69,7 @@ function Course({ course }) {
                 <title>{RichText.asText(course.data.name)}</title>
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <article className="prose-sm lg:prose mx-auto px-4 overflow-hidden break-words">
+            <article className="prose-sm lg:prose mx-auto px-4 overflow-hidden break-words mt-8">
                 <div>
                     <h1>
                         {RichText.asText(course.data.name)}
