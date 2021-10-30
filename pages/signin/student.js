@@ -139,95 +139,95 @@ export default function StudentSignIn() {
                 <title>Student Sign In</title>
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <main className="relative mx-auto px-4 mt-8 mb-4 z-30 text-left w-full md:w-96">
-                <h1 className="text-2xl">
-                    Student Sign in to Sciteens
-                </h1>
-                <p className="text-gray-700 mb-2">
-                    Having an account allows you to share your projects , find events tailored to your interests, and receive mentorship. Are you a mentor?&nbsp;
-                    <Link href="/signin/mentor">
-                        <a className="font-bold cursor-pointer">
-                            Sign in
-                        </a>
-                    </Link>
-                </p>
-                <form onSubmit={emailSignIn}>
-                    <label for="email" className="uppercase text-gray-600">
-                        Email
-                    </label>
-                    <input
-                        value={email}
-                        onChange={e => onChange(e, "email")}
-                        name="email"
-                        required
-                        className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_email
-                            ? 'border-red-700 text-red-800 placeholder-red-700'
-                            : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`}
-                        type="email"
-                        placeholder="Enter your account email..."
-                        aria-label="email"
-                    />
-                    <p className="text-sm text-red-800 mb-4">
-                        {error_email}
-                    </p>
-
-                    <label for="password" className="uppercase text-gray-600">
-                        Password
-                    </label>
-                    <input
-                        value={password}
-                        onChange={e => onChange(e, "password")}
-                        name="password"
-                        required
-                        className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_password
-                            ? 'border-red-700 text-red-800 placeholder-red-700'
-                            : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`}
-                        type="password"
-                        placeholder="Enter your password..."
-                        aria-label="password"
-                    />
-                    <p className="text-sm text-red-800 mb-4">
-                        {error_password}
-                    </p>
-
-                    <div className="flex justify-between items-center my-2">
-                        <Link href="/signin/reset">
-                            <a className="text-gray-600 text-sm rounded p-2 flex-1 mr-1">Forgot password?</a>
-
+            <main>
+                <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow">
+                    <h1 className="text-3xl text-center font-semibold mb-2">
+                        Student Sign-in
+                    </h1>
+                    <p className="text-gray-700 text-center mb-6">
+                        Having an account allows you to share your projects , find events tailored to your interests, and receive mentorship. Are you a mentor?&nbsp;
+                        <Link href="/signin/mentor">
+                            <a className="font-bold cursor-pointer">
+                                Sign in
+                            </a>
                         </Link>
+                    </p>
+                    <form onSubmit={emailSignIn}>
+                        <label for="email" className="uppercase text-gray-600">
+                            Email
+                        </label>
+                        <input
+                            value={email}
+                            onChange={e => onChange(e, "email")}
+                            name="email"
+                            required
+                            className={`appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none ${error_email
+                                ? 'border-red-700 text-red-800 placeholder-red-700'
+                                : 'focus:border-sciteensLightGreen-regular focus:bg-white text-gray-700 placeholder-sciteensGreen-regular'}`}
+                            type="email"
+                            aria-label="email"
+                        />
+                        <p className="text-sm text-red-800 mb-4">
+                            {error_email}
+                        </p>
 
-                        <button type="submit"
-                            className="bg-sciteensLightGreen-regular text-white rounded-lg p-2 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
-                            onClick={emailSignIn}
-                            disabled={error_email || error_password || !email.length || !password.length}
-                        >
-                            Sign In
-                        </button >
+                        <label for="password" className="uppercase text-gray-600">
+                            Password
+                        </label>
+                        <input
+                            value={password}
+                            onChange={e => onChange(e, "password")}
+                            name="password"
+                            required
+                            className={`appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none ${error_password
+                                ? 'border-red-700 text-red-800 placeholder-red-700'
+                                : 'focus:border-sciteensLightGreen-regular focus:bg-white text-gray-700 placeholder-sciteensGreen-regular'}`}
+                            type="password"
+                            aria-label="password"
+                        />
+                        <p className="text-sm text-red-800 mb-2">
+                            {error_password}
+                        </p>
+
+                        <div className="flex flex-col justify-between my-2">
+                            <Link href="/signin/reset">
+                                <a className="text-gray-600 text-sm rounded p-2 flex-1 mr-1 mb-2">Forgot password?</a>
+
+                            </Link>
+
+                            <button type="submit"
+                                className="bg-sciteensLightGreen-regular text-white text-lg font-semibold rounded-lg p-2 w-full hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
+                                onClick={emailSignIn}
+                                disabled={error_email || error_password || !email.length || !password.length}
+                            >
+                                Sign In
+                            </button >
+                        </div >
+                    </form>
+                    <div className="mb-8 mt-4 w-full h-3 border-b border-gray-300 text-center">
+                        <span className="p-2 bg-white">
+                            OR
+                        </span>
+                    </div>
+                    <button
+                        className="p-2 shadow bg-white rounded w-full mb-2 hover:shadow-md flex items-center justify-center"
+                        onClick={providerSignIn}
+                    >
+                        <img src="/assets/logos/Google.png" alt="Google Logo" className="h-5 w-5 mr-2" />
+                        Sign in with Google
+                    </button >
+                    <div className="mt-4 flex justify-center">
+                        <p className="text-gray-700">
+                            New here?&nbsp;
+                            <Link href="/signup/student"
+
+                            >
+                                <a className="font-bold">Sign up</a>
+
+                            </Link>
+                        </p>
                     </div >
-                </form>
-                <div className="mb-8 mt-4 w-full h-3 border-b border-gray-300 text-center">
-                    <span className="p-2 bg-white">
-                        OR
-                    </span>
                 </div>
-                <button
-                    className="p-2 shadow bg-white rounded w-full mb-2 hover:shadow-md flex items-center justify-center"
-                    onClick={providerSignIn}
-                >
-                    <img src="/assets/logos/Google.png" alt="Google Logo" className="h-5 w-5 mr-2" />
-                    Sign in with Google
-                </button >
-                <div className="mt-4 flex justify-end">
-                    <p className="text-gray-700">
-                        New here?&nbsp;
-                        <Link href="/signup/student"
-
-                        >
-                            <a className="font-bold">Sign up</a>
-
-                        </Link>
-                    </p>
-                </div >
             </main>
         </div >
     )
