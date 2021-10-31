@@ -1,13 +1,14 @@
 import { useState, useContext, useEffect } from "react"
 import isAlpha from 'validator/lib/isAlpha'
-import { doc, updateDoc, setDoc, getDoc } from '@firebase/firestore';
-import { updateProfile } from "@firebase/auth";
+import { doc, setDoc } from '@firebase/firestore';
+import { updateProfile, sendEmailVerification } from "@firebase/auth";
 import { useFirestore, useUser } from 'reactfire';
 import { useRouter } from "next/router";
 import moment from 'moment';
 import Head from "next/head";
 import Link from 'next/link';
 import { AppContext } from '../../context/context'
+import { createUniqueSlug } from "../../context/helpers";
 
 export default function FinishSignUp() {
     const [first_name, setFirstName] = useState('')
@@ -35,69 +36,89 @@ export default function FinishSignUp() {
         }
     }, [router])
 
-    async function createUniqueSlug(check_slug, num) {
-        const slugDoc = doc(firestore, 'profile-slugs', check_slug)
-        const slugRef = await getDoc(slugDoc)
-
-        if (slugRef.exists()) {
-            if (num == 1) {
-                check_slug = check_slug + "-" + 1;
-            } else {
-                check_slug = check_slug.replace(
-                    /[0-9]+(?!.*[0-9])/,
-                    function (match) {
-                        return parseInt(match, 10) + 1;
-                    }
-                );
-            }
-
-            // check_slug = check_slug + "-" + num;
-            num += 1;
-            return create_unique_slug(check_slug, num);
-        } else {
-            return check_slug;
-        }
-    }
-
     async function finishSignUp() {
         if (!terms) {
             setErrorTerms('You must accept the terms and conditions')
         }
 
         else {
+            setLoading(true)
+            let unique_slug;
+
             try {
-                setLoading(true)
-                const unique_slug = await createUniqueSlug(first_name.toLowerCase() + "-" + last_name.toLowerCase(), 1)
-                const profile = {
-                    display: first_name + " " + last_name,
-                    authorized: true, // Only students are authorized upon signup
-                    slug: unique_slug,
-                    about: "",
-                    fields: [],
-                    programs: [],
-                    links: [],
-                    joined: moment.toISOString(),
-                    birthday: moment(birthday).toISOString(),
-                    institution: "",
-                    position: "",
-                    race: race,
-                    gender: gender,
-                    subs_p: [],
-                    subs_e: [],
-                    mentor: false,
-                }
+                unique_slug = await createUniqueSlug(firestore, first_name.toLowerCase() + "-" + last_name.toLowerCase(), 'profile-slugs', 1)
+            }
+
+            catch (error) {
+                setLoading(false)
+                console.error(error)
+                console.error("can't make a unique slug")
+                setErrorName("Couldn't create your account at this time ")
+            }
+
+            const profile = {
+                display: first_name + " " + last_name,
+                authorized: true, // Only students are authorized upon signup
+                slug: unique_slug,
+                about: "",
+                fields: [],
+                programs: [],
+                links: [],
+                joined: moment().toISOString(),
+                birthday: moment(birthday).toISOString(),
+                institution: "",
+                position: "",
+                race: race,
+                gender: gender,
+                subs_p: [],
+                subs_e: [],
+                mentor: false,
+            }
+
+            try {
                 await setDoc(doc(firestore, 'profiles', user.uid), profile)
+            }
+
+            catch (error) {
+                setLoading(false)
+                console.error(error)
+                console.error("can't make a profile")
+                setErrorName("Couldn't create your account at this time")
+            }
+
+            try {
                 await setDoc(doc(firestore, 'profile-slugs', unique_slug), { slug: unique_slug })
+            }
+
+            catch (error) {
+                setLoading(false)
+                console.error(error)
+                console.error("can't make a profile slug in firebase")
+                setErrorName("Couldn't create your account at this time")
+            }
+
+            try {
                 await setDoc(doc(firestore, 'emails', user.uid), { email: user.email })
+            }
+
+            catch (error) {
+                setLoading(false)
+                console.error(error)
+                console.error("can't make a unique email reference")
+                setErrorName("Couldn't create your account at this time")
+            }
+
+            try {
                 await sendEmailVerification(user)
                 await updateProfile(user, { displayName: first_name + " " + last_name })
                 setProfile(profile)
                 router.push('/signup/thanks')
             }
 
-            catch {
+            catch (error) {
                 setLoading(false)
                 setErrorName('We were unable to complete your profile at this time')
+                console.error(error)
             }
         }
     }

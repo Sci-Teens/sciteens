@@ -276,7 +276,6 @@ export default function StudentSignUp() {
             const addInfo = await getAdditionalUserInfo(res)
             if (addInfo.isNewUser) {
                 // Complete profile
-                await setDoc(doc(firestore, 'emails', res.user.uid), { email: res.user.email })
                 router.push(`/signup/finish${res.user.displayName ? `?first_name=${res.user.displayName.split(' ')[0]}&last_name=${res.user.displayName.split(' ')[1]}` : ''}`)
             }
 
