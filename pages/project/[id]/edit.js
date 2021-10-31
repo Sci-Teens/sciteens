@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useReducer } from "react"
 import moment from "moment"
 import Head from "next/head"
 import { useFirestore, useSigninCheck, useStorage } from "reactfire"
-import { collection, updateDoc, startAt, endAt, orderBy, limit, getDoc, doc } from "@firebase/firestore"
+import { collection, startAt, endAt, orderBy, limit, getDoc, doc, updateDoc, setDoc } from "@firebase/firestore"
 import { listAll, ref, getDownloadURL, getMetadata, uploadBytes } from "@firebase/storage";
 import Error from 'next/error'
 import { useRouter } from "next/router"
@@ -52,6 +52,7 @@ export default function UpdateProject({ query }) {
         "application/vnd.jupyter.dragindex",
     ])
     const [files, setFiles] = useState([])
+    const [project_photo, setProjectPhoto] = useState(null)
 
     const [error_title, setErrorTitle] = useState('')
     const [error_start_date, setErrorStartDate] = useState('')
@@ -122,6 +123,7 @@ export default function UpdateProject({ query }) {
     const updateProject = async (e) => {
         e.preventDefault()
         setLoading(true)
+        let res;
         try {
             const res = await updateDoc(doc(firestore, 'projects', query.id), {
                 title: title.trim(),
@@ -135,11 +137,26 @@ export default function UpdateProject({ query }) {
                 fields: field_names.filter((item, i) => field_values[i]),
                 member_uids: [signInCheckResult.user.uid],
             })
-            await setDoc(doc(firestore, 'project-invites', res.id), {
-                emails: members,
-                title: title.trim(),
-            })
+            if (members.length > 0) {
+                await setDoc(doc(firestore, 'project-invites', res.id), {
+                    emails: members,
+                    title: title.trim(),
+                })
+            }
+        }
+
+        catch (error) {
+            setErrorTitle("We couldn't update your project at this time")
+            console.error(error)
+            setLoading(false)
+        }
+
+        try {
+
             for (const f of files) {
+                if (f.name == project_photo) {
+                    f.name = `project_photo.${f.type.split('/')[1]}`
+                }
                 const fileRef = ref(storage, `projects/${query.id}/${f.name}`);
                 await uploadBytes(fileRef, f)
             }
@@ -148,7 +165,7 @@ export default function UpdateProject({ query }) {
         }
 
         catch (error) {
-            setErrorTitle("We couldn't create your project at this time")
+            setErrorTitle("We couldn't update your project at this time")
             console.error(error)
             setLoading(false)
         }
@@ -174,7 +191,7 @@ export default function UpdateProject({ query }) {
 
             else {
                 reader.readAsDataURL(f)
-                setFiles([...new Set([...files, f])])
+                setFiles(old_files => [...new Set([...old_files, f])])
             }
         }
     })
@@ -287,8 +304,16 @@ export default function UpdateProject({ query }) {
     const removeFile = (e, id) => {
         e.preventDefault()
         let temp = [...files]
-        temp.splice(id, 1)
+        const removed = temp.splice(id, 1)
         setFiles([...temp])
+        if (removed.name == project_photo) {
+            setProjectPhoto(null)
+        }
+    }
+
+    const setPhoto = (e, file) => {
+        e.preventDefault()
+        setProjectPhoto(file.name)
     }
 
     if (status == "success" && signInCheckResult.signedIn) {
@@ -450,10 +475,25 @@ export default function UpdateProject({ query }) {
                         <div className="flex flex-col items-center space-y-2">
                             {
                                 files.map((f, id) => {
-                                    return <File file={f} id={id} key={f.name} removeFile={removeFile}></File>
+                                    return <File file={f} id={id} key={f.name} removeFile={removeFile} setPhoto={setPhoto}></File>
                                 })
                             }
                         </div>
+                        {
+                            project_photo && <label for="project_photo" className="uppercase text-gray-600 mt-2">
+                                Project Photo
+                            </label>
+                        }
+                        <div>
+                            {
+                                files.map((f, id) => {
+                                    if (f.name == project_photo) {
+                                        return <File file={f} id={id} key={f.name} removeFile={removeFile} setPhoto={setPhoto}></File>
+                                    }
+                                })
+                            }
+                        </div>
+
 
                         <div className="w-full flex justify-end mt-4">
                             <button

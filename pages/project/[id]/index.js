@@ -22,6 +22,7 @@ function Project({ query }) {
     const { status, data: project } = useFirestoreDocData(projectRef);
 
     const [files, setFiles] = useState([])
+    const [project_photo, setProjectPhoto] = useState('')
 
     useEffect(async () => {
         const filesRef = ref(storage, `projects/${query.id}`);
@@ -46,11 +47,17 @@ function Project({ query }) {
                 };
                 xhr.open('GET', url);
                 xhr.send();
-
             }
         }
         catch (e) {
             console.error(e)
+        }
+
+        for (const f of files) {
+            if (f.name.includes('project_photo') && f.type.includes('image')) {
+                console.log(f)
+                setProjectPhoto(f)
+            }
         }
     }, [""])
 
@@ -87,7 +94,18 @@ function Project({ query }) {
             </div>
             <div>
                 {router.query.id}
-                <img src={project.image ? project.image : 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fgetwallpapers.com%2Fwallpaper%2Ffull%2F3%2F7%2F2%2F538871.jpg&f=1&nofb=1'} className="w-full mt-0 object-contain" />
+                {
+                    project_photo ? <img
+                        src={URL.createObjectURL(project_photo)}
+                        alt="Project Image"
+                        className="w-full mt-0 object-contain"
+                    /> : <img src={'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fgetwallpapers.com%2Fwallpaper%2Ffull%2F3%2F7%2F2%2F538871.jpg&f=1&nofb=1'} className="w-full mt-0 object-contain" />
+                }
+
+
+            </div>
+            <div className="hidden">
+                {Object.keys(project_photo)}
             </div>
         </article>
         <div className="max-w-prose mx-auto mb-4 px-4 lg:px-0">

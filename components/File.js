@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export default function RenderFile({ file, id, removeFile }) {
+export default function RenderFile({ file, id, removeFile, setPhoto }) {
     switch (file.type) {
         case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
             return (
@@ -94,6 +94,11 @@ export default function RenderFile({ file, id, removeFile }) {
                         </p>
                     </div>
                     {
+                        setPhoto && <button className="fill-current text-sciteensGreen-regular h-4 w-4 m-1" onClick={e => setPhoto(e, file)}>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" /></svg>
+                        </button>
+                    }
+                    {
                         removeFile && <button className="fill-current text-red-600 h-4 w-4 m-1" onClick={e => removeFile(e, id)}>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zM11.4 10l2.83-2.83-1.41-1.41L10 8.59 7.17 5.76 5.76 7.17 8.59 10l-2.83 2.83 1.41 1.41L10 11.41l2.83 2.83 1.41-1.41L11.41 10z" /></svg>
                         </button>
@@ -118,11 +123,13 @@ export default function RenderFile({ file, id, removeFile }) {
                             {file.type}
                         </p>
                     </div>
-                    {
-                        removeFile && <button className="fill-current text-red-600 h-4 w-4 m-1" onClick={e => removeFile(e, id)}>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zM11.4 10l2.83-2.83-1.41-1.41L10 8.59 7.17 5.76 5.76 7.17 8.59 10l-2.83 2.83 1.41 1.41L10 11.41l2.83 2.83 1.41-1.41L11.41 10z" /></svg>
-                        </button>
-                    }
+                    <div className="flex items-end">
+                        {
+                            removeFile && <button className="fill-current text-red-600 h-4 w-4 m-1" onClick={e => removeFile(e, id)}>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zM11.4 10l2.83-2.83-1.41-1.41L10 8.59 7.17 5.76 5.76 7.17 8.59 10l-2.83 2.83 1.41 1.41L10 11.41l2.83 2.83 1.41-1.41L11.41 10z" /></svg>
+                            </button>
+                        }
+                    </div>
                 </a>
             )
             break;
