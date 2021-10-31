@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useEffect, useContext } from "react"
 import moment from "moment"
-import { useSigninCheck, useStorage } from "reactfire"
-import { collection, updateDoc, limit, getFirestore, query as firebase_query, where, getDocs } from "@firebase/firestore"
+import { useSigninCheck, useStorage, useFirestore } from "reactfire"
+import { collection, updateDoc, limit, getFirestore, query as firebase_query, where, getDocs, doc, setDoc } from "@firebase/firestore"
 import { listAll, ref, getDownloadURL, getMetadata, uploadBytes } from "@firebase/storage";
+import { updateProfile as updateFirebaseProfile } from "@firebase/auth";
 import Error from 'next/error'
 import { useRouter } from "next/router"
 import { useDropzone } from 'react-dropzone'
@@ -47,6 +48,7 @@ export default function UpdateProfilePage({ user_profile }) {
         "application/vnd.jupyter.dragindex",
     ])
     const [files, setFiles] = useState([])
+    const [profile_photo, setProfilePhoto] = useState(null)
 
     const [error_about, setErrorAbout] = useState('')
     const [error_member, setErrorMember] = useState('')
@@ -54,6 +56,7 @@ export default function UpdateProfilePage({ user_profile }) {
 
     const { status, data: signInCheckResult } = useSigninCheck();
     const storage = useStorage()
+    const firestore = useFirestore()
 
     const router = useRouter()
     const { profile } = useContext(AppContext)
@@ -63,14 +66,14 @@ export default function UpdateProfilePage({ user_profile }) {
             router.push("/signup")
         }
 
-        else if (status == "success" && router.query.slug != profile.slug) {
+        else if (status == "success" && router.query.slug != profile.slug && signInCheckResult.user.uid != profile.id) {
             router.back()
         }
     })
 
     useEffect(async () => {
         setFiles([])
-        const filesRef = ref(storage, `profiles/${profile.id}`);
+        const filesRef = ref(storage, `profiles/${user_profile.id}`);
         setAbout(user_profile.about)
 
         // Find all the prefixes and items.
@@ -86,6 +89,10 @@ export default function UpdateProfilePage({ user_profile }) {
                     if (xhr.status == 200) {
                         blob.name = metadata.name
                         setFiles(oldFiles => [...oldFiles, blob])
+
+                        if (metadata.name.includes('profile_photo')) {
+                            setProfilePhoto(metadata.name)
+                        }
                     }
                 };
                 xhr.open('GET', url);
@@ -101,27 +108,39 @@ export default function UpdateProfilePage({ user_profile }) {
     const updateProfile = async (e) => {
         e.preventDefault()
         setLoading(true)
+        let res;
         try {
-            const res = await updateDoc(doc(firestore, 'profile', profile.id), {
+            res = await updateDoc(doc(firestore, 'profiles', user_profile.id), {
                 about: about.trim(),
-                abstract: abstract.trim(),
-                need_mentor: false,
                 links: [],
-                date: moment().toISOString(),
-                subscribers: [],
-                fields: field_names.filter((item, i) => field_values[i]),
-                member_uids: [signInCheckResult.user.uid],
             })
+        }
+        catch (e) {
+            console.error(e)
+            setErrorAbout("We couldn't update your profile at this time")
+        }
+
+        try {
             for (const f of files) {
-                const fileRef = ref(storage, `profiles/${profile.id}/${f.name}`);
+                const fileRef = ref(storage, f.name == profile_photo ? `profiles/${user_profile.id}/${`profile_photo.${f.type.split('/')[1]}`}` : `profiles/${user_profile.id}/${f.name}`);
                 await uploadBytes(fileRef, f)
+
+                // Set user profile photo
+                if (f.name == profile_photo) {
+                    const photoURL = await getDownloadURL(fileRef)
+                    const profile_photo_doc = doc(firestore, 'profile-pictures', user_profile.id)
+                    await setDoc(profile_photo_doc, {
+                        picture: photoURL
+                    })
+                    await updateFirebaseProfile(signInCheckResult.user, { photoURL: photoURL })
+                }
             }
             router.push(`/profile/${user_profile.slug}`)
             setLoading(false)
         }
 
         catch (error) {
-            setErrorTitle("We couldn't create your project at this time")
+            setErrorAbout("We couldn't update your profile at this time")
             console.error(error)
             setLoading(false)
         }
@@ -174,6 +193,11 @@ export default function UpdateProfilePage({ user_profile }) {
         let temp = [...files]
         temp.splice(id, 1)
         setFiles([...temp])
+    }
+
+    const setPhoto = (e, file) => {
+        e.preventDefault()
+        setProfilePhoto(file.name)
     }
 
     if (status == "success" && signInCheckResult.signedIn) {
@@ -234,7 +258,21 @@ export default function UpdateProfilePage({ user_profile }) {
                     <div className="flex flex-col items-center space-y-2">
                         {
                             files.map((f, id) => {
-                                return <File file={f} id={id} key={f.name} removeFile={removeFile}></File>
+                                return <File file={f} id={id} key={f.name} removeFile={removeFile} setPhoto={setPhoto}></File>
+                            })
+                        }
+                    </div>
+                    {
+                        profile_photo && <label for="project_photo" className="uppercase text-gray-600 mt-2">
+                            Profile Photo
+                        </label>
+                    }
+                    <div>
+                        {
+                            files.map((f, id) => {
+                                if (f.name == profile_photo) {
+                                    return <File file={f} id={id} key={f.name} removeFile={removeFile} setPhoto={setPhoto}></File>
+                                }
                             })
                         }
                     </div>
