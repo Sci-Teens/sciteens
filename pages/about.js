@@ -181,7 +181,7 @@ export default function About() {
 
                     {/* Profile Pics */}
                     <h2 className="text-2xl md:text-3xl mb-6 font-bold text-center">
-                        Meet the Team
+                        Get to know us.
                     </h2>
                     <div className="w-full h-full inline-grid grid-cols-2 lg:grid-cols-3 place-items-center mb-8">
                         {
