@@ -129,6 +129,40 @@ function Articles({ articles }) {
                     <h1 className="text-4xl py-4 text-left font-semibold ml-4">
                         Articles 📰
                     </h1>
+                    <form onSubmit={e => handleSearch(e)} className="flex flex-row lg:hidden">
+                        <button type="submit" className="min-w-[13%] md:min-w-[7%] bg-sciteensLightGreen-regular text-white font-semibold rounded-l-lg px-3 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
+                            onClick={e => handleSearch(e)}>
+                            <img src="assets/zondicons/search.svg" alt="Search" className="h-6 w-6" />
+                        </button>
+                        <input
+                            onChange={e => handleChange(e, 'searchbar')}
+                            value={search}
+                            name="search"
+                            placeholder="Search..."
+                            required
+                            className={`appearance-none border-transparent border-2 bg-white w-full p-2 leading-tight focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensLightGreen-regular text-gray-700 shadow`}
+                            type="text"
+                            aria-label="search"
+                            maxLength="100"
+                        />
+                        <select
+                            onChange={e => setField(e.target.value)}
+                            name="field"
+                            id="field"
+                            value={field}
+                            className="w-1/2 appearance-none border-transparent border-2 bg-white p-2 leading-tight rounded-r-lg focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular shadow"
+                        >
+                            {
+                                field_names.map((name) => {
+                                    return (
+                                        <option key={name} value={name}>
+                                            {name}
+                                        </option>
+                                    )
+                                })
+                            }
+                        </select>
+                    </form>
                     {articlesComponent}
                     {articles.length &&
                         <div className="mx-auto text-center mt-20">
@@ -138,7 +172,7 @@ function Articles({ articles }) {
                         </div>
                     }
                 </div>
-                <div className="hidden lg:block w-0 lg:w-[30%] xl:w-1/4 ml-[4.5rem] xl:ml-32">
+                <div className="hidden lg:block w-0 lg:w-[30%] lg:ml-32">
                     <div className="sticky top-1/2 transform -translate-y-1/2 w-full">
                         <h2 className="text-xl text-gray-700 mb-2">Search Articles</h2>
                         <form onSubmit={e => handleSearch(e)} className="flex flex-row">
