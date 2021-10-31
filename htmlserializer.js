@@ -1,5 +1,4 @@
 var PrismicDOM = require('prismic-dom');
-import Image from 'next/image'
 var Elements = PrismicDOM.RichText.Elements;
 
 export default function htmlSerializer(type, element, content, children) {
