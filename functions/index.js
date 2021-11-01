@@ -40,7 +40,7 @@ exports.newProject = functions.firestore
 
 exports.deleteProject = functions.firestore
     .document("projects/{projectID}")
-    .onDelete(async (event) => {
+    .onDelete(async (event, context) => {
         async function deleteCollection(db, collectionPath, batchSize) {
             const collectionRef = db.collection(collectionPath);
             const query = collectionRef.orderBy('__name__').limit(batchSize);
@@ -74,7 +74,7 @@ exports.deleteProject = functions.firestore
             });
         }
         // Delete the collection for feedback
-        await deleteCollection(admin.firestore(), `/projects/${projectID}/feedback`)
+        await deleteCollection(admin.firestore(), `/projects/${context.params.projectID}/feedback`)
     });
 
 /*

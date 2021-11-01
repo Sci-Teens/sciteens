@@ -1,0 +1,15 @@
+[debug] [2021-11-01T01:19:28.974Z] ----------------------------------------------------------------------
+[debug] [2021-11-01T01:19:28.975Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\johns\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only functions:deleteProject
+[debug] [2021-11-01T01:19:28.976Z] CLI Version:   9.21.0
+[debug] [2021-11-01T01:19:28.976Z] Platform:      win32
+[debug] [2021-11-01T01:19:28.976Z] Node Version:  v12.18.3
+[debug] [2021-11-01T01:19:28.982Z] Time:          Sun Oct 31 2021 21:19:28 GMT-0400 (Eastern Daylight Time)
+[debug] [2021-11-01T01:19:28.983Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2021-11-01T01:19:28.985Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2021-11-01T01:19:29.042Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2021-11-01T01:19:29.043Z] > authorizing via signed-in user (john@sciteens.org)
+[debug] [2021-11-01T01:19:29.043Z] [iam] checking project sciteens-testing-c7a72 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2021-11-01T01:19:29.044Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
+[debug] [2021-11-01T01:19:29.044Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
+ <request body omitted>
