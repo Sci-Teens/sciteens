@@ -127,7 +127,7 @@ export default function CreateProject() {
             else {
                 reader.readAsDataURL(f)
                 console.log(f)
-                setFiles([...new Set([...files, f])])
+                setFiles(oldfiles => [...new Set([...oldfiles, f])])
             }
         }
     })
