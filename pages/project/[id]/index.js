@@ -44,6 +44,10 @@ function Project({ query }) {
                     if (xhr.status == 200) {
                         console.log(blob)
                         blob.name = metadata.name
+                        console.log(metadata)
+                        if (metadata?.customMetadata?.project_photo == 'true') {
+                            setProjectPhoto(URL.createObjectURL(blob))
+                        }
                         setFiles(fs => [...fs, blob])
                     }
                 };

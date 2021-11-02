@@ -1,9 +1,10 @@
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useContext } from "react"
+import { AppContext } from "../../context/context"
 import moment from "moment"
 import Head from "next/head"
 import { useFirestore, useSigninCheck, useStorage } from "reactfire"
 import { collection, query, startAt, endAt, orderBy, limit, getDocs, addDoc, setDoc, doc } from "@firebase/firestore"
-import { getStorage, ref, uploadBytes } from "@firebase/storage"
+import { getStorage, ref, uploadBytes, updateMetadata } from "@firebase/storage"
 import Error from 'next/error'
 import { useRouter } from "next/router"
 import isEmail from 'validator/lib/isEmail'
@@ -52,6 +53,7 @@ export default function CreateProject() {
         "application/vnd.jupyter.dragindex",
     ])
     const [files, setFiles] = useState([])
+    const [project_photo, setProjectPhoto] = useState('')
 
     const [error_title, setErrorTitle] = useState('')
     const [error_start_date, setErrorStartDate] = useState('')
@@ -60,14 +62,7 @@ export default function CreateProject() {
     const [error_member, setErrorMember] = useState('')
     const [error_file, setErrorFile] = useState('')
 
-    const transitions = useTransition(files, {
-        from: { opacity: 0 },
-        enter: { opacity: 1 },
-        leave: { opacity: 0 },
-        delay: 200,
-        onRest: () => setFiles([]),
-    })
-
+    const { profile } = useContext(AppContext)
     const { status, data: signInCheckResult } = useSigninCheck();
     const firestore = useFirestore()
     const storage = useStorage()
@@ -95,6 +90,13 @@ export default function CreateProject() {
                 subscribers: [],
                 fields: field_names.filter((item, i) => field_values[i]),
                 member_uids: [signInCheckResult.user.uid],
+                member_arr: [
+                    {
+                        display: signInCheckResult.user.displayName,
+                        slug: profile.slug,
+                        uid: signInCheckResult.user.uid,
+                    }
+                ]
             })
             await setDoc(doc(firestore, 'project-invites', res.id), {
                 emails: members,
@@ -103,6 +105,13 @@ export default function CreateProject() {
             for (const f of files) {
                 const fileRef = ref(storage, `projects/${res.id}/${f.name}`);
                 await uploadBytes(fileRef, f)
+                if (f.name == project_photo) {
+                    await updateMetadata(fileRef, {
+                        customMetadata: {
+                            'project_photo': 'true',
+                        }
+                    })
+                }
             }
             router.push(`/project/${res.id}`)
             setLoading(false)
@@ -252,6 +261,11 @@ export default function CreateProject() {
         let temp = [...files]
         temp.splice(id, 1)
         setFiles([...temp])
+    }
+
+    const setPhoto = (e, file) => {
+        e.preventDefault()
+        setProjectPhoto(file.name)
     }
 
     if (status == "success" && signInCheckResult.signedIn) {
@@ -414,8 +428,22 @@ export default function CreateProject() {
                             {
                                 files.map((f, id) => {
                                     return (
-                                        <File file={f} id={id} removeFile={removeFile}></File>
+                                        <File file={f} id={id} key={f.name} removeFile={removeFile} setPhoto={setPhoto}></File>
                                     )
+                                })
+                            }
+                        </div>
+                        {
+                            project_photo && <label for="project_photo" className="uppercase text-gray-600 mt-2">
+                                Project Photo
+                            </label>
+                        }
+                        <div>
+                            {
+                                files.map((f, id) => {
+                                    if (f.name == project_photo) {
+                                        return <File file={f} id={id} key={f.name} removeFile={removeFile} setPhoto={setPhoto}></File>
+                                    }
                                 })
                             }
                         </div>

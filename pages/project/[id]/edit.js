@@ -3,7 +3,7 @@ import moment from "moment"
 import Head from "next/head"
 import { useFirestore, useSigninCheck, useStorage } from "reactfire"
 import { collection, startAt, endAt, orderBy, limit, getDoc, doc, updateDoc, setDoc } from "@firebase/firestore"
-import { listAll, ref, getDownloadURL, getMetadata, uploadBytes } from "@firebase/storage";
+import { listAll, ref, getDownloadURL, getMetadata, uploadBytes, updateMetadata } from "@firebase/storage";
 import Error from 'next/error'
 import { useRouter } from "next/router"
 import isEmail from 'validator/lib/isEmail'
@@ -154,11 +154,15 @@ export default function UpdateProject({ query }) {
         try {
 
             for (const f of files) {
-                if (f.name == project_photo) {
-                    f.name = `project_photo.${f.type.split('/')[1]}`
-                }
                 const fileRef = ref(storage, `projects/${query.id}/${f.name}`);
                 await uploadBytes(fileRef, f)
+                if (f.name == project_photo) {
+                    await updateMetadata(fileRef, {
+                        customMetadata: {
+                            'project_photo': 'true',
+                        }
+                    })
+                }
             }
             router.push(`/project/${query.id}`)
             setLoading(false)
