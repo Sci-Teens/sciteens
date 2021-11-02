@@ -10,6 +10,7 @@ import isEmail from 'validator/lib/isEmail'
 import debounce from "lodash/debounce";
 import { useDropzone } from 'react-dropzone'
 import File from '../../components/File'
+import { useTransition, animated } from "@react-spring/web"
 
 export default function CreateProject() {
     const [loading, setLoading] = useState(false)
@@ -58,6 +59,14 @@ export default function CreateProject() {
     const [error_abstract, setErrorAbstract] = useState('')
     const [error_member, setErrorMember] = useState('')
     const [error_file, setErrorFile] = useState('')
+
+    const transitions = useTransition(files, {
+        from: { opacity: 0 },
+        enter: { opacity: 1 },
+        leave: { opacity: 0 },
+        delay: 200,
+        onRest: () => setFiles([]),
+    })
 
     const { status, data: signInCheckResult } = useSigninCheck();
     const firestore = useFirestore()
@@ -117,7 +126,6 @@ export default function CreateProject() {
 
             if (!(file_extensions.includes(f.type) || f.name.includes(".docx") || f.name.includes(".pptx"))) {
                 setErrorFile("This file format is not accepted")
-
             }
 
             else if (f.size > 8000000) {
@@ -411,7 +419,6 @@ export default function CreateProject() {
                                 })
                             }
                         </div>
-
                         <button
                             type="submit"
                             disabled={loading || error_abstract || error_start_date || error_end_date || error_file || error_title}

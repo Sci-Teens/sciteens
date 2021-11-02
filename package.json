@@ -9,6 +9,7 @@
   "dependencies": {
     "@conversationai/perspectiveapi-js-client": "^1.0.1",
     "@prismicio/client": "^5.1.0",
+    "@react-spring/web": "^9.3.0",
     "@tailwindcss/aspect-ratio": "^0.3.0",
     "@tailwindcss/line-clamp": "^0.2.2",
     "@tailwindcss/typography": "^0.4.1",
