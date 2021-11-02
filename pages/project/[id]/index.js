@@ -18,11 +18,13 @@ function Project({ query }) {
     const firestore = useFirestore();
     const storage = useStorage()
 
+
     const projectRef = doc(firestore, 'projects', query.id);
     const { status, data: project } = useFirestoreDocData(projectRef);
 
     const [files, setFiles] = useState([])
     const [project_photo, setProjectPhoto] = useState('')
+
 
     useEffect(async () => {
         const filesRef = ref(storage, `projects/${query.id}`);
@@ -31,7 +33,7 @@ function Project({ query }) {
 
         try {
             const res = await listAll(filesRef)
-            console.log(res)
+            // console.log(res)
             for (const r of res.items) {
                 const url = await getDownloadURL(r)
                 const metadata = await getMetadata(r)
@@ -52,14 +54,15 @@ function Project({ query }) {
         catch (e) {
             console.error(e)
         }
+    }, [""])
 
+    useEffect(() => {
         for (const f of files) {
             if (f.name.includes('project_photo') && f.type.includes('image')) {
-                console.log(f)
-                setProjectPhoto(f)
+                setProjectPhoto(URL.createObjectURL(f))
             }
         }
-    }, [""])
+    }, [files])
 
     if (status === 'loading') {
         return <div className="prose-sm lg:prose mx-auto mt-4 mb-24">
@@ -96,7 +99,7 @@ function Project({ query }) {
                 {router.query.id}
                 {
                     project_photo ? <img
-                        src={URL.createObjectURL(project_photo)}
+                        src={project_photo}
                         alt="Project Image"
                         className="w-full mt-0 object-contain"
                     /> : <img src={'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fgetwallpapers.com%2Fwallpaper%2Ffull%2F3%2F7%2F2%2F538871.jpg&f=1&nofb=1'} className="w-full mt-0 object-contain" />

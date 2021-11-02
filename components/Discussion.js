@@ -64,9 +64,9 @@ export default function Discussion({ type, item_id }) {
             if (res.INSULT > THRESHOLD || res.PROFANITY > THRESHOLD || res.TOXICITY > THRESHOLD) {
                 console.log(replyingToId);
                 if (isComment) {
-                    setErrorComment("Please refrain from submitting toxic comments")
+                    setErrorComment("Please refrain from submitting inappropriate comments")
                 } else {
-                    setErrorReply("Please refrain from submitting toxic comments")
+                    setErrorReply("Please refrain from submitting inappropriate comments")
                     setErrorReplyIndex(index)
                 }
             }
@@ -123,7 +123,7 @@ export default function Discussion({ type, item_id }) {
                         ? 'border-red-700 text-red-800 placeholder-red-700'
                         : 'focus:border-sciteensLightGreen-regular text-gray-700'}`}
                     type="textarea"
-                    placeholder={discussion?.length ? "Enter a relevant comment..." : "Start the conversation..."}
+                    placeholder={discussion?.length ? "" : "Start the conversation..."}
                     aria-label="comment"
                     maxLength="1000"
                 >

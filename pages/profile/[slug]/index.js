@@ -49,7 +49,7 @@ function Project({ profile }) {
             <title>{profile.display}</title>
             <link rel="icon" href="/favicon.ico" />
         </Head>
-        <article className="prose-sm lg:prose mx-auto px-4 lg:px-0">
+        <article className="prose-sm lg:prose mx-auto px-4 lg:px-0 mt-8">
             <div>
                 <h1>
                     {profile.display}
