@@ -83,6 +83,11 @@ export default function UpdateProject({ query }) {
             const projectDoc = await getDoc(projectRef)
             const projectData = projectDoc.data()
 
+            // Check if user is a member
+            if (!projectData.member_uids.includes(signInCheckResult.user.uid)) {
+                router.back()
+            }
+
             setTitle(projectData.title)
             setAbstract(projectData.abstract)
             projectData.start && setStartDate(moment(projectData.start).format('yyyy-MM-DD'))
@@ -107,6 +112,9 @@ export default function UpdateProject({ query }) {
                     const blob = xhr.response;
                     if (xhr.status == 200) {
                         blob.name = metadata.name
+                        if (metadata?.customMetadata?.project_photo) {
+                            setProjectPhoto(blob.name)
+                        }
                         setFiles(oldFiles => [...oldFiles, blob])
                     }
                 };
@@ -152,15 +160,18 @@ export default function UpdateProject({ query }) {
         }
 
         try {
-
             for (const f of files) {
-                const fileRef = ref(storage, `projects/${query.id}/${f.name}`);
+                const fileRef = ref(storage, `projects/${res.id}/${f.name}`);
                 await uploadBytes(fileRef, f)
                 if (f.name == project_photo) {
                     await updateMetadata(fileRef, {
                         customMetadata: {
                             'project_photo': 'true',
                         }
+                    })
+                    const downloadURL = await getDownloadURL(fileRef)
+                    await updateDoc(doc(firestore, 'projects', query.id), {
+                        project_photo: downloadURL,
                     })
                 }
             }

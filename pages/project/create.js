@@ -3,8 +3,8 @@ import { AppContext } from "../../context/context"
 import moment from "moment"
 import Head from "next/head"
 import { useFirestore, useSigninCheck, useStorage } from "reactfire"
-import { collection, query, startAt, endAt, orderBy, limit, getDocs, addDoc, setDoc, doc } from "@firebase/firestore"
-import { getStorage, ref, uploadBytes, updateMetadata } from "@firebase/storage"
+import { collection, query, startAt, endAt, orderBy, limit, getDocs, addDoc, setDoc, doc, updateDoc } from "@firebase/firestore"
+import { getStorage, ref, uploadBytes, updateMetadata, getDownloadURL } from "@firebase/storage"
 import Error from 'next/error'
 import { useRouter } from "next/router"
 import isEmail from 'validator/lib/isEmail'
@@ -110,6 +110,10 @@ export default function CreateProject() {
                         customMetadata: {
                             'project_photo': 'true',
                         }
+                    })
+                    const downloadURL = await getDownloadURL(fileRef)
+                    await updateDoc(res.path, {
+                        project_photo: downloadURL,
                     })
                 }
             }

@@ -100,7 +100,6 @@ function Project({ query }) {
                 <div className="border-b-2 mt-2"></div>
             </div>
             <div>
-                {router.query.id}
                 {
                     project_photo ? <img
                         src={project_photo}
@@ -110,9 +109,6 @@ function Project({ query }) {
                 }
 
 
-            </div>
-            <div className="hidden">
-                {Object.keys(project_photo)}
             </div>
         </article>
         <div className="max-w-prose mx-auto mb-4 px-4 lg:px-0">
