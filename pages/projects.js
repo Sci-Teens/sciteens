@@ -2,10 +2,15 @@ import Link from 'next/link'
 import Image from 'next/image';
 import { useRouter } from "next/router"
 import Head from 'next/head';
-import { useFirestore } from 'reactfire';
 import { useEffect, useState } from 'react';
-import { collection, query, orderBy, getDocs, limit } from '@firebase/firestore';
+import { collection, query as firebase_query, orderBy, getDocs, limit, getFirestore } from '@firebase/firestore';
 import algoliasearch from "algoliasearch/lite";
+
+// const searchClient = algoliasearch(
+//     process.env.NEXT_PUBLIC_AL_APP_ID,
+//     process.env.NEXT_PUBLIC_AL_ADMIN_KEY
+// );
+// const projectIndex = searchClient.initIndex("projects")
 
 function Projects({ projects }) {
     const router = useRouter()
@@ -27,11 +32,7 @@ function Projects({ projects }) {
         "Physics",
         "Space Science",
     ])
-    const searchClient = algoliasearch(
-        process.env.NEXT_PUBLIC_AL_APP_ID,
-        process.env.NEXT_PUBLIC_AL_ADMIN_KEY
-    );
-    const projectIndex = searchClient.initIndex("projects")
+
 
     // useEffect(async () => {
     //     try {
@@ -84,7 +85,7 @@ function Projects({ projects }) {
         })
     }
 
-    const projectsComponent = projects.hits.map((project, index) => {
+    const projectsComponent = projects.map((project, index) => {
         console.log(project)
         return (
             <Link key={project.id} href={`/project/${project.id}`}>
@@ -125,8 +126,8 @@ function Projects({ projects }) {
                     <h1 className="text-4xl py-4 text-left ml-4">
                         📰 Latest Projects
                     </h1>
-                    {projects.hits?.length ? projectsComponent : loadingComponent}
-                    {projects.hitslength &&
+                    {projects?.length ? projectsComponent : loadingComponent}
+                    {projects &&
                         <div className="mx-auto text-center mt-20">
                             <i className="font-semibold text-xl">
                                 Sorry, we couldn't find any searches related to {router?.query.search}
@@ -184,21 +185,19 @@ export async function getServerSideProps({ query }) {
             process.env.NEXT_PUBLIC_AL_APP_ID,
             process.env.NEXT_PUBLIC_AL_ADMIN_KEY
         );
-        let projects = {
-            hits: []
-        }
+        let projects = []
+
         const projectIndex = searchClient.initIndex("projects")
+
         if (query.search && (!query.field || query.field == "All")) {
             let results = await projectIndex
                 .search(query.search)
             for (let i = 0; i < results.nbHits; i++) {
-                projects.hits.push({
+                projects.push({
                     id: results.hits[i].objectID,
-                    abstract: results.hits[i].abstract,
-                    title: results.hits[i].title,
+                    ...results.hits[i]
                 })
             }
-            console.log(projects)
         }
         else if (query.search && query.field != "All") {
             let results = await projectIndex
@@ -208,22 +207,20 @@ export async function getServerSideProps({ query }) {
             for (let i = 0; i < results.nbHits; i++) {
                 projects.hits.push({
                     id: results.hits[i].objectID,
-                    abstract: results.hits[i].abstract,
-                    title: results.hits[i].title,
+                    ...results.hits[i]
                 })
             }
             console.log(results)
         }
         else {
             console.log("load firestore")
-            const firestore = useFirestore()
+            const firestore = getFirestore()
             const projectsCollection = collection(firestore, 'projects')
-            const projectsQuery = query(projectsCollection, orderBy('date', 'asc'), limit(10))
+            const projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), limit(10))
             const projectsRef = await getDocs(projectsQuery)
-            console.log('herrerre')
             projectsRef.forEach(p => {
                 console.log("fouind")
-                projects.hits.push({
+                projects.push({
                     id: p.id,
                     ...p.data(),
                 })
@@ -231,8 +228,9 @@ export async function getServerSideProps({ query }) {
             console.log(projects)
         }
 
+        console.log(projects)
         return {
-            props: { projects }
+            props: { projects: projects }
         }
     }
     catch (e) {
