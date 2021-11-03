@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 const { Client } = require("@conversationai/perspectiveapi-js-client");
 const client = new Client(process.env.NEXT_PUBLIC_GM_API_KEY);
+import ProfilePhoto from "./ProfilePhoto";
 
 import debounce from "lodash/debounce";
 import moment from "moment";
@@ -157,7 +158,12 @@ export default function Discussion({ type, item_id }) {
                     if (comment.reply_to_id == "") return (
                         <div>
                             <div id={comment.id} key={comment.date} className={`relative p-4 shadow bg-white ${router.isReady && router.basePath.includes(comment.id) && 'bg-gray-200'} ${replyingToId === comment.id ? "rounded-t-lg" : "rounded-lg"}`}>
-                                <p className="font-semibold">{comment.display}</p>
+                                <div className="flex flex-row items-center mb-2">
+                                    <div className="h-10 w-10 mr-2">
+                                        <ProfilePhoto uid={comment.uid}></ProfilePhoto>
+                                    </div>
+                                    <p className="font-semibold">{comment.display}</p>
+                                </div>
                                 <p className="absolute top-4 right-4 text-gray-700 text-xs">
                                     {moment(comment.date).calendar(null, { sameElse: 'MMMM DD, YYYY' })}
                                 </p>
@@ -222,7 +228,12 @@ export default function Discussion({ type, item_id }) {
                                         <div className="w-[2px] bg-gray-200 ml-5 mr-5 md:ml-8 md:mr-8" />
                                         <div className="w-full">
                                             <div id={reply.id} key={reply.date} className={`relative p-4 mb-2 shadow bg-white ml-auto  rounded-lg`}>
-                                                <p>{reply.display}</p>
+                                                <div className="flex flex-row items-center mb-2">
+                                                    <div className="h-10 w-10 mr-2">
+                                                        <ProfilePhoto uid={reply.uid}></ProfilePhoto>
+                                                    </div>
+                                                    <p className="font-semibold">{reply.display}</p>
+                                                </div>
                                                 <p>{reply.comment}</p>
                                                 <p className="absolute top-4 right-4 text-gray-700 text-xs">
                                                     {moment(reply.date).calendar(null, { sameElse: 'MMMM DD, YYYY' })}

@@ -8,7 +8,8 @@ import Head from 'next/head'
 import htmlSerializer from '../../htmlserializer';
 import { useState, useEffect } from 'react';
 import File from '../../components/File'
-// import { useRouter } from 'next/router'
+import Discussion from '../../components/Discussion';
+import { useRouter } from 'next/router'
 
 function Course({ course }) {
     const [files, setFiles] = useState([])
@@ -62,7 +63,7 @@ function Course({ course }) {
             )
         }
     })
-    // const router = useRouter()
+    const router = useRouter()
     return (
         <>
             <Head>
@@ -129,13 +130,11 @@ function Course({ course }) {
                         </div>
                     </>
                 }
-
+                <Discussion type={"course"} item_id={router.query.slug}>
+                </Discussion>
             </div>
-
         </>
     )
-
-
 }
 
 export async function getServerSideProps({ query }) {
