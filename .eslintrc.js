@@ -10,7 +10,7 @@ module.exports = {
     overrides: [
         {
             files: ['**/*.js', '**/*.jsx'],
-            parser: '@typescript-eslint/parser',
+            // parser: '@typescript-eslint/parser',
             settings: { react: { version: 'detect' } },
             env: {
                 browser: true,

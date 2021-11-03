@@ -97,7 +97,7 @@ function Article({ article, recommendations }) {
                             <title>{RichText.asText(article.data.title)}</title>
                             <link rel="icon" href="/favicon.ico" />
                         </Head>
-                        <article className="prose-sm lg:prose mx-auto px-4 overflow-hidden break-words">
+                        <article className="prose-sm lg:prose mx-auto px-4 overflow-hidden break-words mt-8">
                             <div>
                                 <h1>
                                     {RichText.asText(article.data.title)}
@@ -125,13 +125,14 @@ function Article({ article, recommendations }) {
                                 {about_the_author}
 
                             </div>
+                            <div className="mt-4">
+                                <h3>Recommendations</h3>
+                                {Object.keys(recommendations)}
+                                {recommendationsRendered}
+                            </div>
                         </article>
                         {/* Recommendations */}
                         <div className="max-w-prose mx-auto mb-4 px-4 lg:px-0">
-                            <div className="mt-4">
-                                Recommendations
-                                {recommendationsRendered}
-                            </div>
                             <Discussion type={"article"} item_id={router.query.slug}>
                             </Discussion>
                         </div>
@@ -158,7 +159,7 @@ export async function getServerSideProps({ query }) {
         ]);
         const recommendations = recommendationsQuery.results.slice(0, 5)
         return {
-            props: { article, recommendations }
+            props: { article: article, recommendations: recommendations }
         }
     }
     catch (e) {

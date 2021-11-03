@@ -4,7 +4,7 @@ import { doc, getDoc } from "@firebase/firestore";
 export async function createUniqueSlug(firestore, check_slug, collection, num) {
     const doc_ref = doc(firestore, collection, check_slug)
     const res = await getDoc(doc_ref)
-    if (ref.exists()) {
+    if (res.exists()) {
         if (num == 1) {
             check_slug = check_slug + "-" + 1;
         } else {

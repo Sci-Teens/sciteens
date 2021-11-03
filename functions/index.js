@@ -40,7 +40,7 @@ exports.newProject = functions.firestore
 
 exports.deleteProject = functions.firestore
     .document("projects/{projectID}")
-    .onDelete(async (event) => {
+    .onDelete(async (event, context) => {
         async function deleteCollection(db, collectionPath, batchSize) {
             const collectionRef = db.collection(collectionPath);
             const query = collectionRef.orderBy('__name__').limit(batchSize);
@@ -74,7 +74,7 @@ exports.deleteProject = functions.firestore
             });
         }
         // Delete the collection for feedback
-        await deleteCollection(admin.firestore(), `/projects/${projectID}/feedback`)
+        await deleteCollection(admin.firestore(), `/projects/${context.params.projectID}/feedback`)
     });
 
 /*
@@ -433,16 +433,17 @@ exports.updateProgram = functions.firestore
 
 exports.newDiscussion = functions.firestore
     .document('projects/{projectID}/discussion/{feedbackID}')
-    .onCreate(async (event) => {
+    .onCreate(async (event, context) => {
         // Determine if a reply
         if (event.data().reply_to_id) {
             // Determine if user who submitted is a mentor or student 
             const user = await admin.auth().getUser(event.data().uid)
 
             // Fetch the original discussion comment 
-            const originalComment = await admin.firestore().doc(`projects/${projectID}/discussion/${event.data().reply_to_id}`).get()
+            const originalComment = await admin.firestore().doc(`projects/${context.params.projectID}/discussion/${event.data().reply_to_id}`).get()
 
             const originalUser = await admin.auth().getUser(originalComment.data().uid)
+            console.log("Sending email to " + originalUser.email)
             return mailjet
                 .post("send", { 'version': 'v3.1' })
                 .request({
@@ -462,8 +463,8 @@ exports.newDiscussion = functions.firestore
                             "TemplateLanguage": true,
                             "Subject": "New Feedback",
                             "Variables": {
-                                "studentOrMentor": user.customClaims['mentor'] ? "mentor" : "student",
-                                "projectLink": `https://sciteens.org/project/${projectID}#${event.id}`
+                                "studentOrMentor": user.customClaims && user.customClaims['mentor'] ? "mentor" : "student",
+                                "projectLink": `https://sciteens.org/project/${context.params.projectID}#${event.id}`
                             }
                         }
                     ]

@@ -96,9 +96,11 @@ function Projects({ projects }) {
                     <div className="ml-4 w-3/4 lg:w-11/12">
                         <h3 className="font-semibold text-lg">{project.title}</h3>
                         <p className="hidden lg:block">{project.abstract}</p>
-                        {/* <div className="flex flex-row items-center mt-2">
-                            <p className="ml-2">By {project.members}</p>
-                        </div> */}
+                        <div className="flex flex-row items-center mt-2">
+                            {/* <p className="ml-2">By {project.member_arr.map((member) => {
+                                return member.display + " "
+                            })}</p> */}
+                        </div>
                     </div>
 
                 </div>
@@ -228,7 +230,6 @@ export async function getServerSideProps({ query }) {
             })
             console.log(projects)
         }
-
 
         return {
             props: { projects }

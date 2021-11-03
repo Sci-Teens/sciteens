@@ -129,13 +129,18 @@ export default function About() {
 
     return (
         <div>
-            <main className="w-full">
+            <main>
 
-                <div className="text-left px-4 py-8 md:p-8 w-full lg:w-2/3 mx-auto">
-                    <h1 className="text-4xl mb-4">
-                        Our Journey
+                <div className="text-left px-4 py-8 md:p-8 w-full lg:w-5/6 mx-auto">
+                    <h1 className="text-3xl md:text-5xl text-center font-semibold my-4">
+                        We're on a mission.
                     </h1>
-                    <div className="flex flex-col-reverse lg:flex-row items-center mb-8">
+                    <p className="text-base md:text-xl text-center mb-12 mx-0 lg:mx-24">
+                        We strive to bridge the gap between education and opportunity, particularly for students from low-resource areas who do not have an extensive STEM support network.
+
+
+                    </p>
+                    {/* <div className="flex flex-col-reverse lg:flex-row items-center mb-8">
                         <p className="text-base lg:text-lg mb-4">
                             Inspired and driven by our curiosity towards the sciences, we participated in science fairs across South Florida throughout high school. With every competition, we met more of our remarkably bright and motivated peers from all backgrounds. They felt that doing research and competing in science fairs came with many barriers to entry, particularly as their schools lacked the necessary frameworks and guidance. This apparent unequal distribution of resources troubled us, so we came together and created SciTeens.
                         </p>
@@ -158,7 +163,7 @@ export default function About() {
                                 SciTeens Inc. is a registered 501(c)(3) not-for-profit entity. If we are not meeting expectations on how we can best serve you at any time, please
                                 <a
                                     href="mailto:support@sciteens.org"
-                                    class="text-sciteensGreen-regular font-bold"
+                                    className="text-sciteensGreen-regular font-bold"
                                 >
                                     &nbsp;reach out&nbsp;
                                 </a>
@@ -170,24 +175,39 @@ export default function About() {
                                 Sign Up Today
                             </a>
                         </Link>
-                    </div>
+                    </div> */}
+
 
 
                     {/* Profile Pics */}
-                    <h2 class="text-2xl mb-4 font-bold">
-                        Meet the Team
+                    <h2 className="text-2xl md:text-3xl mb-6 font-bold text-center">
+                        Get to know us.
                     </h2>
-                    <div class="w-full flex flex-wrap">
-                        <div class="w-full lg:w-1/2 lg:pr-8">
-                            {
+                    <div className="w-full h-full inline-grid grid-cols-2 lg:grid-cols-3 place-items-center mb-8">
+                        {
+                            members.map((member) => {
+                                return <div className="relative w-11/12 h-[90%] bg-white p-4 md:p-8 mb-6 rounded-lg shadow">
+                                    <img
+                                        loading="lazy"
+                                        src={`assets/headshots/${member.image}`}
+                                        alt={member.name}
+                                        className="w-20 h-20 lg:w-28 lg:h-28 rounded-full shadow m-auto mb-4" />
+                                    <p className="text-base md:text-2xl text-center font-semibold mb-2">{member.name}</p>
+                                    <p className={`hidden md:block text-center text-gray-700
+                                    ${member.name === "Aya Khalaf" || member.name === "Angelica Castillejos" ||
+                                            member.name === "Tasman Rosenfeld" ? "text-sm" : "text-base"}`}>{member.about}</p>
+                                </div>
+                            })
+                        }
+                        {/* {
                                 members.slice(0, Math.floor(members.length / 2)).map((member, index) => {
                                     return (
                                         <div key={member.name} className="flex justify-end my-2 flex-row odd:flex-row-reverse items-center">
-                                            <div class="text-left mx-2">
-                                                <h4 class="text-xl">
+                                            <div className="text-left mx-2">
+                                                <h4 className="text-xl">
                                                     {member.name}
                                                 </h4>
-                                                <p class="text-gray">
+                                                <p className="text-gray">
                                                     {member.about}
                                                 </p>
                                             </div>
@@ -195,23 +215,22 @@ export default function About() {
                                                 loading="lazy"
                                                 src={`/assets/headshots/${member.image}`}
                                                 alt={member.name}
-                                                class="w-32 h-32 rounded-full shadow"
+                                                className="w-32 h-32 rounded-full shadow"
                                             />
                                         </div>
                                     )
                                 })
-                            }
-                        </div>
-                        <div class="w-full lg:w-1/2 lg:pr-8">
+                            } */}
+                        {/* <div className="w-full lg:w-1/2 lg:pr-8">
                             {
                                 members.slice(Math.floor(members.length / 2), members.length).map((member, index) => {
                                     return (
                                         <div key={member.name} className="flex justify-end my-2 flex-row odd:flex-row-reverse items-center">
-                                            <div class="text-left mx-2">
-                                                <h4 class="text-xl">
+                                            <div className="text-left mx-2">
+                                                <h4 className="text-xl">
                                                     {member.name}
                                                 </h4>
-                                                <p class="text-gray">
+                                                <p className="text-gray">
                                                     {member.about}
                                                 </p>
                                             </div>
@@ -219,64 +238,64 @@ export default function About() {
                                                 loading="lazy"
                                                 src={`/assets/headshots/${member.image}`}
                                                 alt={member.name}
-                                                class="w-32 h-32 rounded-full shadow"
+                                                className="w-32 h-32 rounded-full shadow"
                                             />
                                         </div>
                                     )
                                 })
                             }
-                        </div>
+                        </div> */}
                     </div>
 
 
 
                     {/* Sponsors */}
                     {/* IDEAS */}
-                    <div class="flex flex-wrap w-full">
-                        <div class="flex w-full lg:w-1/2 justify-start mt-2 items-center">
+                    <div className="flex flex-wrap w-full">
+                        {/* <div className="flex w-full lg:w-1/2 justify-start mt-2 items-center">
                             <img
                                 loading="lazy"
                                 src="https://base.imgix.net/files/base/ebm/asumag/image/2019/04/asumag_8781_mit_logo.png?auto=format&fit=crop&h=432&w=768"
                                 alt="IDEAS"
-                                class="w-32 h-32 rounded-full shadow object-cover"
+                                className="w-32 h-32 rounded-full shadow object-cover"
                             />
-                            <div class="text-left ml-2">
+                            <div className="text-left ml-2">
                                 <a
                                     href="http://news.mit.edu/2019/ideas-challenge-social-ventures-0430"
                                     target="_blank"
-                                    class="text-xl"
+                                    className="text-xl"
                                 >
                                     MIT IDEAS Grant Recipient
-                                    <p class="text-sm">
+                                    <p className="text-sm">
                                         Click here for more information
                                     </p>
                                 </a>
                             </div>
-                        </div>
+                        </div> */}
 
                         {/* TSAI */}
-                        <div
-                            class="flex flex-row-reverse lg:flex-row w-full lg:w-1/2 justify-end items-center mt-2"
+                        {/* <div
+                            className="flex flex-row-reverse lg:flex-row w-full lg:w-1/2 justify-end items-center mt-2"
                         >
                             <img
                                 src="https://static1.squarespace.com/static/5a04b3bcedaed85148f6c11c/t/5a0c8cdc8165f525ba016a6a/1510771933144/logo.png?format=1500w"
                                 alt="TSAI"
                                 loading="lazy"
-                                class="w-32 h-32 rounded-full shadow"
+                                className="w-32 h-32 rounded-full shadow"
                             />
-                            <div class="text-right mr-2">
+                            <div className="text-right mr-2">
                                 <a
-                                    class="text-xl"
+                                    className="text-xl"
                                     href="https://city.yale.edu/stories/2018/10/11/introducing-citys-fall-2018-accelerator-cohort"
                                     target="_blank"
                                 >
                                     Yale TSAI CITY Accelerator
-                                    <p class="text-sm">
+                                    <p className="text-sm">
                                         Click here for more information
                                     </p>
                                 </a>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </main >
