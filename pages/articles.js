@@ -5,6 +5,8 @@ import { RichText } from 'prismic-reactjs';
 import { useRouter } from "next/router"
 import Head from 'next/head';
 import { useEffect, useState, useMemo } from 'react';
+import { useSpring, animated, config } from '@react-spring/web'
+import { clamp } from 'lodash';
 
 function Articles({ articles }) {
     const router = useRouter()
@@ -78,6 +80,21 @@ function Articles({ articles }) {
         return summary
     }
 
+    // REACT SPRING ANIMATIONS
+    useEffect(() => {
+        set({ opacity: 0, transform: 'translateX(80px)', config: { tension: 10000, clamp: true } })
+        window.setTimeout(function () { set({ opacity: 1, transform: 'translateX(0)', config: config.default }) }, 10)
+    }, [articles])
+
+    const [article_spring, set] = useSpring(() => ({
+        opacity: 1,
+        transform: 'translateX(0)',
+        from: {
+            opacity: 0,
+            transform: 'translateX(80px)'
+        }
+    }))
+
     const articlesComponent = articles.results.map((article, index) => {
 
         const author_image = article.data.body.map((slice, ix) => {
@@ -98,7 +115,7 @@ function Articles({ articles }) {
         return (
             <Link key={index} href={`/article/${article.uid}`}>
 
-                <a className="p-4 bg-white shadow rounded-lg z-50 mt-6 md:mt-8 flex flex-row items-center">
+                <animated.a style={article_spring} className="p-4 bg-white shadow rounded-lg z-50 mt-6 md:mt-8 flex flex-row items-center">
                     <div className="h-full max-w-[100px] md:max-w-[200px] relative">
                         <Image className="rounded-lg object-cover flex-shrink-0" loader={imageLoader} src={article.data.image.url} width={256} height={256} />
 
@@ -112,7 +129,7 @@ function Articles({ articles }) {
                         <p className="hidden md:block text-sm lg:text-base">{trimArticleDescription(article.data.description)}</p>
                     </div>
 
-                </a>
+                </animated.a>
             </Link >
         )
     })
@@ -164,10 +181,10 @@ function Articles({ articles }) {
                         </select>
                     </form>
                     {articlesComponent}
-                    {articles.length &&
+                    {articles.results.length === 0 &&
                         <div className="mx-auto text-center mt-20">
                             <i className="font-semibold text-xl">
-                                Sorry, we couldn't find any searches related to {router?.query.search}
+                                Sorry, we couldn't find any searches related to {router?.query.search == undefined ? router?.query.field : router?.query.search}
                             </i>
                         </div>
                     }

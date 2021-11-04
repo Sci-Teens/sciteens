@@ -2,10 +2,12 @@ import Head from 'next/head'
 import { useState, useEffect } from 'react'
 import render from '../components/LoadDesk.js'
 import Link from 'next/link'
+import { useSpring, animated, config } from '@react-spring/web'
 
 export default function Home() {
 
   const [rendered, setRendered] = useState(false)
+  const [animate, setAnimate] = useState(false)
 
   function renderDesk(canvas) {
     if (!rendered) {
@@ -17,7 +19,12 @@ export default function Home() {
   useEffect(() => {
     let canvas = document.getElementById("canvas")
     renderDesk(canvas)
+    setAnimate(true)
   }, [])
+
+  // REACT SPRING ANIMATIONS
+  const landing_spring = useSpring({ opacity: animate ? 1 : 0, transform: animate ? 'translateY(0)' : 'translateY(80px)', delay: 200, config: config.slow })
+
 
   return (
     <div>
@@ -29,7 +36,7 @@ export default function Home() {
       <main className="mt-0 lg:-mt-20">
         {/* Landing screen */}
         <div className="relative h-screen text-center xl:text-left">
-          <div className="relative z-20 h-full w-auto lg:max-w-2xl flex flex-col lg:justify-center mx-5 md:mx-16 lg:ml-24 mb-12 pt-24">
+          <animated.div style={landing_spring} className="relative z-20 h-full w-auto lg:max-w-2xl flex flex-col lg:justify-center mx-5 md:mx-16 lg:ml-24 mb-12 pt-24">
             <h1 className="text-4xl md:text-5xl lg:text-6xl whitespace-nowrap">Science, simplified.</h1>
             <p className="text-sm md:text-lg mt-4 mb-8">Share your work, get feedback from mentors and peers, and find great scientific
               opportunities and resources available and accessible to you. Oh yeah, and it's free.
@@ -45,7 +52,7 @@ export default function Home() {
                 <a className="text-gray-700 text-base md:text-xl p-4 ml-2 hover:underline active:bg-green-700">About</a>
               </Link>
             </div>
-          </div>
+          </animated.div>
           <div id="canvas-container" className="absolute grid grid-rows-1 grid-cols-1 items-center right-10 left-10 md:right-24 md:left-24 lg:right-16 lg:left-auto top-28 lg:top-0 h-full lg:w-[40%]">
             <div id="loading-screen" className="absolute z-10 transition-all duration-300 bg-backgroundGreen">
               <img src={'./assets/desktop-preview.png'} alt="" className="scale-75" />
