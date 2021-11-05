@@ -5,6 +5,7 @@ import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { collection, query as firebase_query, orderBy, getDocs, limit, getFirestore } from '@firebase/firestore';
 import algoliasearch from "algoliasearch/lite";
+import { useSpring, animated, config } from '@react-spring/web'
 
 // const searchClient = algoliasearch(
 //     process.env.NEXT_PUBLIC_AL_APP_ID,
@@ -69,7 +70,12 @@ function Projects({ projects }) {
     async function handleSearch(e) {
         e.preventDefault()
         let q = {}
-        q.search = search
+        if (search) {
+            q.search = search
+        }
+        if (field) {
+            q.field = field
+        }
         router.push({
             pathname: '/projects',
             query: q
@@ -85,26 +91,40 @@ function Projects({ projects }) {
         })
     }
 
+    // REACT SPRING ANIMATIONS
+    useEffect(() => {
+        set({ opacity: 0, transform: 'translateX(80px)', config: { tension: 10000, clamp: true } })
+        window.setTimeout(function () { set({ opacity: 1, transform: 'translateX(0)', config: config.default }) }, 10)
+    }, [projects])
+
+    const [project_spring, set] = useSpring(() => ({
+        opacity: 1,
+        transform: 'translateX(0)',
+        from: {
+            opacity: 0,
+            transform: 'translateX(80px)'
+        }
+    }))
+
     const projectsComponent = projects.map((project, index) => {
         console.log(project)
         return (
             <Link key={project.id} href={`/project/${project.id}`}>
-
-                <div className="p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center">
+                <animated.a style={project_spring} className="p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center">
                     <div className="h-full w-1/4 lg:w-1/12 relative">
-                        <Image src={"https://source.unsplash.com/collection/1677633/"} alt="Project Image" height={128} width={128} loader={imageLoader}></Image>
+                        <img src={project.project_photo ? project.project_photo : ''}></img>
+                        {/* <Image src={"https://source.unsplash.com/collection/1677633/"} alt="Project Image" height={128} width={128} loader={imageLoader}></Image> */}
                     </div>
                     <div className="ml-4 w-3/4 lg:w-11/12">
                         <h3 className="font-semibold text-lg">{project.title}</h3>
-                        <p className="hidden lg:block">{project.abstract}</p>
+                        <p className="hidden lg:block line-clamp-3">{project.abstract}</p>
                         <div className="flex flex-row items-center mt-2">
-                            {/* <p className="ml-2">By {project.member_arr.map((member) => {
+                            {project.member_arr && <p className="ml-2">By {project.member_arr.map((member) => {
                                 return member.display + " "
-                            })}</p> */}
+                            })}</p>}
                         </div>
                     </div>
-
-                </div>
+                </animated.a>
             </Link >
         )
     })
@@ -127,7 +147,7 @@ function Projects({ projects }) {
                         📰 Latest Projects
                     </h1>
                     {projects?.length ? projectsComponent : loadingComponent}
-                    {projects &&
+                    {!projects &&
                         <div className="mx-auto text-center mt-20">
                             <i className="font-semibold text-xl">
                                 Sorry, we couldn't find any searches related to {router?.query.search}
@@ -179,63 +199,72 @@ function Projects({ projects }) {
 }
 
 export async function getServerSideProps({ query }) {
-    // Fetch data from external API (Algolia)
+    console.log(query)
+    let projects = []
     try {
+        // Fetch data from external API (Algolia)
         const searchClient = algoliasearch(
             process.env.NEXT_PUBLIC_AL_APP_ID,
-            process.env.NEXT_PUBLIC_AL_ADMIN_KEY
+            process.env.NEXT_PUBLIC_AL_SEARCH_KEY
         );
-        let projects = []
 
-        const projectIndex = searchClient.initIndex("projects")
+        const projectIndex = searchClient.initIndex("prod_PROJECTS")
 
-        if (query.search && (!query.field || query.field == "All")) {
+        if (query?.search && (!query?.field || query?.field == "All")) {
+            console.log("Algolia search")
             let results = await projectIndex
                 .search(query.search)
-            for (let i = 0; i < results.nbHits; i++) {
+            results.hits.forEach(p => {
                 projects.push({
-                    id: results.hits[i].objectID,
-                    ...results.hits[i]
+                    id: p.objectID,
+                    ...p.data
                 })
-            }
+            })
         }
-        else if (query.search && query.field != "All") {
+        else if (query?.search && query?.field != "All") {
+            console.log("Algolia field")
             let results = await projectIndex
                 .search(query.search, {
                     filters: 'data.fields:' + query.field
                 })
-            for (let i = 0; i < results.nbHits; i++) {
-                projects.hits.push({
-                    id: results.hits[i].objectID,
-                    ...results.hits[i]
+            results.hits.forEach(p => {
+                projects.push({
+                    id: p.objectID,
+                    ...p.data
                 })
-            }
-            console.log(results)
+            })
         }
         else {
-            console.log("load firestore")
             const firestore = getFirestore()
             const projectsCollection = collection(firestore, 'projects')
             const projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), limit(10))
             const projectsRef = await getDocs(projectsQuery)
             projectsRef.forEach(p => {
-                console.log("fouind")
                 projects.push({
                     id: p.id,
                     ...p.data(),
                 })
             })
-            console.log(projects)
         }
 
-        console.log(projects)
         return {
             props: { projects: projects }
         }
     }
     catch (e) {
+        console.log(e)
+        const firestore = getFirestore()
+        const projectsCollection = collection(firestore, 'projects')
+        const projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), limit(10))
+        const projectsRef = await getDocs(projectsQuery)
+        projectsRef.forEach(p => {
+            projects.push({
+                id: p.id,
+                ...p.data(),
+            })
+        })
         return {
-            notFound: false,
+            props: { projects: projects }
         }
     }
 }

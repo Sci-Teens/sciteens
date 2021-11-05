@@ -4,9 +4,8 @@ import Image from 'next/image';
 import { RichText } from 'prismic-reactjs';
 import { useRouter } from "next/router"
 import Head from 'next/head';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useSpring, animated, config } from '@react-spring/web'
-import { clamp } from 'lodash';
 
 function Articles({ articles }) {
     const router = useRouter()

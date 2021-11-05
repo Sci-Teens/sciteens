@@ -112,9 +112,11 @@ function Project({ query }) {
             </div>
         </article>
         <div className="max-w-prose mx-auto mb-4 px-4 lg:px-0">
-            <h2 className="text-lg font-semibold mb-2">
-                Files
-            </h2>
+            {
+                files.length > 0 && <h2 className="text-lg font-semibold mb-2">
+                    Files
+                </h2>
+            }
             <div className="flex flex-col items-center space-y-2">
                 {
                     files.map((f, id) => {
