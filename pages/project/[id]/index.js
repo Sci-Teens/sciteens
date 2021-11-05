@@ -86,8 +86,10 @@ function Project({ query }) {
 
     return (<>
         <Head>
-            <title>{project.title}</title>
+            <title>{project.title} | SciTeens</title>
             <link rel="icon" href="/favicon.ico" />
+            <meta name="description" content={project?.abstract ? project.abstract : `${project.title} on SciTeens`} />
+            <meta name="keywords" content="SciTeens, sciteens, project, teen science" />
         </Head>
         <article className="prose-sm lg:prose mx-auto px-4 lg:px-0 mt-8">
             <div>

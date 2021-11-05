@@ -46,8 +46,10 @@ function Project({ profile }) {
 
     return (<>
         <Head>
-            <title>{profile.display}</title>
+            <title>{profile.display}'s Profile | SciTeens</title>
             <link rel="icon" href="/favicon.ico" />
+            <meta name="description" content={profile?.about ? profile.about : `${profile.display}'s Profile on SciTeens`} />
+            <meta name="keywords" content="SciTeens, sciteens, profile, teen science" />
         </Head>
         <article className="prose-sm lg:prose mx-auto px-4 lg:px-0 mt-8">
             <div>

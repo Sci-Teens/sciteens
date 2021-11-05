@@ -137,8 +137,10 @@ function Articles({ articles }) {
     return (
         <>
             <Head>
-                <title>Articles Page {router?.query?.page ? router.query.page : 1}</title>
+                <title>{field ? field + ' ' : ''} Articles {search ? 'related to ' + search : ''} | SciTeens</title>
                 <link rel="icon" href="/favicon.ico" />
+                <meta name="description" content="SciTeens Articles Page" />
+                <meta name="keywords" content="SciTeens, sciteens, articles, teen science" />
             </Head>
             <div className="min-h-screen mx-auto lg:mx-16 xl:mx-32 flex flex-row mt-8 mb-24">
                 <div className="w-11/12 md:w-[85%] mx-auto lg:mx-0 lg:w-[60%]">

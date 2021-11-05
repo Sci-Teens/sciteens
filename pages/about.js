@@ -139,8 +139,13 @@ export default function About() {
 
     return (
         <div>
+            <Head>
+                <title>About Us | SciTeens</title>
+                <link rel="icon" href="/favicon.ico" />
+                <meta name="description" content="SciTeens About Page" />
+                <meta name="keywords" content="SciTeens, sciteens, science, teen science" />
+            </Head>
             <main>
-
                 <div className="text-left px-4 py-8 md:p-8 w-full lg:w-5/6 mx-auto">
                     <h1 className="text-3xl md:text-5xl text-center font-semibold my-4">
                         We're on a mission.

@@ -293,8 +293,10 @@ export default function StudentSignUp() {
     return (
         <div>
             <Head>
-                <title>Student Sign Up</title>
+                <title>Student Sign Up | SciTeens</title>
                 <link rel="icon" href="/favicon.ico" />
+                <meta name="description" content="Mentor sign up for SciTeens" />
+                <meta name="keywords" content="SciTeens, sciteens, sign up, teen science" />
             </Head>
             <main>
                 <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow rounded-lg">

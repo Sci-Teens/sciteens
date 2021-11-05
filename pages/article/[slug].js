@@ -94,8 +94,10 @@ function Article({ article, recommendations }) {
                 isAmp ? <h3>AMP article in progess...</h3> :
                     <>
                         <Head>
-                            <title>{RichText.asText(article.data.title)}</title>
+                            <title>{RichText.asText(article.data.title)} | SciTeens</title>
                             <link rel="icon" href="/favicon.ico" />
+                            <meta name="description" content={article.data.description} />
+                            <meta name="keywords" content="SciTeens, sciteens, article, teen science" />
                         </Head>
                         <article className="prose-sm lg:prose mx-auto px-4 overflow-hidden break-words mt-8">
                             <div>
