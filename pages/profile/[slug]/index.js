@@ -1,6 +1,8 @@
 import { doc, getDocs, getFirestore, query as firebase_query, collection, where, limit } from "@firebase/firestore";
+import { getApp, getApps, initializeApp } from "@firebase/app";
+import firebaseConfig from "../../../firebaseConfig";
 import { listAll, ref, getDownloadURL, getMetadata } from "@firebase/storage";
-import { useFirestore, useFirestoreDocDataOnce, useStorage } from "reactfire";
+import { useStorage } from "reactfire";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import Error from 'next/error'
@@ -73,7 +75,8 @@ function Project({ profile }) {
 }
 
 export async function getServerSideProps({ query }) {
-    const firestore = getFirestore()
+    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+    const firestore = getFirestore(app)
     const profilesRef = collection(firestore, "profiles");
     const profileQuery = firebase_query(profilesRef, where("slug", "==", query.slug), limit(1));
     const profileRes = await getDocs(profileQuery)

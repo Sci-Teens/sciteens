@@ -3,6 +3,8 @@ import Image from 'next/image';
 import { useRouter } from "next/router"
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
+import { getApp, getApps, initializeApp } from "@firebase/app";
+import firebaseConfig from '../firebaseConfig';
 import { collection, query as firebase_query, orderBy, getDocs, limit, getFirestore } from '@firebase/firestore';
 import algoliasearch from "algoliasearch/lite";
 import { useSpring, animated, config } from '@react-spring/web'
@@ -201,8 +203,9 @@ function Projects({ projects }) {
 }
 
 export async function getServerSideProps({ query }) {
-    console.log(query)
     let projects = []
+    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+    console.log(app)
     try {
         // Fetch data from external API (Algolia)
         const searchClient = algoliasearch(
@@ -237,7 +240,7 @@ export async function getServerSideProps({ query }) {
             })
         }
         else {
-            const firestore = getFirestore()
+            const firestore = getFirestore(app)
             const projectsCollection = collection(firestore, 'projects')
             const projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), limit(10))
             const projectsRef = await getDocs(projectsQuery)
@@ -254,8 +257,8 @@ export async function getServerSideProps({ query }) {
         }
     }
     catch (e) {
-        console.log(e)
-        const firestore = getFirestore()
+        console.error(e)
+        const firestore = getFirestore(app)
         const projectsCollection = collection(firestore, 'projects')
         const projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), limit(10))
         const projectsRef = await getDocs(projectsQuery)
