@@ -33,7 +33,6 @@ function Project({ query }) {
 
         try {
             const res = await listAll(filesRef)
-            // console.log(res)
             for (const r of res.items) {
                 const url = await getDownloadURL(r)
                 const metadata = await getMetadata(r)
@@ -42,9 +41,7 @@ function Project({ query }) {
                 xhr.onload = (e) => {
                     const blob = xhr.response;
                     if (xhr.status == 200) {
-                        console.log(blob)
                         blob.name = metadata.name
-                        console.log(metadata)
                         if (metadata?.customMetadata?.project_photo == 'true') {
                             setProjectPhoto(URL.createObjectURL(blob))
                         }
