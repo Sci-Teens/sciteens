@@ -112,7 +112,7 @@ export default function CreateProject() {
                         }
                     })
                     const downloadURL = await getDownloadURL(fileRef)
-                    await updateDoc(res.path, {
+                    await updateDoc(res, {
                         project_photo: downloadURL,
                     })
                 }

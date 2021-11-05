@@ -113,15 +113,16 @@ function Projects({ projects }) {
         return (
             <Link key={project.id} href={`/project/${project.id}`}>
                 <animated.a style={project_spring} className="p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center">
-                    <div className="h-full w-1/4 lg:w-1/12 relative">
-                        <img src={project.project_photo ? project.project_photo : ''}></img>
-                        {/* <Image src={"https://source.unsplash.com/collection/1677633/"} alt="Project Image" height={128} width={128} loader={imageLoader}></Image> */}
+                    <div className="h-full max-w-[100px] md:max-w-[200px] max-h-[100px] md:max-h-[200px] relative overflow-hidden rounded-lg">
+                        <img src={project.project_photo ? project.project_photo : ''} className="rounded-lg object-cover flex-shrink-0"></img>
+
                     </div>
+                    {/* <Image src={"https://source.unsplash.com/collection/1677633/"} alt="Project Image" height={128} width={128} loader={imageLoader}></Image> */}
                     <div className="ml-4 w-3/4 lg:w-11/12">
                         <h3 className="font-semibold text-lg">{project.title}</h3>
                         <p className="hidden lg:block line-clamp-3">{project.abstract}</p>
                         <div className="flex flex-row items-center mt-2">
-                            {project.member_arr && <p className="ml-2">By {project.member_arr.map((member) => {
+                            {project.member_arr && <p>By {project.member_arr.map((member) => {
                                 return member.display + " "
                             })}</p>}
                         </div>
