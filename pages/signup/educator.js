@@ -218,7 +218,7 @@ export default function MentorSignUp() {
                 fields: [],
                 programs: [],
                 links: [],
-                joined: moment.toISOString(),
+                joined: moment().toISOString(),
                 birthday: "",
                 institution: institution,
                 position: position,
