@@ -129,14 +129,14 @@ export default function About() {
         },].sort(() => Math.random() - 0.5))
 
     // REACT SPRING ANIMATIONS
-    const [animate, setAnimate] = useState(false)
-
-    useEffect(() => {
-        setAnimate(true)
-    }, [])
-
-    const about_spring = useSpring({ opacity: animate ? 1 : 0, transform: animate ? 'scale(1)' : 'scale(0)', delay: 200 })
-
+    const about_spring = useSpring({
+        transform: 'scale(1)',
+        from: {
+            transform: 'scale(0)'
+        },
+        config: config.stiff,
+        delay: 100
+    })
     return (
         <div>
             <Head>
@@ -163,7 +163,7 @@ export default function About() {
                     <div className="w-full h-full inline-grid grid-cols-2 lg:grid-cols-3 place-items-center mb-8">
                         {
                             members.map((member) => {
-                                return <animated.div style={about_spring} className="relative w-11/12 h-[90%] bg-white p-4 md:p-8 mb-6 rounded-lg shadow">
+                                return <animated.div style={about_spring} key={member.name} className="relative w-11/12 h-[90%] bg-white p-4 md:p-8 mb-6 rounded-lg shadow">
                                     <img
                                         loading="lazy"
                                         src={`assets/headshots/${member.image}`}

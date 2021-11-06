@@ -109,7 +109,6 @@ function Projects({ projects }) {
     }))
 
     const projectsComponent = projects.map((project, index) => {
-        console.log(project)
         return (
             <Link key={project.id} href={`/project/${project.id}`}>
                 <animated.a style={project_spring} className="p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center">
@@ -151,15 +150,16 @@ function Projects({ projects }) {
                     <h1 className="text-4xl py-4 text-left ml-4">
                         📰 Latest Projects
                     </h1>
-                    {projects?.length ? projectsComponent : loadingComponent}
-                    {!projects &&
+                    {projects?.length != 0 ? projectsComponent : loadingComponent}
+                    {
+                        projects.length == 0 &&
                         <div className="mx-auto text-center mt-20">
                             <i className="font-semibold text-xl">
                                 Sorry, we couldn't find any searches related to {router?.query.search}
                             </i>
                         </div>
                     }
-                </div>
+                </div >
 
                 <div className="hidden lg:block w-0 lg:w-[30%] lg:ml-32">
                     <div className="sticky top-1/2 transform -translate-y-1/2 w-full">
@@ -188,7 +188,7 @@ function Projects({ projects }) {
                             {
                                 field_names.map((field) => {
                                     return (
-                                        <button onClick={() => handleFieldSearch(field)} className="text-sm px-3 py-2 bg-white rounded-full mr-4 mb-4 shadow">
+                                        <button key={field} onClick={() => handleFieldSearch(field)} className="text-sm px-3 py-2 bg-white rounded-full mr-4 mb-4 shadow">
                                             {field}
                                         </button>
                                     )
@@ -197,7 +197,7 @@ function Projects({ projects }) {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div >
         </>
 
     )

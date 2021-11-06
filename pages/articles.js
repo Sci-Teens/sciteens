@@ -114,7 +114,7 @@ function Articles({ articles }) {
         return (
             <Link key={index} href={`/article/${article.uid}`}>
 
-                <animated.a style={article_spring} className="p-4 bg-white shadow rounded-lg z-50 mt-6 md:mt-8 flex flex-row items-center">
+                <animated.a style={article_spring} className="cursor-pointer p-4 bg-white shadow rounded-lg z-50 mt-6 md:mt-8 flex flex-row items-center">
                     <div className="h-full max-w-[100px] md:max-w-[200px] relative">
                         <Image className="rounded-lg object-cover flex-shrink-0" loader={imageLoader} src={article.data.image.url} width={256} height={256} />
 

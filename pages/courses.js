@@ -4,7 +4,8 @@ import Image from 'next/image';
 import { RichText } from 'prismic-reactjs';
 import { useRouter } from "next/router"
 import Head from 'next/head';
-import { useState, } from 'react';
+import { useState, useEffect } from 'react';
+import { useSpring, animated, config } from '@react-spring/web'
 
 
 function Courses({ courses }) {
@@ -58,12 +59,28 @@ function Courses({ courses }) {
         })
     }
 
+    // REACT SPRING ANIMATIONS
+    useEffect(() => {
+        set({ opacity: 0, transform: 'translateX(80px)', config: { tension: 10000, clamp: true } })
+        window.setTimeout(function () { set({ opacity: 1, transform: 'translateX(0)', config: config.default }) }, 10)
+    }, [courses])
+
+    const [courses_spring, set] = useSpring(() => ({
+        opacity: 1,
+        transform: 'translateX(0)',
+        from: {
+            opacity: 0,
+            transform: 'translateX(80px)'
+        }
+    }))
+
+
     const coursesComponent = courses.results.map((course, index) => {
 
         return (
             <Link key={course.uid} href={`/course/${course.uid}`}>
 
-                <div className="p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center">
+                <animated.div style={courses_spring} className="cursor-pointer p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center">
                     <div className="h-full w-1/4 relative">
                         <Image className="rounded-lg object-cover flex-shrink-0" loader={imageLoader} src={course.data.image_main.url} width={256} height={256} />
 
@@ -73,7 +90,7 @@ function Courses({ courses }) {
                         <p className="hidden lg:block">{RichText.asText(course.data.description)}</p>
                     </div>
 
-                </div>
+                </animated.div>
             </Link >
         )
     })
@@ -91,10 +108,10 @@ function Courses({ courses }) {
                         📰 Latest Courses
                     </h1>
                     {coursesComponent}
-                    {courses.length &&
+                    {courses.results.length == 0 &&
                         <div className="mx-auto text-center mt-20">
                             <i className="font-semibold text-xl">
-                                Sorry, we couldn't find any searches related to {router?.query.search}
+                                Sorry, we couldn't find any searches related to {router?.query.search == undefined ? router?.query.field : router?.query.search}
                             </i>
                         </div>
                     }
