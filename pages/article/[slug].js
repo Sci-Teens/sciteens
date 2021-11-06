@@ -99,7 +99,7 @@ function Article({ article, recommendations }) {
                             <meta name="description" content={article.data.description} />
                             <meta name="keywords" content="SciTeens, sciteens, article, teen science" />
                         </Head>
-                        <article className="prose-sm lg:prose mx-auto px-4 overflow-hidden break-words mt-8">
+                        <article className="prose prose-sm lg:prose-lg mx-auto px-4 overflow-hidden break-words mt-8">
                             <div>
                                 <h1>
                                     {RichText.asText(article.data.title)}
@@ -118,7 +118,7 @@ function Article({ article, recommendations }) {
                             </div>
                             <div>
                                 {/* Image Slider */}
-                                <Image loader={imageLoader} src={article.data.image.url} width="582" height="389" className="w-full mt-0 object-contain" />
+                                <Image loader={imageLoader} src={article.data.image.url} width="670" height="400" className="w-full mt-0 object-cover" />
 
                                 <div>
                                     <RichText render={article.data.text} htmlSerializer={htmlSerializer} />

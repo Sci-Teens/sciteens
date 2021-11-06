@@ -59,6 +59,13 @@ function Courses({ courses }) {
         })
     }
 
+    function trimCourseDescription(summary) {
+        if (summary.length > 150) {
+            summary = summary.substring(0, 150) + "..."
+        }
+        return summary
+    }
+
     // REACT SPRING ANIMATIONS
     useEffect(() => {
         set({ opacity: 0, transform: 'translateX(80px)', config: { tension: 10000, clamp: true } })
@@ -81,13 +88,12 @@ function Courses({ courses }) {
             <Link key={course.uid} href={`/course/${course.uid}`}>
 
                 <animated.div style={courses_spring} className="cursor-pointer p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center">
-                    <div className="h-full w-1/4 relative">
+                    <div className="h-full max-w-[100px] md:max-w-[200px] relative">
                         <Image className="rounded-lg object-cover flex-shrink-0" loader={imageLoader} src={course.data.image_main.url} width={256} height={256} />
-
                     </div>
                     <div className="ml-4 w-3/4 lg:w-11/12">
-                        <h3 className="font-semibold text-lg">{RichText.asText(course.data.name)}</h3>
-                        <p className="hidden lg:block">{RichText.asText(course.data.description)}</p>
+                        <h3 className="font-semibold text-base md:text-xl lg:text-2xl mb-2">{RichText.asText(course.data.name)}</h3>
+                        <p className="hidden lg:block">{trimCourseDescription(RichText.asText(course.data.description))}</p>
                     </div>
 
                 </animated.div>

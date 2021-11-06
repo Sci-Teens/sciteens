@@ -8,6 +8,7 @@ import firebaseConfig from '../firebaseConfig';
 import { collection, query as firebase_query, orderBy, getDocs, limit, getFirestore } from '@firebase/firestore';
 import algoliasearch from "algoliasearch/lite";
 import { useSpring, animated, config } from '@react-spring/web'
+import ProfilePhoto from "../components/ProfilePhoto"
 
 // const searchClient = algoliasearch(
 //     process.env.NEXT_PUBLIC_AL_APP_ID,
@@ -93,6 +94,13 @@ function Projects({ projects }) {
         })
     }
 
+    function trimProjectDescription(summary) {
+        if (summary.length > 150) {
+            summary = summary.substring(0, 150) + "..."
+        }
+        return summary
+    }
+
     // REACT SPRING ANIMATIONS
     useEffect(() => {
         set({ opacity: 0, transform: 'translateX(80px)', config: { tension: 10000, clamp: true } })
@@ -111,20 +119,26 @@ function Projects({ projects }) {
     const projectsComponent = projects.map((project, index) => {
         return (
             <Link key={project.id} href={`/project/${project.id}`}>
-                <animated.a style={project_spring} className="p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center">
+                <animated.a style={project_spring} className="p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center cursor-pointer">
                     <div className="h-full max-w-[100px] md:max-w-[200px] max-h-[100px] md:max-h-[200px] relative overflow-hidden rounded-lg">
                         <img src={project.project_photo ? project.project_photo : ''} className="rounded-lg object-cover flex-shrink-0"></img>
-
                     </div>
                     {/* <Image src={"https://source.unsplash.com/collection/1677633/"} alt="Project Image" height={128} width={128} loader={imageLoader}></Image> */}
                     <div className="ml-4 w-3/4 lg:w-11/12">
-                        <h3 className="font-semibold text-lg">{project.title}</h3>
-                        <p className="hidden lg:block line-clamp-3">{project.abstract}</p>
-                        <div className="flex flex-row items-center mt-2">
-                            {project.member_arr && <p>By {project.member_arr.map((member) => {
+                        {project.member_arr && <div className="flex flex-row items-center mb-3">
+                            <div className="flex -space-x-2 overflow-hidden">
+                                {project.member_arr.map((member) => {
+                                    return <div className="inline-block h-6 w-6 lg:h-8 lg:w-8 rounded-full ring-2 ring-white">
+                                        <ProfilePhoto uid={member.uid}></ProfilePhoto>
+                                    </div>
+                                })}
+                            </div>
+                            <p className="ml-2">By {project.member_arr.map((member) => {
                                 return member.display + " "
-                            })}</p>}
-                        </div>
+                            })}</p>
+                        </div>}
+                        <h3 className="font-semibold text-base md:text-xl lg:text-2xl mb-2">{project.title}</h3>
+                        <p className="hidden lg:block line-clamp-3">{trimProjectDescription(project.abstract)}</p>
                     </div>
                 </animated.a>
             </Link >
