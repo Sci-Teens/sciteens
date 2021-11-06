@@ -29,8 +29,10 @@ export default function Home() {
   return (
     <div>
       <Head>
-        <title>SciTeens</title>
+        <title>Welcome to SciTeens! | SciTeens</title>
         <link rel="icon" href="/favicon.ico" />
+        <meta name="description" content="SciTeens Home Page" />
+        <meta name="keywords" content="SciTeens, sciteens, home, teen science" />
       </Head>
 
       <main className="mt-0 lg:-mt-20">

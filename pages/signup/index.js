@@ -10,8 +10,10 @@ export default function SignUpIndex() {
     return (
         <div >
             <Head>
-                <title>Sign Up for SciTeens</title>
+                <title>Sign Up | SciTeens</title>
                 <link rel="icon" href="/favicon.ico" />
+                <meta name="description" content="Sign up for SciTeens" />
+                <meta name="keywords" content="SciTeens, sciteens, sign up, teen science" />
             </Head>
             <main className="h-screen flex justify-center -mt-8">
                 <div className="flex flex-col justify-center items-center text-center">

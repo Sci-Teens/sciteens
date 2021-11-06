@@ -33,7 +33,6 @@ function Project({ query }) {
 
         try {
             const res = await listAll(filesRef)
-            // console.log(res)
             for (const r of res.items) {
                 const url = await getDownloadURL(r)
                 const metadata = await getMetadata(r)
@@ -42,9 +41,7 @@ function Project({ query }) {
                 xhr.onload = (e) => {
                     const blob = xhr.response;
                     if (xhr.status == 200) {
-                        console.log(blob)
                         blob.name = metadata.name
-                        console.log(metadata)
                         if (metadata?.customMetadata?.project_photo == 'true') {
                             setProjectPhoto(URL.createObjectURL(blob))
                         }
@@ -86,8 +83,10 @@ function Project({ query }) {
 
     return (<>
         <Head>
-            <title>{project.title}</title>
+            <title>{project.title} | SciTeens</title>
             <link rel="icon" href="/favicon.ico" />
+            <meta name="description" content={project?.abstract ? project.abstract : `${project.title} on SciTeens`} />
+            <meta name="keywords" content="SciTeens, sciteens, project, teen science" />
         </Head>
         <article className="prose-sm lg:prose mx-auto px-4 lg:px-0 mt-8">
             <div>
@@ -112,9 +111,11 @@ function Project({ query }) {
             </div>
         </article>
         <div className="max-w-prose mx-auto mb-4 px-4 lg:px-0">
-            <h2 className="text-lg font-semibold mb-2">
-                Files
-            </h2>
+            {
+                files.length > 0 && <h2 className="text-lg font-semibold mb-2">
+                    Files
+                </h2>
+            }
             <div className="flex flex-col items-center space-y-2">
                 {
                     files.map((f, id) => {

@@ -20,6 +20,7 @@ export default function UpdateProject({ query }) {
     const [abstract, setAbstract] = useState('')
     const [member, setMember] = useState('')
     const [members, setMembers] = useState([])
+    const [member_uids, setMemberUids] = useState([])
     const [field_names] = useState([
         "Biology",
         "Chemistry",
@@ -68,10 +69,15 @@ export default function UpdateProject({ query }) {
     const router = useRouter()
 
     useEffect(() => {
+        console.log(signInCheckResult)
+        console.log(member_uids)
         if (status == "success" && !signInCheckResult?.signedIn) {
             router.push("/signup")
         }
-    })
+        else if (status == "success" && signInCheckResult.user && member_uids.length && !member_uids.includes(signInCheckResult.user.uid)) {
+            router.push(`/project/${query.id}`)
+        }
+    }, [status, member_uids])
 
     useEffect(async () => {
         setFiles([])
@@ -84,10 +90,7 @@ export default function UpdateProject({ query }) {
             const projectData = projectDoc.data()
 
             // Check if user is a member
-            if (!projectData.member_uids.includes(signInCheckResult.user.uid)) {
-                router.back()
-            }
-
+            setMemberUids(old_uids => [...old_uids, ...projectData.member_uids])
             setTitle(projectData.title)
             setAbstract(projectData.abstract)
             projectData.start && setStartDate(moment(projectData.start).format('yyyy-MM-DD'))
@@ -123,6 +126,7 @@ export default function UpdateProject({ query }) {
             }
         }
         catch (e) {
+            console.error(e)
             router.push(`/project/${query.id}`)
         }
     }, [])
@@ -333,9 +337,6 @@ export default function UpdateProject({ query }) {
 
     if (status == "success" && signInCheckResult.signedIn) {
         return (<>
-            <Head>
-
-            </Head>
             <main>
                 <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow rounded-lg">
                     <h1 className="text-3xl text-center font-semibold mb-2">

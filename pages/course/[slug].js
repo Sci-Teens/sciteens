@@ -67,8 +67,10 @@ function Course({ course }) {
     return (
         <>
             <Head>
-                <title>{RichText.asText(course.data.name)}</title>
+                <title>{RichText.asText(course.data.name)} | SciTeens</title>
                 <link rel="icon" href="/favicon.ico" />
+                <meta name="description" content={course.data.description} />
+                <meta name="keywords" content="SciTeens, sciteens, course, teen science" />
             </Head>
             <article className="prose-sm lg:prose mx-auto px-4 overflow-hidden break-words mt-8">
                 <div>

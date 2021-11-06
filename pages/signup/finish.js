@@ -175,8 +175,10 @@ export default function FinishSignUp() {
     return (
         <div>
             <Head>
-                <title>Finish Sign Up</title>
+                <title>Finish Sign Up | SciTeens</title>
                 <link rel="icon" href="/favicon.ico" />
+                <meta name="description" content="Finish Signing Up to SciTeens" />
+                <meta name="keywords" content="SciTeens, sciteens, finish sign up, teen science" />
             </Head>
             <main>
                 <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow rounded-lg">
