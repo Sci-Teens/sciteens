@@ -150,7 +150,7 @@ function Projects({ projects }) {
                     <h1 className="text-4xl py-4 text-left ml-4">
                         📰 Latest Projects
                     </h1>
-                    {projects?.length ? projectsComponent : loadingComponent}
+                    {projects?.length != 0 ? projectsComponent : loadingComponent}
                     {
                         projects.length == 0 &&
                         <div className="mx-auto text-center mt-20">

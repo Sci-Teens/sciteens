@@ -83,7 +83,6 @@ function Articles({ articles }) {
     useEffect(() => {
         set({ opacity: 0, transform: 'translateX(80px)', config: { tension: 10000, clamp: true } })
         window.setTimeout(function () { set({ opacity: 1, transform: 'translateX(0)', config: config.default }) }, 10)
-        console.log(articles);
     }, [articles])
 
     const [article_spring, set] = useSpring(() => ({
