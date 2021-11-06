@@ -183,7 +183,11 @@ export default function CreateProject() {
             case "end_date":
                 setEndDate(e.target.value)
                 if (e.target.value == "") {
-                    setErrorEndDate("Please set a valid start date")
+                    setErrorEndDate("Please set a valid end date")
+                }
+
+                else if (start_date != "" && start_date >= e.target.value) {
+                    setErrorEndDate("End date must come after start date")
                 }
 
                 else {
