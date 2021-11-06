@@ -82,7 +82,7 @@ export default function Home() {
         bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px]border-sciteensLightGreen-regular
         border-opacity-40 h-9 lg:h-12 w-9 lg:w-12 mr-4 whitespace-nowrap">2</p>
                 <p className="text-xs md:text-base lg:text-lg">SciTeens was started by a group of teens just like you trying to get started in the
-                  STEM fields.Because of this, we know how intimidating it can be to begin your own research projects.We
+                  STEM fields. Because of this, we know how intimidating it can be to begin your own research projects. We
                   want to put an end to this intimidation and make STEM research accesible and rewarding for everyone.</p>
               </div>
             </div>
@@ -92,7 +92,7 @@ export default function Home() {
         bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px]border-sciteensLightGreen-regular
         border-opacity-40 h-9 lg:h-12 w-9 lg:w-12 mr-4 whitespace-nowrap">3</p>
                 <p className="text-xs md:text-base lg:text-lg">With SciTeens you can share your knowledge and research by writing articles or
-                  creating projects.Your work can be viewed by other SciTeens users, giving you access to unique opportunities
+                  creating projects. Your work can be viewed by other SciTeens users, giving you access to unique opportunities
                   through collaboration with your peers and mentorship by accomplished scholars in the STEM fields.</p>
               </div>
               <div className="flex flex-row bg-white shadow p-5 rounded-lg mb-8 ml-0 lg:ml-4">

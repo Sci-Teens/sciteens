@@ -116,7 +116,7 @@ export default function MentorSignIn() {
 
         >
             <Head>
-                <title>Mentor Sign In | SciTeens</title>
+                <title>Educator Sign In | SciTeens</title>
                 <link rel="icon" href="/favicon.ico" />
                 <meta name="description" content="Sign in to SciTeens" />
                 <meta name="keywords" content="SciTeens, sciteens, mentor sign in, teen science" />
@@ -124,7 +124,7 @@ export default function MentorSignIn() {
             <main>
                 <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow rounded-lg">
                     <h1 className="text-3xl text-center font-semibold mb-2">
-                        Mentor Sign-in
+                        Educator Sign-in
                     </h1>
                     <p className="text-gray-700 text-center mb-6">
                         Sign in now to empower the next generation of young scientists. Are you a student?&nbsp;
@@ -189,8 +189,7 @@ export default function MentorSignIn() {
                     <div className="mt-4 flex justify-center">
                         <p className="text-gray-700">
                             New here?&nbsp;
-                            <Link href="/signup/mentor"
-
+                            <Link href="/signup/educator"
                             >
                                 <a className="font-bold">Sign up</a>
 

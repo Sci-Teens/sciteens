@@ -406,48 +406,58 @@ export default function StudentSignUp() {
                         </p>
 
                         <label for="gender" className="uppercase text-gray-600">Gender</label>
-                        <select
-                            onChange={e => setGender(e.target.value)}
-                            name="gender"
-                            id="gender"
-                            value={gender}
-                            className="mb-4 appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:placeholder-gray-700 focus:bg-white focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
-                        >
-                            <option selected value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
-                            <option value="Prefer not to answer">Prefer not to answer</option>
-                        </select>
+                        <div class="relative w-full">
+                            <select
+                                onChange={e => setGender(e.target.value)}
+                                name="gender"
+                                id="gender"
+                                value={gender}
+                                className="mb-4 appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:placeholder-gray-700 focus:bg-white focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
+                            >
+                                <option selected value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                                <option value="Prefer not to answer">Prefer not to answer</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+                            </div>
+                        </div>
 
                         <label for="race" className="uppercase text-gray-600">Race</label>
-                        <select
-                            onChange={e => setRace(e.target.value)}
-                            name="race"
-                            id="race"
-                            value={race}
-                            className="mb-4 appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:placeholder-gray-700 focus:bg-white focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
-                        >
-                            <option selected value="American Indian or Alaska Native">
-                                American Indian or Alaska Native
-                            </option>
-                            <option
-                                value="Asian (including Indian subcontinent and Philippines origin)"
-                            >Asian (including Indian subcontinent and Philippines origin)
-                            </option>
-                            <option value="Black or African American"
-                            >Black or African American
-                            </option>
-                            <option value="Hispanic or Latino"
-                            >Hispanic or Latino
-                            </option>
-                            <option value="White (including Middle Eastern origin)"
-                            >White (including Middle Eastern origin)
-                            </option>
-                            <option value="Native Hawaiian or Other Pacific Islander"
-                            >Native Hawaiian or Other Pacific Islander
-                            </option>
-                            <option value="Prefer not to answer">Prefer not to answer</option>
-                        </select>
+                        <div class="relative w-full">
+                            <select
+                                onChange={e => setRace(e.target.value)}
+                                name="race"
+                                id="race"
+                                value={race}
+                                className="mb-4 appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:placeholder-gray-700 focus:bg-white focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
+                            >
+                                <option selected value="American Indian or Alaska Native">
+                                    American Indian or Alaska Native
+                                </option>
+                                <option
+                                    value="Asian (including Indian subcontinent and Philippines origin)"
+                                >Asian (including Indian subcontinent and Philippines origin)
+                                </option>
+                                <option value="Black or African American"
+                                >Black or African American
+                                </option>
+                                <option value="Hispanic or Latino"
+                                >Hispanic or Latino
+                                </option>
+                                <option value="White (including Middle Eastern origin)"
+                                >White (including Middle Eastern origin)
+                                </option>
+                                <option value="Native Hawaiian or Other Pacific Islander"
+                                >Native Hawaiian or Other Pacific Islander
+                                </option>
+                                <option value="Prefer not to answer">Prefer not to answer</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+                            </div>
+                        </div>
                         <div id="recaptcha-container" className="flex w-full justify-center mb-4">
                         </div>
                         <div>

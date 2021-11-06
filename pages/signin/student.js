@@ -221,7 +221,6 @@ export default function StudentSignIn() {
                         <p className="text-gray-700">
                             New here?&nbsp;
                             <Link href="/signup/student"
-
                             >
                                 <a className="font-bold">Sign up</a>
 

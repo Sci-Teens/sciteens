@@ -248,7 +248,7 @@ export default function MentorSignUp() {
         <div
         >
             <Head>
-                <title>Mentor Sign Up | SciTeens</title>
+                <title>Educator Sign Up | SciTeens</title>
                 <link rel="icon" href="/favicon.ico" />
                 <meta name="description" content="Mentor sign up for SciTeens" />
                 <meta name="keywords" content="SciTeens, sciteens, sign up, teen science" />
@@ -256,7 +256,7 @@ export default function MentorSignUp() {
             <main>
                 <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow rounded-lg">
                     <h1 className="text-3xl text-center font-semibold mb-2">
-                        Mentor on SciTeens
+                        Educate on SciTeens
                     </h1>
                     <p className="text-gray-700 text-center mb-6">
                         Empower the next generation of STEM leaders from across the globe.
@@ -365,65 +365,80 @@ export default function MentorSignUp() {
                         </p>
 
                         <label for="position" className="uppercase text-gray-600">I am a(n)</label>
-                        <select
-                            name="position"
-                            id="position"
-                            onChange={(e) => setPosition(e.target.value)}
-                            value={position}
-                            className="mb-4 appearance-none border-transparent border-2 bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
-                        >
-                            <option selected value="Educator">Educator</option>
-                            <option value="Professional">Professional</option>
-                            <option value="Researcher">Researcher</option>
-                            <option value="Prefer not to answer">Prefer not to answer</option>
-                        </select>
+                        <div class="relative w-full">
+                            <select
+                                name="position"
+                                id="position"
+                                onChange={(e) => setPosition(e.target.value)}
+                                value={position}
+                                className="block mb-4 appearance-none border-transparent border-2 bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
+                            >
+                                <option selected value="Educator">Educator</option>
+                                <option value="Professional">Professional</option>
+                                <option value="Researcher">Researcher</option>
+                                <option value="Prefer not to answer">Prefer not to answer</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+                            </div>
+                        </div>
 
                         <label for="ethnicity" className="uppercase text-gray-600">Ethnicity</label>
-                        <select
-                            onChange={e => setEthnicity(e.target.value)}
-                            name="ethnicity"
-                            id="ethnicity"
-                            value={ethnicity}
-                            className="mb-4 appearance-none border-transparent border-2 bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
-                        >
-                            <option selected value="Cuban">Cuban</option>
-                            <option value="Mexican">Mexican</option>
-                            <option value="Puerto Rican">Puerto Rican</option>
-                            <option value="Another Hispanic, Latino, or Spanish origin"
-                            >Another Hispanic, Latino, or Spanish origin</option
+                        <div class="relative w-full">
+                            <select
+                                onChange={e => setEthnicity(e.target.value)}
+                                name="ethnicity"
+                                id="ethnicity"
+                                value={ethnicity}
+                                className="mb-4 appearance-none border-transparent border-2 bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
                             >
-                            <option value="Not of Hispanic, Latino, or Spanish origin"
-                            >Not of Hispanic, Latino, or Spanish origin</option
-                            >
-                            <option value="Prefer not to answer">Prefer not to answer</option>
-                        </select>
+                                <option selected value="Cuban">Cuban</option>
+                                <option value="Mexican">Mexican</option>
+                                <option value="Puerto Rican">Puerto Rican</option>
+                                <option value="Another Hispanic, Latino, or Spanish origin"
+                                >Another Hispanic, Latino, or Spanish origin</option
+                                >
+                                <option value="Not of Hispanic, Latino, or Spanish origin"
+                                >Not of Hispanic, Latino, or Spanish origin</option
+                                >
+                                <option value="Prefer not to answer">Prefer not to answer</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+                            </div>
+                        </div>
 
                         <label for="race" className="uppercase text-gray-600">Race</label>
-                        <select
-                            onChange={e => setRace(e.target.value)}
-                            name="race"
-                            id="race"
-                            value={race}
-                            className="mb-4 appearance-none border-transparent border-2 bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
-                        >
-                            <option selected value="American Indian or Alaska Native"
-                            >American Indian or Alaska Native</option
+                        <div class="relative w-full">
+                            <select
+                                onChange={e => setRace(e.target.value)}
+                                name="race"
+                                id="race"
+                                value={race}
+                                className="mb-4 appearance-none border-transparent border-2 bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
                             >
-                            <option
-                                value="Asian (including Indian subcontinent and Philippines origin)"
-                            >Asian (including Indian subcontinent and Philippines origin)</option
-                            >
-                            <option value="Black or African American"
-                            >Black or African American</option
-                            >
-                            <option value="White (including Middle Eastern origin)"
-                            >White (including Middle Eastern origin)</option
-                            >
-                            <option value="Native Hawaiian or Other Pacific Islander"
-                            >Native Hawaiian or Other Pacific Islander</option
-                            >
-                            <option value="Prefer not to answer">Prefer not to answer</option>
-                        </select>
+                                <option selected value="American Indian or Alaska Native"
+                                >American Indian or Alaska Native</option
+                                >
+                                <option
+                                    value="Asian (including Indian subcontinent and Philippines origin)"
+                                >Asian (including Indian subcontinent and Philippines origin)</option
+                                >
+                                <option value="Black or African American"
+                                >Black or African American</option
+                                >
+                                <option value="White (including Middle Eastern origin)"
+                                >White (including Middle Eastern origin)</option
+                                >
+                                <option value="Native Hawaiian or Other Pacific Islander"
+                                >Native Hawaiian or Other Pacific Islander</option
+                                >
+                                <option value="Prefer not to answer">Prefer not to answer</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+                            </div>
+                        </div>
                         <div id="recaptcha-container" className="flex w-full justify-center mb-4">
                         </div>
                         <div>
@@ -469,7 +484,7 @@ export default function MentorSignUp() {
                     <div className="mt-4 flex justify-center">
                         <p className="text-gray-700">
                             Have an account?&nbsp;
-                            <Link href="/signin/mentor"
+                            <Link href="/signin/educator"
                                 className="font-bold"
                             >
                                 <a className="font-bold">Sign in</a>

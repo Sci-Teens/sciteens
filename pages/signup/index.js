@@ -66,7 +66,7 @@ export default function SignUpIndex() {
                             </a>
 
                         </Link>
-                        <Link href="/signup/mentor"
+                        <Link href="/signup/educator"
 
                         >
                             <a className="rounded bg-white shadow h-56 w-56 m-6 hover:shadow-md">
@@ -82,8 +82,8 @@ export default function SignUpIndex() {
                                             }}
                                         />
                                         <h2 className="text-lg text-sciteensGreen-regular mx-2">
-                                            Sign up as a mentor if you are in higher academia or industry, and
-                                            want to mentor STEM high school students.
+                                            Sign up as an educator if you are in academia or industry, and
+                                            want to help STEM high school students.
                                         </h2>
                                     </div> :
                                     <div className="relative">
@@ -102,8 +102,11 @@ export default function SignUpIndex() {
                                             className="h-40 p-4 mx-auto"
                                         />
                                         <h2 className="text-xl text-sciteensGreen-regular">
-                                            Mentor
+                                            Educator
                                         </h2>
+                                        <p className="text-gray-700 text-sm italic">
+                                            (And other options...)
+                                        </p>
                                     </div>}
                             </a>
 
