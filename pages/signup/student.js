@@ -193,7 +193,7 @@ export default function StudentSignUp() {
             fields: [],
             programs: [],
             links: [],
-            joined: moment.toISOString(),
+            joined: moment().toISOString(),
             birthday: moment(birthday).toISOString(),
             institution: "",
             position: "",
@@ -214,8 +214,7 @@ export default function StudentSignUp() {
         }
 
         try {
-            const unique_slug = await createUniqueSlug(first_name.toLowerCase() + "-" + last_name.toLowerCase(), 1)
-            console.log(unique_slug)
+            unique_slug = await createUniqueSlug(first_name.toLowerCase() + "-" + last_name.toLowerCase(), 1)
         }
 
         catch (e) {
