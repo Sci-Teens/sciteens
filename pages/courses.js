@@ -63,7 +63,7 @@ function Courses({ courses }) {
         return (
             <Link key={course.uid} href={`/course/${course.uid}`}>
 
-                <div className="p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center">
+                <div className="cursor-pointer p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center">
                     <div className="h-full w-1/4 relative">
                         <Image className="rounded-lg object-cover flex-shrink-0" loader={imageLoader} src={course.data.image_main.url} width={256} height={256} />
 

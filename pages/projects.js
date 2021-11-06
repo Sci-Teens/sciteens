@@ -86,11 +86,10 @@ function Projects({ projects }) {
     }
 
     const projectsComponent = projects.map((project, index) => {
-        console.log(project)
         return (
             <Link key={project.id} href={`/project/${project.id}`}>
 
-                <div className="p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center">
+                <div className="cursor-pointer p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center">
                     <div className="h-full w-1/4 lg:w-1/12 relative">
                         <Image src={"https://source.unsplash.com/collection/1677633/"} alt="Project Image" height={128} width={128} loader={imageLoader}></Image>
                     </div>
@@ -127,7 +126,7 @@ function Projects({ projects }) {
                         📰 Latest Projects
                     </h1>
                     {projects?.length ? projectsComponent : loadingComponent}
-                    {projects &&
+                    {projects.length == 0 &&
                         <div className="mx-auto text-center mt-20">
                             <i className="font-semibold text-xl">
                                 Sorry, we couldn't find any searches related to {router?.query.search}
@@ -163,7 +162,7 @@ function Projects({ projects }) {
                             {
                                 field_names.map((field) => {
                                     return (
-                                        <button onClick={() => handleFieldSearch(field)} className="text-sm px-3 py-2 bg-white rounded-full mr-4 mb-4 shadow">
+                                        <button key={field} onClick={() => handleFieldSearch(field)} className="text-sm px-3 py-2 bg-white rounded-full mr-4 mb-4 shadow">
                                             {field}
                                         </button>
                                     )
@@ -210,7 +209,6 @@ export async function getServerSideProps({ query }) {
                     ...results.hits[i]
                 })
             }
-            console.log(results)
         }
         else {
             console.log("load firestore")
@@ -219,16 +217,13 @@ export async function getServerSideProps({ query }) {
             const projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), limit(10))
             const projectsRef = await getDocs(projectsQuery)
             projectsRef.forEach(p => {
-                console.log("fouind")
                 projects.push({
                     id: p.id,
                     ...p.data(),
                 })
             })
-            console.log(projects)
         }
 
-        console.log(projects)
         return {
             props: { projects: projects }
         }

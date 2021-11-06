@@ -129,14 +129,12 @@ export default function About() {
         },].sort(() => Math.random() - 0.5))
 
     // REACT SPRING ANIMATIONS
-    const [animate, setAnimate] = useState(false)
-
-    useEffect(() => {
-        setAnimate(true)
-    }, [])
-
-    const about_spring = useSpring({ opacity: animate ? 1 : 0, transform: animate ? 'scale(1)' : 'scale(0)', delay: 200 })
-
+    const about_spring = useSpring({
+        transform: 'scale(1)',
+        from: {
+            transform: 'scale(0.1)'
+        }
+    })
     return (
         <div>
             <main>
