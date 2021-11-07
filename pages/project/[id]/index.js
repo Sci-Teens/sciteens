@@ -98,7 +98,7 @@ function Project({ query }) {
                     <h1>
                         {project.title}
                     </h1>
-                    {project.member_uids.includes(signInCheckResult.user.uid) &&
+                    {project.member_uids.includes(signInCheckResult?.user?.uid) &&
                         <Link href={`/project/${router?.query?.id}/edit`}>
                             <div className="cursor-pointer h-1/3 py-1.5 px-6 border-2 text-xl font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark rounded-full border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark text-center">Edit</div>
                         </Link>
