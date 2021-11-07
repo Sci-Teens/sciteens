@@ -55,6 +55,7 @@ export default function UpdateProject({ query }) {
         "application/vnd.jupyter.dragindex",
     ])
     const [files, setFiles] = useState([])
+    const [metadata_arr, setMetadata] = useState([])
     const [project_photo, setProjectPhoto] = useState(null)
 
     const [error_title, setErrorTitle] = useState('')
@@ -115,10 +116,8 @@ export default function UpdateProject({ query }) {
                     const blob = xhr.response;
                     if (xhr.status == 200) {
                         blob.name = metadata.name
-                        if (metadata?.customMetadata?.project_photo) {
-                            setProjectPhoto(blob.name)
-                        }
                         setFiles(oldFiles => [...oldFiles, blob])
+                        setMetadata(oldMetadata => [...oldMetadata, metadata])
                     }
                 };
                 xhr.open('GET', url);
@@ -140,7 +139,12 @@ export default function UpdateProject({ query }) {
                 setErrorFile("")
             }
         }
-    }, [files])
+        metadata_arr.map((file, index) => {
+            if (file.customMetadata?.project_photo) {
+                setPhoto(undefined, index)
+            }
+        })
+    }, [files, metadata_arr])
 
 
     const updateProject = async (e) => {
@@ -342,7 +346,7 @@ export default function UpdateProject({ query }) {
     }
 
     const setPhoto = (e, id) => {
-        e.preventDefault()
+        e?.preventDefault()
         let temp_files = files
         let new_project_photo = files[id]
         temp_files[id] = temp_files[0]
@@ -364,7 +368,7 @@ export default function UpdateProject({ query }) {
                         Here, you can update your project <span className="italic">{title}</span>.
                     </p>
                     <form onSubmit={(e) => updateProject(e)}>
-                        <label for="title" className="uppercase text-gray-600">
+                        <label htmlFor="title" className="uppercase text-gray-600">
                             Title
                         </label>
                         <input
@@ -383,7 +387,7 @@ export default function UpdateProject({ query }) {
                             {error_title}
                         </p>
 
-                        <label for="start-date" className="uppercase text-gray-600">Start Date</label>
+                        <label htmlFor="start-date" className="uppercase text-gray-600">Start Date</label>
                         <input
                             required
                             onChange={e => onChange(e, 'start_date')}
@@ -402,7 +406,7 @@ export default function UpdateProject({ query }) {
                             }
                         </p>
 
-                        <label for="end-date" className="uppercase text-gray-600">End Date</label>
+                        <label htmlFor="end-date" className="uppercase text-gray-600">End Date</label>
                         <input
                             required
                             onChange={e => onChange(e, 'end_date')}
@@ -421,7 +425,7 @@ export default function UpdateProject({ query }) {
                             }
                         </p>
 
-                        <label for="abstract" className="uppercase text-gray-600">
+                        <label htmlFor="abstract" className="uppercase text-gray-600">
                             Summary
                         </label>
                         <textarea
@@ -440,7 +444,7 @@ export default function UpdateProject({ query }) {
                             {error_abstract}
                         </p>
 
-                        <label for="member" className="uppercase text-gray-600">
+                        <label htmlFor="member" className="uppercase text-gray-600">
                             Add Members
                         </label>
                         <input
@@ -470,7 +474,7 @@ export default function UpdateProject({ query }) {
                             )
                         }
 
-                        <label for="fields" className="uppercase text-gray-600">
+                        <label htmlFor="fields" className="uppercase text-gray-600">
                             Fields
                         </label>
                         {
@@ -485,7 +489,7 @@ export default function UpdateProject({ query }) {
                                             checked={field_values[index]}
                                             onChange={e => onChange(e, "fields")}
                                         />
-                                        <label for={field} className="text-gray-700">
+                                        <label htmlFor={field} className="text-gray-700">
                                             {field}
                                             <br />
                                         </label>
@@ -506,24 +510,21 @@ export default function UpdateProject({ query }) {
                         <p className="text-sm text-red-800 mb-4">
                             {error_file}
                         </p>
-                        {/* {error_file &&
-                            <p className="text-red-800 mb-4">{error_file}</p>
-                        } */}
                         {files.length != 0 &&
                             <div className="mb-6">
                                 {files.length > 1 &&
                                     <p className="mb-2">Since you have more than one photo, you can <span onClick={() => setMode(!select_photo_mode)} className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold cursor-pointer">change your display photo</span>.</p>
                                 }
-                                <label for="project_photo" className="uppercase text-gray-600 mt-2">Display Photo</label>
+                                <label htmlFor="project_photo" className="uppercase text-gray-600 mt-2">Display Photo</label>
                                 <File file={files[0]} id={files[0].id} removeFile={removeFile} setPhoto={setPhoto}></File>
                             </div>
                         }
                         <div className="flex flex-col space-y-3">
                             {files.length > 0 &&
                                 <>
-                                    <label for="other_photos" className="uppercase text-gray-600 mt-2 text-left -mb-3">Other Photo{files.length > 1 ? "s" : ""}</label>
+                                    <label htmlFor="other_photos" className="uppercase text-gray-600 mt-2 text-left -mb-3">Other Photo{files.length > 1 ? "s" : ""}</label>
                                     {files.map((f, id) => {
-                                        if (id > 0)
+                                        if (project_photo != "" && f.name != project_photo || id > 0)
                                             return <div className="flex flex-row w-full">
                                                 <button onClick={e => setPhoto(e, id)} className={`transition-all duration-500 border-2 text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:bg-gray-50 rounded-lg ${select_photo_mode ? "px-3 mr-4" : "border-none w-0 overflow-hidden"}`}>Select</button>
                                                 <File file={f} id={id} key={f.id} removeFile={removeFile} setPhoto={setPhoto}></File>

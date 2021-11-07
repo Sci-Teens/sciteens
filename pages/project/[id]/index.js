@@ -94,17 +94,16 @@ function Project({ query }) {
         </Head>
         <article className="prose-sm lg:prose mx-auto px-4 lg:px-0 mt-8">
             <div>
-                {/* <div className="leading-none m-0 p-0 flex flex-row justify-between"> */}
-                <h1>
-                    {project.title}
-                </h1>
-                {/* {project.member_arr.map((member) => {
-                        if (member.uid = signInCheckResult?.user?.uid)
-                            return <Link href={`/project/${router?.query?.id}/edit`}>
-                                <div className="cursor-pointer text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold border-2 border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark py-1.5 px-3 h-min rounded-lg text-lg mt-3 ml-auto">Edit</div>
-                            </Link>
-                    })}
-                </div> */}
+                <div className="leading-none m-0 p-0 flex flex-row justify-between">
+                    <h1>
+                        {project.title}
+                    </h1>
+                    {project.member_uids.includes(signInCheckResult.user.uid) &&
+                        <Link href={`/project/${router?.query?.id}/edit`}>
+                            <div className="cursor-pointer h-1/3 py-1.5 px-6 border-2 text-xl font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark rounded-full border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark text-center">Edit</div>
+                        </Link>
+                    }
+                </div>
                 <p>
                     {project.abstract}
                 </p>

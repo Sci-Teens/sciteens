@@ -147,12 +147,17 @@ function Projects({ projects }) {
                         <h3 className="font-semibold text-base md:text-xl lg:text-2xl mb-2 line-clamp-2">{project.title}</h3>
                         <p className="hidden md:block mb-4 line-clamp-none md:line-clamp-2 lg:line-clamp-3">{project.abstract}</p>
                         <div className="flex flex-row">
+                            {console.log(project.fields.slice(0, 3).includes("Mechanical Engineering"))}
                             {project.fields.map((field, index) => {
-                                if (index < 3)
+                                if (index < (project.fields.slice(0, 3).includes("Mechanical Engineering") ||
+                                    project.fields.slice(0, 3).includes("Electrical Engineering") ||
+                                    project.fields.slice(0, 3).includes("Environmental Science") ? 2 : 3))
                                     return <p className="hidden lg:flex text-xs py-1.5 px-3 bg-gray-100 rounded-full mr-2 mb-2 z-30 shadow whitespace-nowrap">{field}</p>
                             })}
                             {project.fields.length >= 3 &&
-                                <p className="text-xs text-gray-600 mt-1.5">+ {project.fields.length - 3} more field{project.fields.length - 3 == 1 ? "" : "s"}</p>
+                                <p className="text-xs text-gray-600 mt-1.5 whitespace-nowrap">+ {project.fields.length - (project.fields.slice(0, 3).includes("Mechanical Engineering") ||
+                                    project.fields.slice(0, 3).includes("Electrical Engineering") ||
+                                    project.fields.slice(0, 3).includes("Environmental Science") ? 2 : 3)} more field{project.fields.length - 3 == 1 ? "" : "s"}</p>
                             }
                         </div>
                     </div>
