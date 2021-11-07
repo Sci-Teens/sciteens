@@ -17,7 +17,7 @@ export default function Layout({ children }) {
         <AuthProvider sdk={auth}>
             <FirestoreProvider sdk={firestore}>
                 <StorageProvider sdk={storage}>
-                    <div className="fixed z-50 w-full">
+                    <div className="fixed z-50 w-full overflow-hidden">
                         <NavBar />
                     </div>
                     <div className="pt-20">{children}</div>

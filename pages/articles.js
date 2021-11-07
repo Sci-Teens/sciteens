@@ -1,6 +1,7 @@
 var Prismic = require("@prismicio/client");
 import Link from 'next/link'
 import Image from 'next/image';
+import moment from 'moment'
 import { RichText } from 'prismic-reactjs';
 import { useRouter } from "next/router"
 import Head from 'next/head';
@@ -72,17 +73,22 @@ function Articles({ articles }) {
         setField(field)
     }
 
-    function trimArticleDescription(summary) {
-        if (summary.length > 150) {
-            summary = summary.substring(0, 150) + "..."
-        }
-        return summary
+    function readingTime(article) {
+        let article_length = 0
+        article.map((text) => {
+            if (text.type = "paragraph" && text.text) {
+                article_length += text.text?.split(' ').length
+            }
+        })
+        let time_to_read = Math.round(article_length / 200)
+
+        return `${time_to_read} minute read · ${article_length} words`
     }
 
     // REACT SPRING ANIMATIONS
     useEffect(() => {
-        set({ opacity: 0, transform: 'translateX(80px)', config: { tension: 10000, clamp: true } })
-        window.setTimeout(function () { set({ opacity: 1, transform: 'translateX(0)', config: config.default }) }, 10)
+        set({ opacity: 0, transform: 'translateX(150px)', config: { tension: 10000, clamp: true } })
+        window.setTimeout(function () { set({ opacity: 1, transform: 'translateX(0)', config: config.slow }) }, 10)
     }, [articles])
 
     const [article_spring, set] = useSpring(() => ({
@@ -90,8 +96,9 @@ function Articles({ articles }) {
         transform: 'translateX(0)',
         from: {
             opacity: 0,
-            transform: 'translateX(80px)'
-        }
+            transform: 'translateX(150px)'
+        },
+        config: config.slow
     }))
 
     const articlesComponent = articles.results.map((article, index) => {
@@ -99,7 +106,6 @@ function Articles({ articles }) {
         const author_image = article.data.body.map((slice, ix) => {
             if (slice.slice_type == "about_the_author") {
                 return (
-                    // <img src={slice.primary.headshot.url} />
                     <div className="relative h-6 w-6 lg:h-8 lg:w-8" key={index}>
                         <Image className="rounded-full h-6 w-6 lg:h-8 lg:w-8" height={48} width={48} loader={imageLoader} src={slice.primary.headshot.url} />
                     </div>
@@ -123,8 +129,9 @@ function Articles({ articles }) {
                             {author_image}
                             <p className="ml-3">{article.data.author}</p>
                         </div>
-                        <h3 className="font-semibold text-base md:text-xl lg:text-2xl mb-2">{RichText.asText(article.data.title)}</h3>
-                        <p className="hidden md:block text-sm lg:text-base">{trimArticleDescription(article.data.description)}</p>
+                        <h3 className="font-semibold text-base md:text-xl lg:text-2xl mb-2 line-clamp-2">{RichText.asText(article.data.title)}</h3>
+                        <p className="hidden md:flex text-sm lg:text-base mb-2 line-clamp-none md:line-clamp-2">{article.data.description}</p>
+                        <p className="hidden lg:flex text-xs">{new Date(article.data.date).toLocaleDateString('en-us', { month: "short", day: "numeric" }) + " · " + readingTime(article.data.text)}</p>
                     </div>
 
                 </animated.a>
@@ -141,15 +148,15 @@ function Articles({ articles }) {
                 <meta name="description" content="SciTeens Articles Page" />
                 <meta name="keywords" content="SciTeens, sciteens, articles, teen science" />
             </Head>
-            <div className="min-h-screen mx-auto lg:mx-16 xl:mx-32 flex flex-row mt-8 mb-24">
+            <div className="min-h-screen mx-auto lg:mx-16 xl:mx-32 flex flex-row mt-8 mb-24 overflow-x-hidden md:overflow-visible">
                 <div className="w-11/12 md:w-[85%] mx-auto lg:mx-0 lg:w-[60%]">
                     <h1 className="text-4xl py-4 text-left font-semibold ml-4">
                         Articles 📰
                     </h1>
                     <form onSubmit={e => handleSearch(e)} className="flex flex-row lg:hidden">
-                        <button type="submit" className="min-w-[13%] md:min-w-[7%] bg-sciteensLightGreen-regular text-white font-semibold rounded-l-lg px-3 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
+                        <button type="submit" className="w-auto bg-sciteensLightGreen-regular text-white font-semibold rounded-l-lg px-3 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
                             onClick={e => handleSearch(e)}>
-                            <img src="assets/zondicons/search.svg" alt="Search" className="h-6 w-6" />
+                            <img src="assets/zondicons/search.svg" alt="Search" className="h-10" />
                         </button>
                         <input
                             onChange={e => handleChange(e, 'searchbar')}

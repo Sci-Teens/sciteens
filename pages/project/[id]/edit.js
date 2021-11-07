@@ -11,6 +11,7 @@ import debounce from "lodash/debounce";
 import { useDropzone } from 'react-dropzone'
 import File from "../../../components/File"
 import Link from "next/link"
+import { getFluidObservers } from "@react-spring/shared"
 
 export default function UpdateProject({ query }) {
     const [loading, setLoading] = useState(false)
@@ -21,6 +22,7 @@ export default function UpdateProject({ query }) {
     const [member, setMember] = useState('')
     const [members, setMembers] = useState([])
     const [member_uids, setMemberUids] = useState([])
+    const [select_photo_mode, setMode] = useState(false)
     const [field_names] = useState([
         "Biology",
         "Chemistry",
@@ -130,6 +132,17 @@ export default function UpdateProject({ query }) {
             router.push(`/project/${query.id}`)
         }
     }, [])
+
+    useEffect(() => {
+        if (files.length == 0) {
+            setErrorFile("Must have at least one photo for display")
+        } else {
+            setProjectPhoto(files[0]?.name)
+            if (error_file == "Must have at least one photo for display") {
+                setErrorFile("")
+            }
+        }
+    }, [files])
 
 
     const updateProject = async (e) => {
@@ -330,9 +343,16 @@ export default function UpdateProject({ query }) {
         }
     }
 
-    const setPhoto = (e, file) => {
+    const setPhoto = (e, id) => {
         e.preventDefault()
-        setProjectPhoto(file.name)
+        let temp_files = files
+        let new_project_photo = files[id]
+        temp_files[id] = temp_files[0]
+        temp_files[0] = new_project_photo
+        // let temp_file = files[0]
+        setProjectPhoto(new_project_photo.name)
+        setFiles(temp_files)
+        setMode(false)
     }
 
     if (status == "success" && signInCheckResult.signedIn) {
@@ -488,29 +508,33 @@ export default function UpdateProject({ query }) {
                         <p className="text-sm text-red-800 mb-4">
                             {error_file}
                         </p>
-                        <div className="flex flex-col items-center space-y-2">
-                            {
-                                files.map((f, id) => {
-                                    return <File file={f} id={id} key={f.name} removeFile={removeFile} setPhoto={setPhoto}></File>
-                                })
-                            }
-                        </div>
-                        {
-                            project_photo && <label for="project_photo" className="uppercase text-gray-600 mt-2">
-                                Project Photo
-                            </label>
+                        {/* {error_file &&
+                            <p className="text-red-800 mb-4">{error_file}</p>
+                        } */}
+                        {files.length != 0 &&
+                            <div className="mb-6">
+                                {files.length > 1 &&
+                                    <p className="mb-2">Since you have more than one photo, you can <span onClick={() => setMode(!select_photo_mode)} className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold cursor-pointer">change your display photo</span>.</p>
+                                }
+                                <label for="project_photo" className="uppercase text-gray-600 mt-2">Display Photo</label>
+                                <File file={files[0]} id={files[0].id} removeFile={removeFile} setPhoto={setPhoto}></File>
+                            </div>
                         }
-                        <div>
-                            {
-                                files.map((f, id) => {
-                                    if (f.name == project_photo) {
-                                        return <File file={f} id={id} key={f.name} removeFile={removeFile} setPhoto={setPhoto}></File>
+                        <div className="flex flex-col space-y-3">
+                            {files.length > 0 &&
+                                <>
+                                    <label for="other_photos" className="uppercase text-gray-600 mt-2 text-left -mb-3">Other Photo{files.length > 1 ? "s" : ""}</label>
+                                    {files.map((f, id) => {
+                                        if (id > 0)
+                                            return <div className="flex flex-row w-full">
+                                                <button onClick={e => setPhoto(e, id)} className={`transition-all duration-500 border-2 text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:bg-gray-50 rounded-lg ${select_photo_mode ? "px-3 mr-4" : "border-none w-0 overflow-hidden"}`}>Select</button>
+                                                <File file={f} id={id} key={f.id} removeFile={removeFile} setPhoto={setPhoto}></File>
+                                            </div>
+                                    })
                                     }
-                                })
+                                </>
                             }
                         </div>
-
-
                         <div className="w-full flex justify-end mt-4">
                             <button
                                 type="submit"

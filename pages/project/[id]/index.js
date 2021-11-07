@@ -1,14 +1,14 @@
 import { doc } from "@firebase/firestore";
 import { listAll, ref, getDownloadURL, getMetadata } from "@firebase/storage";
-import { useFirestore, useFirestoreDocData, useStorage } from "reactfire";
+import { useFirestore, useFirestoreDocData, useStorage, useSigninCheck } from "reactfire";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import Image from "next/image";
 import Error from 'next/error'
 import Link from "next/link";
-import File from '../../../components/File'
-import { useEffect, useState } from "react";
-
+import File from '../../../components/File';
+import { useEffect, useState, useContext } from "react";
+import { AppContext } from '../../../context/context';
 import Discussion from "../../../components/Discussion";
 
 
@@ -24,6 +24,10 @@ function Project({ query }) {
 
     const [files, setFiles] = useState([])
     const [project_photo, setProjectPhoto] = useState('')
+
+    const { profile } = useContext(AppContext)
+
+    const { authStatus, data: signInCheckResult } = useSigninCheck();
 
 
     useEffect(async () => {
@@ -90,9 +94,17 @@ function Project({ query }) {
         </Head>
         <article className="prose-sm lg:prose mx-auto px-4 lg:px-0 mt-8">
             <div>
+                {/* <div className="leading-none m-0 p-0 flex flex-row justify-between"> */}
                 <h1>
                     {project.title}
                 </h1>
+                {/* {project.member_arr.map((member) => {
+                        if (member.uid = signInCheckResult?.user?.uid)
+                            return <Link href={`/project/${router?.query?.id}/edit`}>
+                                <div className="cursor-pointer text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold border-2 border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark py-1.5 px-3 h-min rounded-lg text-lg mt-3 ml-auto">Edit</div>
+                            </Link>
+                    })}
+                </div> */}
                 <p>
                     {project.abstract}
                 </p>

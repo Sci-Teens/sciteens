@@ -6,6 +6,7 @@ import { useRouter } from "next/router"
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { useSpring, animated, config } from '@react-spring/web'
+import { resolveConfigFile } from 'prettier';
 
 
 function Courses({ courses }) {
@@ -32,6 +33,13 @@ function Courses({ courses }) {
         return `${src}?fit=crop&crop=faces&w=${width || 256}&h=${height || 256}`
     }
 
+    useEffect(() => {
+        if (router?.isReady) {
+            setSearch(router.query?.search ? router.query.search : '')
+            setField(router.query?.field ? router.query.field : '')
+        }
+    }, [router])
+
     async function handleChange(e, target) {
         e.preventDefault();
         switch (target) {
@@ -57,19 +65,13 @@ function Courses({ courses }) {
             pathname: '/courses',
             query: q
         })
-    }
-
-    function trimCourseDescription(summary) {
-        if (summary.length > 150) {
-            summary = summary.substring(0, 150) + "..."
-        }
-        return summary
+        setField(field)
     }
 
     // REACT SPRING ANIMATIONS
     useEffect(() => {
-        set({ opacity: 0, transform: 'translateX(80px)', config: { tension: 10000, clamp: true } })
-        window.setTimeout(function () { set({ opacity: 1, transform: 'translateX(0)', config: config.default }) }, 10)
+        set({ opacity: 0, transform: 'translateX(150px)', config: { tension: 10000, clamp: true } })
+        window.setTimeout(function () { set({ opacity: 1, transform: 'translateX(0)', config: config.slow }) }, 10)
     }, [courses])
 
     const [courses_spring, set] = useSpring(() => ({
@@ -77,8 +79,9 @@ function Courses({ courses }) {
         transform: 'translateX(0)',
         from: {
             opacity: 0,
-            transform: 'translateX(80px)'
-        }
+            transform: 'translateX(150px)'
+        },
+        config: config.slow
     }))
 
 
@@ -87,13 +90,14 @@ function Courses({ courses }) {
         return (
             <Link key={course.uid} href={`/course/${course.uid}`}>
 
-                <animated.div style={courses_spring} className="cursor-pointer p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center">
+                <animated.div style={courses_spring} className="cursor-pointer p-4 bg-white shadow rounded-lg z-50 mt-6 md:mt-8 flex items-center">
                     <div className="h-full max-w-[100px] md:max-w-[200px] relative">
                         <Image className="rounded-lg object-cover flex-shrink-0" loader={imageLoader} src={course.data.image_main.url} width={256} height={256} />
                     </div>
                     <div className="ml-4 w-3/4 lg:w-11/12">
-                        <h3 className="font-semibold text-base md:text-xl lg:text-2xl mb-2">{RichText.asText(course.data.name)}</h3>
-                        <p className="hidden lg:block">{trimCourseDescription(RichText.asText(course.data.description))}</p>
+                        <h3 className="font-semibold text-base md:text-xl lg:text-2xl mb-2 line-clamp-2">{RichText.asText(course.data.name)}</h3>
+                        <p className="hidden md:block mb-2 line-clamp-none md:line-clamp-2 lg:line-clamp-3">{RichText.asText(course.data.description)}</p>
+                        <p className="hidden lg:flex text-xs">{new Date(course.data.start).toLocaleDateString('en-us', { month: "short", day: "numeric", year: "numeric" }) + " - " + new Date(course.data.end).toLocaleDateString('en-us', { month: "short", day: "numeric", year: "numeric" })}</p>
                     </div>
 
                 </animated.div>
@@ -108,10 +112,10 @@ function Courses({ courses }) {
                 <meta name="description" content="SciTeens Courses Page" />
                 <meta name="keywords" content="SciTeens, sciteens, courses, teen science" />
             </Head>
-            <div className="min-h-screen mx-auto lg:mx-16 xl:mx-32 flex flex-row mt-8 mb-24">
+            <div className="min-h-screen mx-auto lg:mx-16 xl:mx-32 flex flex-row mt-8 mb-24 overflow-x-hidden md:overflow-visible">
                 <div className="w-11/12 md:w-[85%] mx-auto lg:mx-0 lg:w-[60%]">
-                    <h1 className="text-4xl py-4 text-left ml-4">
-                        📰 Latest Courses
+                    <h1 className="text-4xl py-4 text-left ml-4 font-semiboldf">
+                        Latest Courses 📰
                     </h1>
                     {coursesComponent}
                     {courses.results.length == 0 &&
@@ -149,10 +153,11 @@ function Courses({ courses }) {
                         <h2 className="text-xl text-gray-700 mb-2">Topics</h2>
                         <div className="flex flex-row flex-wrap">
                             {
-                                field_names.map((field) => {
+                                field_names.map((f) => {
                                     return (
-                                        <button onClick={() => handleFieldSearch(field)} className="text-sm px-3 py-2 bg-white rounded-full mr-4 mb-4 shadow">
-                                            {field}
+                                        <button key={f} onClick={() => handleFieldSearch(f)} className={`text-sm px-3 py-2 rounded-full mr-4 mb-4 shadow
+                                        ${f == field ? "bg-sciteensLightGreen-regular text-white" : "bg-white"}`}>
+                                            {f}
                                         </button>
                                     )
                                 })
