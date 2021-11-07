@@ -71,8 +71,6 @@ export default function UpdateProject({ query }) {
     const router = useRouter()
 
     useEffect(() => {
-        console.log(signInCheckResult)
-        console.log(member_uids)
         if (status == "success" && !signInCheckResult?.signedIn) {
             router.push("/signup")
         }
@@ -150,7 +148,7 @@ export default function UpdateProject({ query }) {
         setLoading(true)
         let res;
         try {
-            const res = await updateDoc(doc(firestore, 'projects', query.id), {
+            res = await updateDoc(doc(firestore, 'projects', query.id), {
                 title: title.trim(),
                 start: start_date ? moment(start_date).toISOString() : moment().toISOString(),
                 end: end_date ? moment(end_date).toISOString() : "",
@@ -178,7 +176,7 @@ export default function UpdateProject({ query }) {
 
         try {
             for (const f of files) {
-                const fileRef = ref(storage, `projects/${res.id}/${f.name}`);
+                const fileRef = ref(storage, `projects/${query.id}/${f.name}`);
                 await uploadBytes(fileRef, f)
                 if (f.name == project_photo) {
                     await updateMetadata(fileRef, {
