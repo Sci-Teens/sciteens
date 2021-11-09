@@ -4,7 +4,7 @@ export default function RenderFile({ file, id, removeFile, setPhoto }) {
     switch (file.type) {
         case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
             return (
-                <a className="bg-white rounded-lg w-full flex justify-between" href={URL.createObjectURL(file)} target="_blank">
+                <a className="bg-white rounded-lg w-full flex justify-between shadow" href={URL.createObjectURL(file)} target="_blank">
                     <img
                         src="/assets/files/file-document-powerpoint-presentation-report-44515.svg"
                         alt="Powerpoint Icon"
@@ -29,7 +29,7 @@ export default function RenderFile({ file, id, removeFile, setPhoto }) {
             break;
         case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
             return (
-                <a className="bg-white rounded-lg w-full flex justify-between" href={URL.createObjectURL(file)} target="_blank">
+                <a className="bg-white rounded-lg w-full flex justify-between shadow" href={URL.createObjectURL(file)} target="_blank">
                     <img
                         src="/assets/files/file-document-docx-text-type-word-writing-44508.svg"
                         alt="Word Icon"
@@ -53,7 +53,7 @@ export default function RenderFile({ file, id, removeFile, setPhoto }) {
             break;
         case "application/pdf":
             return (
-                <a className="bg-white rounded-lg w-full flex justify-between" href={URL.createObjectURL(file)} target="_blank">
+                <a className="bg-white rounded-lg w-full flex justify-between shadow" href={URL.createObjectURL(file)} target="_blank">
                     <img
                         src="/assets/files/file-pdf-acrobat-document-adobe-pdf-icon-reader-44504.svg"
                         alt="PDF Icon"
@@ -79,13 +79,13 @@ export default function RenderFile({ file, id, removeFile, setPhoto }) {
         case "image/png":
         case "image/jpg":
             return (
-                <a className="transition-all duration-500 bg-white rounded-lg w-full flex justify-between" href={URL.createObjectURL(file)} target="_blank">
+                <a className="transition-all duration-500 bg-white rounded-lg w-full flex justify-between shadow" href={URL.createObjectURL(file)} target="_blank">
                     <img
                         src={URL.createObjectURL(file)}
                         alt="Project Image"
-                        className="object-cover object-center rounded-l-lg h-12 w-12"
+                        className="object-cover object-center rounded-l-lg w-[10%] h-16"
                     />
-                    <div className="ml-2 line-clamp-1 text-left flex-1">
+                    <div className="ml-2 line-clamp-1 text-left flex-1 p-2">
                         <p>
                             {file.name}
                         </p>
@@ -103,7 +103,7 @@ export default function RenderFile({ file, id, removeFile, setPhoto }) {
             break;
         default:
             return (
-                <a className="bg-white rounded-lg w-full flex justify-between">
+                <a className="bg-white rounded-lg w-full flex justify-between shadow">
                     <img
                         v-else
                         src="/assets/files/file-doc-document-filetypes-text-word-xls-44511.svg"
