@@ -107,6 +107,14 @@ function Projects({ projects }) {
         setField(field)
     }
 
+    function checkForLongFields(fields) {
+        if (fields.slice(0, 3).includes("Mechanical Engineering") ||
+            fields.slice(0, 3).includes("Electrical Engineering") ||
+            fields.slice(0, 3).includes("Environmental Science")) {
+            return 2
+        } else return 3
+    }
+
     // REACT SPRING ANIMATIONS
     useEffect(() => {
         set({ opacity: 0, transform: 'translateX(150px)', config: { tension: 10000, clamp: true } })
@@ -149,15 +157,11 @@ function Projects({ projects }) {
                         <div className="flex flex-row">
                             {console.log(project.fields.slice(0, 3).includes("Mechanical Engineering"))}
                             {project.fields.map((field, index) => {
-                                if (index < (project.fields.slice(0, 3).includes("Mechanical Engineering") ||
-                                    project.fields.slice(0, 3).includes("Electrical Engineering") ||
-                                    project.fields.slice(0, 3).includes("Environmental Science") ? 2 : 3))
+                                if (index < checkForLongFields(project.fields))
                                     return <p className="hidden lg:flex text-xs py-1.5 px-3 bg-gray-100 rounded-full mr-2 mb-2 z-30 shadow whitespace-nowrap">{field}</p>
                             })}
                             {project.fields.length >= 3 &&
-                                <p className="text-xs text-gray-600 mt-1.5 whitespace-nowrap">+ {project.fields.length - (project.fields.slice(0, 3).includes("Mechanical Engineering") ||
-                                    project.fields.slice(0, 3).includes("Electrical Engineering") ||
-                                    project.fields.slice(0, 3).includes("Environmental Science") ? 2 : 3)} more field{project.fields.length - 3 == 1 ? "" : "s"}</p>
+                                <p className="hidden lg:flex text-xs text-gray-600 mt-1.5 whitespace-nowrap">+ {project.fields.length - checkForLongFields(project.fields)} more field{project.fields.length - checkForLongFields(project.fields) == 1 ? "" : "s"}</p>
                             }
                         </div>
                     </div>

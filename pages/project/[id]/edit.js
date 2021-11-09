@@ -351,7 +351,6 @@ export default function UpdateProject({ query }) {
         let new_project_photo = files[id]
         temp_files[id] = temp_files[0]
         temp_files[0] = new_project_photo
-        // let temp_file = files[0]
         setProjectPhoto(new_project_photo.name)
         setFiles(temp_files)
         setMode(false)
