@@ -70,7 +70,7 @@ function Project({ query }) {
     }, [files])
 
     if (status === 'loading') {
-        return <div className="prose-sm lg:prose mx-auto mt-4 mb-24">
+        return <div className="prose-sm lg:prose mx-auto mt-4 mb-24 animate-pulse">
             <div className="w-full h-12 bg-gray-200 rounded-lg" />
             <div className="w-full h-8 mt-8 bg-gray-200 rounded-lg" />
             <div className="w-full h-8 mt-8 bg-gray-200 rounded-lg" />
@@ -114,8 +114,9 @@ function Project({ query }) {
                     project_photo ? <img
                         src={project_photo}
                         alt="Project Image"
-                        className="w-full mt-0 object-contain"
-                    /> : <img src={'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fgetwallpapers.com%2Fwallpaper%2Ffull%2F3%2F7%2F2%2F538871.jpg&f=1&nofb=1'} className="w-full mt-0 object-contain" />
+                        className="w-full mt-0 object-contain" />
+                        :
+                        <div className="w-full my-8 h-64 bg-gray-200 rounded-lg animate-pulse" />
                 }
 
 
