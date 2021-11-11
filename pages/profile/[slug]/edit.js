@@ -63,7 +63,10 @@ export default function UpdateProfilePage({ user_profile }) {
 
     useEffect(() => {
         if (status == "success" && !signInCheckResult?.signedIn) {
-            router.push("/signup")
+            router.push({
+                pathname: '/signin/student',
+                query: { ref: `profile|${user_profile.slug}` }
+            })
         }
 
         else if (status == "success" && router.query.slug != profile.slug && signInCheckResult.user.uid != profile.id) {

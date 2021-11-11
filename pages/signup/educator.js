@@ -233,7 +233,17 @@ export default function MentorSignUp() {
             await setDoc(doc(firestore, 'emails', res.user.uid), { email: res.user.email })
             await sendEmailVerification(res.user)
             setProfile(profile)
-            router.push('/signup/thanks')
+            if (router.query.ref) {
+                let ref = router.query.ref.split("|")
+                let section = ref[0]
+                let id = ref[1]
+                if (section == "projects") {
+                    section = "project"
+                }
+                router.push(`/${section}/${id}`)
+            } else {
+                router.push('/')
+            }
         }
 
         catch (e) {
@@ -484,9 +494,13 @@ export default function MentorSignUp() {
                     <div className="mt-4 flex justify-center">
                         <p className="text-gray-700">
                             Have an account?&nbsp;
-                            <Link href="/signin/educator"
-                                className="font-bold"
-                            >
+                            <Link href={router.query?.ref ? {
+                                pathname: '/signin/educator',
+                                query: {
+                                    ref: (router.query?.ref)
+                                }
+                            } : '/signin/educator'}
+                                className="font-bold">
                                 <a className="font-bold">Sign in</a>
                             </Link>
                         </p>

@@ -21,6 +21,7 @@ export default function StudentSignUp() {
             "Please verify your email before signing in",
     }
 
+
     const [first_name, setFirstName] = useState('')
     const [last_name, setLastName] = useState('')
     const [email, setEmail] = useState('')
@@ -257,7 +258,17 @@ export default function StudentSignUp() {
         try {
             await updateProfile(res.user, { displayName: first_name + " " + last_name })
             setProfile(profile)
-            router.push('/signup/thanks')
+            if (router.query.ref) {
+                let ref = router.query.ref.split("|")
+                let section = ref[0]
+                let id = ref[1]
+                if (section == "projects") {
+                    section = "project"
+                }
+                router.push(`/${section}/${id}`)
+            } else {
+                router.push('/')
+            }
         }
 
         catch (e) {
@@ -281,7 +292,17 @@ export default function StudentSignUp() {
             else {
                 const prof = await getDoc(doc(firestore, 'profiles', res.user.uid))
                 setProfile(prof.data())
-                router.push(`/profile/${prof.data().slug}`)
+                if (router.query.ref) {
+                    let ref = router.query.ref.split("|")
+                    let section = ref[0]
+                    let id = ref[1]
+                    if (section == "projects") {
+                        section = "project"
+                    }
+                    router.push(`/${section}/${id}`)
+                } else {
+                    router.push('/')
+                }
             }
         } catch (e) {
             console.error(e)
@@ -514,7 +535,12 @@ export default function StudentSignUp() {
                     <div className="mt-4 flex justify-center">
                         <p className="text-gray-700">
                             Have an account?&nbsp;
-                            <Link href="/signin/student">
+                            <Link href={router.query?.ref ? {
+                                pathname: '/signin/student',
+                                query: {
+                                    ref: (router.query?.ref)
+                                }
+                            } : '/signin/student'} >
                                 <a className="font-bold">Sign in</a>
                             </Link>
                         </p>

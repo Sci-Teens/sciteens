@@ -46,7 +46,17 @@ export default function MentorSignIn() {
             const res = await signInWithEmailAndPassword(auth, email, password)
             const prof = await getDoc(doc(firestore, 'profiles', res.user.uid))
             setProfile(prof.data())
-            router.push(`/profile/${prof.data().slug}`)
+            if (router.query.ref) {
+                let ref = router.query.ref.split("|")
+                let section = ref[0]
+                let id = ref[1]
+                if (section == "projects") {
+                    section = "project"
+                }
+                router.push(`/${section}/${id}`)
+            } else {
+                router.push('/')
+            }
         }
 
         catch (e) {
@@ -128,7 +138,12 @@ export default function MentorSignIn() {
                     </h1>
                     <p className="text-gray-700 text-center mb-6">
                         Sign in now to empower the next generation of young scientists. Are you a student?&nbsp;
-                        <Link href="/signin/student">
+                        <Link href={router.query?.ref ? {
+                            pathname: '/signin/student',
+                            query: {
+                                ref: (router.query?.ref)
+                            }
+                        } : '/signin/student'} >
                             <a className="font-bold cursor-pointer">
                                 Sign in here.
                             </a>
@@ -189,7 +204,12 @@ export default function MentorSignIn() {
                     <div className="mt-4 flex justify-center">
                         <p className="text-gray-700">
                             New here?&nbsp;
-                            <Link href="/signup/educator"
+                            <Link href={router.query?.ref ? {
+                                pathname: '/signup/educator',
+                                query: {
+                                    ref: (router.query?.ref)
+                                }
+                            } : '/signup/educator'}
                             >
                                 <a className="font-bold">Sign up</a>
 

@@ -72,7 +72,10 @@ export default function CreateProject() {
 
     useEffect(() => {
         if (status == "success" && !signInCheckResult?.signedIn) {
-            router.push("/signup")
+            router.push({
+                pathname: '/signin/student',
+                query: { ref: 'project|create' }
+            })
         }
     })
 

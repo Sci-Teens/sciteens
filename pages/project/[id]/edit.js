@@ -73,7 +73,10 @@ export default function UpdateProject({ query }) {
 
     useEffect(() => {
         if (status == "success" && !signInCheckResult?.signedIn) {
-            router.push("/signup")
+            router.push({
+                pathname: '/signin/student',
+                query: { ref: `project|${query.id}/edit` }
+            })
         }
         else if (status == "success" && signInCheckResult.user && member_uids.length && !member_uids.includes(signInCheckResult.user.uid)) {
             router.push(`/project/${query.id}`)

@@ -112,7 +112,7 @@ export default function FinishSignUp() {
                 await sendEmailVerification(user)
                 await updateProfile(user, { displayName: first_name + " " + last_name })
                 setProfile(profile)
-                router.push('/signup/thanks')
+                router.push('/')
             }
 
             catch (error) {

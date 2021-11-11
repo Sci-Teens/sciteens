@@ -1,11 +1,15 @@
 import Link from "next/link"
 import { useState } from "react"
+import { useRouter } from "next/router"
 import Head from "next/head"
 
 export default function SignUpIndex() {
     const [show_mentor_info, setShowMentorInfo] = useState(false)
     const [show_student_info, setShowStudentInfo] = useState(false)
 
+    const router = useRouter()
+
+    console.log(router);
 
     return (
         <div >
@@ -22,12 +26,22 @@ export default function SignUpIndex() {
                     </h1>
                     <div className="mx-auto">
                         Have an account?&nbsp;
-                        <Link href="/signin/student" >
+                        <Link href={router.query?.ref ? {
+                            pathname: '/signin/student',
+                            query: {
+                                ref: (router.query?.ref)
+                            }
+                        } : '/signin/student'} >
                             <a className="font-bold">Sign In instead</a>
                         </Link>
                     </div>
                     <div className="flex flex-wrap mx-auto justify-center">
-                        <Link href="/signup/student">
+                        <Link href={router.query?.ref ? {
+                            pathname: '/signup/student',
+                            query: {
+                                ref: (router.query?.ref)
+                            }
+                        } : '/signup/student'} >
                             <a className="rounded bg-white shadow h-56 w-56 m-6 hover:shadow-md">
                                 {show_student_info ?
                                     <div className="relative pt-8">
@@ -66,9 +80,12 @@ export default function SignUpIndex() {
                             </a>
 
                         </Link>
-                        <Link href="/signup/educator"
-
-                        >
+                        <Link href={router.query?.ref ? {
+                            pathname: '/signup/educator',
+                            query: {
+                                ref: (router.query?.ref)
+                            }
+                        } : '/signup/educator'} >
                             <a className="rounded bg-white shadow h-56 w-56 m-6 hover:shadow-md">
                                 {show_mentor_info ?
                                     <div className="relative pt-8">
@@ -115,11 +132,8 @@ export default function SignUpIndex() {
                     <div className="mx-auto mb-1/4">
                         <p className="text-gray-700">
                             Neither of the above?&nbsp;
-                            <Link href="/getinvolved"
-
-                            >
+                            <Link href="/getinvolved">
                                 <a className="font-bold">See how you can help</a>
-
                             </Link>
                         </p>
                     </div >
