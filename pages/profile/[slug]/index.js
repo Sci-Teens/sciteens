@@ -8,13 +8,17 @@ import Head from "next/head";
 import Error from 'next/error'
 import Link from "next/link";
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { useSigninCheck } from "reactfire";
+import { AppContext } from "../../../context/context";
 
 function Project({ profile }) {
     const router = useRouter();
     const storage = useStorage()
 
     const [files, setFiles] = useState([])
+    const { status, data: signInCheckResult } = useSigninCheck();
+    const { current_user_profile } = useContext(AppContext)
 
     useEffect(async () => {
         const filesRef = ref(storage, `profiles/${profile.id}`);
@@ -56,8 +60,18 @@ function Project({ profile }) {
         <article className="prose-sm lg:prose mx-auto px-4 lg:px-0 mt-8">
             <div>
                 <h1>
-                    {profile.display}
                 </h1>
+                <div className="leading-none m-0 p-0 flex flex-row justify-between">
+                    <h1>
+                        {profile.display}
+                    </h1>
+                    {current_user_profile}
+                    {(status === "success" && signInCheckResult.signedIn && current_user_profile?.slug === router.query?.slug) &&
+                        <Link href={`/profile/${router?.query?.slug}/edit`}>
+                            <div className="cursor-pointer h-1/3 py-1.5 px-6 border-2 text-xl font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark rounded-full border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark text-center">Edit</div>
+                        </Link>
+                    }
+                </div>
                 <h4>
                     Joined {moment(profile.joined).calendar(null, { sameElse: 'MMMM DD, YYYY' })}
                 </h4>
