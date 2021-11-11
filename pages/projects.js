@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image';
 import { useRouter } from "next/router"
 import Head from 'next/head';
+import { useSigninCheck } from 'reactfire';
 import { useEffect, useState, useContext } from 'react';
 import { getApp, getApps, initializeApp } from "@firebase/app";
 import firebaseConfig from '../firebaseConfig';
@@ -40,6 +41,7 @@ function Projects({ projects }) {
     ])
 
     const { profile } = useContext(AppContext)
+    const { status, data: signInChechResult } = useSigninCheck()
 
 
 
@@ -72,6 +74,7 @@ function Projects({ projects }) {
             setSearch(router.query?.search ? router.query.search : '')
             setField(router.query?.field ? router.query.field : '')
         }
+        console.log(profile)
     }, [router])
 
     async function handleChange(e, target) {
@@ -190,9 +193,9 @@ function Projects({ projects }) {
                         <h1 className="text-3xl md:text-4xl py-4 text-left ml-0 md:ml-4 font-semibold">
                             Latest Projects 📰
                         </h1>
-                        {profile.slug &&
+                        {profile.slug && status === "success" && signInChechResult.user.emailVerified &&
                             <Link href="/project/create">
-                                {window.innerWidth >= 812 ?
+                                {window && window.innerWidth >= 812 ?
                                     <a className="text-lg font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark my-auto py-1.5 px-5 rounded-full border-2 border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark">Create Project</a>
                                     :
                                     <img src={'assets/zondicons/add-outline.svg'} alt="Share Project" className="h-8 my-auto" />

@@ -119,7 +119,7 @@ export default function NavBar() {
                     </Link>
                     <button onClick={() => setShowMobileNav(true)} className="mr-4 lg:hidden">
                         <svg className="h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill="#4A5568" d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z" /></svg>                    </button>
-                    <div className="hidden lg:flex">
+                    <div className="lg:flex">
                         {status === "success" && signInCheckResult?.signedIn === true ?
                             <div onMouseEnter={handleShowMenu} onMouseLeave={handleShowMenu}>
                                 <Link href={`/profile/${profile?.slug ? profile.slug : ''}`} >
@@ -127,9 +127,9 @@ export default function NavBar() {
                                         <img src={signInCheckResult.user.photoURL} className="object-contain rounded-full" />
                                     </div>
                                 </Link>                        {
-                                    showProfileMenu && <div className="p-4 rounded-lg bg-white absolute shadow-lg top-20 w-32 right-4" onClick={handleSignOut}>
+                                    showProfileMenu && <btn className="p-4 rounded-lg bg-white absolute shadow-lg top-20 w-32 right-4 z-50" onClick={handleSignOut}>
                                         Sign Out
-                                    </div>
+                                    </btn>
                                 }
                             </div> :
                             <div>

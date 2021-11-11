@@ -18,7 +18,7 @@ function Project({ profile }) {
 
     const [files, setFiles] = useState([])
     const { status, data: signInCheckResult } = useSigninCheck();
-    const { current_user_profile } = useContext(AppContext)
+    const { profile: current_user_profile } = useContext(AppContext)
 
     useEffect(async () => {
         const filesRef = ref(storage, `profiles/${profile.id}`);
@@ -50,6 +50,9 @@ function Project({ profile }) {
         }
     }, [""])
 
+    useEffect(() => {
+    }, [status])
+
     return (<>
         <Head>
             <title>{profile.display}'s Profile | SciTeens</title>
@@ -65,7 +68,6 @@ function Project({ profile }) {
                     <h1>
                         {profile.display}
                     </h1>
-                    {current_user_profile}
                     {(status === "success" && signInCheckResult.signedIn && current_user_profile?.slug === router.query?.slug) &&
                         <Link href={`/profile/${router?.query?.slug}/edit`}>
                             <div className="cursor-pointer h-1/3 py-1.5 px-6 border-2 text-xl font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark rounded-full border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark text-center">Edit</div>
