@@ -74,7 +74,6 @@ function Projects({ projects }) {
             setSearch(router.query?.search ? router.query.search : '')
             setField(router.query?.field ? router.query.field : '')
         }
-        console.log(profile)
     }, [router])
 
     async function handleChange(e, target) {
