@@ -1,7 +1,7 @@
 import Link from 'next/link'
 export default function SignUpThanks() {
     return (
-        <div className="relative h-screen flex flex-col justify-center items-center mx-auto -mt-12 z-30 text-left w-full max-w-prose text-center">
+        <div className="relative h-screen flex flex-col justify-center items-center mx-auto -mt-12 z-30 w-full max-w-prose text-center">
             <img src="/assets/sciteens_logo_main.svg" alt="SciTeens Logo Main" />
             <h1 className="text-2xl text-bold">
                 Thanks for signing up!
