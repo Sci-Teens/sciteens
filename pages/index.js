@@ -39,8 +39,8 @@ export default function Home() {
         {/* Landing screen */}
         <div className="relative h-screen text-center xl:text-left">
           <animated.div style={landing_spring} className="relative z-20 h-full w-auto lg:max-w-2xl flex flex-col lg:justify-center mx-5 md:mx-16 lg:ml-24 mb-12 pt-24">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl whitespace-nowrap">Science, simplified.</h1>
-            <p className="text-sm md:text-lg mt-4 mb-8">Share your work, get feedback from mentors and peers, and find great scientific
+            <h1 className="text-4xl md:text-5xl lg:text-6xl whitespace-nowrap">🧪 Science, simplified.</h1>
+            <p className="text-sm md:text-2xl mt-4 mb-8">Share your work, get feedback from mentors and peers, and find great scientific
               opportunities and resources available and accessible to you. Oh yeah, and it's free.
               Only here on SciTeens.
             </p>
