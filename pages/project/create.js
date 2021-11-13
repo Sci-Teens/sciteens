@@ -497,6 +497,6 @@ export default function CreateProject() {
     }
 
     else {
-        return <span>loading...</span>
+        return <div className="h-screen">loading...</div>
     }
 }

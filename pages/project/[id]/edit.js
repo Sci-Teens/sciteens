@@ -543,7 +543,7 @@ export default function UpdateProject({ query }) {
                                 {
                                     loading &&
                                     <img
-                                        src="~/assets/loading.svg"
+                                        src="/assets/loading.svg"
                                         alt="Loading Spinner"
                                         className="h-5 w-5 inline-block"
                                     />
@@ -566,7 +566,7 @@ export default function UpdateProject({ query }) {
     }
 
     else {
-        return <span>loading...</span>
+        return <div className="h-screen">loading...</div>
     }
 }
 

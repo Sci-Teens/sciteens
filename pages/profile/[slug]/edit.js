@@ -290,7 +290,7 @@ export default function UpdateProfilePage({ user_profile }) {
                             {
                                 loading &&
                                 <img
-                                    src="~/assets/loading.svg"
+                                    src="/assets/loading.svg"
                                     alt="Loading Spinner"
                                     className="h-5 w-5 inline-block" />
                             }
@@ -311,7 +311,7 @@ export default function UpdateProfilePage({ user_profile }) {
     }
 
     else {
-        return <span>loading...</span>
+        return <div className="h-screen">Loading...</div>
     }
 }
 

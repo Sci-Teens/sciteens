@@ -44,16 +44,13 @@ export default function NavBar() {
 
             // If you're within 350px from the top of the page, the scrollbar is always visible
             if (currentY <= 350) {
-                setVisibleNav(true)
                 previousY = currentY
             } else {
                 if (currentY - previousY >= 200) {
-                    setVisibleNav(false)
                     setShowMobileNav(false)
                     previousY = currentY
                 }
                 if (previousY - currentY >= 200) {
-                    setVisibleNav(true)
                     previousY = currentY
                 }
             }
@@ -65,12 +62,9 @@ export default function NavBar() {
         };
     }, [])
 
-    const [visibleNav, setVisibleNav] = useState(true)
-
     return (
         <nav>
-            <div className={`bg-white mx-4 shadow rounded-lg z-50 mt-3 flex justify-between h-16 items-center transform transition-transform duration-300
-            ${visibleNav ? "translate-y-0" : "-translate-y-32"}`}>
+            <div className={`bg-white mx-4 shadow rounded-lg z-50 mt-3 flex justify-between h-16 items-center`}>
                 <div className="inline-block md:w-1/2">
                     <Link href="/">
                         <img className="h-16 ml-4" src={'../assets/sciteens_logo_initials.svg'} alt="" />
@@ -114,7 +108,7 @@ export default function NavBar() {
                     </Link>
                     <button onClick={() => setShowMobileNav(true)} className="mr-4 lg:hidden">
                         <svg className="h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill="#4A5568" d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z" /></svg>                    </button>
-                    <div className="lg:flex">
+                    <div className="hidden lg:flex">
                         {status === "success" && signInCheckResult?.signedIn === true ?
                             <div onClick={() => setShowProfileMenu(!showProfileMenu)} >
                                 <button className="relative h-10 w-10 rounded-full border-4 border-white hover:border-gray-100 hover:shadow-inner" >
