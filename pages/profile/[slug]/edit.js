@@ -280,16 +280,11 @@ export default function UpdateProfilePage({ user_profile }) {
                         }
                     </div>
 
-                    <div className="flex flex-col w-full mt-4">
-                        <Link href={`/profile/${user_profile.slug}`}>
-                            <a className="text-center rounded-lg p-2 bg-gray-200 opacity-50 hover:bg-opacity-100 shadow border-2 border-gray-500 outline-none disabled:opacity-50 mb-3">
-                                Cancel
-                            </a>
-                        </Link>
+                    <div className="w-full flex justify-end">
                         <button
                             type="submit"
                             disabled={loading || error_about || error_file}
-                            className="bg-sciteensLightGreen-regular text-white rounded-lg p-2 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
+                            className="bg-sciteensLightGreen-regular text-white mr-2 text-lg font-semibold rounded-lg p-2 mt-4 w-full hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
                             onClick={e => updateProfile(e)}>
                             Update
                             {
@@ -300,6 +295,11 @@ export default function UpdateProfilePage({ user_profile }) {
                                     className="h-5 w-5 inline-block" />
                             }
                         </button>
+                        <Link href={`/profile/${user_profile.slug}`}>
+                            <a className="bg-gray-100 text-black ml-2 text-center text-lg font-semibold rounded-lg p-2 mt-4 w-full hover:bg-gray-200 border-2 border-gray-200 hover:border-gray-300 shadow outline-none disabled:opacity-50">
+                                Cancel
+                            </a>
+                        </Link>
                     </div>
                 </form>
             </div>

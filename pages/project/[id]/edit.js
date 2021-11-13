@@ -134,14 +134,6 @@ export default function UpdateProject({ query }) {
     }, [])
 
     useEffect(() => {
-        if (files.length == 0) {
-            setErrorFile("Must have at least one photo for display")
-        } else {
-            setProjectPhoto(files[0]?.name)
-            if (error_file == "Must have at least one photo for display") {
-                setErrorFile("")
-            }
-        }
         metadata_arr.map((file, index) => {
             if (file.customMetadata?.project_photo) {
                 setPhoto(undefined, index)
@@ -217,7 +209,7 @@ export default function UpdateProject({ query }) {
             reader.onerror = () => setErrorFile('Failed to read the file')
             reader.onload = () => setErrorFile('')
 
-            if (!(file_extensions.includes(f.type) || f.name.includes(".docx") || f.name.includes(".pptx"))) {
+            if (!(file_extensions.includes(f?.type) || f?.name.includes(".docx") || f?.name.includes(".pptx"))) {
                 setErrorFile("This file format is not accepted")
 
             }
@@ -342,8 +334,9 @@ export default function UpdateProject({ query }) {
         e.preventDefault()
         let temp = [...files]
         const removed = temp.splice(id, 1)
+        console.log(temp);
         setFiles([...temp])
-        if (removed.name == project_photo) {
+        if (removed?.name == project_photo) {
             setProjectPhoto(null)
         }
     }
@@ -354,7 +347,7 @@ export default function UpdateProject({ query }) {
         let new_project_photo = files[id]
         temp_files[id] = temp_files[0]
         temp_files[0] = new_project_photo
-        setProjectPhoto(new_project_photo.name)
+        setProjectPhoto(new_project_photo?.name)
         setFiles(temp_files)
         setMode(false)
     }
@@ -512,22 +505,25 @@ export default function UpdateProject({ query }) {
                         <p className="text-sm text-red-800 mb-4">
                             {error_file}
                         </p>
-                        {files.length != 0 &&
+                        {files.length == 0 || !files[0] &&
+                            <p className="text-sm">It's suggested you have at least one photo for display purposes.</p>
+                        }
+                        {files.length != 0 && files[0] &&
                             <div className="mb-6">
                                 {files.length > 1 &&
                                     <p className="mb-2">Since you have more than one photo, you can <span onClick={() => setMode(!select_photo_mode)} className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold cursor-pointer">change your display photo</span>.</p>
                                 }
                                 <label htmlFor="project_photo" className="uppercase text-gray-600 mt-2">Display Photo</label>
-                                <File file={files[0]} id={files[0].id} removeFile={removeFile} setPhoto={setPhoto}></File>
+                                <File file={files[0]} id={files[0]?.id} removeFile={removeFile} setPhoto={setPhoto}></File>
                             </div>
                         }
                         <div className="flex flex-col space-y-3">
-                            {files.length > 0 &&
+                            {files.length > 1 &&
                                 <>
                                     <label htmlFor="other_photos" className="uppercase text-gray-600 mt-2 text-left -mb-3">Other Photo{files.length > 1 ? "s" : ""}</label>
                                     {files.map((f, id) => {
-                                        if (project_photo != "" && f.name != project_photo || id > 0)
-                                            return <div className="flex flex-row w-full">
+                                        if (project_photo != "" && f?.name != project_photo || id > 0)
+                                            return f && <div className="flex flex-row w-full">
                                                 <button onClick={e => setPhoto(e, id)} className={`transition-all duration-500 border-2 text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:bg-gray-50 rounded-lg ${select_photo_mode ? "px-3 mr-4" : "border-none w-0 overflow-hidden"}`}>Select</button>
                                                 <File file={f} id={id} key={f.id} removeFile={removeFile} setPhoto={setPhoto}></File>
                                             </div>
