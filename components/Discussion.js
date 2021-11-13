@@ -155,7 +155,7 @@ export default function Discussion({ type, item_id }) {
                         Post
                         {
                             loading &&
-                            <img src="~/assets/loading.svg" alt="Loading Spinner" className="h-5 w-5 inline-block" />
+                            <img src="/assets/loading.svg" alt="Loading Spinner" className="h-5 w-5 inline-block" />
                         }
                     </button>
                 </div>
@@ -215,7 +215,7 @@ export default function Discussion({ type, item_id }) {
                                         {
                                             loading &&
                                             <img
-                                                src="~/assets/loading.svg"
+                                                src="/assets/loading.svg"
                                                 alt="Loading Spinner"
                                                 className="h-5 w-5 inline-block"
                                             />

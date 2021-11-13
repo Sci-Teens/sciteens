@@ -512,7 +512,7 @@ export default function StudentSignUp() {
                             {
                                 loading &&
                                 <img
-                                    src="~/assets/loading.svg"
+                                    src="/assets/loading.svg"
                                     alt="Loading Spinner"
                                     className="h-5 w-5 inline-block"
                                 />
