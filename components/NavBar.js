@@ -7,16 +7,13 @@ import { signOut } from '@firebase/auth'
 import { debounce } from 'lodash'
 
 export default function NavBar() {
+    const [showMobileNav, setShowMobileNav] = useState(false)
+    const [showProfileMenu, setShowProfileMenu] = useState(false)
+
     const router = useRouter()
     const auth = useAuth()
     const { status, data: signInCheckResult } = useSigninCheck();
     const { profile, setProfile } = useContext(AppContext);
-
-    const [showProfileMenu, setShowProfileMenu] = useState(false)
-
-    function handleShowMenu() {
-        showProfileMenu ? setTimeout(e => setShowProfileMenu(false), 500) : setShowProfileMenu(true)
-    }
 
     async function handleSignOut() {
         setProfile({})
@@ -28,13 +25,11 @@ export default function NavBar() {
         handleSignOut()
     }
 
-    const menuRef = useRef();
-
-    const [showMobileNav, setShowMobileNav] = useState(false)
+    const menuRef = useRef()
 
     function handleClick(e) {
         if (menuRef.current && menuRef.current.contains(e.target)) {
-            return;
+            return
         }
         setShowMobileNav(false);
     }
@@ -121,16 +116,18 @@ export default function NavBar() {
                         <svg className="h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill="#4A5568" d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z" /></svg>                    </button>
                     <div className="lg:flex">
                         {status === "success" && signInCheckResult?.signedIn === true ?
-                            <div onMouseEnter={handleShowMenu} onMouseLeave={handleShowMenu}>
-                                <Link href={`/profile/${profile?.slug ? profile.slug : ''}`} >
-                                    <div className="relative h-10 w-10 rounded-full border-4 border-white hover:border-gray-100 hover:shadow-inner" >
-                                        <img src={signInCheckResult.user.photoURL} className="object-contain rounded-full" />
-                                    </div>
-                                </Link>                        {
-                                    showProfileMenu && <btn className="p-4 rounded-lg bg-white absolute shadow-lg top-20 w-32 right-4 z-50" onClick={handleSignOut}>
+                            <div onClick={() => setShowProfileMenu(!showProfileMenu)} >
+                                <button className="relative h-10 w-10 rounded-full border-4 border-white hover:border-gray-100 hover:shadow-inner" >
+                                    <img src={signInCheckResult.user.photoURL} className="object-contain rounded-full" />
+                                </button>
+                                <div onClick={() => setShowProfileMenu(false)} className={`border border-gray-200 p-4 rounded-lg bg-white absolute shadow-lg top-14 w-32 right-4 z-50 ${showProfileMenu ? "" : "hidden"}`}>
+                                    <Link href={`/profile/${profile?.slug ? profile.slug : ''}`} >
+                                        <a className="px-3 py-1.5 hover:bg-gray-200 rounded-lg">Profile</a>
+                                    </Link>
+                                    <button onClick={handleSignOut} className="mt-2 px-3 py-1.5 hover:bg-gray-200 rounded-lg">
                                         Sign Out
-                                    </btn>
-                                }
+                                    </button>
+                                </div>
                             </div> :
                             <div>
                                 <Link href="/signup" >

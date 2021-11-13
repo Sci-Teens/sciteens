@@ -192,15 +192,13 @@ function Projects({ projects }) {
                         <h1 className="text-3xl md:text-4xl py-4 text-left ml-0 md:ml-4 font-semibold">
                             Latest Projects 🔬
                         </h1>
-                        {profile.slug && status === "success" && signInChechResult.user.emailVerified &&
-                            <Link href="/project/create">
-                                {window && window.innerWidth >= 812 ?
-                                    <a className="text-lg font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark my-auto py-1.5 px-5 rounded-full border-2 border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark">Create Project</a>
-                                    :
-                                    <img src={'assets/zondicons/add-outline.svg'} alt="Share Project" className="h-8 my-auto" />
-                                }
-                            </Link>
-                        }
+                        <Link href="/project/create">
+                            {window && window.innerWidth >= 812 ?
+                                <a className="text-lg font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark my-auto py-1.5 px-5 rounded-full border-2 border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark">Create Project</a>
+                                :
+                                <img src={'assets/zondicons/add-outline.svg'} alt="Share Project" className="h-8 my-auto" />
+                            }
+                        </Link>
                     </div>
                     {projects?.length != 0 ? projectsComponent : loadingComponent}
                     {

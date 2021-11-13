@@ -148,7 +148,7 @@ export default function Discussion({ type, item_id }) {
                         Cancel
                     </button>
                     <button
-                        type="submit" disabled={loading || error_comment || authStatus != "success" || !signInCheckResult?.user?.emailVerified}
+                        type="submit" disabled={loading || error_comment}
                         className="bg-sciteensLightGreen-regular text-white rounded-lg p-2 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
                         onClick={e => postComment(e)}
                     >
