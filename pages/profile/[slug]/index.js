@@ -1,18 +1,24 @@
 import { doc, getDocs, getFirestore, query as firebase_query, collection, where, limit } from "@firebase/firestore";
+import { getApp, getApps, initializeApp } from "@firebase/app";
+import firebaseConfig from "../../../firebaseConfig";
 import { listAll, ref, getDownloadURL, getMetadata } from "@firebase/storage";
-import { useFirestore, useFirestoreDocDataOnce, useStorage } from "reactfire";
+import { useStorage } from "reactfire";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import Error from 'next/error'
 import Link from "next/link";
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { useSigninCheck } from "reactfire";
+import { AppContext } from "../../../context/context";
 
 function Project({ profile }) {
     const router = useRouter();
     const storage = useStorage()
 
     const [files, setFiles] = useState([])
+    const { status, data: signInCheckResult } = useSigninCheck();
+    const { profile: current_user_profile } = useContext(AppContext)
 
     useEffect(async () => {
         const filesRef = ref(storage, `profiles/${profile.id}`);
@@ -44,16 +50,30 @@ function Project({ profile }) {
         }
     }, [""])
 
+    useEffect(() => {
+    }, [status])
+
     return (<>
         <Head>
-            <title>{profile.display}</title>
+            <title>{profile.display}'s Profile | SciTeens</title>
             <link rel="icon" href="/favicon.ico" />
+            <meta name="description" content={profile?.about ? profile.about : `${profile.display}'s Profile on SciTeens`} />
+            <meta name="keywords" content="SciTeens, sciteens, profile, teen science" />
         </Head>
         <article className="prose-sm lg:prose mx-auto px-4 lg:px-0 mt-8">
             <div>
                 <h1>
-                    {profile.display}
                 </h1>
+                <div className="leading-none m-0 p-0 flex flex-row justify-between">
+                    <h1>
+                        {profile.display}
+                    </h1>
+                    {(status === "success" && signInCheckResult.signedIn && current_user_profile?.slug === router.query?.slug) &&
+                        <Link href={`/profile/${router?.query?.slug}/edit`}>
+                            <div className="cursor-pointer h-1/3 py-1.5 px-6 border-2 text-xl font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark rounded-full border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark text-center">Edit</div>
+                        </Link>
+                    }
+                </div>
                 <h4>
                     Joined {moment(profile.joined).calendar(null, { sameElse: 'MMMM DD, YYYY' })}
                 </h4>
@@ -71,7 +91,8 @@ function Project({ profile }) {
 }
 
 export async function getServerSideProps({ query }) {
-    const firestore = getFirestore()
+    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+    const firestore = getFirestore(app)
     const profilesRef = collection(firestore, "profiles");
     const profileQuery = firebase_query(profilesRef, where("slug", "==", query.slug), limit(1));
     const profileRes = await getDocs(profileQuery)

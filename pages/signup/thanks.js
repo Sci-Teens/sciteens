@@ -1,11 +1,40 @@
-
+import Link from 'next/link'
 export default function SignUpThanks() {
     return (
-        <div className="relative h-screen flex flex-col justify-center items-center mx-auto -mt-12 z-30 text-left w-full md:w-96">
+        <div className="relative h-screen flex flex-col justify-center items-center mx-auto -mt-12 z-30 w-full max-w-prose text-center">
             <img src="/assets/sciteens_logo_main.svg" alt="SciTeens Logo Main" />
-            <h1 className="text-2xl text-center">
-                Thanks for signing up. We'll send you a confirmation email shortly, and then you may begin using our platform!
+            <h1 className="text-2xl text-bold">
+                Thanks for signing up!
             </h1>
+            <p className="text-lg">
+                We'll send you a confirmation email shortly; be sure to verify your email to post projects and send/receive feedback!
+                In the mean time, feel free to check out some of our latest&nbsp;
+                <Link href="/articles">
+                    <a className="underline">articles</a>
+                </Link>
+                &nbsp;or&nbsp;
+                <Link href="/projects">
+                    <a className="underline">projects</a>
+                </Link>&nbsp;
+                for some inspiration, and feel free to follow us on our social media platforms to stay up-to-date with SciTeens news!
+            </p>
+            <div className="flex flex-row bg-sciteensGreen-regular p-2 rounded-lg">
+                <a href="https://www.facebook.com/SciTeensinfo" target="_blank" rel="noopener noreferrer">
+                    <img className="h-6 mr-4 fill-current text-sciteensGreen-regular" src={'../assets/icons/facebook-flat.svg'} alt="Facebook" />
+                </a>
+                <a href="https://www.instagram.com/sci.teens/" target="_blank" rel="noopener noreferrer">
+                    <img className="h-6 mr-4" src={'../assets/icons/instagram.svg'} alt="Instagram" />
+                </a>
+                <a href="https://www.linkedin.com/company/sciteens/" target="_blank" rel="noopener noreferrer">
+                    <img className="h-6 mr-4" src={'../assets/icons/linkedin-flat.svg'} alt="LinkedIn" />
+                </a>
+                <a href="https://www.youtube.com/channel/UCXnyAT9TOrXywV0M6HbhaRA" target="_blank" rel="noopener noreferrer">
+                    <img className="h-6 mr-4" src={'../assets/icons/youtube.svg'} alt="YouTube" />
+                </a>
+                <a href="https://www.tiktok.com/@sciteens" target="_blank" rel="noopener noreferrer">
+                    <img className="h-6" src={'../assets/icons/tiktok.svg'} alt="TikTok" />
+                </a>
+            </div>
         </div>
     )
 }

@@ -11,6 +11,7 @@ import debounce from "lodash/debounce";
 import { useDropzone } from 'react-dropzone'
 import File from "../../../components/File"
 import Link from "next/link"
+import { getFluidObservers } from "@react-spring/shared"
 
 export default function UpdateProject({ query }) {
     const [loading, setLoading] = useState(false)
@@ -20,6 +21,8 @@ export default function UpdateProject({ query }) {
     const [abstract, setAbstract] = useState('')
     const [member, setMember] = useState('')
     const [members, setMembers] = useState([])
+    const [member_uids, setMemberUids] = useState([])
+    const [select_photo_mode, setMode] = useState(false)
     const [field_names] = useState([
         "Biology",
         "Chemistry",
@@ -52,6 +55,7 @@ export default function UpdateProject({ query }) {
         "application/vnd.jupyter.dragindex",
     ])
     const [files, setFiles] = useState([])
+    const [metadata_arr, setMetadata] = useState([])
     const [project_photo, setProjectPhoto] = useState(null)
 
     const [error_title, setErrorTitle] = useState('')
@@ -69,9 +73,15 @@ export default function UpdateProject({ query }) {
 
     useEffect(() => {
         if (status == "success" && !signInCheckResult?.signedIn) {
-            router.push("/signup")
+            router.push({
+                pathname: '/signin/student',
+                query: { ref: `project|${query.id}/edit` }
+            })
         }
-    })
+        else if (status == "success" && signInCheckResult.user && member_uids.length && !member_uids.includes(signInCheckResult.user.uid)) {
+            router.push(`/project/${query.id}`)
+        }
+    }, [status, member_uids])
 
     useEffect(async () => {
         setFiles([])
@@ -84,10 +94,7 @@ export default function UpdateProject({ query }) {
             const projectData = projectDoc.data()
 
             // Check if user is a member
-            if (!projectData.member_uids.includes(signInCheckResult.user.uid)) {
-                router.back()
-            }
-
+            setMemberUids(old_uids => [...old_uids, ...projectData.member_uids])
             setTitle(projectData.title)
             setAbstract(projectData.abstract)
             projectData.start && setStartDate(moment(projectData.start).format('yyyy-MM-DD'))
@@ -112,10 +119,8 @@ export default function UpdateProject({ query }) {
                     const blob = xhr.response;
                     if (xhr.status == 200) {
                         blob.name = metadata.name
-                        if (metadata?.customMetadata?.project_photo) {
-                            setProjectPhoto(blob.name)
-                        }
                         setFiles(oldFiles => [...oldFiles, blob])
+                        setMetadata(oldMetadata => [...oldMetadata, metadata])
                     }
                 };
                 xhr.open('GET', url);
@@ -123,9 +128,18 @@ export default function UpdateProject({ query }) {
             }
         }
         catch (e) {
+            console.error(e)
             router.push(`/project/${query.id}`)
         }
     }, [])
+
+    useEffect(() => {
+        metadata_arr.map((file, index) => {
+            if (file.customMetadata?.project_photo) {
+                setPhoto(undefined, index)
+            }
+        })
+    }, [files, metadata_arr])
 
 
     const updateProject = async (e) => {
@@ -133,7 +147,7 @@ export default function UpdateProject({ query }) {
         setLoading(true)
         let res;
         try {
-            const res = await updateDoc(doc(firestore, 'projects', query.id), {
+            res = await updateDoc(doc(firestore, 'projects', query.id), {
                 title: title.trim(),
                 start: start_date ? moment(start_date).toISOString() : moment().toISOString(),
                 end: end_date ? moment(end_date).toISOString() : "",
@@ -161,7 +175,7 @@ export default function UpdateProject({ query }) {
 
         try {
             for (const f of files) {
-                const fileRef = ref(storage, `projects/${res.id}/${f.name}`);
+                const fileRef = ref(storage, `projects/${query.id}/${f.name}`);
                 await uploadBytes(fileRef, f)
                 if (f.name == project_photo) {
                     await updateMetadata(fileRef, {
@@ -195,7 +209,7 @@ export default function UpdateProject({ query }) {
             reader.onerror = () => setErrorFile('Failed to read the file')
             reader.onload = () => setErrorFile('')
 
-            if (!(file_extensions.includes(f.type) || f.name.includes(".docx") || f.name.includes(".pptx"))) {
+            if (!(file_extensions.includes(f?.type) || f?.name.includes(".docx") || f?.name.includes(".pptx"))) {
                 setErrorFile("This file format is not accepted")
 
             }
@@ -320,22 +334,26 @@ export default function UpdateProject({ query }) {
         e.preventDefault()
         let temp = [...files]
         const removed = temp.splice(id, 1)
+        console.log(temp);
         setFiles([...temp])
-        if (removed.name == project_photo) {
+        if (removed?.name == project_photo) {
             setProjectPhoto(null)
         }
     }
 
-    const setPhoto = (e, file) => {
-        e.preventDefault()
-        setProjectPhoto(file.name)
+    const setPhoto = (e, id) => {
+        e?.preventDefault()
+        let temp_files = files
+        let new_project_photo = files[id]
+        temp_files[id] = temp_files[0]
+        temp_files[0] = new_project_photo
+        setProjectPhoto(new_project_photo?.name)
+        setFiles(temp_files)
+        setMode(false)
     }
 
     if (status == "success" && signInCheckResult.signedIn) {
         return (<>
-            <Head>
-
-            </Head>
             <main>
                 <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow rounded-lg">
                     <h1 className="text-3xl text-center font-semibold mb-2">
@@ -345,7 +363,7 @@ export default function UpdateProject({ query }) {
                         Here, you can update your project <span className="italic">{title}</span>.
                     </p>
                     <form onSubmit={(e) => updateProject(e)}>
-                        <label for="title" className="uppercase text-gray-600">
+                        <label htmlFor="title" className="uppercase text-gray-600">
                             Title
                         </label>
                         <input
@@ -364,7 +382,7 @@ export default function UpdateProject({ query }) {
                             {error_title}
                         </p>
 
-                        <label for="start-date" className="uppercase text-gray-600">Start Date</label>
+                        <label htmlFor="start-date" className="uppercase text-gray-600">Start Date</label>
                         <input
                             required
                             onChange={e => onChange(e, 'start_date')}
@@ -383,7 +401,7 @@ export default function UpdateProject({ query }) {
                             }
                         </p>
 
-                        <label for="end-date" className="uppercase text-gray-600">End Date</label>
+                        <label htmlFor="end-date" className="uppercase text-gray-600">End Date</label>
                         <input
                             required
                             onChange={e => onChange(e, 'end_date')}
@@ -402,7 +420,7 @@ export default function UpdateProject({ query }) {
                             }
                         </p>
 
-                        <label for="abstract" className="uppercase text-gray-600">
+                        <label htmlFor="abstract" className="uppercase text-gray-600">
                             Summary
                         </label>
                         <textarea
@@ -421,7 +439,7 @@ export default function UpdateProject({ query }) {
                             {error_abstract}
                         </p>
 
-                        <label for="member" className="uppercase text-gray-600">
+                        <label htmlFor="member" className="uppercase text-gray-600">
                             Add Members
                         </label>
                         <input
@@ -451,7 +469,7 @@ export default function UpdateProject({ query }) {
                             )
                         }
 
-                        <label for="fields" className="uppercase text-gray-600">
+                        <label htmlFor="fields" className="uppercase text-gray-600">
                             Fields
                         </label>
                         {
@@ -466,7 +484,7 @@ export default function UpdateProject({ query }) {
                                             checked={field_values[index]}
                                             onChange={e => onChange(e, "fields")}
                                         />
-                                        <label for={field} className="text-gray-700">
+                                        <label htmlFor={field} className="text-gray-700">
                                             {field}
                                             <br />
                                         </label>
@@ -487,29 +505,33 @@ export default function UpdateProject({ query }) {
                         <p className="text-sm text-red-800 mb-4">
                             {error_file}
                         </p>
-                        <div className="flex flex-col items-center space-y-2">
-                            {
-                                files.map((f, id) => {
-                                    return <File file={f} id={id} key={f.name} removeFile={removeFile} setPhoto={setPhoto}></File>
-                                })
-                            }
-                        </div>
-                        {
-                            project_photo && <label for="project_photo" className="uppercase text-gray-600 mt-2">
-                                Project Photo
-                            </label>
+                        {files.length == 0 || !files[0] &&
+                            <p className="text-sm">It's suggested you have at least one photo for display purposes.</p>
                         }
-                        <div>
-                            {
-                                files.map((f, id) => {
-                                    if (f.name == project_photo) {
-                                        return <File file={f} id={id} key={f.name} removeFile={removeFile} setPhoto={setPhoto}></File>
+                        {files.length != 0 && files[0] &&
+                            <div className="mb-6">
+                                {files.length > 1 &&
+                                    <p className="mb-2">Since you have more than one photo, you can <span onClick={() => setMode(!select_photo_mode)} className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold cursor-pointer">change your display photo</span>.</p>
+                                }
+                                <label htmlFor="project_photo" className="uppercase text-gray-600 mt-2">Display Photo</label>
+                                <File file={files[0]} id={files[0]?.id} removeFile={removeFile} setPhoto={setPhoto}></File>
+                            </div>
+                        }
+                        <div className="flex flex-col space-y-3">
+                            {files.length > 1 &&
+                                <>
+                                    <label htmlFor="other_photos" className="uppercase text-gray-600 mt-2 text-left -mb-3">Other Photo{files.length > 1 ? "s" : ""}</label>
+                                    {files.map((f, id) => {
+                                        if (project_photo != "" && f?.name != project_photo || id > 0)
+                                            return f && <div className="flex flex-row w-full">
+                                                <button onClick={e => setPhoto(e, id)} className={`transition-all duration-500 border-2 text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:bg-gray-50 rounded-lg ${select_photo_mode ? "px-3 mr-4" : "border-none w-0 overflow-hidden"}`}>Select</button>
+                                                <File file={f} id={id} key={f.id} removeFile={removeFile} setPhoto={setPhoto}></File>
+                                            </div>
+                                    })
                                     }
-                                })
+                                </>
                             }
                         </div>
-
-
                         <div className="w-full flex justify-end mt-4">
                             <button
                                 type="submit"

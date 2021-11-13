@@ -72,4 +72,8 @@ export default async function render(width, height) {
             console.log(error)
         }
     );
+
+    window.onresize = function () {
+        renderer.setSize(container.offsetHeight, container.offsetWidth);
+    };
 }

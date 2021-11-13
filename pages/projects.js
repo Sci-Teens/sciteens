@@ -2,10 +2,22 @@ import Link from 'next/link'
 import Image from 'next/image';
 import { useRouter } from "next/router"
 import Head from 'next/head';
-import { useFirestore } from 'reactfire';
-import { useEffect, useState } from 'react';
-import { collection, query, orderBy, getDocs, limit } from '@firebase/firestore';
+import { useSigninCheck } from 'reactfire';
+import { useEffect, useState, useContext } from 'react';
+import { getApp, getApps, initializeApp } from "@firebase/app";
+import firebaseConfig from '../firebaseConfig';
+import { collection, query as firebase_query, orderBy, getDocs, limit, getFirestore } from '@firebase/firestore';
 import algoliasearch from "algoliasearch/lite";
+import { useSpring, animated, config } from '@react-spring/web'
+import ProfilePhoto from "../components/ProfilePhoto"
+import { AppContext } from '../context/context'
+
+
+// const searchClient = algoliasearch(
+//     process.env.NEXT_PUBLIC_AL_APP_ID,
+//     process.env.NEXT_PUBLIC_AL_ADMIN_KEY
+// );
+// const projectIndex = searchClient.initIndex("projects")
 
 function Projects({ projects }) {
     const router = useRouter()
@@ -27,11 +39,11 @@ function Projects({ projects }) {
         "Physics",
         "Space Science",
     ])
-    const searchClient = algoliasearch(
-        process.env.NEXT_PUBLIC_AL_APP_ID,
-        process.env.NEXT_PUBLIC_AL_ADMIN_KEY
-    );
-    const projectIndex = searchClient.initIndex("projects")
+
+    const { profile } = useContext(AppContext)
+    const { status, data: signInChechResult } = useSigninCheck()
+
+
 
     // useEffect(async () => {
     //     try {
@@ -57,6 +69,13 @@ function Projects({ projects }) {
         return `${src}/${width || 256}x${height || 256}`
     }
 
+    useEffect(() => {
+        if (router?.isReady) {
+            setSearch(router.query?.search ? router.query.search : '')
+            setField(router.query?.field ? router.query.field : '')
+        }
+    }, [router])
+
     async function handleChange(e, target) {
         e.preventDefault();
         switch (target) {
@@ -68,7 +87,12 @@ function Projects({ projects }) {
     async function handleSearch(e) {
         e.preventDefault()
         let q = {}
-        q.search = search
+        if (search) {
+            q.search = search
+        }
+        if (field) {
+            q.field = field
+        }
         router.push({
             pathname: '/projects',
             query: q
@@ -82,28 +106,68 @@ function Projects({ projects }) {
             pathname: '/projects',
             query: q
         })
+        setField(field)
     }
 
-    const projectsComponent = projects.hits.map((project, index) => {
-        console.log(project)
+    function checkForLongFields(fields) {
+        if (fields.slice(0, 3).includes("Mechanical Engineering") ||
+            fields.slice(0, 3).includes("Electrical Engineering") ||
+            fields.slice(0, 3).includes("Environmental Science")) {
+            return 2
+        } else return 3
+    }
+
+    // REACT SPRING ANIMATIONS
+    useEffect(() => {
+        set({ opacity: 0, transform: 'translateX(150px)', config: { tension: 10000, clamp: true } })
+        window.setTimeout(function () { set({ opacity: 1, transform: 'translateX(0)', config: config.slow }) }, 10)
+    }, [projects])
+
+    const [project_spring, set] = useSpring(() => ({
+        opacity: 1,
+        transform: 'translateX(0)',
+        from: {
+            opacity: 0,
+            transform: 'translateX(150px)'
+        },
+        config: config.slow
+    }))
+
+    const projectsComponent = projects.map((project, index) => {
         return (
             <Link key={project.id} href={`/project/${project.id}`}>
-
-                <div className="p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center">
-                    <div className="h-full w-1/4 lg:w-1/12 relative">
-                        <Image src={"https://source.unsplash.com/collection/1677633/"} alt="Project Image" height={128} width={128} loader={imageLoader}></Image>
+                <animated.a style={project_spring} className="p-4 bg-white shadow rounded-lg z-50 mt-6 md:mt-8 flex items-center cursor-pointer overflow-hidden">
+                    <div className="h-full max-w-[100px] md:max-w-[200px] max-h-[100px] md:max-h-[200px] relative overflow-hidden rounded-lg">
+                        <img src={project.project_photo ? project.project_photo : ''} className="rounded-lg object-cover flex-shrink-0"></img>
                     </div>
+                    {/* <Image src={"https://source.unsplash.com/collection/1677633/"} alt="Project Image" height={128} width={128} loader={imageLoader}></Image> */}
                     <div className="ml-4 w-3/4 lg:w-11/12">
-                        <h3 className="font-semibold text-lg">{project.title}</h3>
-                        <p className="hidden lg:block">{project.abstract}</p>
-                        <div className="flex flex-row items-center mt-2">
-                            {/* <p className="ml-2">By {project.member_arr.map((member) => {
+                        {project.member_arr && <div className="flex flex-row items-center mb-3">
+                            <div className="flex -space-x-2 overflow-hidden">
+                                {project.member_arr.map((member) => {
+                                    return <div className="inline-block h-6 w-6 lg:h-8 lg:w-8 rounded-full ring-2 ring-white">
+                                        <ProfilePhoto uid={member.uid}></ProfilePhoto>
+                                    </div>
+                                })}
+                            </div>
+                            <p className="ml-2">By {project.member_arr.map((member) => {
                                 return member.display + " "
-                            })}</p> */}
+                            })}</p>
+                        </div>}
+                        <h3 className="font-semibold text-base md:text-xl lg:text-2xl mb-2 line-clamp-2">{project.title}</h3>
+                        <p className="hidden md:block mb-4 line-clamp-none md:line-clamp-2 lg:line-clamp-3">{project.abstract}</p>
+                        <div className="flex flex-row">
+                            {console.log(project.fields.slice(0, 3).includes("Mechanical Engineering"))}
+                            {project.fields.map((field, index) => {
+                                if (index < checkForLongFields(project.fields))
+                                    return <p className="hidden lg:flex text-xs py-1.5 px-3 bg-gray-100 rounded-full mr-2 mb-2 z-30 shadow whitespace-nowrap">{field}</p>
+                            })}
+                            {project.fields.length >= 3 &&
+                                <p className="hidden lg:flex text-xs text-gray-600 mt-1.5 whitespace-nowrap">+ {project.fields.length - checkForLongFields(project.fields)} more field{project.fields.length - checkForLongFields(project.fields) == 1 ? "" : "s"}</p>
+                            }
                         </div>
                     </div>
-
-                </div>
+                </animated.a>
             </Link >
         )
     })
@@ -117,23 +181,35 @@ function Projects({ projects }) {
     return (
         <>
             <Head>
-                <title>Projects Page {router?.query?.page ? router.query.page : 1}</title>
+                <title>{field ? field + ' ' : ''}Projects {search ? 'related to ' + search : ''} | SciTeens</title>
                 <link rel="icon" href="/favicon.ico" />
+                <meta name="description" content="SciTeens Projects Page" />
+                <meta name="keywords" content="SciTeens, sciteens, projects, teen science" />
             </Head>
-            <div className="min-h-screen mx-auto lg:mx-16 xl:mx-32 flex flex-row mt-8 mb-24">
+            <div className="min-h-screen mx-auto lg:mx-16 xl:mx-32 flex flex-row mt-8 mb-24 overflow-x-hidden md:overflow-visible">
                 <div className="w-11/12 md:w-[85%] mx-auto lg:mx-0 lg:w-[60%]">
-                    <h1 className="text-4xl py-4 text-left ml-4">
-                        📰 Latest Projects
-                    </h1>
-                    {projects.hits?.length ? projectsComponent : loadingComponent}
-                    {projects.hitslength &&
+                    <div className="flex flex-row justify-between">
+                        <h1 className="text-3xl md:text-4xl py-4 text-left ml-0 md:ml-4 font-semibold">
+                            Latest Projects 🔬
+                        </h1>
+                        <Link href="/project/create">
+                            {window && window.innerWidth >= 812 ?
+                                <a className="text-lg font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark my-auto py-1.5 px-5 rounded-full border-2 border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark">Create Project</a>
+                                :
+                                <img src={'assets/zondicons/add-outline.svg'} alt="Share Project" className="h-8 my-auto" />
+                            }
+                        </Link>
+                    </div>
+                    {projects?.length != 0 ? projectsComponent : loadingComponent}
+                    {
+                        projects.length == 0 &&
                         <div className="mx-auto text-center mt-20">
                             <i className="font-semibold text-xl">
                                 Sorry, we couldn't find any searches related to {router?.query.search}
                             </i>
                         </div>
                     }
-                </div>
+                </div >
 
                 <div className="hidden lg:block w-0 lg:w-[30%] lg:ml-32">
                     <div className="sticky top-1/2 transform -translate-y-1/2 w-full">
@@ -160,10 +236,11 @@ function Projects({ projects }) {
                         <h2 className="text-xl text-gray-700 mb-2">Topics</h2>
                         <div className="flex flex-row flex-wrap">
                             {
-                                field_names.map((field) => {
+                                field_names.map((f) => {
                                     return (
-                                        <button onClick={() => handleFieldSearch(field)} className="text-sm px-3 py-2 bg-white rounded-full mr-4 mb-4 shadow">
-                                            {field}
+                                        <button key={f} onClick={() => handleFieldSearch(f)} className={`text-sm px-3 py-2 rounded-full mr-4 mb-4 shadow
+                                        ${f == field ? "bg-sciteensLightGreen-regular text-white" : "bg-white"}`}>
+                                            {f}
                                         </button>
                                     )
                                 })
@@ -171,73 +248,79 @@ function Projects({ projects }) {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div >
         </>
 
     )
 }
 
 export async function getServerSideProps({ query }) {
-    // Fetch data from external API (Algolia)
+    let projects = []
+    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     try {
+        // Fetch data from external API (Algolia)
         const searchClient = algoliasearch(
             process.env.NEXT_PUBLIC_AL_APP_ID,
-            process.env.NEXT_PUBLIC_AL_ADMIN_KEY
+            process.env.NEXT_PUBLIC_AL_SEARCH_KEY
         );
-        let projects = {
-            hits: []
-        }
-        const projectIndex = searchClient.initIndex("projects")
-        if (query.search && (!query.field || query.field == "All")) {
+
+        const projectIndex = searchClient.initIndex("prod_PROJECTS")
+
+        if (query?.search && (!query?.field || query?.field == "All")) {
+            console.log("Algolia search")
             let results = await projectIndex
                 .search(query.search)
-            for (let i = 0; i < results.nbHits; i++) {
-                projects.hits.push({
-                    id: results.hits[i].objectID,
-                    abstract: results.hits[i].abstract,
-                    title: results.hits[i].title,
+            results.hits.forEach(p => {
+                projects.push({
+                    id: p.objectID,
+                    ...p.data
                 })
-            }
-            console.log(projects)
+            })
         }
-        else if (query.search && query.field != "All") {
+        else if (query?.search && query?.field != "All") {
+            console.log("Algolia field")
             let results = await projectIndex
                 .search(query.search, {
                     filters: 'data.fields:' + query.field
                 })
-            for (let i = 0; i < results.nbHits; i++) {
-                projects.hits.push({
-                    id: results.hits[i].objectID,
-                    abstract: results.hits[i].abstract,
-                    title: results.hits[i].title,
+            results.hits.forEach(p => {
+                projects.push({
+                    id: p.objectID,
+                    ...p.data
                 })
-            }
-            console.log(results)
+            })
         }
         else {
-            console.log("load firestore")
-            const firestore = useFirestore()
+            const firestore = getFirestore(app)
             const projectsCollection = collection(firestore, 'projects')
-            const projectsQuery = query(projectsCollection, orderBy('date', 'asc'), limit(10))
+            const projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), limit(10))
             const projectsRef = await getDocs(projectsQuery)
-            console.log('herrerre')
             projectsRef.forEach(p => {
-                console.log("fouind")
-                projects.hits.push({
+                projects.push({
                     id: p.id,
                     ...p.data(),
                 })
             })
-            console.log(projects)
         }
 
         return {
-            props: { projects }
+            props: { projects: projects }
         }
     }
     catch (e) {
+        console.error(e)
+        const firestore = getFirestore(app)
+        const projectsCollection = collection(firestore, 'projects')
+        const projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), limit(10))
+        const projectsRef = await getDocs(projectsQuery)
+        projectsRef.forEach(p => {
+            projects.push({
+                id: p.id,
+                ...p.data(),
+            })
+        })
         return {
-            notFound: false,
+            props: { projects: projects }
         }
     }
 }

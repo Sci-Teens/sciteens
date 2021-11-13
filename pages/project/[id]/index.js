@@ -1,14 +1,14 @@
 import { doc } from "@firebase/firestore";
 import { listAll, ref, getDownloadURL, getMetadata } from "@firebase/storage";
-import { useFirestore, useFirestoreDocData, useStorage } from "reactfire";
+import { useFirestore, useFirestoreDocData, useStorage, useSigninCheck } from "reactfire";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import Image from "next/image";
 import Error from 'next/error'
 import Link from "next/link";
-import File from '../../../components/File'
-import { useEffect, useState } from "react";
-
+import File from '../../../components/File';
+import { useEffect, useState, useContext } from "react";
+import { AppContext } from '../../../context/context';
 import Discussion from "../../../components/Discussion";
 
 
@@ -25,6 +25,10 @@ function Project({ query }) {
     const [files, setFiles] = useState([])
     const [project_photo, setProjectPhoto] = useState('')
 
+    const { profile } = useContext(AppContext)
+
+    const { authStatus, data: signInCheckResult } = useSigninCheck();
+
 
     useEffect(async () => {
         const filesRef = ref(storage, `projects/${query.id}`);
@@ -33,7 +37,6 @@ function Project({ query }) {
 
         try {
             const res = await listAll(filesRef)
-            // console.log(res)
             for (const r of res.items) {
                 const url = await getDownloadURL(r)
                 const metadata = await getMetadata(r)
@@ -42,9 +45,7 @@ function Project({ query }) {
                 xhr.onload = (e) => {
                     const blob = xhr.response;
                     if (xhr.status == 200) {
-                        console.log(blob)
                         blob.name = metadata.name
-                        console.log(metadata)
                         if (metadata?.customMetadata?.project_photo == 'true') {
                             setProjectPhoto(URL.createObjectURL(blob))
                         }
@@ -69,7 +70,7 @@ function Project({ query }) {
     }, [files])
 
     if (status === 'loading') {
-        return <div className="prose-sm lg:prose mx-auto mt-4 mb-24">
+        return <div className="prose-sm lg:prose mx-auto mt-4 mb-24 animate-pulse">
             <div className="w-full h-12 bg-gray-200 rounded-lg" />
             <div className="w-full h-8 mt-8 bg-gray-200 rounded-lg" />
             <div className="w-full h-8 mt-8 bg-gray-200 rounded-lg" />
@@ -86,14 +87,23 @@ function Project({ query }) {
 
     return (<>
         <Head>
-            <title>{project.title}</title>
+            <title>{project.title} | SciTeens</title>
             <link rel="icon" href="/favicon.ico" />
+            <meta name="description" content={project?.abstract ? project.abstract : `${project.title} on SciTeens`} />
+            <meta name="keywords" content="SciTeens, sciteens, project, teen science" />
         </Head>
         <article className="prose-sm lg:prose mx-auto px-4 lg:px-0 mt-8">
             <div>
-                <h1>
-                    {project.title}
-                </h1>
+                <div className="leading-none m-0 p-0 flex flex-row justify-between">
+                    <h1>
+                        {project.title}
+                    </h1>
+                    {project.member_uids.includes(signInCheckResult?.user?.uid) &&
+                        <Link href={`/project/${router?.query?.id}/edit`}>
+                            <div className="cursor-pointer h-1/3 py-1.5 px-6 border-2 text-xl font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark rounded-full border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark text-center">Edit</div>
+                        </Link>
+                    }
+                </div>
                 <p>
                     {project.abstract}
                 </p>
@@ -104,17 +114,20 @@ function Project({ query }) {
                     project_photo ? <img
                         src={project_photo}
                         alt="Project Image"
-                        className="w-full mt-0 object-contain"
-                    /> : <img src={'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fgetwallpapers.com%2Fwallpaper%2Ffull%2F3%2F7%2F2%2F538871.jpg&f=1&nofb=1'} className="w-full mt-0 object-contain" />
+                        className="w-full mt-0 object-contain" />
+                        :
+                        <div className="w-full my-8 h-64 bg-gray-200 rounded-lg animate-pulse" />
                 }
 
 
             </div>
         </article>
         <div className="max-w-prose mx-auto mb-4 px-4 lg:px-0">
-            <h2 className="text-lg font-semibold mb-2">
-                Files
-            </h2>
+            {
+                files.length > 0 && <h2 className="text-lg font-semibold mb-2">
+                    Files
+                </h2>
+            }
             <div className="flex flex-col items-center space-y-2">
                 {
                     files.map((f, id) => {

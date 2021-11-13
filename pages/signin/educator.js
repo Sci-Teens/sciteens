@@ -46,7 +46,17 @@ export default function MentorSignIn() {
             const res = await signInWithEmailAndPassword(auth, email, password)
             const prof = await getDoc(doc(firestore, 'profiles', res.user.uid))
             setProfile(prof.data())
-            router.push(`/profile/${prof.data().slug}`)
+            if (router.query.ref) {
+                let ref = router.query.ref.split("|")
+                let section = ref[0]
+                let id = ref[1]
+                if (section == "projects") {
+                    section = "project"
+                }
+                router.push(`/${section}/${id}`)
+            } else {
+                router.push('/')
+            }
         }
 
         catch (e) {
@@ -116,17 +126,24 @@ export default function MentorSignIn() {
 
         >
             <Head>
-                <title>Mentor Sign In</title>
+                <title>Educator Sign In | SciTeens</title>
                 <link rel="icon" href="/favicon.ico" />
+                <meta name="description" content="Sign in to SciTeens" />
+                <meta name="keywords" content="SciTeens, sciteens, mentor sign in, teen science" />
             </Head>
             <main>
                 <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow rounded-lg">
                     <h1 className="text-3xl text-center font-semibold mb-2">
-                        Mentor Sign-in
+                        Educator Sign-in
                     </h1>
                     <p className="text-gray-700 text-center mb-6">
                         Sign in now to empower the next generation of young scientists. Are you a student?&nbsp;
-                        <Link href="/signin/student">
+                        <Link href={router.query?.ref ? {
+                            pathname: '/signin/student',
+                            query: {
+                                ref: (router.query?.ref)
+                            }
+                        } : '/signin/student'} >
                             <a className="font-bold cursor-pointer">
                                 Sign in here.
                             </a>
@@ -187,8 +204,12 @@ export default function MentorSignIn() {
                     <div className="mt-4 flex justify-center">
                         <p className="text-gray-700">
                             New here?&nbsp;
-                            <Link href="/signup/mentor"
-
+                            <Link href={router.query?.ref ? {
+                                pathname: '/signup/educator',
+                                query: {
+                                    ref: (router.query?.ref)
+                                }
+                            } : '/signup/educator'}
                             >
                                 <a className="font-bold">Sign up</a>
 

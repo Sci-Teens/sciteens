@@ -63,7 +63,10 @@ export default function UpdateProfilePage({ user_profile }) {
 
     useEffect(() => {
         if (status == "success" && !signInCheckResult?.signedIn) {
-            router.push("/signup")
+            router.push({
+                pathname: '/signin/student',
+                query: { ref: `profile|${user_profile.slug}` }
+            })
         }
 
         else if (status == "success" && router.query.slug != profile.slug && signInCheckResult.user.uid != profile.id) {
@@ -202,11 +205,11 @@ export default function UpdateProfilePage({ user_profile }) {
 
     if (status == "success" && signInCheckResult.signedIn) {
         return (<>
-            <div className="relative mx-auto px-4 mt-8 mb-4 z-30 text-left w-full md:w-96">
-                <h1 className="text-2xl">
+            <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow rounded-lg">
+                <h1 className="text-3xl text-center font-semibold mb-2">
                     Update your Profile
                 </h1>
-                <p className="text-gray-700 mb-2">
+                <p className="text-gray-700 text-center mb-6">
                     Edit your profile to add more information about yourself or to change your information.
                 </p>
                 <form onSubmit={(e) => updateProfile(e)}>
@@ -219,9 +222,9 @@ export default function UpdateProfilePage({ user_profile }) {
                         name="about"
                         rows="7"
                         required
-                        className={`appearance-none border-transparent border-2 bg-green-200 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 ${error_about
+                        className={`appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none ${error_about
                             ? 'border-red-700 text-red-800 placeholder-red-700'
-                            : 'focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular'}`}
+                            : 'focus:border-sciteensLightGreen-regular focus:bg-white text-gray-700'}`}
                         type="textarea"
                         placeholder="Tell us about yourself..."
                         aria-label="about"
@@ -244,7 +247,7 @@ export default function UpdateProfilePage({ user_profile }) {
                     }
 
                     <div className="mb-4"></div>
-                    <div {...getRootProps()} className={`w-full h-40 border-2 ${error_file ? 'bg-red-200 hover:bg-red-300' : 'bg-green-200 hover:bg-green-300'}  rounded-lg text-gray-700 border-gray-600 border-dashed flex items-center justify-center text-center`}>
+                    <div {...getRootProps()} className={`w-full h-40 border-2 ${error_file ? 'bg-red-200 hover:bg-red-300' : 'bg-gray-100 hover:bg-gray-200'}  rounded-lg text-gray-700 border-gray-600 border-dashed flex items-center justify-center text-center`}>
                         <input {...getInputProps()} />
                         {
                             isDragActive ?
@@ -277,28 +280,26 @@ export default function UpdateProfilePage({ user_profile }) {
                         }
                     </div>
 
-                    <div className="w-full flex justify-end mt-4">
-                        <Link href={`/profile/${user_profile.slug}`}>
-                            <a className="rounded-lg p-2 bg-gray-200 opacity-50 hover:bg-opacity-100 shadow border-2 border-gray-500 outline-none disabled:opacity-50 mr-2">
-                                Cancel
-                            </a>
-                        </Link>
+                    <div className="w-full flex justify-end">
                         <button
                             type="submit"
                             disabled={loading || error_about || error_file}
-                            className="bg-sciteensLightGreen-regular text-white rounded-lg p-2 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
-                            onClick={e => updateProfile(e)}
-                        >
+                            className="bg-sciteensLightGreen-regular text-white mr-2 text-lg font-semibold rounded-lg p-2 mt-4 w-full hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
+                            onClick={e => updateProfile(e)}>
                             Update
                             {
                                 loading &&
                                 <img
                                     src="~/assets/loading.svg"
                                     alt="Loading Spinner"
-                                    className="h-5 w-5 inline-block"
-                                />
+                                    className="h-5 w-5 inline-block" />
                             }
                         </button>
+                        <Link href={`/profile/${user_profile.slug}`}>
+                            <a className="bg-gray-100 text-black ml-2 text-center text-lg font-semibold rounded-lg p-2 mt-4 w-full hover:bg-gray-200 border-2 border-gray-200 hover:border-gray-300 shadow outline-none disabled:opacity-50">
+                                Cancel
+                            </a>
+                        </Link>
                     </div>
                 </form>
             </div>

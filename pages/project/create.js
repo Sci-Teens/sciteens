@@ -21,6 +21,7 @@ export default function CreateProject() {
     const [abstract, setAbstract] = useState('')
     const [member, setMember] = useState('')
     const [members, setMembers] = useState([])
+    const [select_photo_mode, setMode] = useState(false)
     const [field_names] = useState([
         "Biology",
         "Chemistry",
@@ -71,7 +72,10 @@ export default function CreateProject() {
 
     useEffect(() => {
         if (status == "success" && !signInCheckResult?.signedIn) {
-            router.push("/signup")
+            router.push({
+                pathname: '/signin/student',
+                query: { ref: 'project|create' }
+            })
         }
     })
 
@@ -112,7 +116,7 @@ export default function CreateProject() {
                         }
                     })
                     const downloadURL = await getDownloadURL(fileRef)
-                    await updateDoc(res.path, {
+                    await updateDoc(res, {
                         project_photo: downloadURL,
                     })
                 }
@@ -183,7 +187,11 @@ export default function CreateProject() {
             case "end_date":
                 setEndDate(e.target.value)
                 if (e.target.value == "") {
-                    setErrorEndDate("Please set a valid start date")
+                    setErrorEndDate("Please set a valid end date")
+                }
+
+                else if (start_date != "" && start_date >= e.target.value) {
+                    setErrorEndDate("End date must come after start date")
                 }
 
                 else {
@@ -267,9 +275,15 @@ export default function CreateProject() {
         setFiles([...temp])
     }
 
-    const setPhoto = (e, file) => {
-        e.preventDefault()
-        setProjectPhoto(file.name)
+    const setPhoto = (e, id) => {
+        e?.preventDefault()
+        let temp_files = files
+        let new_project_photo = files[id]
+        temp_files[id] = temp_files[0]
+        temp_files[0] = new_project_photo
+        setProjectPhoto(new_project_photo.name)
+        setFiles(temp_files)
+        setMode(false)
     }
 
     if (status == "success" && signInCheckResult.signedIn) {
@@ -428,27 +442,31 @@ export default function CreateProject() {
                         <p className="text-sm text-red-800 mb-4">
                             {error_file}
                         </p>
-                        <div className="flex flex-col items-center space-y-2">
-                            {
-                                files.map((f, id) => {
-                                    return (
-                                        <File file={f} id={id} key={f.name} removeFile={removeFile} setPhoto={setPhoto}></File>
-                                    )
-                                })
-                            }
-                        </div>
-                        {
-                            project_photo && <label for="project_photo" className="uppercase text-gray-600 mt-2">
-                                Project Photo
-                            </label>
+                        {files.length == 0 &&
+                            <p className="text-sm">It's suggested you have at least one photo for display purposes.</p>
                         }
-                        <div>
-                            {
-                                files.map((f, id) => {
-                                    if (f.name == project_photo) {
-                                        return <File file={f} id={id} key={f.name} removeFile={removeFile} setPhoto={setPhoto}></File>
+                        {files.length != 0 &&
+                            <div className="mb-6">
+                                {files.length > 1 &&
+                                    <p className="mb-2">Since you have more than one photo, you can <span onClick={() => setMode(!select_photo_mode)} className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold cursor-pointer">change your display photo</span>.</p>
+                                }
+                                <label htmlFor="project_photo" className="uppercase text-gray-600 mt-2">Display Photo</label>
+                                <File file={files[0]} id={files[0].id} removeFile={removeFile} setPhoto={setPhoto}></File>
+                            </div>
+                        }
+                        <div className="flex flex-col space-y-3">
+                            {files.length > 1 &&
+                                <>
+                                    <label htmlFor="other_photos" className="uppercase text-gray-600 mt-2 text-left -mb-3">Other Photo{files.length > 1 ? "s" : ""}</label>
+                                    {files.map((f, id) => {
+                                        if (project_photo != "" && f.name != project_photo || id > 0)
+                                            return <div className="flex flex-row w-full">
+                                                <button onClick={e => setPhoto(e, id)} className={`transition-all duration-500 border-2 text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:bg-gray-50 rounded-lg ${select_photo_mode ? "px-3 mr-4" : "border-none w-0 overflow-hidden"}`}>Select</button>
+                                                <File file={f} id={id} key={f.id} removeFile={removeFile} setPhoto={setPhoto}></File>
+                                            </div>
+                                    })
                                     }
-                                })
+                                </>
                             }
                         </div>
                         <button

@@ -1,10 +1,13 @@
 var Prismic = require("@prismicio/client");
-import Link from 'next/link'
+import Link from 'next/link';
 import Image from 'next/image';
 import { RichText } from 'prismic-reactjs';
-import { useRouter } from "next/router"
+import { useRouter } from "next/router";
 import Head from 'next/head';
-import { useState, } from 'react';
+import { useState, useEffect } from 'react';
+import { useSpring, animated, config } from '@react-spring/web';
+import moment from 'moment';
+import { resolveConfigFile } from 'prettier';
 
 
 function Courses({ courses }) {
@@ -31,6 +34,13 @@ function Courses({ courses }) {
         return `${src}?fit=crop&crop=faces&w=${width || 256}&h=${height || 256}`
     }
 
+    useEffect(() => {
+        if (router?.isReady) {
+            setSearch(router.query?.search ? router.query.search : '')
+            setField(router.query?.field ? router.query.field : '')
+        }
+    }, [router])
+
     async function handleChange(e, target) {
         e.preventDefault();
         switch (target) {
@@ -56,43 +66,63 @@ function Courses({ courses }) {
             pathname: '/courses',
             query: q
         })
+        setField(field)
     }
+
+    // REACT SPRING ANIMATIONS
+    useEffect(() => {
+        set({ opacity: 0, transform: 'translateX(150px)', config: { tension: 10000, clamp: true } })
+        window.setTimeout(function () { set({ opacity: 1, transform: 'translateX(0)', config: config.slow }) }, 10)
+    }, [courses])
+
+    const [courses_spring, set] = useSpring(() => ({
+        opacity: 1,
+        transform: 'translateX(0)',
+        from: {
+            opacity: 0,
+            transform: 'translateX(150px)'
+        },
+        config: config.slow
+    }))
+
 
     const coursesComponent = courses.results.map((course, index) => {
 
         return (
             <Link key={course.uid} href={`/course/${course.uid}`}>
 
-                <div className="p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center">
-                    <div className="h-full w-1/4 relative">
+                <animated.div style={courses_spring} className="cursor-pointer p-4 bg-white shadow rounded-lg z-50 mt-6 md:mt-8 flex items-center">
+                    <div className="h-full max-w-[100px] md:max-w-[200px] relative">
                         <Image className="rounded-lg object-cover flex-shrink-0" loader={imageLoader} src={course.data.image_main.url} width={256} height={256} />
-
                     </div>
                     <div className="ml-4 w-3/4 lg:w-11/12">
-                        <h3 className="font-semibold text-lg">{RichText.asText(course.data.name)}</h3>
-                        <p className="hidden lg:block">{RichText.asText(course.data.description)}</p>
+                        <h3 className="font-semibold text-base md:text-xl lg:text-2xl mb-2 line-clamp-2">{RichText.asText(course.data.name)}</h3>
+                        <p className="hidden md:block mb-2 line-clamp-none md:line-clamp-2 lg:line-clamp-3">{RichText.asText(course.data.description)}</p>
+                        <p className="hidden lg:flex text-xs">{moment(course.data.start).format('ll') + " - " + moment(course.data.end).format('ll')}</p>
                     </div>
 
-                </div>
+                </animated.div>
             </Link >
         )
     })
     return (
         <>
             <Head>
-                <title>Courses</title>
+                <title>{field ? field + ' ' : ''}Courses {search ? 'related to ' + search : ''} | SciTeens</title>
                 <link rel="icon" href="/favicon.ico" />
+                <meta name="description" content="SciTeens Courses Page" />
+                <meta name="keywords" content="SciTeens, sciteens, courses, teen science" />
             </Head>
-            <div className="min-h-screen mx-auto lg:mx-16 xl:mx-32 flex flex-row mt-8 mb-24">
+            <div className="min-h-screen mx-auto lg:mx-16 xl:mx-32 flex flex-row mt-8 mb-24 overflow-x-hidden md:overflow-visible">
                 <div className="w-11/12 md:w-[85%] mx-auto lg:mx-0 lg:w-[60%]">
-                    <h1 className="text-4xl py-4 text-left ml-4">
-                        📰 Latest Courses
+                    <h1 className="text-4xl py-4 text-left ml-4 font-semibold">
+                        Latest Courses 📖
                     </h1>
                     {coursesComponent}
-                    {courses.length &&
+                    {courses.results.length == 0 &&
                         <div className="mx-auto text-center mt-20">
                             <i className="font-semibold text-xl">
-                                Sorry, we couldn't find any searches related to {router?.query.search}
+                                Sorry, we couldn't find any searches related to {router?.query.search == undefined ? router?.query.field : router?.query.search}
                             </i>
                         </div>
                     }
@@ -124,10 +154,11 @@ function Courses({ courses }) {
                         <h2 className="text-xl text-gray-700 mb-2">Topics</h2>
                         <div className="flex flex-row flex-wrap">
                             {
-                                field_names.map((field) => {
+                                field_names.map((f) => {
                                     return (
-                                        <button onClick={() => handleFieldSearch(field)} className="text-sm px-3 py-2 bg-white rounded-full mr-4 mb-4 shadow">
-                                            {field}
+                                        <button key={f} onClick={() => handleFieldSearch(f)} className={`text-sm px-3 py-2 rounded-full mr-4 mb-4 shadow
+                                        ${f == field ? "bg-sciteensLightGreen-regular text-white" : "bg-white"}`}>
+                                            {f}
                                         </button>
                                     )
                                 })

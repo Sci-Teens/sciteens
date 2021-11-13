@@ -1,17 +1,23 @@
 import Link from "next/link"
 import { useState } from "react"
+import { useRouter } from "next/router"
 import Head from "next/head"
 
 export default function SignUpIndex() {
     const [show_mentor_info, setShowMentorInfo] = useState(false)
     const [show_student_info, setShowStudentInfo] = useState(false)
 
+    const router = useRouter()
+
+    console.log(router);
 
     return (
         <div >
             <Head>
-                <title>Sign Up for SciTeens</title>
+                <title>Sign Up | SciTeens</title>
                 <link rel="icon" href="/favicon.ico" />
+                <meta name="description" content="Sign up for SciTeens" />
+                <meta name="keywords" content="SciTeens, sciteens, sign up, teen science" />
             </Head>
             <main className="h-screen flex justify-center -mt-8">
                 <div className="flex flex-col justify-center items-center text-center">
@@ -20,12 +26,22 @@ export default function SignUpIndex() {
                     </h1>
                     <div className="mx-auto">
                         Have an account?&nbsp;
-                        <Link href="/signin/student" >
+                        <Link href={router.query?.ref ? {
+                            pathname: '/signin/student',
+                            query: {
+                                ref: (router.query?.ref)
+                            }
+                        } : '/signin/student'} >
                             <a className="font-bold">Sign In instead</a>
                         </Link>
                     </div>
                     <div className="flex flex-wrap mx-auto justify-center">
-                        <Link href="/signup/student">
+                        <Link href={router.query?.ref ? {
+                            pathname: '/signup/student',
+                            query: {
+                                ref: (router.query?.ref)
+                            }
+                        } : '/signup/student'} >
                             <a className="rounded bg-white shadow h-56 w-56 m-6 hover:shadow-md">
                                 {show_student_info ?
                                     <div className="relative pt-8">
@@ -64,9 +80,12 @@ export default function SignUpIndex() {
                             </a>
 
                         </Link>
-                        <Link href="/signup/mentor"
-
-                        >
+                        <Link href={router.query?.ref ? {
+                            pathname: '/signup/educator',
+                            query: {
+                                ref: (router.query?.ref)
+                            }
+                        } : '/signup/educator'} >
                             <a className="rounded bg-white shadow h-56 w-56 m-6 hover:shadow-md">
                                 {show_mentor_info ?
                                     <div className="relative pt-8">
@@ -80,8 +99,8 @@ export default function SignUpIndex() {
                                             }}
                                         />
                                         <h2 className="text-lg text-sciteensGreen-regular mx-2">
-                                            Sign up as a mentor if you are in higher academia or industry, and
-                                            want to mentor STEM high school students.
+                                            Sign up as an educator if you are in academia or industry, and
+                                            want to help STEM high school students.
                                         </h2>
                                     </div> :
                                     <div className="relative">
@@ -100,8 +119,11 @@ export default function SignUpIndex() {
                                             className="h-40 p-4 mx-auto"
                                         />
                                         <h2 className="text-xl text-sciteensGreen-regular">
-                                            Mentor
+                                            Educator
                                         </h2>
+                                        <p className="text-gray-700 text-sm italic">
+                                            (And other options...)
+                                        </p>
                                     </div>}
                             </a>
 
@@ -110,11 +132,8 @@ export default function SignUpIndex() {
                     <div className="mx-auto mb-1/4">
                         <p className="text-gray-700">
                             Neither of the above?&nbsp;
-                            <Link href="/getinvolved"
-
-                            >
+                            <Link href="/getinvolved">
                                 <a className="font-bold">See how you can help</a>
-
                             </Link>
                         </p>
                     </div >

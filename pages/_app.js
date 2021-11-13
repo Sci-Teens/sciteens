@@ -5,6 +5,15 @@ import firebaseConfig from '../firebaseConfig';
 import { FirebaseAppProvider } from 'reactfire';
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
+import "../styles/nprogress.css";
+import dynamic from 'next/dynamic'
+
+const TopProgressBar = dynamic(
+  () => {
+    return import("../components/TopProgressBar");
+  },
+  { ssr: false },
+);
 
 function MyApp({ Component, pageProps }) {
   const [profile, setUserProfile] = useState({})
@@ -38,6 +47,7 @@ function MyApp({ Component, pageProps }) {
       </Head>
       < FirebaseAppProvider firebaseConfig={firebaseConfig} >
         <AppContext.Provider value={{ profile, setProfile }}>
+          <TopProgressBar></TopProgressBar>
           <Layout>
             <Component {...pageProps} />
           </Layout>

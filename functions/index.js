@@ -126,181 +126,126 @@ exports.newUser = functions.auth.user().onCreate(async (user) => {
 
 exports.newProfile = functions.firestore
     .document("profiles/{profileID}")
-    .onCreate((profile) => {
+    .onCreate(async (profile) => {
         let id = profile.id;
         let data = { ...profile.data() };
 
-        // Determine if the user is a mentor or not
-        if (data.mentor) {
-            // Give the user a mentor token
-            admin
-                .auth()
-                .setCustomUserClaims(id, { mentor: true })
-                .then(() => {
-                    // Get the user's email
-                    admin
-                        .auth()
-                        .getUser(id)
-                        .then((user) => {
-                            let email = user.email;
-                            const actionCodeSettings = {
-                                url: "https://sciteens.org/",
-                                handleCodeInApp: false,
-                            };
-                            // Send the user an email verification
-                            admin
-                                .auth()
-                                .generateEmailVerificationLink(email, actionCodeSettings)
-                                .then((link) => {
-                                    const request = mailjet
-                                        .post("send", { version: "v3.1" })
-                                        .request({
-                                            Messages: [
-                                                {
-                                                    From: {
-                                                        Email: "noreply@sciteens.org",
-                                                        Name: "SciTeens",
-                                                    },
-                                                    To: [
-                                                        {
-                                                            Email: email,
-                                                            Name: data.display ? data.display : email,
-                                                        },
-                                                    ],
-                                                    TemplateID: 1267257,
-                                                    TemplateLanguage: true,
-                                                    Subject: "Verify Email",
-                                                    Variables: {
-                                                        link: link,
-                                                    },
-                                                },
-                                            ],
-                                        });
-                                    return request
-                                        .then((result) => {
-                                            console.log(result.body);
+        // Send email verification
+        const user = await admin.auth().getUser(id)
+        const email = user.email;
+        const actionCodeSettings = {
+            url: "https://sciteens.org/",
+            handleCodeInApp: false,
+        };
+        const verification_link = await admin.auth().generateEmailVerificationLink(email, actionCodeSettings)
+        const request = mailjet
+            .post("send", { version: "v3.1" })
+            .request({
+                Messages: [
+                    {
+                        From: {
+                            Email: "noreply@sciteens.org",
+                            Name: "SciTeens",
+                        },
+                        To: [
+                            {
+                                Email: email,
+                                Name: data.display ? data.display : email,
+                            },
+                        ],
+                        TemplateID: 1267257,
+                        TemplateLanguage: true,
+                        Subject: "Verify Email",
+                        Variables: {
+                            link: verification_link,
+                        },
+                    },
+                ],
+            });
+        await request
 
-                                            // Send mentor welcome email
-                                            return mailjet.post("send", { version: "v3.1" }).request({
-                                                Messages: [
-                                                    {
-                                                        From: {
-                                                            Email: "noreply@sciteens.org",
-                                                            Name: "SciTeens",
-                                                        },
-                                                        To: [
-                                                            {
-                                                                Email: email,
-                                                                Name: data.display ? data.display : email,
-                                                            },
-                                                        ],
-                                                        TemplateID: 1664806,
-                                                        TemplateLanguage: true,
-                                                        Subject: "Welcome to SciTeens!",
-                                                        Variables: {
-                                                            displayName: data.display ? data.display : email,
-                                                        },
-                                                    },
-                                                ],
-                                            });
-                                        })
-                                        .then(() => {
-                                            // Add contact to mentor email list
-                                            return mailjet
-                                                .post("listrecipient", { version: "v3" })
-                                                .request({
-                                                    IsUnsubscribed: "false",
-                                                    ContactAlt: email,
-                                                    ListID: "10251293",
-                                                });
-                                        })
-                                        .then(() => {
-                                            // Add contact to all email list
-                                            return mailjet
-                                                .post("listrecipient", { version: "v3" })
-                                                .request({
-                                                    IsUnsubscribed: "false",
-                                                    ContactAlt: email,
-                                                    ListID: "10251294",
-                                                });
-                                        })
-                                        .catch((err) => {
-                                            console.error(err.statusCode);
-                                            console.error(err);
-                                        });
-                                })
-                                .catch((err) => {
-                                    console.error(err);
-                                })
-                                .catch((err) => {
-                                    console.log(err);
-                                });
-                        })
-                        .catch((err) => {
-                            console.log(err);
-                        });
-                })
-                .catch((err) => {
-                    return err;
-                });
-        }
+        // Add to all contact list
+        await mailjet
+            .post("listrecipient", { version: "v3" })
+            .request({
+                IsUnsubscribed: "false",
+                ContactAlt: email,
+                ListID: "10251294",
+            });
 
-        // Send welcome email to student
-        else {
-            return admin
-                .auth()
-                .getUser(id)
-                .then((user) => {
-                    // Send the user a welcome email
-                    mailjet
-                        .post("send", { version: "v3.1" })
-                        .request({
-                            Messages: [
-                                {
-                                    From: {
-                                        Email: "noreply@sciteens.org",
-                                        Name: "SciTeens",
-                                    },
-                                    To: [
-                                        {
-                                            Email: user.email,
-                                            Name: user.displayName ? user.displayName : user.email,
-                                        },
-                                    ],
-                                    TemplateID: 1219498,
-                                    TemplateLanguage: true,
-                                    Subject: "Welcome to SciTeens!",
-                                    Variables: {
-                                        displayName: user.displayName
-                                            ? user.displayName
-                                            : user.email,
-                                    },
+        // Handle sending emails based on user type
+        switch (data.position) {
+            case "Educator":
+            case "Professional":
+            case "Researcher":
+            case "Prefer not to answer":
+                await admin.auth().setCustomUserClaims(id, { mentor: true })
+                await mailjet
+                    .post("listrecipient", { version: "v3" })
+                    .request({
+                        IsUnsubscribed: "false",
+                        ContactAlt: email,
+                        ListID: "10251293",
+                    });
+
+                await mailjet
+                    .post("send", { 'version': 'v3.1' })
+                    .request({
+                        "Messages": [
+                            {
+                                "From": {
+                                    "Email": "noreply@sciteens.org",
+                                    "Name": "SciTeens"
                                 },
-                            ],
-                        })
-                        .then((result) => {
-                            console.log(result.body);
-
-                            // Add contact to student email list
-                            return mailjet.post("listrecipient", { version: "v3" }).request({
-                                IsUnsubscribed: "false",
-                                ContactAlt: user.email,
-                                ListID: "10251292",
-                            });
-                        })
-                        .then(() => {
-                            // Add contact to all email list
-                            return mailjet.post("listrecipient", { version: "v3" }).request({
-                                IsUnsubscribed: "false",
-                                ContactAlt: user.email,
-                                ListID: "10251294",
-                            });
-                        })
-                        .catch((err) => {
-                            console.error(err.statusCode);
-                            console.error(err);
-                        });
+                                "To": [
+                                    {
+                                        "Email": "passenger1@example.com",
+                                        "Name": "passenger 1"
+                                    }
+                                ],
+                                "TemplateID": 3336350,
+                                "TemplateLanguage": true,
+                                "Subject": "Welcome to SciTeens!",
+                                "Variables": {
+                                    displayName: user.displayName
+                                }
+                            }
+                        ]
+                    })
+                break;
+            default:
+                await mailjet.post("listrecipient", { version: "v3" }).request({
+                    IsUnsubscribed: "false",
+                    ContactAlt: user.email,
+                    ListID: "10251292",
                 });
+
+                // Send student welcome 
+                await mailjet
+                    .post("send", { 'version': 'v3.1' })
+                    .request({
+                        "Messages": [
+                            {
+                                "From": {
+                                    "Email": "noreply@sciteens.org",
+                                    "Name": "SciTeens"
+                                },
+                                "To": [
+                                    {
+                                        "Email": "passenger1@example.com",
+                                        "Name": "passenger 1"
+                                    }
+                                ],
+                                "TemplateID": 3336347,
+                                "TemplateLanguage": true,
+                                "Subject": "Welcome to SciTeens!",
+                                "Variables": {
+                                    displayName: user.displayName
+                                }
+                            }
+                        ]
+                    })
+                break;
         }
     });
 

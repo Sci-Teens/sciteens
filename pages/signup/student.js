@@ -21,6 +21,7 @@ export default function StudentSignUp() {
             "Please verify your email before signing in",
     }
 
+
     const [first_name, setFirstName] = useState('')
     const [last_name, setLastName] = useState('')
     const [email, setEmail] = useState('')
@@ -193,7 +194,7 @@ export default function StudentSignUp() {
             fields: [],
             programs: [],
             links: [],
-            joined: moment.toISOString(),
+            joined: moment().toISOString(),
             birthday: moment(birthday).toISOString(),
             institution: "",
             position: "",
@@ -214,8 +215,7 @@ export default function StudentSignUp() {
         }
 
         try {
-            const unique_slug = await createUniqueSlug(first_name.toLowerCase() + "-" + last_name.toLowerCase(), 1)
-            console.log(unique_slug)
+            unique_slug = await createUniqueSlug(first_name.toLowerCase() + "-" + last_name.toLowerCase(), 1)
         }
 
         catch (e) {
@@ -258,7 +258,17 @@ export default function StudentSignUp() {
         try {
             await updateProfile(res.user, { displayName: first_name + " " + last_name })
             setProfile(profile)
-            router.push('/signup/thanks')
+            if (router.query.ref) {
+                let ref = router.query.ref.split("|")
+                let section = ref[0]
+                let id = ref[1]
+                if (section == "projects") {
+                    section = "project"
+                }
+                router.push(`/${section}/${id}`)
+            } else {
+                router.push('/')
+            }
         }
 
         catch (e) {
@@ -282,7 +292,17 @@ export default function StudentSignUp() {
             else {
                 const prof = await getDoc(doc(firestore, 'profiles', res.user.uid))
                 setProfile(prof.data())
-                router.push(`/profile/${prof.data().slug}`)
+                if (router.query.ref) {
+                    let ref = router.query.ref.split("|")
+                    let section = ref[0]
+                    let id = ref[1]
+                    if (section == "projects") {
+                        section = "project"
+                    }
+                    router.push(`/${section}/${id}`)
+                } else {
+                    router.push('/')
+                }
             }
         } catch (e) {
             console.error(e)
@@ -293,8 +313,10 @@ export default function StudentSignUp() {
     return (
         <div>
             <Head>
-                <title>Student Sign Up</title>
+                <title>Student Sign Up | SciTeens</title>
                 <link rel="icon" href="/favicon.ico" />
+                <meta name="description" content="Mentor sign up for SciTeens" />
+                <meta name="keywords" content="SciTeens, sciteens, sign up, teen science" />
             </Head>
             <main>
                 <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow rounded-lg">
@@ -404,48 +426,58 @@ export default function StudentSignUp() {
                         </p>
 
                         <label for="gender" className="uppercase text-gray-600">Gender</label>
-                        <select
-                            onChange={e => setGender(e.target.value)}
-                            name="gender"
-                            id="gender"
-                            value={gender}
-                            className="mb-4 appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:placeholder-gray-700 focus:bg-white focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
-                        >
-                            <option selected value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
-                            <option value="Prefer not to answer">Prefer not to answer</option>
-                        </select>
+                        <div className="relative w-full">
+                            <select
+                                onChange={e => setGender(e.target.value)}
+                                name="gender"
+                                id="gender"
+                                value={gender}
+                                className="mb-4 appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:placeholder-gray-700 focus:bg-white focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
+                            >
+                                <option selected value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                                <option value="Prefer not to answer">Prefer not to answer</option>
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+                            </div>
+                        </div>
 
                         <label for="race" className="uppercase text-gray-600">Race</label>
-                        <select
-                            onChange={e => setRace(e.target.value)}
-                            name="race"
-                            id="race"
-                            value={race}
-                            className="mb-4 appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:placeholder-gray-700 focus:bg-white focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
-                        >
-                            <option selected value="American Indian or Alaska Native">
-                                American Indian or Alaska Native
-                            </option>
-                            <option
-                                value="Asian (including Indian subcontinent and Philippines origin)"
-                            >Asian (including Indian subcontinent and Philippines origin)
-                            </option>
-                            <option value="Black or African American"
-                            >Black or African American
-                            </option>
-                            <option value="Hispanic or Latino"
-                            >Hispanic or Latino
-                            </option>
-                            <option value="White (including Middle Eastern origin)"
-                            >White (including Middle Eastern origin)
-                            </option>
-                            <option value="Native Hawaiian or Other Pacific Islander"
-                            >Native Hawaiian or Other Pacific Islander
-                            </option>
-                            <option value="Prefer not to answer">Prefer not to answer</option>
-                        </select>
+                        <div className="relative w-full">
+                            <select
+                                onChange={e => setRace(e.target.value)}
+                                name="race"
+                                id="race"
+                                value={race}
+                                className="mb-4 appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:placeholder-gray-700 focus:bg-white focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
+                            >
+                                <option selected value="American Indian or Alaska Native">
+                                    American Indian or Alaska Native
+                                </option>
+                                <option
+                                    value="Asian (including Indian subcontinent and Philippines origin)"
+                                >Asian (including Indian subcontinent and Philippines origin)
+                                </option>
+                                <option value="Black or African American"
+                                >Black or African American
+                                </option>
+                                <option value="Hispanic or Latino"
+                                >Hispanic or Latino
+                                </option>
+                                <option value="White (including Middle Eastern origin)"
+                                >White (including Middle Eastern origin)
+                                </option>
+                                <option value="Native Hawaiian or Other Pacific Islander"
+                                >Native Hawaiian or Other Pacific Islander
+                                </option>
+                                <option value="Prefer not to answer">Prefer not to answer</option>
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+                            </div>
+                        </div>
                         <div id="recaptcha-container" className="flex w-full justify-center mb-4">
                         </div>
                         <div>
@@ -503,7 +535,12 @@ export default function StudentSignUp() {
                     <div className="mt-4 flex justify-center">
                         <p className="text-gray-700">
                             Have an account?&nbsp;
-                            <Link href="/signin/student">
+                            <Link href={router.query?.ref ? {
+                                pathname: '/signin/student',
+                                query: {
+                                    ref: (router.query?.ref)
+                                }
+                            } : '/signin/student'} >
                                 <a className="font-bold">Sign in</a>
                             </Link>
                         </p>

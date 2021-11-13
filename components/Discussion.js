@@ -80,6 +80,14 @@ export default function Discussion({ type, item_id }) {
     }, 1000), [])
 
     const postComment = async (e) => {
+        e.preventDefault()
+        if (!signInCheckResult?.signedIn) {
+            router.push({
+                pathname: '/signup',
+                query: { ref: `${type}|${item_id}` }
+            })
+            return
+        }
         console.log(e)
         if (process.client) {
             document.getElementById('discussion-form').checkValidity()
@@ -112,7 +120,7 @@ export default function Discussion({ type, item_id }) {
                 <h2 className="text-3xl font-bold text-black mb-4">
                     Discussion
                 </h2>
-                <label for="comment" className="uppercase text-gray-600">Comment</label>
+                <label htmlFor="comment" className="uppercase text-gray-600">Comment</label>
                 <textarea
                     onChange={e => onChange(e, true, -1)}
                     value={comment}
@@ -140,7 +148,7 @@ export default function Discussion({ type, item_id }) {
                         Cancel
                     </button>
                     <button
-                        type="submit" disabled={loading || error_comment || !signInCheckResult?.signedIn}
+                        type="submit" disabled={loading || error_comment}
                         className="bg-sciteensLightGreen-regular text-white rounded-lg p-2 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
                         onClick={e => postComment(e)}
                     >

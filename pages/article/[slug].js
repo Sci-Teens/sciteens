@@ -17,6 +17,18 @@ function Article({ article, recommendations }) {
         return `${src}?fit=crop&crop=faces&w=${width || 582}&h=${height || 389}`
     }
 
+    function readingTime(article) {
+        let article_length = 0
+        article.map((text) => {
+            if (text.type = "paragraph" && text.text) {
+                article_length += text.text?.split(' ').length
+            }
+        })
+        let time_to_read = Math.round(article_length / 200)
+
+        return `${time_to_read} minute read · ${article_length} words`
+    }
+
     const about_the_author = article.data.body.map((slice, index) => {
         if (slice.slice_type == "about_the_author") {
             return (
@@ -69,22 +81,24 @@ function Article({ article, recommendations }) {
         }
     })
 
-    const recommendationsRendered = recommendations.map((a) => {
-        <Link key={a.uid} href={`/article/${a.uid}`}>
-            <div className="p-4 bg-white shadow rounded-lg z-50 mt-4 flex items-center w-full">
-                <div className="h-full w-1/4 lg:w-1/12 relative">
+    const recommendationsRendered = recommendations.map((a, index) => {
+        return (<Link key={index} href={`/article/${a.uid}`}>
+            <a className="cursor-pointer p-4 bg-white shadow rounded-lg z-50 mt-6 md:mt-8 flex flex-row items-center">
+                <div className="h-full max-w-[100px] md:max-w-[200px] relative">
                     <Image className="rounded-lg object-cover flex-shrink-0" loader={imageLoader} src={a.data.image.url} width={256} height={256} />
                 </div>
                 <div className="ml-4 w-3/4 lg:w-11/12">
-                    <h3 className="font-semibold text-lg">{RichText.asText(a.data.title)}</h3>
-                    <p className="hidden lg:block">{a.data.description}</p>
-                    <div className="flex flex-row items-center mt-2">
-                        {author_image}
-                        <p className="ml-2">By {a.data.author}</p>
+                    <div className="flex flex-row items-center mb-3">
+                        {/* {author_image} */}
+                        <p className="ml-3">{a.data.author}</p>
                     </div>
+                    <h3 className="font-semibold text-base md:text-xl lg:text-2xl mb-2 line-clamp-2">{RichText.asText(a.data.title)}</h3>
+                    <p className="hidden md:flex text-sm lg:text-base mb-2 line-clamp-none md:line-clamp-2">{a.data.description}</p>
+                    <p className="hidden lg:flex text-xs">{moment(a.data.date).format('ll') + " · " + readingTime(a.data.text)}</p>
                 </div>
-            </div>
-        </Link >
+
+            </a>
+        </Link >)
     })
 
     const router = useRouter()
@@ -94,10 +108,12 @@ function Article({ article, recommendations }) {
                 isAmp ? <h3>AMP article in progess...</h3> :
                     <>
                         <Head>
-                            <title>{RichText.asText(article.data.title)}</title>
+                            <title>{RichText.asText(article.data.title)} | SciTeens</title>
                             <link rel="icon" href="/favicon.ico" />
+                            <meta name="description" content={article.data.description} />
+                            <meta name="keywords" content="SciTeens, sciteens, article, teen science" />
                         </Head>
-                        <article className="prose-sm lg:prose mx-auto px-4 overflow-hidden break-words mt-8">
+                        <article className="prose prose-sm lg:prose-lg mx-auto px-4 overflow-hidden break-words mt-8">
                             <div>
                                 <h1>
                                     {RichText.asText(article.data.title)}
@@ -116,7 +132,7 @@ function Article({ article, recommendations }) {
                             </div>
                             <div>
                                 {/* Image Slider */}
-                                <Image loader={imageLoader} src={article.data.image.url} width="582" height="389" className="w-full mt-0 object-contain" />
+                                <Image loader={imageLoader} src={article.data.image.url} width="670" height="400" className="w-full mt-0 object-cover" />
 
                                 <div>
                                     <RichText render={article.data.text} htmlSerializer={htmlSerializer} />
@@ -125,14 +141,12 @@ function Article({ article, recommendations }) {
                                 {about_the_author}
 
                             </div>
+                            <h3>Recommendations</h3>
+                        </article>
+                        <div className="max-w-prose mx-auto mb-4 px-4 lg:px-0">
                             <div className="mt-4">
-                                <h3>Recommendations</h3>
-                                {Object.keys(recommendations)}
                                 {recommendationsRendered}
                             </div>
-                        </article>
-                        {/* Recommendations */}
-                        <div className="max-w-prose mx-auto mb-4 px-4 lg:px-0">
                             <Discussion type={"article"} item_id={router.query.slug}>
                             </Discussion>
                         </div>

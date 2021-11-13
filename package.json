@@ -10,7 +10,6 @@
     "@conversationai/perspectiveapi-js-client": "^1.0.1",
     "@prismicio/client": "^5.1.0",
     "@react-spring/web": "^9.3.0",
-    "@tailwindcss/aspect-ratio": "^0.3.0",
     "@tailwindcss/line-clamp": "^0.2.2",
     "@tailwindcss/typography": "^0.4.1",
     "algoliasearch": "^4.11.0",
@@ -19,6 +18,7 @@
     "moment": "^2.29.1",
     "next": "latest",
     "next-slicezone": "^0.1.2",
+    "nprogress": "^0.2.0",
     "prismic-dom": "^2.2.6",
     "prismic-reactjs": "^1.3.4",
     "react": "^17.0.2",
@@ -27,7 +27,7 @@
     "reactfire": "^4.2.0",
     "swr": "^1.0.1",
     "three": "^0.133.1",
-    "validator": "^13.6.0"
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.2.6",
