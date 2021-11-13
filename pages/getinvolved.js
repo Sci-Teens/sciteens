@@ -16,9 +16,9 @@ export default function GetInvolved() {
                     </h3>
 
                     <p className="text-base mb-4">
-                        As a student, getting involved with SciTeens is as simple as signing up !Once registered, you can connect with amazing STEM programs and mentors, as well as share your amazing projects.If you want to start a STEM club at your high school, we're more than willing to sponsor and assist you as well; just reach out to
+                        As a student, getting involved with SciTeens is as simple as signing up! Once registered, you can connect with amazing STEM programs and mentors, as well as share your amazing projects. If you want to start a STEM club at your high school, we're more than willing to sponsor and assist you as well; just reach out to
                         <a href="mailto:opportunities@sciteens.org" target="_blank">
-                            {' '}opportunities @sciteens.org.{' '}
+                            {' '}opportunities@sciteens.org.{' '}
                         </a>
                     </p>
 
@@ -35,11 +35,11 @@ export default function GetInvolved() {
                     </h3>
 
                     <p className="text-base mb-4">
-                        One of the services that SciTeens provides is mentorship opportunities for students.We are always looking for mentors who are willing to be matched with a student based on topics and fields of interest to assist a student. In order to be a mentor, you must be a professor, teacher, graduate or undergraduate STEM student, or be employed in a STEM field and be willing to devote some time to helping passionate STEM students.
+                        One of the services that SciTeens provides is mentorship opportunities for students. We are always looking for mentors who are willing to be matched with a student based on topics and fields of interest to assist a student. In order to be a mentor, you must be a professor, teacher, graduate or undergraduate STEM student, or be employed in a STEM field and be willing to devote some time to helping passionate STEM students.
                     </p>
 
                     <Link
-                        href='/signup/mentor'
+                        href='/signup/educator'
                     >
                         <a className="text-center bg-sciteensLightGreen-regular text-white rounded-lg shadow-md p-2 hover:bg-sciteensLightGreen-dark mb-4">
                             Mentor Sign Up
@@ -53,7 +53,7 @@ export default function GetInvolved() {
                     <p className="text-base mb-4">
                         One of the core principles of science is collaboration. Our mission depends on collaboration, and we are always looking for ways to bring science to every single student! If you know a school, teacher, science program, or organization that could help us achieve our mission, please reach out to us at
                         <a href="mailto:support@sciteens.org" target="_blank">
-                            {' '}opportunities @sciteens.org.{' '}
+                            {' '}opportunities@sciteens.org.{' '}
                         </a>
                     </p>
 
@@ -64,7 +64,7 @@ export default function GetInvolved() {
                     <p className="text-base mb-4">
                         We are a nonprofit organization that relies on crowdfunding, grants, and private donations. If you know someone who is willing to donate or would like to help us out in finding ways of getting funded, please reach out to us at
                         <a href="mailto:support@sciteens.org" target="_blank">
-                            {' '}opportunities @sciteens.org.{' '}
+                            {' '}opportunities@sciteens.org.{' '}
                         </a>
                         No student should be limited by their income level when it comes to conducting scientific research, so every donation counts.
                     </p>
