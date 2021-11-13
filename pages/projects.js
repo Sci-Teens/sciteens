@@ -190,7 +190,7 @@ function Projects({ projects }) {
                 <div className="w-11/12 md:w-[85%] mx-auto lg:mx-0 lg:w-[60%]">
                     <div className="flex flex-row justify-between">
                         <h1 className="text-3xl md:text-4xl py-4 text-left ml-0 md:ml-4 font-semibold">
-                            Latest Projects 📰
+                            Latest Projects 🔬
                         </h1>
                         {profile.slug && status === "success" && signInChechResult.user.emailVerified &&
                             <Link href="/project/create">

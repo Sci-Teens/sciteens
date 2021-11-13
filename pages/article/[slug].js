@@ -94,7 +94,7 @@ function Article({ article, recommendations }) {
                     </div>
                     <h3 className="font-semibold text-base md:text-xl lg:text-2xl mb-2 line-clamp-2">{RichText.asText(a.data.title)}</h3>
                     <p className="hidden md:flex text-sm lg:text-base mb-2 line-clamp-none md:line-clamp-2">{a.data.description}</p>
-                    <p className="hidden lg:flex text-xs">{new Date(a.data.date).toLocaleDateString('en-us', { month: "short", day: "numeric" }) + " · " + readingTime(a.data.text)}</p>
+                    <p className="hidden lg:flex text-xs">{moment(a.data.date).format('ll') + " · " + readingTime(a.data.text)}</p>
                 </div>
 
             </a>

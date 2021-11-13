@@ -1,11 +1,12 @@
 var Prismic = require("@prismicio/client");
-import Link from 'next/link'
+import Link from 'next/link';
 import Image from 'next/image';
 import { RichText } from 'prismic-reactjs';
-import { useRouter } from "next/router"
+import { useRouter } from "next/router";
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
-import { useSpring, animated, config } from '@react-spring/web'
+import { useSpring, animated, config } from '@react-spring/web';
+import moment from 'moment';
 import { resolveConfigFile } from 'prettier';
 
 
@@ -97,7 +98,7 @@ function Courses({ courses }) {
                     <div className="ml-4 w-3/4 lg:w-11/12">
                         <h3 className="font-semibold text-base md:text-xl lg:text-2xl mb-2 line-clamp-2">{RichText.asText(course.data.name)}</h3>
                         <p className="hidden md:block mb-2 line-clamp-none md:line-clamp-2 lg:line-clamp-3">{RichText.asText(course.data.description)}</p>
-                        <p className="hidden lg:flex text-xs">{new Date(course.data.start).toLocaleDateString('en-us', { month: "short", day: "numeric", year: "numeric" }) + " - " + new Date(course.data.end).toLocaleDateString('en-us', { month: "short", day: "numeric", year: "numeric" })}</p>
+                        <p className="hidden lg:flex text-xs">{moment(course.data.start).format('ll') + " - " + moment(course.data.end).format('ll')}</p>
                     </div>
 
                 </animated.div>
@@ -114,8 +115,8 @@ function Courses({ courses }) {
             </Head>
             <div className="min-h-screen mx-auto lg:mx-16 xl:mx-32 flex flex-row mt-8 mb-24 overflow-x-hidden md:overflow-visible">
                 <div className="w-11/12 md:w-[85%] mx-auto lg:mx-0 lg:w-[60%]">
-                    <h1 className="text-4xl py-4 text-left ml-4 font-semiboldf">
-                        Latest Courses 📰
+                    <h1 className="text-4xl py-4 text-left ml-4 font-semibold">
+                        Latest Courses 📖
                     </h1>
                     {coursesComponent}
                     {courses.results.length == 0 &&
