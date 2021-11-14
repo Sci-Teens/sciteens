@@ -1,5 +1,6 @@
 import { useAmp } from 'next/amp'
 import { RichText } from 'prismic-reactjs';
+import { useState, useEffect } from 'react'
 export const config = { amp: 'hybrid' };
 var Prismic = require("@prismicio/client");
 import Link from 'next/link';
@@ -11,6 +12,9 @@ import Discussion from '../../components/Discussion';
 import { useRouter } from 'next/router'
 
 function Article({ article, recommendations }) {
+    const [leftVisible, setLeftVisible] = useState(false)
+    const [rightVisible, setRightVisible] = useState(true)
+    const [scrollIndex, setScrollIndex] = useState(-1)
     const isAmp = useAmp()
 
     const imageLoader = ({ src, width, height }) => {
@@ -19,14 +23,57 @@ function Article({ article, recommendations }) {
 
     function readingTime(article) {
         let article_length = 0
-        article.map((text) => {
-            if (text.type = "paragraph" && text.text) {
+        article?.map((text) => {
+            if (text.type == "paragraph" && text.text) {
                 article_length += text.text?.split(' ').length
             }
         })
         let time_to_read = Math.round(article_length / 200)
 
-        return `${time_to_read} minute read · ${article_length} words`
+        return `${time_to_read} minute read`
+    }
+
+    useEffect(() => {
+        if (scrollIndex < 3) {
+            setRightVisible(true)
+        } else if (scrollIndex == 3) {
+            setRightVisible(false)
+        }
+        if (scrollIndex >= 0) {
+            setLeftVisible(true)
+        } else if (scrollIndex == -1) {
+            setLeftVisible(false)
+        }
+    }, [scrollIndex])
+
+    function scroll(e, direction, index) {
+        e.preventDefault()
+        let element = document.getElementById('readMore')
+
+        if (index >= 0) {
+            if (index == 0) {
+                element.scrollTo(0, 0)
+                setScrollIndex(-1)
+            } else {
+                element.scrollTo(document.getElementById("i-" + (window.innerWidth >= 768 ? index - 1 : index))?.offsetLeft, 0)
+                setScrollIndex(index - 1)
+            }
+            return
+        }
+
+        if (direction == "right") {
+            if (scrollIndex < 4) {
+                element.scrollTo(document.getElementById("i-" + (scrollIndex + 1))?.offsetLeft, 0)
+                setScrollIndex(scrollIndex + 1)
+            }
+        } else {
+            if (scrollIndex > 0) {
+                element.scrollTo(document.getElementById("i-" + (scrollIndex - 1))?.offsetLeft, 0)
+            } else if (scrollIndex == 0) {
+                element.scrollTo(0, 0)
+            }
+            setScrollIndex(scrollIndex - 1)
+        }
     }
 
     const about_the_author = article.data.body.map((slice, index) => {
@@ -73,7 +120,7 @@ function Article({ article, recommendations }) {
     const author_image = article.data.body.map((slice, index) => {
         if (slice.slice_type == "about_the_author") {
             return (
-                <Image className="rounded-full h-16 w-16" height="64" width="64" loader={imageLoader} src={slice.primary.headshot.url} />
+                <Image className="rounded-full" height="48" width="48" loader={imageLoader} src={slice.primary.headshot.url} />
             )
         }
         else {
@@ -83,20 +130,15 @@ function Article({ article, recommendations }) {
 
     const recommendationsRendered = recommendations.map((a, index) => {
         return (<Link key={index} href={`/article/${a.uid}`}>
-            <a className="cursor-pointer p-4 bg-white shadow rounded-lg z-50 mt-6 md:mt-8 flex flex-row items-center">
-                <div className="h-full max-w-[100px] md:max-w-[200px] relative">
-                    <Image className="rounded-lg object-cover flex-shrink-0" loader={imageLoader} src={a.data.image.url} width={256} height={256} />
+            <a id={"i-" + index} className="w-[75vw] md:w-[31vw] mr-[5vw] md:mr-[2.9vw] flex-shrink-0 bg-white p-4 cursor-pointer mt-6 md:mt-8  shadow hover:shadow-md rounded-lg">
+                <div className="relative">
+                    <Image className="rounded-lg object-cover flex-shrink-0" loader={imageLoader} src={a.data.image.url} width={1280} height={720} />
                 </div>
-                <div className="ml-4 w-3/4 lg:w-11/12">
-                    <div className="flex flex-row items-center mb-3">
-                        {/* {author_image} */}
-                        <p className="ml-3">{a.data.author}</p>
-                    </div>
-                    <h3 className="font-semibold text-base md:text-xl lg:text-2xl mb-2 line-clamp-2">{RichText.asText(a.data.title)}</h3>
-                    <p className="hidden md:flex text-sm lg:text-base mb-2 line-clamp-none md:line-clamp-2">{a.data.description}</p>
-                    <p className="hidden lg:flex text-xs">{moment(a.data.date).format('ll') + " · " + readingTime(a.data.text)}</p>
+                <div className="">
+                    <h3 className="text-lg font-semibold line-clamp-1">{RichText.asText(a.data.title)}</h3>
+                    <p className="line-clamp-3 text-sm mb-auto">{a.data.description}</p>
+                    <p className="hidden lg:flex text-sm mt-2 line-clamp-1">By {a.data.author + " · " + moment(a.data.date).format('ll') + " · " + readingTime(a.data.text)}</p>
                 </div>
-
             </a>
         </Link >)
     })
@@ -113,44 +155,68 @@ function Article({ article, recommendations }) {
                             <meta name="description" content={article.data.description} />
                             <meta name="keywords" content="SciTeens, sciteens, article, teen science" />
                         </Head>
-                        <article className="prose prose-sm lg:prose-lg mx-auto px-4 overflow-hidden break-words mt-8">
-                            <div>
+                        <main>
+                            <article className="prose prose-sm lg:prose-lg mx-auto px-4 overflow-hidden break-words mt-8">
                                 <h1>
                                     {RichText.asText(article.data.title)}
 
                                 </h1>
-                                <i >
-                                    {article.data.description}
-                                </i>
-                                <div className="border-b-2 mt-2"></div>
-                                <div className="flex items-center">
-                                    {author_image}
-                                    <p className="font-semibold ml-4">
-                                        Written by {article.data.author} <br /> {moment(article.data.date).format('MMMM DD, YYYY')}
-                                    </p>
-                                </div>
-                            </div>
-                            <div>
-                                {/* Image Slider */}
-                                <Image loader={imageLoader} src={article.data.image.url} width="670" height="400" className="w-full mt-0 object-cover" />
-
                                 <div>
-                                    <RichText render={article.data.text} htmlSerializer={htmlSerializer} />
+                                    <div className="flex items-center mb-4">
+                                        {author_image}
+                                        <p className="ml-6 text-black text-sm ">
+                                            By {article.data.author} <br />
+                                            <span className="text-gray-500"> {moment(article.data.date).format('MMMM DD, YYYY')} · {readingTime(article.data.text)} </span>
+                                        </p>
+                                    </div>
                                 </div>
-                                {interviews}
-                                {about_the_author}
+                                <div>
+                                    {/* Image Slider */}
+                                    <Image loader={imageLoader} src={article.data.image.url} width="670" height="400" className="mt-0 object-cover" />
 
-                            </div>
-                            <h3>Recommendations</h3>
-                        </article>
-                        <div className="max-w-prose mx-auto mb-4 px-4 lg:px-0">
-                            <div className="mt-4">
-                                {recommendationsRendered}
-                            </div>
-                            <Discussion type={"article"} item_id={router.query.slug}>
-                            </Discussion>
-                        </div>
+                                    <div>
+                                        <RichText render={article.data.text} htmlSerializer={htmlSerializer} />
+                                    </div>
+                                    {interviews}
+                                    <h3>Tags:</h3>
+                                    <div className="flex flex-row flex-wrap">
+                                        {console.log(article.tags)}
+                                        {article.tags.map((tag) => {
+                                            return <Link href={{
+                                                pathname: '/articles',
+                                                query: { field: tag }
+                                            }}>
+                                                <p className="cursor-pointer text-base px-5 py-1.5 bg-white rounded-full mr-4 shadow hover:shadow-md">{tag}</p>
+                                            </Link>
+                                        })}
+                                    </div>
+                                    {about_the_author}
 
+                                </div>
+                                <Discussion type={"article"} item_id={router.query.slug} />
+                                <div className="h-px bg-gray-300 my-2" />
+                            </article>
+                            <h3 className="font-semibold text-2xl md:text-5xl text-center mt-8">More on this topic...</h3>
+                            <div className="relative">
+                                <div id="readMore" style={{ scrollBehavior: 'smooth' }} className="transition-all flex flex-row px-[12.5vw] md:px-[16.5vw] pb-8 overflow-x-hidden">
+                                    {recommendationsRendered}
+                                    <button onClick={e => scroll(e, "right")} className={`absolute h-12 lg:h-16 w-12 lg:w-16 right-6 top-1/2 transform -translate-y-1/2 z-50 bg-white opacity-70 hover:opacity-100 shadow hover:shadow-lg rounded-full
+                                    ${rightVisible ? "hidden md:flex " : "hidden"}`} >
+                                        <svg className="m-auto h-2/3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M12.95 10.707l.707-.707L8 4.343 6.586 5.757 10.828 10l-4.242 4.243L8 15.657l4.95-4.95z" /></svg>
+                                    </button>
+                                    <button onClick={e => scroll(e, "left")} className={`absolute h-12 lg:h-16 w-12 lg:w-16 left-6 top-1/2 transform -translate-y-1/2 z-50 bg-white opacity-70 hover:opacity-100 shadow hover:shadow-lg rounded-full
+                                    ${leftVisible ? "hidden md:flex " : "hidden"}`}>
+                                        <svg className="m-auto h-2/3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M7.05 9.293L6.343 10 12 15.657l1.414-1.414L9.172 10l4.242-4.243L12 4.343z" /></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="flex flex-row mx-auto justify-center mb-20">
+                                {new Array(5).fill(1).map((data, i) => {
+                                    return <button onClick={e => scroll(e, null, i)}
+                                        className={`h-[10px] w-[10px] rounded-full border border-black ${scrollIndex == i - 1 ? "bg-black" : "bg-transparent"} ${i == 4 ? "" : "mr-4"}`} />
+                                })}
+                            </div>
+                        </main>
                     </>
             }
         </>
@@ -171,7 +237,15 @@ export async function getServerSideProps({ query }) {
             Prismic.Predicates.at("document.type", "blog"),
             Prismic.Predicates.any("document.tags", article.tags),
         ]);
-        const recommendations = recommendationsQuery.results.slice(0, 5)
+        let recommendations = []
+        let index = 0
+        do {
+            if (recommendationsQuery.results[index].id != article.id) {
+                recommendations.push(recommendationsQuery.results[index])
+            }
+            index++
+        } while (recommendations.length < 5);
+
         return {
             props: { article: article, recommendations: recommendations }
         }

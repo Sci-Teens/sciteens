@@ -76,7 +76,7 @@ function Articles({ articles }) {
     function readingTime(article) {
         let article_length = 0
         article.map((text) => {
-            if (text.type = "paragraph" && text.text) {
+            if (text.type == "paragraph" && text.text) {
                 article_length += text.text?.split(' ').length
             }
         })
