@@ -130,7 +130,12 @@ export default function Home() {
               <p className="text-lg lg:text-xl">- <span className="font-semibold">David L.</span>, United States</p>
             </div>
             <div className="hidden lg:flex flex-col bg-white shadow p-5 rounded-lg w-[30%]">
-              <p className="text-3xl">NEED 1 MORE TESTIMONIAL</p>
+              <img src={'./assets/zondicons/education.svg'} className="h-10 mb-6" alt="" />
+              <p className="text-sm lg:text-base mb-4">
+                "Because of the coding boot camp I did with SciTeens, I was able to find my passion for coding and
+                further expand my knowledge in the STEM field."
+              </p>
+              <p className="text-lg lg:text-xl">- <span className="font-semibold">Melissa R.</span>, United States</p>
             </div>
           </div>
           <svg viewBox="0 0 900 40" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" version="1.1" className="-mt-32">
