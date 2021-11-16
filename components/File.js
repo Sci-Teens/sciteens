@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 export default function RenderFile({ file, id, removeFile, setPhoto }) {
-    switch (file.type) {
+    switch (file?.type) {
         case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
             return (
                 <a className="bg-white rounded-lg w-full flex justify-between shadow" href={URL.createObjectURL(file)} target="_blank">
@@ -12,7 +12,7 @@ export default function RenderFile({ file, id, removeFile, setPhoto }) {
                     />
                     <div className="ml-2 line-clamp-1 text-left flex-1">
                         <p>
-                            {file.name}
+                            {file?.name}
                         </p>
                         <p className="text-sm text-gray-700">
                             application/powerpoint
@@ -37,7 +37,7 @@ export default function RenderFile({ file, id, removeFile, setPhoto }) {
                     />
                     <div className="ml-2 line-clamp-1 text-left flex-1">
                         <p>
-                            {file.name}
+                            {file?.name}
                         </p>
                         <p className="text-sm text-gray-700">
                             application/word
@@ -61,7 +61,7 @@ export default function RenderFile({ file, id, removeFile, setPhoto }) {
                     />
                     <div className="ml-2 line-clamp-1 text-left flex-1">
                         <p>
-                            {file.name}
+                            {file?.name}
                         </p>
                         <p className="text-sm text-gray-700">
                             application/pdf
@@ -87,7 +87,7 @@ export default function RenderFile({ file, id, removeFile, setPhoto }) {
                     />
                     <div className="ml-2 line-clamp-1 text-left flex-1 p-2">
                         <p>
-                            {file.name}
+                            {file?.name}
                         </p>
                         <p className="text-sm text-gray-700">
                             image
@@ -112,10 +112,10 @@ export default function RenderFile({ file, id, removeFile, setPhoto }) {
                     />
                     <div className="ml-2 line-clamp-1 text-left flex-1">
                         <p>
-                            {file.name}
+                            {file?.name}
                         </p>
                         <p className="text-sm line-clamp-1 text-gray-700">
-                            {file.type}
+                            {file?.type}
                         </p>
                     </div>
                     <div className="flex items-end">

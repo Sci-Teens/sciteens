@@ -7,16 +7,13 @@ import { signOut } from '@firebase/auth'
 import { debounce } from 'lodash'
 
 export default function NavBar() {
+    const [showMobileNav, setShowMobileNav] = useState(false)
+    const [showProfileMenu, setShowProfileMenu] = useState(false)
+
     const router = useRouter()
     const auth = useAuth()
     const { status, data: signInCheckResult } = useSigninCheck();
     const { profile, setProfile } = useContext(AppContext);
-
-    const [showProfileMenu, setShowProfileMenu] = useState(false)
-
-    function handleShowMenu() {
-        showProfileMenu ? setTimeout(e => setShowProfileMenu(false), 500) : setShowProfileMenu(true)
-    }
 
     async function handleSignOut() {
         setProfile({})
@@ -28,13 +25,11 @@ export default function NavBar() {
         handleSignOut()
     }
 
-    const menuRef = useRef();
-
-    const [showMobileNav, setShowMobileNav] = useState(false)
+    const menuRef = useRef()
 
     function handleClick(e) {
         if (menuRef.current && menuRef.current.contains(e.target)) {
-            return;
+            return
         }
         setShowMobileNav(false);
     }
@@ -49,16 +44,13 @@ export default function NavBar() {
 
             // If you're within 350px from the top of the page, the scrollbar is always visible
             if (currentY <= 350) {
-                setVisibleNav(true)
                 previousY = currentY
             } else {
                 if (currentY - previousY >= 200) {
-                    setVisibleNav(false)
                     setShowMobileNav(false)
                     previousY = currentY
                 }
                 if (previousY - currentY >= 200) {
-                    setVisibleNav(true)
                     previousY = currentY
                 }
             }
@@ -70,12 +62,9 @@ export default function NavBar() {
         };
     }, [])
 
-    const [visibleNav, setVisibleNav] = useState(true)
-
     return (
         <nav>
-            <div className={`bg-white mx-4 shadow rounded-lg z-50 mt-3 flex justify-between h-16 items-center transform transition-transform duration-300
-            ${visibleNav ? "translate-y-0" : "-translate-y-32"}`}>
+            <div className={`bg-white mx-4 shadow rounded-lg z-50 mt-3 flex justify-between h-16 items-center`}>
                 <div className="inline-block md:w-1/2">
                     <Link href="/">
                         <img className="h-16 ml-4" src={'../assets/sciteens_logo_initials.svg'} alt="" />
@@ -119,18 +108,20 @@ export default function NavBar() {
                     </Link>
                     <button onClick={() => setShowMobileNav(true)} className="mr-4 lg:hidden">
                         <svg className="h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill="#4A5568" d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z" /></svg>                    </button>
-                    <div className="lg:flex">
+                    <div className="hidden lg:flex">
                         {status === "success" && signInCheckResult?.signedIn === true ?
-                            <div onMouseEnter={handleShowMenu} onMouseLeave={handleShowMenu}>
-                                <Link href={`/profile/${profile?.slug ? profile.slug : ''}`} >
-                                    <div className="relative h-10 w-10 rounded-full border-4 border-white hover:border-gray-100 hover:shadow-inner" >
-                                        <img src={signInCheckResult.user.photoURL} className="object-contain rounded-full" />
-                                    </div>
-                                </Link>                        {
-                                    showProfileMenu && <btn className="p-4 rounded-lg bg-white absolute shadow-lg top-20 w-32 right-4 z-50" onClick={handleSignOut}>
+                            <div onClick={() => setShowProfileMenu(!showProfileMenu)} >
+                                <button className="relative h-10 w-10 rounded-full border-4 border-white hover:border-gray-100 hover:shadow-inner" >
+                                    <img src={signInCheckResult.user.photoURL} className="object-contain rounded-full" />
+                                </button>
+                                <div onClick={() => setShowProfileMenu(false)} className={`border border-gray-200 p-4 rounded-lg bg-white absolute shadow-lg top-14 w-32 right-4 z-50 ${showProfileMenu ? "" : "hidden"}`}>
+                                    <Link href={`/profile/${profile?.slug ? profile.slug : ''}`} >
+                                        <a className="px-3 py-1.5 hover:bg-gray-200 rounded-lg">Profile</a>
+                                    </Link>
+                                    <button onClick={handleSignOut} className="mt-2 px-3 py-1.5 hover:bg-gray-200 rounded-lg">
                                         Sign Out
-                                    </btn>
-                                }
+                                    </button>
+                                </div>
                             </div> :
                             <div>
                                 <Link href="/signup" >
@@ -150,7 +141,7 @@ export default function NavBar() {
                     <Link href="/">
                         <div onClick={() => setShowMobileNav(false)} className={`flex flex-row py-3 px-6 rounded-lg mb-4
                         ${router.pathname == '/' ? "underline bg-gray-100" : ""}`}>
-                            <svg className="h-6 my-auto mr-4" xmlns="http://www.w3.org/2000/svg" class="fill-current" viewBox="0 0 20 20" fill="#4A5568"><path d="M8 20H3V10H0L10 0l10 10h-3v10h-5v-6H8v6z" /></svg>
+                            <svg className="h-6 my-auto mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="#4A5568"><path d="M8 20H3V10H0L10 0l10 10h-3v10h-5v-6H8v6z" /></svg>
                             <p>Home</p>
                         </div>
                     </Link>
@@ -163,7 +154,7 @@ export default function NavBar() {
                     <Link href="/articles">
                         <div onClick={() => setShowMobileNav(false)} className={`flex flex-row py-3 px-6 rounded-lg mb-4
                         ${router.pathname.includes('articles') ? "underline bg-gray-100" : ""}`}>
-                            <svg className="h-6 my-auto mr-4" xmlns="http://www.w3.org/2000/svg" class="fill-current" viewBox="0 0 20 20" fill="#4A5568"><path d="M16 2h4v15a3 3 0 0 1-3 3H3a3 3 0 0 1-3-3V0h16v2zm0 2v13a1 1 0 0 0 1 1 1 1 0 0 0 1-1V4h-2zM2 2v15a1 1 0 0 0 1 1h11.17a2.98 2.98 0 0 1-.17-1V2H2zm2 8h8v2H4v-2zm0 4h8v2H4v-2zM4 4h8v4H4V4z" /></svg>                            <p>Articles</p>
+                            <svg className="h-6 my-auto mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="#4A5568"><path d="M16 2h4v15a3 3 0 0 1-3 3H3a3 3 0 0 1-3-3V0h16v2zm0 2v13a1 1 0 0 0 1 1 1 1 0 0 0 1-1V4h-2zM2 2v15a1 1 0 0 0 1 1h11.17a2.98 2.98 0 0 1-.17-1V2H2zm2 8h8v2H4v-2zm0 4h8v2H4v-2zM4 4h8v4H4V4z" /></svg>                            <p>Articles</p>
                         </div>
                     </Link>
                     <Link href="/projects" >

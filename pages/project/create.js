@@ -79,17 +79,6 @@ export default function CreateProject() {
         }
     })
 
-    useEffect(() => {
-        if (files.length == 0) {
-            setErrorFile("Must have at least one photo for display")
-        } else {
-            setProjectPhoto(files[0]?.name)
-            if (error_file == "Must have at least one photo for display") {
-                setErrorFile("")
-            }
-        }
-    }, [files])
-
     const createProject = async (e) => {
         e.preventDefault()
         setLoading(true)
@@ -453,6 +442,9 @@ export default function CreateProject() {
                         <p className="text-sm text-red-800 mb-4">
                             {error_file}
                         </p>
+                        {files.length == 0 &&
+                            <p className="text-sm">It's suggested you have at least one photo for display purposes.</p>
+                        }
                         {files.length != 0 &&
                             <div className="mb-6">
                                 {files.length > 1 &&
@@ -463,7 +455,7 @@ export default function CreateProject() {
                             </div>
                         }
                         <div className="flex flex-col space-y-3">
-                            {files.length > 0 &&
+                            {files.length > 1 &&
                                 <>
                                     <label htmlFor="other_photos" className="uppercase text-gray-600 mt-2 text-left -mb-3">Other Photo{files.length > 1 ? "s" : ""}</label>
                                     {files.map((f, id) => {
@@ -477,29 +469,6 @@ export default function CreateProject() {
                                 </>
                             }
                         </div>
-                        {/* <div className="flex flex-col items-center space-y-2">
-                            {
-                                files.map((f, id) => {
-                                    return (
-                                        <File file={f} id={id} key={f.name} removeFile={removeFile} setPhoto={setPhoto}></File>
-                                    )
-                                })
-                            }
-                        </div>
-                        {
-                            project_photo && <label for="project_photo" className="uppercase text-gray-600 mt-2">
-                                Project Photo
-                            </label>
-                        }
-                        <div>
-                            {
-                                files.map((f, id) => {
-                                    if (f.name == project_photo) {
-                                        return <File file={f} id={id} key={f.name} removeFile={removeFile} setPhoto={setPhoto}></File>
-                                    }
-                                })
-                            }
-                        </div> */}
                         <button
                             type="submit"
                             disabled={loading || error_abstract || error_start_date || error_end_date || error_file || error_title}
@@ -528,6 +497,6 @@ export default function CreateProject() {
     }
 
     else {
-        return <span>loading...</span>
+        return <div className="h-screen">loading...</div>
     }
 }

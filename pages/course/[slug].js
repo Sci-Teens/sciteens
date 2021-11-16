@@ -107,14 +107,14 @@ function Course({ course }) {
                     Lessons
                 </h2>
                 <table
-                    class="table-auto w-full shadow rounded mb-4"
+                    className="table-auto w-full shadow rounded mb-4"
                 >
                     <tr
-                        class="bg-gray-200 rounded-t-md text-center border-b border-gray-400"
+                        className="bg-gray-200 rounded-t-md text-center border-b border-gray-400"
                     >
-                        <th class="p-2">Date</th>
-                        <th class="p-2">Lesson</th>
-                        <th class="p-2">Notebook</th>
+                        <th className="p-2">Date</th>
+                        <th className="p-2">Lesson</th>
+                        <th className="p-2">Notebook</th>
                     </tr>
                     {lessonComponent}
                 </table>

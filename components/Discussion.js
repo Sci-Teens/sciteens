@@ -148,14 +148,14 @@ export default function Discussion({ type, item_id }) {
                         Cancel
                     </button>
                     <button
-                        type="submit" disabled={loading || error_comment || authStatus != "success" || !signInCheckResult?.user?.emailVerified}
+                        type="submit" disabled={loading || error_comment}
                         className="bg-sciteensLightGreen-regular text-white rounded-lg p-2 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
                         onClick={e => postComment(e)}
                     >
                         Post
                         {
                             loading &&
-                            <img src="~/assets/loading.svg" alt="Loading Spinner" className="h-5 w-5 inline-block" />
+                            <img src="/assets/loading.svg" alt="Loading Spinner" className="h-5 w-5 inline-block" />
                         }
                     </button>
                 </div>
@@ -215,7 +215,7 @@ export default function Discussion({ type, item_id }) {
                                         {
                                             loading &&
                                             <img
-                                                src="~/assets/loading.svg"
+                                                src="/assets/loading.svg"
                                                 alt="Loading Spinner"
                                                 className="h-5 w-5 inline-block"
                                             />
