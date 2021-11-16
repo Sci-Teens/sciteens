@@ -180,7 +180,6 @@ function Article({ article, recommendations }) {
                                     {interviews}
                                     <h3>Tags:</h3>
                                     <div className="flex flex-row flex-wrap">
-                                        {console.log(article.tags)}
                                         {article.tags.map((tag) => {
                                             return <Link href={{
                                                 pathname: '/articles',
