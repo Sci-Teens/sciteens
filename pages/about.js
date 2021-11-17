@@ -137,6 +137,7 @@ export default function About() {
         config: config.stiff,
         delay: 100
     })
+
     return (
         <div>
             <Head>
