@@ -6,7 +6,7 @@ import { useSigninCheck } from 'reactfire';
 import { useEffect, useState, useContext } from 'react';
 import { getApp, getApps, initializeApp } from "@firebase/app";
 import firebaseConfig from '../firebaseConfig';
-import { collection, query as firebase_query, orderBy, getDocs, limit, getFirestore } from '@firebase/firestore';
+import { collection, query as firebase_query, orderBy, getDocs, limit, getFirestore, where as firebase_where } from '@firebase/firestore';
 import algoliasearch from "algoliasearch/lite";
 import { useSpring, animated, config } from '@react-spring/web'
 import ProfilePhoto from "../components/ProfilePhoto"
@@ -42,28 +42,6 @@ function Projects({ projects }) {
 
     const { profile } = useContext(AppContext)
     const { status, data: signInChechResult } = useSigninCheck()
-
-
-
-    // useEffect(async () => {
-    //     try {
-    //         const projectsCollection = collection(firestore, 'projects')
-    //         const projectsQuery = query(projectsCollection, orderBy('date', 'asc'), limit(10))
-    //         const projectsRef = await getDocs(projectsQuery)
-    //         projectsRef.forEach(p => {
-    //             setProjects(oldProjects => [...oldProjects, {
-    //                 id: p.id,
-    //                 ...p.data(),
-    //             }])
-    //         })
-    //         console.log(projects)
-    //     }
-
-    //     catch (e) {
-    //         console.error(e)
-    //     }
-
-    // }, [])
 
     const imageLoader = ({ src, width, height }) => {
         return `${src}/${width || 256}x${height || 256}`
@@ -157,7 +135,6 @@ function Projects({ projects }) {
                         <h3 className="font-semibold text-base md:text-xl lg:text-2xl mb-2 line-clamp-2">{project.title}</h3>
                         <p className="hidden md:block mb-4 line-clamp-none md:line-clamp-2 lg:line-clamp-3">{project.abstract}</p>
                         <div className="flex flex-row">
-                            {console.log(project.fields.slice(0, 3).includes("Mechanical Engineering"))}
                             {project.fields.map((field, index) => {
                                 if (index < checkForLongFields(project.fields))
                                     return <p className="hidden lg:flex text-xs py-1.5 px-3 bg-gray-100 rounded-full mr-2 mb-2 z-30 shadow whitespace-nowrap">{field}</p>
@@ -193,7 +170,7 @@ function Projects({ projects }) {
                             Latest Projects 🔬
                         </h1>
                         <Link href="/project/create">
-                            {window && window.innerWidth >= 812 ?
+                            {process.browser && window.innerWidth >= 812 ?
                                 <a className="text-lg font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark my-auto py-1.5 px-5 rounded-full border-2 border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark">Create Project</a>
                                 :
                                 <img src={'assets/zondicons/add-outline.svg'} alt="Share Project" className="h-8 my-auto" />
@@ -256,44 +233,64 @@ function Projects({ projects }) {
 
 export async function getServerSideProps({ query }) {
     let projects = []
-    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     try {
-        // Fetch data from external API (Algolia)
-        const searchClient = algoliasearch(
-            process.env.NEXT_PUBLIC_AL_APP_ID,
-            process.env.NEXT_PUBLIC_AL_SEARCH_KEY
-        );
+        if (query.search) {
+            // Fetch data from external API (Algolia)
+            const searchClient = algoliasearch(
+                process.env.NEXT_PUBLIC_AL_APP_ID,
+                process.env.NEXT_PUBLIC_AL_SEARCH_KEY
+            );
 
-        const projectIndex = searchClient.initIndex("prod_PROJECTS")
+            const projectIndex = searchClient.initIndex("prod_PROJECTS")
 
-        if (query?.search && (!query?.field || query?.field == "All")) {
-            console.log("Algolia search")
-            let results = await projectIndex
-                .search(query.search)
-            results.hits.forEach(p => {
-                projects.push({
-                    id: p.objectID,
-                    ...p.data
+            if (!query?.field || query?.field == "All") {
+                console.log("Algolia regular")
+
+                let results = await projectIndex
+                    .search(query.search)
+                results.hits.forEach(p => {
+                    projects.push({
+                        id: p.objectID,
+                        ...p.data
+                    })
                 })
-            })
+            }
+
+            else {
+                console.log("Algolia field")
+
+                let results = await projectIndex
+                    .search(query.search, {
+                        filters: 'data.fields:' + query.field
+                    })
+                results.hits.forEach(p => {
+                    projects.push({
+                        id: p.objectID,
+                        ...p.data
+                    })
+                })
+            }
+            return {
+                props: { projects: projects }
+            }
         }
-        else if (query?.search && query?.field != "All") {
-            console.log("Algolia field")
-            let results = await projectIndex
-                .search(query.search, {
-                    filters: 'data.fields:' + query.field
-                })
-            results.hits.forEach(p => {
-                projects.push({
-                    id: p.objectID,
-                    ...p.data
-                })
-            })
-        }
+
+        // Firebase
         else {
+            const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
             const firestore = getFirestore(app)
             const projectsCollection = collection(firestore, 'projects')
-            const projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), limit(10))
+            let projectsQuery
+            if (!query?.field || query?.field == "All") {
+                console.log("Firebase regular")
+                projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), limit(10))
+
+            }
+
+            else {
+                console.log("Firebase field")
+                projectsQuery = firebase_query(projectsCollection, firebase_where('fields', 'array-contains', query.field), orderBy('date', 'desc'), limit(10))
+            }
             const projectsRef = await getDocs(projectsQuery)
             projectsRef.forEach(p => {
                 projects.push({
@@ -301,14 +298,16 @@ export async function getServerSideProps({ query }) {
                     ...p.data(),
                 })
             })
-        }
-
-        return {
-            props: { projects: projects }
+            return {
+                props: { projects: projects }
+            }
         }
     }
+
     catch (e) {
         console.error(e)
+        const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+
         const firestore = getFirestore(app)
         const projectsCollection = collection(firestore, 'projects')
         const projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), limit(10))
