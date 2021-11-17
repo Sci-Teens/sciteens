@@ -10,6 +10,10 @@ export default function htmlSerializer(type, element, content, children) {
                 </div>
             );
 
+        case Elements.image:
+            return (<img src={element.url} alt={element.alt || ''} className="mx-auto w-full"></img>)
+
+
         // Return null to stick with the default behavior for all other elements
         default:
             return null;

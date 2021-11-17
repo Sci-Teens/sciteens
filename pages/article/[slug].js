@@ -159,7 +159,6 @@ function Article({ article, recommendations }) {
                             <article className="prose prose-sm lg:prose-lg mx-auto px-4 overflow-hidden break-words mt-8">
                                 <h1>
                                     {RichText.asText(article.data.title)}
-
                                 </h1>
                                 <div>
                                     <div className="flex items-center mb-4">
@@ -168,6 +167,16 @@ function Article({ article, recommendations }) {
                                             By {article.data.author} <br />
                                             <span className="text-gray-500"> {moment(article.data.date).format('MMMM DD, YYYY')} · {readingTime(article.data.text)} </span>
                                         </p>
+                                    </div>
+                                    <div className="flex flex-row flex-wrap">
+                                        {article.tags.map((tag) => {
+                                            return <Link href={{
+                                                pathname: '/articles',
+                                                query: { field: tag }
+                                            }}>
+                                                <p className="cursor-pointer text-base px-5 py-1.5 my-1 bg-white rounded-full mr-4 shadow hover:shadow-md">{tag}</p>
+                                            </Link>
+                                        })}
                                     </div>
                                 </div>
                                 <div>
@@ -178,17 +187,6 @@ function Article({ article, recommendations }) {
                                         <RichText render={article.data.text} htmlSerializer={htmlSerializer} />
                                     </div>
                                     {interviews}
-                                    <h3>Tags:</h3>
-                                    <div className="flex flex-row flex-wrap">
-                                        {article.tags.map((tag) => {
-                                            return <Link href={{
-                                                pathname: '/articles',
-                                                query: { field: tag }
-                                            }}>
-                                                <p className="cursor-pointer text-base px-5 py-1.5 bg-white rounded-full mr-4 shadow hover:shadow-md">{tag}</p>
-                                            </Link>
-                                        })}
-                                    </div>
                                     {about_the_author}
 
                                 </div>
@@ -220,8 +218,6 @@ function Article({ article, recommendations }) {
             }
         </>
     )
-
-
 }
 
 export async function getServerSideProps({ query }) {

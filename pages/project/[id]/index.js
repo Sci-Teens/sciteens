@@ -10,6 +10,7 @@ import File from '../../../components/File';
 import { useEffect, useState, useContext } from "react";
 import { AppContext } from '../../../context/context';
 import Discussion from "../../../components/Discussion";
+import ProfilePhoto from "../../../components/ProfilePhoto";
 
 
 
@@ -104,22 +105,44 @@ function Project({ query }) {
                         </Link>
                     }
                 </div>
+                {project.member_arr && <div className="flex flex-row items-center mb-3">
+                    <div className="flex -space-x-2 overflow-hidden">
+                        {project.member_arr.map((member) => {
+                            return <div className="inline-block h-6 w-6 lg:h-8 lg:w-8 rounded-full ring-2 ring-white">
+                                <ProfilePhoto uid={member.uid}></ProfilePhoto>
+                            </div>
+                        })}
+                    </div>
+                    <p className="ml-2">By {project.member_arr.map((member) => {
+                        return member.display + " "
+                    })}</p>
+                </div>}
+                <div>
+                    {
+                        project_photo ? <img
+                            src={project_photo}
+                            alt="Project Image"
+                            className="w-full mt-0 object-contain" />
+                            :
+                            <div className="w-full my-8 h-64 bg-gray-200 rounded-lg animate-pulse" />
+                    }
+
+
+                </div>
                 <p>
                     {project.abstract}
                 </p>
+                <div className="flex flex-row flex-wrap">
+                    {project.fields.map((tag) => {
+                        return <Link href={{
+                            pathname: '/projects',
+                            query: { field: tag }
+                        }}>
+                            <span className="cursor-pointer text-base px-5 py-1.5 my-1 bg-white rounded-full mr-4 shadow hover:shadow-md">{tag}</span>
+                        </Link>
+                    })}
+                </div>
                 <div className="border-b-2 mt-2"></div>
-            </div>
-            <div>
-                {
-                    project_photo ? <img
-                        src={project_photo}
-                        alt="Project Image"
-                        className="w-full mt-0 object-contain" />
-                        :
-                        <div className="w-full my-8 h-64 bg-gray-200 rounded-lg animate-pulse" />
-                }
-
-
             </div>
         </article>
         <div className="max-w-prose mx-auto mb-4 px-4 lg:px-0">
