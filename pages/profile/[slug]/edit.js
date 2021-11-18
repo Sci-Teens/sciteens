@@ -82,7 +82,7 @@ export default function UpdateProfilePage({ user_profile }) {
         // Find all the prefixes and items.
         try {
             const res = await listAll(filesRef)
-            for (const r of res.items) {
+            for (let r of res.items) {
                 const url = await getDownloadURL(r)
                 const metadata = await getMetadata(r)
                 const xhr = new XMLHttpRequest();

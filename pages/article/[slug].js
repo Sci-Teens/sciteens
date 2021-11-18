@@ -15,7 +15,37 @@ function Article({ article, recommendations }) {
     const [leftVisible, setLeftVisible] = useState(false)
     const [rightVisible, setRightVisible] = useState(true)
     const [scrollIndex, setScrollIndex] = useState(-1)
+    const [swipePosition, setSwipePositon] = useState(0)
     const isAmp = useAmp()
+
+    const handleSwipe = (e, call) => {
+        if (call == 'start') {
+            setSwipePositon(e.touches[0].clientX)
+        }
+
+        else {
+            const touchDown = swipePosition
+
+            if (touchDown == 0) {
+                return
+            }
+
+            const currentTouch = e.touches[0].clientX
+            const diff = touchDown - currentTouch
+
+            if (diff > 5) {
+                element.scrollTo(0, 0)
+                setScrollIndex(-1)
+            }
+
+            if (diff < -5 && scrollIndex > -1) {
+                element.scrollTo(document.getElementById("i-" + (scrollIndex + 1))?.offsetLeft, 0)
+                setScrollIndex(scrollIndex + 1)
+            }
+
+            setTouchPosition(null)
+        }
+    }
 
     const imageLoader = ({ src, width, height }) => {
         return `${src}?fit=crop&crop=faces&w=${width || 582}&h=${height || 389}`
@@ -195,7 +225,7 @@ function Article({ article, recommendations }) {
                             </article>
                             <h3 className="font-semibold text-2xl md:text-5xl text-center mt-8">More on this topic...</h3>
                             <div className="relative">
-                                <div id="readMore" style={{ scrollBehavior: 'smooth' }} className="transition-all flex flex-row px-[12.5vw] md:px-[16.5vw] pb-8 overflow-x-hidden">
+                                <div id="readMore" style={{ scrollBehavior: 'smooth' }} className="transition-all flex flex-row px-[12.5vw] md:px-[16.5vw] pb-8 overflow-x-hidden" onTouchMove={e => handleSwipe(e, 'move')} onTouchStart={e => handleSwipe(e, 'start')} >
                                     {recommendationsRendered}
                                     <button onClick={e => scroll(e, "right")} className={`absolute h-12 lg:h-16 w-12 lg:w-16 right-6 top-1/2 transform -translate-y-1/2 z-50 bg-white opacity-70 hover:opacity-100 shadow hover:shadow-lg rounded-full
                                     ${rightVisible ? "hidden md:flex " : "hidden"}`} >
