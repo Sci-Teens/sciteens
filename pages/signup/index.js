@@ -56,7 +56,7 @@ export default function SignUpIndex() {
                                         />
                                         <h2 className="text-xl text-sciteensGreen-regular mx-2">
                                             Sign up as a student if you are currently in high school or
-                                            between the ages of 14 and 18.
+                                            between the ages of 13 and 18.
                                         </h2>
                                     </div> : <div className="relative">
                                         <img

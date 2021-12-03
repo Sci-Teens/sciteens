@@ -85,7 +85,7 @@ export default function MentorSignIn() {
                 const isContainsUppercase = /^(?=.*[A-Z])/;
                 const isContainsLowercase = /^(?=.*[a-z])/;
                 const isContainsNumber = /^(?=.*[0-9])/;
-                const isValidLength = /^.{10,16}$/;
+                const isValidLength = /^.{8,100}$/;
 
                 setPassword(e.target.value)
                 if (isWhitespace.test(e.target.value)) {
@@ -111,7 +111,7 @@ export default function MentorSignIn() {
                 }
 
                 else if (!isValidLength.test(e.target.value)) {
-                    setErrorPassword("Password must be 10-16 Characters Long.")
+                    setErrorPassword("Password must be 8-100 Characters Long.")
                 }
 
                 else {
@@ -189,7 +189,6 @@ export default function MentorSignIn() {
                         <div className="flex flex-col justify-between my-2">
                             <Link href="/signin/reset">
                                 <a className="text-gray-600 text-sm rounded py-2 flex-1 mr-1 mb-2">Forgot password?</a>
-
                             </Link>
 
                             <button type="submit"

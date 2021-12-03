@@ -235,7 +235,7 @@ export default function StudentSignUp() {
         }
 
         catch (e) {
-            console.log('couldn\'t set profile slug')
+            console.error('couldn\'t set profile slug')
         }
 
         try {
@@ -244,7 +244,7 @@ export default function StudentSignUp() {
 
         catch (e) {
 
-        } console.log("couldn't set user email at this time")
+        } console.error("couldn't set user email at this time")
 
         try {
             await sendEmailVerification(res.user)
@@ -252,7 +252,7 @@ export default function StudentSignUp() {
         }
 
         catch (e) {
-            console.log("Couldn't send verification email")
+            console.error("Couldn't send verification email")
         }
 
         try {

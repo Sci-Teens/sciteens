@@ -35,7 +35,7 @@ export default function Home() {
         <meta name="keywords" content="SciTeens, sciteens, home, teen science" />
       </Head>
 
-      <main className="mt-0 lg:-mt-20">
+      <div className="mt-0 lg:-mt-20">
         {/* Landing screen */}
         <div className="relative h-screen text-center xl:text-left">
           <animated.div style={landing_spring} className="relative z-20 h-full w-auto lg:max-w-2xl flex flex-col lg:justify-center mx-5 md:mx-16 lg:ml-24 mb-12 pt-24">
@@ -66,24 +66,29 @@ export default function Home() {
 
         {/* Mission Statement & Information */}
         <div className="mb-32 md:mb-48">
-          <h2 className="text-center text-xl md:text-3xl lg:text-5xl font-semibold mb-12 mx-12 md:mx-32 lg:mx-56">Furthering the accessibility of science, one
-            student at a time.</h2>
+          <h2 className="text-center text-xl md:text-3xl lg:text-5xl font-semibold mb-12 mx-12 md:mx-32 lg:mx-56">
+            Furthering the accessibility of science, one
+            student at a time.
+          </h2>
           <div className="flex flex-col lg:flex-row mx-5 md:mx-16 lg:mx-24">
             <div className="flex flex-col">
               <div className="flex flex-row bg-white shadow p-5 rounded-lg mb-8 mr-0 lg:mr-4">
                 <p className="flex flex-shrink-0 justify-center items-center text-sciteensLightGreen-regular text-base md:text-lg lg:text-xl font-bold 
         bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px]border-sciteensLightGreen-regular
         border-opacity-40 h-9 lg:h-12 w-9 lg:w-12 mr-4 whitespace-nowrap">1</p>
-                <p className="text-xs md:text-base lg:text-lg">We strive to bridge the gap between education and opportunity, particularly for
+                <p className="text-xs md:text-base lg:text-lg">
+                  We strive to bridge the gap between education and opportunity, particularly for
                   students from low-resource areas who do not have an extensive STEM support network.</p>
               </div>
               <div className="flex flex-row bg-white shadow p-5 rounded-lg mb-8 mr-0 lg:mr-4">
                 <p className="flex flex-shrink-0 justify-center items-center text-sciteensLightGreen-regular text-base md:text-lg lg:text-xl font-bold 
         bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px]border-sciteensLightGreen-regular
         border-opacity-40 h-9 lg:h-12 w-9 lg:w-12 mr-4 whitespace-nowrap">2</p>
-                <p className="text-xs md:text-base lg:text-lg">SciTeens was started by a group of teens just like you trying to get started in the
+                <p className="text-xs md:text-base lg:text-lg">
+                  SciTeens was started by a group of teens just like you trying to get started in the
                   STEM fields. Because of this, we know how intimidating it can be to begin your own research projects. We
-                  want to put an end to this intimidation and make STEM research accesible and rewarding for everyone.</p>
+                  want to put an end to this intimidation and make STEM research accesible and rewarding for everyone.
+                </p>
               </div>
             </div>
             <div className="flex flex-col">
@@ -91,16 +96,20 @@ export default function Home() {
                 <p className="flex flex-shrink-0 justify-center items-center text-sciteensLightGreen-regular text-base md:text-lg lg:text-xl font-bold 
         bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px]border-sciteensLightGreen-regular
         border-opacity-40 h-9 lg:h-12 w-9 lg:w-12 mr-4 whitespace-nowrap">3</p>
-                <p className="text-xs md:text-base lg:text-lg">With SciTeens you can share your knowledge and research by writing articles or
+                <p className="text-xs md:text-base lg:text-lg">
+                  With SciTeens you can share your knowledge and research by writing articles or
                   creating projects. Your work can be viewed by other SciTeens users, giving you access to unique opportunities
-                  through collaboration with your peers and mentorship by accomplished scholars in the STEM fields.</p>
+                  through collaboration with your peers and mentorship by accomplished scholars in the STEM fields.
+                </p>
               </div>
               <div className="flex flex-row bg-white shadow p-5 rounded-lg mb-8 ml-0 lg:ml-4">
                 <p className="flex flex-shrink-0 justify-center items-center text-sciteensLightGreen-regular text-base md:text-lg lg:text-xl font-bold 
         bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px]border-sciteensLightGreen-regular
         border-opacity-40 h-9 lg:h-12 w-9 lg:w-12 mr-4 whitespace-nowrap">4</p>
-                <p className="text-xs md:text-base lg:text-lg">All it takes is a spark of inspiration, the willingness to work with your peers, and
-                  an account to get started doing scientific research and making a difference in your area of study.</p>
+                <p className="text-xs md:text-base lg:text-lg">
+                  All it takes is a spark of inspiration, the willingness to work with your peers, and
+                  an account to get started doing scientific research and making a difference in your area of study.
+                </p>
               </div>
             </div>
           </div>
@@ -109,8 +118,10 @@ export default function Home() {
 
         {/* Open Source & Testimonials */}
         <div className="mb-32 md:mb-48">
-          <h2 className="text-center text-xl md:text-3xl lg:text-5xl font-semibold mb-12 mx-12 md:mx-28 lg:mx-48">SciTeens takes pride in its open source and
-            collaborative platform, but let our users do the talking for us.</h2>
+          <h2 className="text-center text-xl md:text-3xl lg:text-5xl font-semibold mb-12 mx-12 md:mx-28 lg:mx-48">
+            SciTeens takes pride in its open source and
+            collaborative platform, but let our users do the talking for us.
+          </h2>
           <div className="relative flex flex-col md:flex-row items-center md:items-stretch justify-between mx-5 md:mx-16 lg:mx-24 z-10">
             <div className="bg-white shadow p-5 rounded-lg w-auto md:w-[45%] lg:w-[30%] mb-8 md:mb-0">
               <img src={'./assets/zondicons/education.svg'} className="h-10 mb-6" alt="" />
@@ -218,7 +229,7 @@ export default function Home() {
         {/* Partners */}
         <div className="flex flex-col lg:flex-row justify-between mx-5 md:mx-16 lg:mx-24 mb-24">
           <div>
-            <h2 className="text-center lg:text-left text-xl md:text-3xl lg:text-5xl font-semibold max-w-2xl mb-2">Partners & Programs</h2>
+            <h2 className="text-center lg:text-left text-xl md:text-3xl lg:text-5xl font-semibold max-w-2xl mb-2">Partners and Programs</h2>
             <p className="text-center lg:text-left text-sm md:text-xl">If you'd like to support us, please consider <a href='/donate'
               className="font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark">donating</a>.</p>
           </div>
@@ -241,9 +252,7 @@ export default function Home() {
             </a>
           </div>
         </div>
-      </main >
-
-
+      </div >
     </div >
   )
 }

@@ -204,7 +204,7 @@ function Projects({ projects }) {
                             />
                             <button type="submit" className="bg-sciteensLightGreen-regular text-white font-semibold rounded-lg px-4 py-2 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
                                 onClick={e => handleSearch(e)}>
-                                Search
+                                Search for Projects
                             </button>
                         </form>
 
