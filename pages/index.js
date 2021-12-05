@@ -236,7 +236,7 @@ export default function Home() {
           <div>
             <h2 className="text-center lg:text-left text-xl md:text-3xl lg:text-5xl font-semibold max-w-2xl mb-2">{t('index.partners')}</h2>
             <p className="text-center lg:text-left text-sm md:text-xl">
-              {t('index.support_us')}
+              {t('index.support_us')}&nbsp;
               <a href='/donate'
                 className="font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark">{t('index.donating')}
               </a>.
