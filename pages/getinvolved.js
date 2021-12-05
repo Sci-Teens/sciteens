@@ -29,9 +29,9 @@ export default function GetInvolved() {
                                 {t('get_involved.students')}
                             </h2>
                             <p className="text-sm lg:text-base mb-4">
-                                {t('get_involved.get_involved_students')}
-                                <a href="mailto:opportunities@sciteens.org" target="_blank">
-                                    {' '}opportunities@sciteens.org.{' '}
+                                {t('get_involved.get_involved_student')}
+                                <a href="mailto:opportunities@sciteens.org" target="_blank" className="text-blue-700">
+                                    &nbsp;opportunities@sciteens.org.&nbsp;
                                 </a>
                             </p>
                             <Link
@@ -49,7 +49,7 @@ export default function GetInvolved() {
                                 {t('get_involved.mentors')}
                             </h2>
                             <p className="text-sm lg:text-base mb-4">
-                                {t('get_involved.get_involved_mentors')}
+                                {t('get_involved.get_involved_mentor')}
                             </p>
                             <Link
                                 href='/signup/educator'
@@ -67,8 +67,8 @@ export default function GetInvolved() {
                             </h2>
                             <p className="text-sm lg:text-base mb-4">
                                 {t('get_involved.get_involved_outreach')}
-                                <a href="mailto:support@sciteens.org" target="_blank">
-                                    {' '}opportunities@sciteens.org.{' '}
+                                <a href="mailto:support@sciteens.org" target="_blank" className="text-blue-700">
+                                    &nbsp;opportunities@sciteens.org.&nbsp;
                                 </a>
                             </p>
                             <a href="mailto:support@sciteens.org" target="_blank" className="text-center bg-sciteensLightGreen-regular text-white rounded-lg shadow-md p-2 hover:bg-sciteensLightGreen-dark">
@@ -83,8 +83,8 @@ export default function GetInvolved() {
                             </h2>
                             <p className="text-sm lg:text-base mb-4">
                                 {t('get_involved.get_involved_funding')}
-                                <a href="mailto:support@sciteens.org" target="_blank">
-                                    {' '}opportunities@sciteens.org.{' '}
+                                <a href="mailto:support@sciteens.org" target="_blank" className="text-blue-700">
+                                    &nbsp;opportunities@sciteens.org.&nbsp;
                                 </a>
                                 {t('get_involved.no_student_limited')}
                             </p>
