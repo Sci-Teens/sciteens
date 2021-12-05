@@ -1,6 +1,8 @@
 import Link from "next/link"
+import { useRouter } from "next/router"
 
 export default function Footer() {
+    const router = useRouter()
     return (
         <footer>
             <svg viewBox="0 0 900 40" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" version="1.1">
@@ -77,10 +79,24 @@ export default function Footer() {
                         <p className="text-white font-semibold mb-1 md:mb-2">LANGUAGE</p>
                         <ul>
                             <li>
-                                <a>English</a>
+                                <Link href={router.pathname} locale="en">
+                                    <a>English</a>
+                                </Link>
                             </li>
                             <li>
-                                <a>Español</a>
+                                <Link href={router.pathname} locale="es">
+                                    <a>Español</a>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href={router.pathname} locale="fr">
+                                    <a>Français</a>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href={router.pathname} locale="hi">
+                                    <a>नहीं</a>
+                                </Link>
                             </li>
                         </ul>
                     </div>

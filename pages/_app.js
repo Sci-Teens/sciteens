@@ -7,6 +7,8 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import "../styles/nprogress.css";
 import dynamic from 'next/dynamic'
+import { appWithTranslation } from 'next-i18next';
+
 
 const TopProgressBar = dynamic(
   () => {
@@ -57,4 +59,4 @@ function MyApp({ Component, pageProps }) {
   )
 }
 
-export default MyApp
+export default appWithTranslation(MyApp);

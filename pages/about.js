@@ -6,126 +6,128 @@ import { useFirestore } from 'reactfire';
 import { useEffect, useState } from 'react';
 import { collection, query, orderBy, getDocs, limit } from '@firebase/firestore';
 import { useSpring, animated, config } from '@react-spring/web'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
 export default function About() {
+    const { t } = useTranslation('common')
     const [members, setMembers] = useState([
         {
             name: "Sri Kondapalli",
             image: "sri.jpg",
-            about:
-                "Sri has a golden retriever and can talk with her mouth closed.",
+            about: t("about.about_sri")
         },
         {
             name: "Rohan Bolle",
             image: "rohan.jpg",
             about:
-                "Rohan is an amateur photographer and that typical anime watching kid.",
+                t("about.about_rohan")
         },
         {
             name: "Aneesha Acharya",
             image: "aneesha.jpg",
             about:
-                "Aneesha attends the University of Florida and she can do a cartwheel.",
+                t("about.about_aneesha")
         },
         {
             name: "Eduard Shkulipa",
             image: "eduard.jpg",
-            about: "Eduard wants to create a robot that would conquer the world.",
+            about: t("about.about_eduard")
         },
         {
             name: "Angelo Chen",
             image: "angelo.jpg",
-            about: "Angelo is a student at Suncoast High School.",
+            about: t("about.about_angelo")
         },
         {
             name: "Aya Khalaf",
             image: "aya.jpg",
             about:
-                "*inserts Pewdiepie line* Good morning gamers, Aya here. I may look intimidating in that picture above but I promise I'm anything but that :p",
+                t("about.about_aya")
         },
         {
             name: "Sonica Prakash",
             image: "sonica.jpg",
-            about: "Sonica loves learning new things.",
+            about: t("about.about_sonica")
         },
         {
             name: "Angelica Castillejos",
             image: "angelica.jpg",
             about:
-                "Angelica is a student at Massachusetts Institute of Technology passionate about data science and Python.",
+                t("about.about_angelica")
         },
         {
             name: "John Sutor",
             image: "john.jpg",
             about:
-                "John isn't a mad scientist and doesn't do biology research (despite the photo).",
+                t("about.about_john")
         },
         {
             name: "Shang Chen",
             image: "shang.jpg",
             about:
-                "Shang's hobbies include cooking, working out, and playing the piano.",
+                t("about.about_shang")
         },
         {
             name: "Akash Patel",
             image: "akash.jpg",
-            about: "Akash is a current computer engineering student at USC.",
+            about: t("about.about_akash")
         },
         {
             name: "Carlos Mercado-Lara",
             image: "carlos.jpg",
-            about: "Carlos has collected rocks since elementary school.",
+            about: t("about.about_carlos")
         },
         {
             name: "Erin Kang",
             image: "erin.jpg",
-            about: "Erin has an intense fear of squirrels.",
+            about: t("about.about_erin")
         },
         {
             name: "Grace Jiang",
             image: "grace.jpg",
             about:
-                "Grace's favorite food is ice cream, and she can fold an epic origami bird.",
+                t("about.about_grace")
         },
         {
             name: "Aarti Kalamangalam",
             image: "aarti.jpg",
-            about: "Aarti likes to write.",
+            about: t("about.about_aarti")
         },
         {
             name: "Iman Khalid",
             image: "iman.jpg",
             about:
-                "Iman runs, horseback rides, and is on her school's weightlifting team.",
+                t("about.about_iman")
         },
         {
             name: "Hannah Scaglione",
             image: "hannah.jpg",
             about:
-                "Hannah likes to work out and is interested in pursuing robotic engineering.",
+                t("about.about_hannah")
         },
         {
             name: "Liane Xu",
             image: "liane.jpg",
             about:
-                "Liane is a college freshman who enjoys traveling, eating, and telling dad jokes.",
+                t("about.about_liane")
         },
         {
             name: "Ashley Pelton",
             image: "ashley.jpg",
             about:
-                "Ashley enjoys playing Sudoku and is interested in pursuing Neuroscience.",
+                t("about.about_ashley")
         },
         {
             name: "Ohm Parikh ",
             image: "ohm.jpg",
-            about: "Ohm lived in New Jersey for thirteen years.",
+            about: t("about.about_ohm")
         },
         {
             name: "Tasman Rosenfeld",
             image: "tasman.jpg",
             about:
-                "Taz's passions consist of aggressively screaming into microphones and catching salamanders.",
+                t("about.about_tasman")
         },].sort(() => Math.random() - 0.5))
 
     // REACT SPRING ANIMATIONS
@@ -149,17 +151,15 @@ export default function About() {
             <main>
                 <div className="text-left px-4 py-8 md:p-8 w-full lg:w-5/6 mx-auto">
                     <h1 className="text-3xl md:text-5xl text-center font-semibold my-4">
-                        We're on a mission.
+                        {t('about.on_a_mission')}
                     </h1>
                     <p className="text-base md:text-xl text-center mb-12 mx-0 lg:mx-24">
-                        We strive to bridge the gap between education and opportunity, particularly for students from low-resource areas who do not have an extensive STEM support network.
-
-
+                        {t('about.we_strive')}
                     </p>
 
                     {/* Profile Pics */}
                     <h2 className="text-2xl md:text-3xl mb-6 font-bold text-center">
-                        Get to know us.
+                        {t('about.get_to_know_us')}
                     </h2>
                     <div className="w-full h-full inline-grid grid-cols-2 lg:grid-cols-3 place-items-center mb-8">
                         {
@@ -183,4 +183,13 @@ export default function About() {
         </div >
 
     )
+}
+
+export async function getServerSideProps({ locale }) {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale, ['common'])),
+            // Will be passed to the page component as props
+        },
+    };
 }
