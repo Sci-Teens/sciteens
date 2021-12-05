@@ -325,6 +325,7 @@ export default function CreateProject() {
                             onChange={e => onChange(e, 'start_date')}
                             value={start_date} type="date"
                             id="start-date" name="start-date"
+                            placeholder="Not Required..."
                             className={`appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none ${error_start_date
                                 ? 'border-red-700 text-red-800 placeholder-red-700'
                                 : 'focus:border-sciteensLightGreen-regular focus:bg-white text-gray-700 placeholder-sciteensGreen-regular'}`} />
@@ -333,8 +334,6 @@ export default function CreateProject() {
                         >
                             {
                                 error_start_date
-                                    ? error_start_date
-                                    : "Your project's start date"
                             }
                         </p>
 
@@ -344,6 +343,7 @@ export default function CreateProject() {
                             onChange={e => onChange(e, 'end_date')}
                             value={end_date} type="date"
                             id="end-date" name="end-date"
+                            placeholder="Not Required..."
                             className={`appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none ${error_end_date
                                 ? 'border-red-700 text-red-800 placeholder-red-700'
                                 : 'focus:border-sciteensLightGreen-regular focus:bg-white text-gray-700 placeholder-sciteensGreen-regular'}`} />

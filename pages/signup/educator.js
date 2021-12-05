@@ -393,24 +393,18 @@ export default function MentorSignUp() {
                             </div>
                         </div>
 
-                        <label for="ethnicity" className="uppercase text-gray-600">Ethnicity</label>
+                        <label for="gender" className="uppercase text-gray-600">Gender</label>
                         <div className="relative w-full">
                             <select
-                                onChange={e => setEthnicity(e.target.value)}
-                                name="ethnicity"
-                                id="ethnicity"
-                                value={ethnicity}
-                                className="mb-4 appearance-none border-transparent border-2 bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
+                                onChange={e => setGender(e.target.value)}
+                                name="gender"
+                                id="gender"
+                                value={gender}
+                                className="mb-4 appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:placeholder-gray-700 focus:bg-white focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
                             >
-                                <option selected value="Cuban">Cuban</option>
-                                <option value="Mexican">Mexican</option>
-                                <option value="Puerto Rican">Puerto Rican</option>
-                                <option value="Another Hispanic, Latino, or Spanish origin"
-                                >Another Hispanic, Latino, or Spanish origin</option
-                                >
-                                <option value="Not of Hispanic, Latino, or Spanish origin"
-                                >Not of Hispanic, Latino, or Spanish origin</option
-                                >
+                                <option selected value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
                                 <option value="Prefer not to answer">Prefer not to answer</option>
                             </select>
                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
@@ -425,24 +419,27 @@ export default function MentorSignUp() {
                                 name="race"
                                 id="race"
                                 value={race}
-                                className="mb-4 appearance-none border-transparent border-2 bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
+                                className="mb-4 appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:placeholder-gray-700 focus:bg-white focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
                             >
-                                <option selected value="American Indian or Alaska Native"
-                                >American Indian or Alaska Native</option
-                                >
+                                <option selected value="American Indian or Alaska Native">
+                                    American Indian or Alaska Native
+                                </option>
                                 <option
                                     value="Asian (including Indian subcontinent and Philippines origin)"
-                                >Asian (including Indian subcontinent and Philippines origin)</option
-                                >
+                                >Asian (including Indian subcontinent and Philippines origin)
+                                </option>
                                 <option value="Black or African American"
-                                >Black or African American</option
-                                >
+                                >Black or African American
+                                </option>
+                                <option value="Hispanic or Latino"
+                                >Hispanic or Latino
+                                </option>
                                 <option value="White (including Middle Eastern origin)"
-                                >White (including Middle Eastern origin)</option
-                                >
+                                >White (including Middle Eastern origin)
+                                </option>
                                 <option value="Native Hawaiian or Other Pacific Islander"
-                                >Native Hawaiian or Other Pacific Islander</option
-                                >
+                                >Native Hawaiian or Other Pacific Islander
+                                </option>
                                 <option value="Prefer not to answer">Prefer not to answer</option>
                             </select>
                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">

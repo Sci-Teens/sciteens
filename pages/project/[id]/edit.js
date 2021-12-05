@@ -254,7 +254,7 @@ export default function UpdateProject({ query }) {
             case "end_date":
                 setEndDate(e.target.value)
                 if (e.target.value == "") {
-                    setErrorEndDate("Please set a valid start date")
+                    setErrorEndDate("Please set a valid end date")
                 }
 
                 else {
@@ -396,8 +396,6 @@ export default function UpdateProject({ query }) {
                         >
                             {
                                 error_start_date
-                                    ? error_start_date
-                                    : "Your project's start date"
                             }
                         </p>
 
@@ -415,8 +413,6 @@ export default function UpdateProject({ query }) {
                         >
                             {
                                 error_end_date
-                                    ? error_end_date
-                                    : "Your expected project end date"
                             }
                         </p>
 
