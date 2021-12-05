@@ -62,12 +62,12 @@ export default function About() {
             about:
                 t("about.about_john")
         },
-        {
-            name: "Shang Chen",
-            image: "shang.jpg",
-            about:
-                t("about.about_shang")
-        },
+        // {
+        //     name: "Shang Chen",
+        //     image: "shang.jpg",
+        //     about:
+        //         t("about.about_shang")
+        // },
         {
             name: "Akash Patel",
             image: "akash.jpg",
@@ -185,7 +185,7 @@ export default function About() {
     )
 }
 
-export async function getServerSideProps({ locale }) {
+export async function getStaticProps({ locale }) {
     return {
         props: {
             ...(await serverSideTranslations(locale, ['common'])),
