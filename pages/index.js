@@ -129,7 +129,7 @@ export default function Home() {
               </p>
               <p className="text-lg lg:text-xl">- <span className="font-semibold">David L.</span>, United States</p>
             </div>
-            <div className="hidden lg:flex flex-col bg-white shadow p-5 rounded-lg w-[30%]">
+            <div className="hidden lg:flex flex-col items-baseline bg-white shadow p-5 rounded-lg w-[30%]">
               <img src={'./assets/zondicons/education.svg'} className="h-10 mb-6" alt="" />
               <p className="text-sm lg:text-base mb-4">
                 "Because of the coding boot camp I did with SciTeens, I was able to find my passion for coding and
