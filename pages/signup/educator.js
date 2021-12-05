@@ -29,6 +29,7 @@ export default function MentorSignUp() {
     const [position, setPosition] = useState('')
     const [ethnicity, setEthnicity] = useState('Cuban')
     const [race, setRace] = useState('American Indian or Alaska Native')
+    const [gender, setGender] = useState('Male')
     const [terms, setTerms] = useState(false)
     const [loading, setLoading] = useState(false)
     const [recaptchaSolved, setRecaptchaSolved] = useState(false)
@@ -223,7 +224,7 @@ export default function MentorSignUp() {
                 institution: institution,
                 position: position,
                 race: race,
-                ethnicity: ethnicity,
+                gender: gender,
                 subs_p: [],
                 subs_e: [],
                 mentor: true,
@@ -276,7 +277,7 @@ export default function MentorSignUp() {
                         <div className="flex flex-row">
                             <div className="mr-1">
 
-                                <label for="first-name" className="uppercase text-gray-600">
+                                <label htmlFor="first-name" className="uppercase text-gray-600">
                                     First Name
                                 </label>
                                 <input
@@ -296,7 +297,7 @@ export default function MentorSignUp() {
 
                             <div className="ml-1">
 
-                                <label for="last-name" className="uppercase text-gray-600 mt-4">
+                                <label htmlFor="last-name" className="uppercase text-gray-600 mt-4">
                                     Last Name
                                 </label>
                                 <input
@@ -318,7 +319,7 @@ export default function MentorSignUp() {
                             </div>
                         </div>
 
-                        <label for="email" className="uppercase text-gray-600">
+                        <label htmlFor="email" className="uppercase text-gray-600">
                             Email
                         </label>
                         <input
@@ -336,7 +337,7 @@ export default function MentorSignUp() {
                             {error_email}
                         </p>
 
-                        <label for="password" className="uppercase text-gray-600">
+                        <label htmlFor="password" className="uppercase text-gray-600">
                             Password
                         </label>
                         <input
@@ -354,7 +355,7 @@ export default function MentorSignUp() {
                             {error_password}
                         </p>
 
-                        <label for="institution" className="uppercase text-gray-600 mt-4">
+                        <label htmlFor="institution" className="uppercase text-gray-600 mt-4">
                             Institution
                         </label>
                         <input
@@ -374,7 +375,7 @@ export default function MentorSignUp() {
                             {error_institution}
                         </p>
 
-                        <label for="position" className="uppercase text-gray-600">I am a(n)</label>
+                        <label htmlFor="position" className="uppercase text-gray-600">I am a(n)</label>
                         <div className="relative w-full">
                             <select
                                 name="position"
@@ -393,7 +394,7 @@ export default function MentorSignUp() {
                             </div>
                         </div>
 
-                        <label for="gender" className="uppercase text-gray-600">Gender</label>
+                        <label htmlFor="gender" className="uppercase text-gray-600">Gender</label>
                         <div className="relative w-full">
                             <select
                                 onChange={e => setGender(e.target.value)}
@@ -412,7 +413,7 @@ export default function MentorSignUp() {
                             </div>
                         </div>
 
-                        <label for="race" className="uppercase text-gray-600">Race</label>
+                        <label htmlFor="race" className="uppercase text-gray-600">Race</label>
                         <div className="relative w-full">
                             <select
                                 onChange={e => setRace(e.target.value)}
@@ -459,7 +460,7 @@ export default function MentorSignUp() {
                                     name="terms"
                                     className="form-checkbox active:outline-none text-sciteensLightGreen-regular leading-tight my-auto mr-2"
                                 />
-                                <label for="terms" className="text-sm text-gray-600 whitespace-nowrap">
+                                <label htmlFor="terms" className="text-sm text-gray-600 whitespace-nowrap">
                                     <div className="flex flex-row">
                                         I have read and accept the <Link href='/legal/terms'><a className="text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark"> terms</a></Link> and
                                         <Link href='/legal/privacy'><a className="text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark"> privacy</a></Link>.
