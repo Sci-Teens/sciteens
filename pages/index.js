@@ -37,11 +37,13 @@ export default function Home() {
         <meta name="keywords" content="SciTeens, sciteens, home, teen science" />
       </Head>
 
-      <div className="mt-0 lg:-mt-20">
+      <div className="mt-0 lg:-mt-20 w-screen overflow-hidden">
         {/* Landing screen */}
         <div className="relative h-screen text-center xl:text-left">
           <animated.div style={landing_spring} className="relative z-20 h-full w-auto lg:max-w-2xl flex flex-col lg:justify-center mx-5 md:mx-16 lg:ml-24 mb-12 pt-24">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl whitespace-nowrap font-extrabold">🧪 {t('index.science_simplified')}</h1>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl whitespace-nowrap font-extrabold">🧪
+              {t('index.science_simplified')}
+            </h1>
             <p className="text-sm md:text-2xl mt-4 mb-8">
               {t('index.share_work')}
             </p>

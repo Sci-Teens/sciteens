@@ -8,6 +8,8 @@ import { useState, useEffect } from 'react';
 import { useSpring, animated, config } from '@react-spring/web';
 import moment from 'moment';
 import { resolveConfigFile } from 'prettier';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
 
 function Courses({ courses }) {
@@ -30,6 +32,7 @@ function Courses({ courses }) {
         "Space Science",
     ])
 
+    const { t } = useTranslation('common')
     const imageLoader = ({ src, width, height }) => {
         return `${src}?fit=crop&crop=faces&w=${width || 256}&h=${height || 256}`
     }
@@ -116,13 +119,13 @@ function Courses({ courses }) {
             <div className="min-h-screen mx-auto lg:mx-16 xl:mx-32 flex flex-row mt-8 mb-24 overflow-x-hidden md:overflow-visible">
                 <div className="w-11/12 md:w-[85%] mx-auto lg:mx-0 lg:w-[60%]">
                     <h1 className="text-4xl py-4 text-left ml-4 font-semibold">
-                        Latest Courses 📖
+                        {t('courses.courses')} 📖
                     </h1>
                     {coursesComponent}
                     {courses.results.length == 0 &&
                         <div className="mx-auto text-center mt-20">
                             <i className="font-semibold text-xl">
-                                Sorry, we couldn't find any searches related to {router?.query.search == undefined ? router?.query.field : router?.query.search}
+                                {t('courses.sorry')} {router?.query.search == undefined ? router?.query.field : router?.query.search}
                             </i>
                         </div>
                     }
@@ -131,7 +134,7 @@ function Courses({ courses }) {
 
                 <div className="hidden lg:block w-0 lg:w-[30%] lg:ml-32">
                     <div className="sticky top-1/2 transform -translate-y-1/2 w-full">
-                        <h2 className="text-xl text-gray-700 mb-2">Search Courses</h2>
+                        <h2 className="text-xl text-gray-700 mb-2">{t('courses.search_courses')}</h2>
                         <form onSubmit={e => handleSearch(e)} className="flex flex-row">
                             <input
                                 onChange={e => handleChange(e, 'searchbar')}
@@ -145,13 +148,13 @@ function Courses({ courses }) {
                             />
                             <button type="submit" className="bg-sciteensLightGreen-regular text-white font-semibold rounded-lg px-4 py-2 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
                                 onClick={e => handleSearch(e)}>
-                                Search
+                                {t('courses.search')}
                             </button>
                         </form>
 
                         <hr className="bg-gray-300 my-8" />
 
-                        <h2 className="text-xl text-gray-700 mb-2">Topics</h2>
+                        <h2 className="text-xl text-gray-700 mb-2">{t('courses.topics')}</h2>
                         <div className="flex flex-row flex-wrap">
                             {
                                 field_names.map((f) => {
@@ -173,7 +176,7 @@ function Courses({ courses }) {
     )
 }
 
-export async function getServerSideProps({ query }) {
+export async function getServerSideProps({ query, locale }) {
     // Fetch data from external API
     try {
         const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
@@ -197,7 +200,7 @@ export async function getServerSideProps({ query }) {
         )
 
         return {
-            props: { courses }
+            props: { courses, ...(await serverSideTranslations(locale, ['common'])) }
         }
     }
     catch (e) {

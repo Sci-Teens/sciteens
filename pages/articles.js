@@ -7,6 +7,8 @@ import { useRouter } from "next/router"
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { useSpring, animated, config } from '@react-spring/web'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
 function Articles({ articles }) {
     const router = useRouter()
@@ -85,6 +87,8 @@ function Articles({ articles }) {
         return `${time_to_read} minute read · ${article_length} words`
     }
 
+    const { t } = useTranslation('common')
+
     // REACT SPRING ANIMATIONS
     useEffect(() => {
         set({ opacity: 0, transform: 'translateX(150px)', config: { tension: 10000, clamp: true } })
@@ -151,7 +155,7 @@ function Articles({ articles }) {
             <div className="min-h-screen mx-auto lg:mx-16 xl:mx-32 flex flex-row mt-8 mb-24 overflow-x-hidden md:overflow-visible">
                 <div className="w-11/12 md:w-[85%] mx-auto lg:mx-0 lg:w-[60%]">
                     <h1 className="text-4xl py-4 text-left font-semibold ml-4">
-                        Articles 📰
+                        {t('articles.articles')} 📰
                     </h1>
                     <form onSubmit={e => handleSearch(e)} className="flex flex-row lg:hidden">
                         <button type="submit" className="w-auto bg-sciteensLightGreen-regular text-white font-semibold rounded-l-lg px-3 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
@@ -191,14 +195,14 @@ function Articles({ articles }) {
                     {articles.results.length === 0 &&
                         <div className="mx-auto text-center mt-20">
                             <i className="font-semibold text-xl">
-                                Sorry, we couldn't find any searches related to {router?.query.search == undefined ? router?.query.field : router?.query.search}
+                                {t('articles.sorry')} {router?.query.search == undefined ? router?.query.field : router?.query.search}
                             </i>
                         </div>
                     }
                 </div>
                 <div className="hidden lg:block w-0 lg:w-[30%] lg:ml-32">
                     <div className="sticky top-1/2 transform -translate-y-1/2 w-full">
-                        <h2 className="text-xl text-gray-700 mb-2">Search Articles</h2>
+                        <h2 className="text-xl text-gray-700 mb-2">{t('articles.search_articles')}</h2>
                         <form onSubmit={e => handleSearch(e)} className="flex flex-row">
                             <input
                                 onChange={e => handleChange(e, 'searchbar')}
@@ -212,13 +216,13 @@ function Articles({ articles }) {
                             />
                             <button type="submit" className="bg-sciteensLightGreen-regular text-white font-semibold rounded-lg px-4 py-2 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
                                 onClick={e => handleSearch(e)}>
-                                Search
+                                {t('articles.search')}
                             </button>
                         </form>
 
                         <hr className="bg-gray-300 my-8" />
 
-                        <h2 className="text-xl text-gray-700 mb-2">Topics</h2>
+                        <h2 className="text-xl text-gray-700 mb-2">{t('courses.topics')}</h2>
                         <div className="flex flex-row flex-wrap">
                             {
                                 field_names.map((f) => {
@@ -239,7 +243,7 @@ function Articles({ articles }) {
     )
 }
 
-export async function getServerSideProps({ query }) {
+export async function getServerSideProps({ query, locale }) {
     // Fetch data from external API
     try {
         const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
@@ -261,7 +265,7 @@ export async function getServerSideProps({ query }) {
             })
 
         return {
-            props: { articles }
+            props: { articles, ...(await serverSideTranslations(locale, ['common'])) }
         }
     }
     catch (e) {
