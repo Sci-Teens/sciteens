@@ -178,6 +178,7 @@ function Courses({ courses }) {
 
 export async function getServerSideProps({ query, locale }) {
     // Fetch data from external API
+    const translations = await serverSideTranslations(locale, ['common'])
     try {
         const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
         const client = Prismic.client(apiEndpoint)
@@ -200,10 +201,11 @@ export async function getServerSideProps({ query, locale }) {
         )
 
         return {
-            props: { courses, ...(await serverSideTranslations(locale, ['common'])) }
+            props: { courses, ...translations }
         }
     }
     catch (e) {
+        console.error(e)
         return {
             notFound: true,
         }

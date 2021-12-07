@@ -14,12 +14,6 @@ import { AppContext } from '../context/context'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 
-// const searchClient = algoliasearch(
-//     process.env.NEXT_PUBLIC_AL_APP_ID,
-//     process.env.NEXT_PUBLIC_AL_ADMIN_KEY
-// );
-// const projectIndex = searchClient.initIndex("projects")
-
 function Projects({ projects }) {
     const router = useRouter()
     //const firestore = useFirestore()
@@ -237,6 +231,7 @@ function Projects({ projects }) {
 
 export async function getServerSideProps({ query, locale }) {
     let projects = []
+    const translations = await serverSideTranslations(locale, ['common'])
     try {
         if (query.search) {
             // Fetch data from external API (Algolia)
@@ -275,7 +270,7 @@ export async function getServerSideProps({ query, locale }) {
                 })
             }
             return {
-                props: { projects: projects, ...(await serverSideTranslations(locale, ['common'])) }
+                props: { projects: projects, ...translations }
             }
         }
 
@@ -303,7 +298,7 @@ export async function getServerSideProps({ query, locale }) {
                 })
             })
             return {
-                props: { projects: projects, ...(await serverSideTranslations(locale, ['common'])) }
+                props: { projects: projects, ...translations }
             }
         }
     }
@@ -323,7 +318,7 @@ export async function getServerSideProps({ query, locale }) {
             })
         })
         return {
-            props: { projects: projects, ...(await serverSideTranslations(locale, ['common'])) }
+            props: { projects: projects, ...translations }
         }
     }
 }

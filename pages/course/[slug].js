@@ -10,9 +10,12 @@ import { useState, useEffect } from 'react';
 import File from '../../components/File'
 import Discussion from '../../components/Discussion';
 import { useRouter } from 'next/router'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
 function Course({ course }) {
     const [files, setFiles] = useState([])
+    const { t } = useTranslation('common')
 
     const imageLoader = ({ src, width, height }) => {
         return `${src}?fit=crop&crop=faces&w=${width || 582}&h=${height || 386}`
@@ -79,8 +82,8 @@ function Course({ course }) {
 
                     </h1>
                     <p className="font-semibold">
-                        Starts {moment(course.data.start).calendar(null, { sameElse: 'MMMM DD, YYYY' })}, Ends {moment(course.data.end).calendar(null, { sameElse: 'MMMM DD, YYYY' })} <br />
-                        Enroll by {moment(course.data.enroll_by).calendar(null, { sameElse: 'MMMM DD, YYYY' })}
+                        {t('course.starts')} {moment(course.data.start).calendar(null, { sameElse: 'MMMM DD, YYYY' })}, Ends {moment(course.data.end).calendar(null, { sameElse: 'MMMM DD, YYYY' })} <br />
+                        {t('course.enroll_by')} {moment(course.data.enroll_by).calendar(null, { sameElse: 'MMMM DD, YYYY' })}
                     </p>
                     <i >
                         {RichText.asText(course.data.description)}
@@ -104,7 +107,7 @@ function Course({ course }) {
             </article>
             <div className="w-full max-w-prose mx-auto">
                 <h2 className="text-lg font-semibold mb-2">
-                    Lessons
+                    {t('course.lessons')}
                 </h2>
                 <table
                     className="table-auto w-full shadow rounded mb-4"
@@ -112,16 +115,16 @@ function Course({ course }) {
                     <tr
                         className="bg-gray-200 rounded-t-md text-center border-b border-gray-400"
                     >
-                        <th className="p-2">Date</th>
-                        <th className="p-2">Lesson</th>
-                        <th className="p-2">Notebook</th>
+                        <th className="p-2">{t('course.date')}</th>
+                        <th className="p-2">{t('course.lesson')}</th>
+                        <th className="p-2">{t('course.notebook')}</th>
                     </tr>
                     {lessonComponent}
                 </table>
                 {
                     files?.length && <>
                         <h2 className="text-lg font-semibold mb-2">
-                            Files
+                            {t('course.files')}
                         </h2>
                         <div className="flex flex-col items-center space-y-2">
                             {
@@ -139,8 +142,10 @@ function Course({ course }) {
     )
 }
 
-export async function getServerSideProps({ query }) {
+export async function getServerSideProps({ query, locale }) {
     // Fetch data from external API
+    const translations = await serverSideTranslations(locale, ['common'])
+
     try {
         const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
         const client = Prismic.client(apiEndpoint)
@@ -148,7 +153,7 @@ export async function getServerSideProps({ query }) {
             'course', query?.slug
         )
         return {
-            props: { course }
+            props: { course, ...translations }
         }
     }
     catch (e) {
