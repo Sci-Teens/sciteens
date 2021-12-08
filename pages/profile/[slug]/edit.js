@@ -10,8 +10,11 @@ import { useDropzone } from 'react-dropzone'
 import File from "../../../components/File"
 import Link from "next/link"
 import { AppContext } from '../../../context/context'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
 export default function UpdateProfilePage({ user_profile }) {
+    const { t } = useTranslation('common')
     const [loading, setLoading] = useState(false)
     const [about, setAbout] = useState('')
     const [member, setMember] = useState('')
@@ -120,7 +123,7 @@ export default function UpdateProfilePage({ user_profile }) {
         }
         catch (e) {
             console.error(e)
-            setErrorAbout("We couldn't update your profile at this time")
+            setErrorAbout(t('edit_profile.couldnt_update_profile'))
         }
 
         try {
@@ -143,7 +146,7 @@ export default function UpdateProfilePage({ user_profile }) {
         }
 
         catch (error) {
-            setErrorAbout("We couldn't update your profile at this time")
+            setErrorAbout(t('edit_profile.couldnt_update_profile'))
             console.error(error)
             setLoading(false)
         }
@@ -154,12 +157,12 @@ export default function UpdateProfilePage({ user_profile }) {
         for (const f of fs) {
             const reader = new FileReader()
 
-            reader.onabort = () => setErrorFile('File reading was aborted')
-            reader.onerror = () => setErrorFile('Failed to read the file')
+            reader.onabort = () => setErrorFile(t('edit_profile.file_aborted'))
+            reader.onerror = () => setErrorFile(t('edit_profile.file_failed'))
             reader.onload = () => setErrorFile('')
 
             if (!(file_extensions.includes(f.type) || f.name.includes(".docx") || f.name.includes(".pptx"))) {
-                setErrorFile("This file format is not accepted")
+                setErrorFile(t('edit_profile.format_not_accepted'))
 
             }
 
@@ -181,7 +184,7 @@ export default function UpdateProfilePage({ user_profile }) {
             case "about":
                 setAbout(e.target.value)
                 if (e.target.value.trim() == "") {
-                    setErrorAbout("Please fill out your about section")
+                    setErrorAbout(t('fill_out_about'))
                 }
 
                 else {
@@ -207,14 +210,14 @@ export default function UpdateProfilePage({ user_profile }) {
         return (<>
             <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow rounded-lg">
                 <h1 className="text-3xl text-center font-semibold mb-2">
-                    Update your Profile
+                    {t('edit_profile.update_your_profile')}
                 </h1>
                 <p className="text-gray-700 text-center mb-6">
-                    Edit your profile to add more information about yourself or to change your information.
+                    {t('edit_profile.why_update_your_profile')}
                 </p>
                 <form onSubmit={(e) => updateProfile(e)}>
                     <label for="about" className="uppercase text-gray-600">
-                        About
+                        {t('edit_profile.about')}
                     </label>
                     <textarea
                         onChange={e => onChange(e, 'about')}
@@ -226,7 +229,7 @@ export default function UpdateProfilePage({ user_profile }) {
                             ? 'border-red-700 text-red-800 placeholder-red-700'
                             : 'focus:border-sciteensLightGreen-regular focus:bg-white text-gray-700'}`}
                         type="textarea"
-                        placeholder="Tell us about yourself..."
+                        placeholder={t('edit_profile.tell_us_about')}
                         aria-label="about"
                         maxLength="1000"
                     />
@@ -251,8 +254,8 @@ export default function UpdateProfilePage({ user_profile }) {
                         <input {...getInputProps()} />
                         {
                             isDragActive ?
-                                <p>Drop the files here ...</p> :
-                                <p>Drag 'n' drop some files here,<br /> or click to select files</p>
+                                <p>{t('edit_profile.drop_files')}</p> :
+                                <p>{t('edit_profile.drag_files')}</p>
                         }
                     </div>
                     <p className="text-sm text-red-800 mb-4">
@@ -267,7 +270,7 @@ export default function UpdateProfilePage({ user_profile }) {
                     </div>
                     {
                         profile_photo && <label for="project_photo" className="uppercase text-gray-600 mt-2">
-                            Profile Photo
+                            {t('edit_profile.profile_photo')}
                         </label>
                     }
                     <div>
@@ -286,7 +289,7 @@ export default function UpdateProfilePage({ user_profile }) {
                             disabled={loading || error_about || error_file}
                             className="bg-sciteensLightGreen-regular text-white mr-2 text-lg font-semibold rounded-lg p-2 mt-4 w-full hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
                             onClick={e => updateProfile(e)}>
-                            Update
+                            {t('edit_profile.update')}
                             {
                                 loading &&
                                 <img
@@ -297,7 +300,7 @@ export default function UpdateProfilePage({ user_profile }) {
                         </button>
                         <Link href={`/profile/${user_profile.slug}`}>
                             <a className="bg-gray-100 text-black ml-2 text-center text-lg font-semibold rounded-lg p-2 mt-4 w-full hover:bg-gray-200 border-2 border-gray-200 hover:border-gray-300 shadow outline-none disabled:opacity-50">
-                                Cancel
+                                {t('edit_profile.cancel')}
                             </a>
                         </Link>
                     </div>
@@ -315,7 +318,8 @@ export default function UpdateProfilePage({ user_profile }) {
     }
 }
 
-export async function getServerSideProps({ query }) {
+export async function getServerSideProps({ query, locale }) {
+    const translations = await serverSideTranslations(locale, ['common'])
     const firestore = getFirestore()
     const profilesRef = collection(firestore, "profiles");
     const profileQuery = firebase_query(profilesRef, where("slug", "==", query.slug), limit(1));
@@ -330,7 +334,7 @@ export async function getServerSideProps({ query }) {
                 }
             }
         })
-        return { props: { user_profile: profile } }
+        return { props: { user_profile: profile, ...translations } }
     }
 
     else {

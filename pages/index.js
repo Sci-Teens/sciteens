@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react'
 import render from '../components/LoadDesk.js'
 import Link from 'next/link'
 import { useSpring, animated, config } from '@react-spring/web'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
 export default function Home() {
 
@@ -25,7 +27,7 @@ export default function Home() {
   // REACT SPRING ANIMATIONS
   const landing_spring = useSpring({ opacity: animate ? 1 : 0, transform: animate ? 'translateY(0)' : 'translateY(80px)', delay: 200, config: config.slow })
 
-
+  const { t } = useTranslation('common');
   return (
     <div>
       <Head>
@@ -39,15 +41,16 @@ export default function Home() {
         {/* Landing screen */}
         <div className="relative h-screen text-center xl:text-left">
           <animated.div style={landing_spring} className="relative z-20 h-full w-auto lg:max-w-2xl flex flex-col lg:justify-center mx-5 md:mx-16 lg:ml-24 mb-12 pt-24">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl whitespace-nowrap">🧪 Science, simplified.</h1>
-            <p className="text-sm md:text-2xl mt-4 mb-8">Share your work, get feedback from mentors and peers, and find great scientific
-              opportunities and resources available and accessible to you. Oh yeah, and it's free.
-              Only here on SciTeens.
+            <h1 className="text-4xl md:text-5xl lg:text-6xl whitespace-nowrap font-extrabold">🧪
+              {t('index.science_simplified')}
+            </h1>
+            <p className="text-sm md:text-2xl mt-4 mb-8">
+              {t('index.share_work')}
             </p>
             <div>
               <Link href="/signup">
                 <a className="bg-sciteensLightGreen-regular text-white text-base md:text-xl rounded-lg shadow-md p-3 md:p-4 mr-2 hover:bg-sciteensLightGreen-dark">
-                  Get Started
+                  {t('index.get_started')}
                 </a>
               </Link>
               <Link href="/about">
@@ -67,15 +70,13 @@ export default function Home() {
         {/* Mission Statement & Information */}
         <div className="mb-32 md:mb-48">
           <h2 className="text-center text-xl md:text-3xl lg:text-5xl font-semibold mb-12 mx-12 md:mx-32 lg:mx-56">
-            Furthering the accessibility of science, one
-            student at a time.
+            {t('index.furthering_accessibility')}
           </h2>
           <div className="flex flex-col lg:flex-row mx-5 md:mx-16 lg:mx-24">
             <img src='assets/device_mockup.png' alt="" className="w-1/2" />
             <p className="text-2xl ml-12 my-auto">
-              With SciTeens you can share your knowledge and research by writing articles or
-              creating projects. Your work can be viewed by other SciTeens users, giving you access to unique opportunities
-              through collaboration with your peers and mentorship by accomplished scholars in the STEM fields.</p>
+              {t('index.collaborate_on_projects')}
+            </p>
           </div>
         </div>
 
@@ -83,8 +84,7 @@ export default function Home() {
         {/* Open Source & Testimonials */}
         <div className="mb-32 md:mb-48">
           <h2 className="text-center text-xl md:text-3xl lg:text-5xl font-semibold mb-12 mx-12 md:mx-28 lg:mx-48">
-            SciTeens takes pride in its open source and
-            collaborative platform, but let our users do the talking for us.
+            {t('index.sciteens_pride')}
           </h2>
           <div className="relative flex flex-col md:flex-row items-center md:items-stretch justify-between mx-5 md:mx-16 lg:mx-24 z-10">
             <div className="bg-white shadow p-5 rounded-lg w-auto md:w-[45%] lg:w-[30%] mb-8">
@@ -122,15 +122,21 @@ export default function Home() {
           <div className="flex flex-row justify-evenly md:justify-between px-0 md:px-24 pt-32 pb-10 text-white text-center bg-sciteensGreen-regular">
             <div className="w-[30%] md:w-[45%] lg:w-[30%] mr-10">
               <p className="text-3xl md:text-4xl lg:text-5xl font-semibold">400+</p>
-              <p className="text-sm md:text-base text-gray-300">Monthly Active Users</p>
+              <p className="text-sm md:text-base text-gray-300">
+                {t('index.monthly_users')}
+              </p>
             </div>
             <div className="w-[30%] md:w-[45%] lg:w-[30%]">
               <p className="text-3xl md:text-4xl lg:text-5xl font-semibold">50</p>
-              <p className="text-sm md:text-base text-gray-300">Schools</p>
+              <p className="text-sm md:text-base text-gray-300">
+                {t('index.schools')}
+              </p>
             </div>
             <div className="hidden lg:flex flex-col w-[45%] lg:w-[30%]">
               <p className="text-4xl lg:text-5xl font-semibold">7</p>
-              <p className="text-base text-gray-300">Countries</p>
+              <p className="text-base text-gray-300">
+                {t('index.countries')}
+              </p>
             </div>
           </div>
           <svg viewBox="0 0 900 40" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" version="1.1">
@@ -144,7 +150,9 @@ export default function Home() {
 
         {/* Featured Media */}
         <div className="mb-32 md:mb-48">
-          <h2 className="text-center text-xl md:text-3xl lg:text-5xl font-semibold mb-12">Featured Media</h2>
+          <h2 className="text-center text-xl md:text-3xl lg:text-5xl font-semibold mb-12">
+            {t('index.featured_media')}
+          </h2>
           <div className="grid grid-rows-3 grid-cols-1 lg:grid-rows-2 lg:grid-cols-2 mx-5 md:mx-16 lg:mx-24">
             <a href="https://www.neonscience.org/impact/observatory-blog/sciteens-data-science-and-ecology-gen-z"
               className="group col-span-1 row-span-1 lg:row-span-2 bg-white rounded-lg shadow overflow-hidden mr-0 lg:mr-4 mb-4 lg:mb-0"
@@ -154,7 +162,9 @@ export default function Home() {
                   <img src={'./assets/featured_media/neon.png'} alt="NSF Neon Logo" className="absolute top-0 w-full h-full object-cover transition group-hover:scale-105 duration-700" />
                 </div>
                 <div className="p-4 md:p-10 bg-white z-10 w-full md:w-1/2 lg:w-auto">
-                  <p className="text-base md:text-2xl font-semibold mb-1">SciTeens: Data Science and Ecology for Gen Z</p>
+                  <p className="text-base md:text-2xl font-semibold mb-1">
+                    {t('index.data_science_and_ecology')}
+                  </p>
                   <p className="text-sm md:text-lg text-gray-700">February 10, 2021</p>
                 </div>
               </div>
@@ -167,7 +177,7 @@ export default function Home() {
                   <img src={'./assets/featured_media/ideas.jpg'} alt="" className="absolute top-0 w-full h-full object-cover transition group-hover:scale-105 duration-700" />
                 </div>
                 <div className="p-4 md:p-10 bg-white z-10 w-full md:w-1/2">
-                  <p className="text-base md:text-2xl font-semibold mb-1">IDEAS challenge showcases social ventures at MIT</p>
+                  <p className="text-base md:text-2xl font-semibold mb-1">{t('index.ideas_challenge')}</p>
                   <p className="text-sm md:text-lg text-gray-700">April 30, 2019</p>
                 </div>
               </div>
@@ -180,8 +190,9 @@ export default function Home() {
                   <img src={'./assets/featured_media/ysp.jpg'} alt="" className="absolute top-0 w-full h-full object-cover transition group-hover:scale-105 duration-700" />
                 </div>
                 <div className="p-4 md:p-10 bg-white z-10 w-full md:w-1/2">
-                  <p className="text-base md:text-2xl font-semibold mb-1">Young Scholars Online Program turns students into
-                    scientists</p>
+                  <p className="text-base md:text-2xl font-semibold mb-1">
+                    {t('index.young_scholars_program')}
+                  </p>
                   <p className="text-sm md:text-lg text-gray-700 pb-5">August 3, 2020</p>
                 </div>
               </div>
@@ -193,9 +204,13 @@ export default function Home() {
         {/* Partners */}
         <div className="flex flex-col lg:flex-row justify-between mx-5 md:mx-16 lg:mx-24 mb-24">
           <div>
-            <h2 className="text-center lg:text-left text-xl md:text-3xl lg:text-5xl font-semibold max-w-2xl mb-2">Partners and Programs</h2>
-            <p className="text-center lg:text-left text-sm md:text-xl">If you'd like to support us, please consider <a href='/donate'
-              className="font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark">donating</a>.</p>
+            <h2 className="text-center lg:text-left text-xl md:text-3xl lg:text-5xl font-semibold max-w-2xl mb-2">{t('index.partners')}</h2>
+            <p className="text-center lg:text-left text-sm md:text-xl">
+              {t('index.support_us')}&nbsp;
+              <a href='/donate'
+                className="font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark">{t('index.donating')}
+              </a>.
+            </p>
           </div>
           <div className="mx-auto lg:mr-auto w-[95%] md:w-[60%] grid grid-cols-2 grid-rows-2">
             <a href="https://www.google.com/nonprofits/" className="py-5 md:py-8 transition-shadow hover:shadow-2xl"
@@ -219,4 +234,13 @@ export default function Home() {
       </div >
     </div >
   )
+}
+
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common'])),
+      // Will be passed to the page component as props
+    },
+  };
 }

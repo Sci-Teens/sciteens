@@ -1,8 +1,6 @@
 import * as THREE from 'three'
 import { PCFShadowMap, PCFSoftShadowMap } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-
 
 export default async function render(width, height) {
     var container = document.getElementById('canvas');

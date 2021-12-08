@@ -10,6 +10,8 @@ import Head from 'next/head'
 import htmlSerializer from '../../htmlserializer';
 import Discussion from '../../components/Discussion';
 import { useRouter } from 'next/router'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
 function Article({ article, recommendations }) {
     const [leftVisible, setLeftVisible] = useState(false)
@@ -17,6 +19,8 @@ function Article({ article, recommendations }) {
     const [scrollIndex, setScrollIndex] = useState(-1)
     const [swipePosition, setSwipePositon] = useState(0)
     const isAmp = useAmp()
+    const { t } = useTranslation('common')
+
 
     const handleSwipe = (e, call) => {
         if (call == 'start') {
@@ -110,7 +114,7 @@ function Article({ article, recommendations }) {
         if (slice.slice_type == "about_the_author") {
             return (
                 <div key={index} className="inline-block">
-                    <h3>About the Author</h3>
+                    <h3>{t('article.about_the_author')}</h3>
                     <div className="flex flex-col lg:flex-row items-center">
                         <Image className="rounded-full h-20 w-20 flex-grow-0" height="256" width="256" loader={imageLoader} src={slice.primary.headshot.url} />
                         <p className="ml-4">{RichText.asText(slice.primary.information)}</p>
@@ -127,7 +131,7 @@ function Article({ article, recommendations }) {
         if (slice.slice_type == "interview") {
             return (
                 <>
-                    <h3>Interview</h3>
+                    <h3>{t('article.interview')}</h3>
                     {slice.items.map((interview, ix) => {
                         return (
                             <div key={ix} className="inline-block">
@@ -194,7 +198,7 @@ function Article({ article, recommendations }) {
                                     <div className="flex items-center mb-4">
                                         {author_image}
                                         <p className="ml-6 text-black text-sm ">
-                                            By {article.data.author} <br />
+                                            {t('article.by')} {article.data.author} <br />
                                             <span className="text-gray-500"> {moment(article.data.date).format('MMMM DD, YYYY')} · {readingTime(article.data.text)} </span>
                                         </p>
                                     </div>
@@ -250,8 +254,9 @@ function Article({ article, recommendations }) {
     )
 }
 
-export async function getServerSideProps({ query }) {
+export async function getServerSideProps({ query, locale }) {
     // Fetch data from external API
+    const translations = await serverSideTranslations(locale, ['common'])
     try {
         const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
         const client = Prismic.client(apiEndpoint)
@@ -272,7 +277,7 @@ export async function getServerSideProps({ query }) {
         } while (recommendations.length < 5);
 
         return {
-            props: { article: article, recommendations: recommendations }
+            props: { article: article, recommendations: recommendations, ...translations }
         }
     }
     catch (e) {

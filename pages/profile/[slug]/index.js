@@ -11,8 +11,11 @@ import moment from "moment";
 import { useEffect, useState, useContext } from "react";
 import { useSigninCheck } from "reactfire";
 import { AppContext } from "../../../context/context";
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
 function Project({ profile }) {
+    const { t } = useTranslation('common')
     const router = useRouter();
     const storage = useStorage()
 
@@ -75,7 +78,7 @@ function Project({ profile }) {
                     }
                 </div>
                 <h4>
-                    Joined {moment(profile.joined).calendar(null, { sameElse: 'MMMM DD, YYYY' })}
+                    {t('index_profile.joined')} {moment(profile.joined).calendar(null, { sameElse: 'MMMM DD, YYYY' })}
                 </h4>
                 <p>
                 </p>
@@ -90,7 +93,8 @@ function Project({ profile }) {
     </>)
 }
 
-export async function getServerSideProps({ query }) {
+export async function getServerSideProps({ query, locale }) {
+    const translations = await serverSideTranslations(locale, ['common'])
     const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     const firestore = getFirestore(app)
     const profilesRef = collection(firestore, "profiles");
@@ -106,7 +110,7 @@ export async function getServerSideProps({ query }) {
                 }
             }
         })
-        return { props: { profile: profile } }
+        return { props: { profile: profile, ...translations } }
     }
 
     else {

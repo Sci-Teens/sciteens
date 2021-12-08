@@ -11,13 +11,8 @@ import algoliasearch from "algoliasearch/lite";
 import { useSpring, animated, config } from '@react-spring/web'
 import ProfilePhoto from "../components/ProfilePhoto"
 import { AppContext } from '../context/context'
-
-
-// const searchClient = algoliasearch(
-//     process.env.NEXT_PUBLIC_AL_APP_ID,
-//     process.env.NEXT_PUBLIC_AL_ADMIN_KEY
-// );
-// const projectIndex = searchClient.initIndex("projects")
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
 function Projects({ projects }) {
     const router = useRouter()
@@ -110,6 +105,7 @@ function Projects({ projects }) {
         },
         config: config.slow
     }))
+    const { t } = useTranslation('common');
 
     const projectsComponent = projects.map((project, index) => {
         return (
@@ -167,7 +163,7 @@ function Projects({ projects }) {
                 <div className="w-11/12 md:w-[85%] mx-auto lg:mx-0 lg:w-[60%]">
                     <div className="flex flex-row justify-between">
                         <h1 className="text-3xl md:text-4xl py-4 text-left ml-0 md:ml-4 font-semibold">
-                            Latest Projects 🔬
+                            {t('projects.projects')} 🔬
                         </h1>
                         <Link href="/project/create">
                             {process.browser && window.innerWidth >= 812 ?
@@ -182,7 +178,7 @@ function Projects({ projects }) {
                         projects.length == 0 &&
                         <div className="mx-auto text-center mt-20">
                             <i className="font-semibold text-xl">
-                                Sorry, we couldn't find any searches related to {router?.query.search}
+                                {t('projects.sorry')}  {router?.query.search}
                             </i>
                         </div>
                     }
@@ -190,7 +186,9 @@ function Projects({ projects }) {
 
                 <div className="hidden lg:block w-0 lg:w-[30%] lg:ml-32">
                     <div className="sticky top-1/2 transform -translate-y-1/2 w-full">
-                        <h2 className="text-xl text-gray-700 mb-2">Search Projects</h2>
+                        <h2 className="text-xl text-gray-700 mb-2">
+                            {t('projects.search_projects')}
+                        </h2>
                         <form onSubmit={e => handleSearch(e)} className="flex flex-row">
                             <input
                                 onChange={e => handleChange(e, 'searchbar')}
@@ -204,13 +202,13 @@ function Projects({ projects }) {
                             />
                             <button type="submit" className="bg-sciteensLightGreen-regular text-white font-semibold rounded-lg px-4 py-2 hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
                                 onClick={e => handleSearch(e)}>
-                                Search for Projects
+                                {t('projects.search')}
                             </button>
                         </form>
 
                         <hr className="bg-gray-300 my-8" />
 
-                        <h2 className="text-xl text-gray-700 mb-2">Topics</h2>
+                        <h2 className="text-xl text-gray-700 mb-2">{t('projects.topics')}</h2>
                         <div className="flex flex-row flex-wrap">
                             {
                                 field_names.map((f) => {
@@ -231,8 +229,9 @@ function Projects({ projects }) {
     )
 }
 
-export async function getServerSideProps({ query }) {
+export async function getServerSideProps({ query, locale }) {
     let projects = []
+    const translations = await serverSideTranslations(locale, ['common'])
     try {
         if (query.search) {
             // Fetch data from external API (Algolia)
@@ -271,7 +270,7 @@ export async function getServerSideProps({ query }) {
                 })
             }
             return {
-                props: { projects: projects }
+                props: { projects: projects, ...translations }
             }
         }
 
@@ -299,7 +298,7 @@ export async function getServerSideProps({ query }) {
                 })
             })
             return {
-                props: { projects: projects }
+                props: { projects: projects, ...translations }
             }
         }
     }
@@ -319,7 +318,7 @@ export async function getServerSideProps({ query }) {
             })
         })
         return {
-            props: { projects: projects }
+            props: { projects: projects, ...translations }
         }
     }
 }
