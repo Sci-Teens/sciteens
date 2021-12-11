@@ -410,7 +410,7 @@ export default function MentorSignUp() {
                                 />
                                 <label htmlFor="terms" className="text-sm text-gray-600 whitespace-nowrap">
                                     <div className="flex flex-row">
-                                        {t("auth.terms")} <Link href='/legal/terms'><a className="text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark">{t("auth.terms_link")}</a></Link>
+                                        {t("auth.terms")}&nbsp; <Link href='/legal/terms'><a className="text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark">{t("auth.terms_link")}</a></Link>
                                     </div>
                                 </label>
                             </div>

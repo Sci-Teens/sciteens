@@ -1,34 +1,64 @@
-var Prismic = require("@prismicio/client");
-import Link from 'next/link'
-import Image from 'next/image';
-import moment from 'moment'
-import { RichText } from 'prismic-reactjs';
-import { useRouter } from "next/router"
-import Head from 'next/head';
 import { useEffect, useState } from 'react';
-import { useSpring, animated, config } from '@react-spring/web'
+
+import Link from 'next/link'
+import Head from 'next/head';
+import Image from 'next/image';
+import { useRouter } from "next/router"
+import useSWR from 'swr';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 
-function Articles({ articles }) {
+var Prismic = require("@prismicio/client");
+import { RichText } from 'prismic-reactjs';
+
+import moment from 'moment'
+import { useSpring, animated, config } from '@react-spring/web'
+
+
+const FIELD_NAMES = [
+    "All",
+    "Biology",
+    "Chemistry",
+    "Cognitive Science",
+    "Computer Science",
+    "Earth Science",
+    "Electrical Engineering",
+    "Environmental Science",
+    "Mathematics",
+    "Mechanical Engineering",
+    "Medicine",
+    "Physics",
+    "Space Science",
+]
+
+function Articles({ cached_articles }) {
     const router = useRouter()
+    const [articles, setArticles] = useState(cached_articles)
+
+    useEffect(async () => {
+        const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
+        const client = Prismic.default.client(apiEndpoint)
+        let predicates = []
+        if (router.query.search) {
+            predicates.push(Prismic.default.Predicates.fulltext('document', router.query.search))
+        }
+        if (router.query.field && router.query.field != "All") {
+            predicates.push(Prismic.default.Predicates.at("document.tags", [router.query.field]))
+        }
+        const as = await client.query([
+            Prismic.default.Predicates.at("document.type", "blog"),
+            ...predicates
+        ],
+            {
+                orderings: `[document.first_publication_date desc]`,
+                pageSize: 10,
+            })
+        setArticles(as)
+    }, [router])
+
     const [search, setSearch] = useState('')
     const [field, setField] = useState('All')
-    const [field_names] = useState([
-        "All",
-        "Biology",
-        "Chemistry",
-        "Cognitive Science",
-        "Computer Science",
-        "Earth Science",
-        "Electrical Engineering",
-        "Environmental Science",
-        "Mathematics",
-        "Mechanical Engineering",
-        "Medicine",
-        "Physics",
-        "Space Science",
-    ])
+    const [field_names] = useState(FIELD_NAMES)
 
     const imageLoader = ({ src, width, height }) => {
         return `${src}?fit=crop&crop=faces&w=${width || 256}&h=${height || 256}`
@@ -242,22 +272,13 @@ function Articles({ articles }) {
     )
 }
 
-export async function getServerSideProps({ query, locale }) {
-    // Fetch data from external API
+export async function getStaticProps({ locale }) {
     const translations = await serverSideTranslations(locale, ['common'])
     try {
         const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
         const client = Prismic.client(apiEndpoint)
-        let predicates = []
-        if (query.search) {
-            predicates.push(Prismic.Predicates.fulltext('document', query.search))
-        }
-        if (query.field && query.field != "All") {
-            predicates.push(Prismic.Predicates.at("document.tags", [query.field]))
-        }
         const articles = await client.query([
             Prismic.Predicates.at("document.type", "blog"),
-            ...predicates
         ],
             {
                 orderings: `[document.first_publication_date desc]`,
@@ -265,7 +286,7 @@ export async function getServerSideProps({ query, locale }) {
             })
 
         return {
-            props: { articles, ...translations }
+            props: { cached_articles: articles, ...translations }
         }
     }
     catch (e) {
