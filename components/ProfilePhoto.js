@@ -9,7 +9,6 @@ export default function ProfilePhoto({ uid }) {
     useEffect(async () => {
         const profile_photo_ref = doc(firestore, 'profile-pictures', uid)
         const profile_photo_doc = await getDoc(profile_photo_ref)
-        console.log(profile_photo_doc)
         if (profile_photo_doc.exists()) {
             setImgSrc(profile_photo_doc.data()?.picture)
         }

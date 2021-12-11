@@ -1,22 +1,92 @@
-import Link from 'next/link'
-import Image from 'next/image';
-import { useRouter } from "next/router"
-import Head from 'next/head';
-import { useSigninCheck } from 'reactfire';
 import { useEffect, useState, useContext } from 'react';
-import { getApp, getApps, initializeApp } from "@firebase/app";
-import firebaseConfig from '../firebaseConfig';
-import { collection, query as firebase_query, orderBy, getDocs, limit, getFirestore, where as firebase_where } from '@firebase/firestore';
-import algoliasearch from "algoliasearch/lite";
-import { useSpring, animated, config } from '@react-spring/web'
-import ProfilePhoto from "../components/ProfilePhoto"
-import { AppContext } from '../context/context'
+
+import Link from 'next/link'
+import Head from 'next/head'
+import { useRouter } from "next/router"
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 
-function Projects({ projects }) {
+import { useFirestore, useFirestoreCollectionData } from 'reactfire';
+import firebaseConfig from '../firebaseConfig';
+import { getApp, getApps, initializeApp } from "@firebase/app";
+import { collection, query as firebase_query, orderBy, getDocs, limit, getFirestore, where as firebase_where } from '@firebase/firestore';
+
+import algoliasearch from "algoliasearch/lite";
+import { useSpring, animated, config } from '@react-spring/web'
+import ProfilePhoto from "../components/ProfilePhoto"
+
+
+function Projects({ cached_projects }) {
     const router = useRouter()
-    //const firestore = useFirestore()
+    const firestore = useFirestore()
+    const [projects, setProjects] = useState(cached_projects)
+
+    useEffect(async () => {
+        let projects = []
+        if (router.query.search) {
+            // Fetch data from external API (Algolia)
+            const searchClient = algoliasearch(
+                process.env.NEXT_PUBLIC_AL_APP_ID,
+                process.env.NEXT_PUBLIC_AL_SEARCH_KEY
+            );
+
+            const projectIndex = searchClient.initIndex("prod_PROJECTS")
+
+            if (!router.query?.field || router.query?.field == "All") {
+                console.log("Algolia regular")
+
+                let results = await projectIndex
+                    .search(query.search)
+                results.hits.forEach(p => {
+                    projects.push({
+                        id: p.objectID,
+                        ...p.data
+                    })
+                })
+            }
+
+            else {
+                console.log("Algolia field")
+
+                let results = await projectIndex
+                    .search(query.search, {
+                        filters: 'data.fields:' + query.field
+                    })
+                results.hits.forEach(p => {
+                    projects.push({
+                        id: p.objectID,
+                        ...p.data
+                    })
+                })
+            }
+            setProjects(projects)
+        }
+
+        // Firebase
+        else {
+            const projectsCollection = collection(firestore, 'projects')
+            let projectsQuery
+            if (!router.query?.field || router.query?.field == "All") {
+                console.log("Firebase regular")
+                projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), limit(10))
+
+            }
+
+            else {
+                console.log("Firebase field")
+                projectsQuery = firebase_query(projectsCollection, firebase_where('fields', 'array-contains', router.query.field), orderBy('date', 'desc'), limit(10))
+            }
+            const projectsRef = await getDocs(projectsQuery)
+            projectsRef.forEach(p => {
+                projects.push({
+                    id: p.id,
+                    ...p.data(),
+                })
+            })
+            setProjects(projects)
+        }
+    }, [router])
+
     const [search, setSearch] = useState('')
     const [field, setField] = useState('All')
     const [field_names] = useState([
@@ -34,9 +104,6 @@ function Projects({ projects }) {
         "Physics",
         "Space Science",
     ])
-
-    const { profile } = useContext(AppContext)
-    const { status, data: signInChechResult } = useSigninCheck()
 
     const imageLoader = ({ src, width, height }) => {
         return `${src}/${width || 256}x${height || 256}`
@@ -229,97 +296,22 @@ function Projects({ projects }) {
     )
 }
 
-export async function getServerSideProps({ query, locale }) {
+export async function getStaticProps({ locale }) {
     let projects = []
     const translations = await serverSideTranslations(locale, ['common'])
-    try {
-        if (query.search) {
-            // Fetch data from external API (Algolia)
-            const searchClient = algoliasearch(
-                process.env.NEXT_PUBLIC_AL_APP_ID,
-                process.env.NEXT_PUBLIC_AL_SEARCH_KEY
-            );
-
-            const projectIndex = searchClient.initIndex("prod_PROJECTS")
-
-            if (!query?.field || query?.field == "All") {
-                console.log("Algolia regular")
-
-                let results = await projectIndex
-                    .search(query.search)
-                results.hits.forEach(p => {
-                    projects.push({
-                        id: p.objectID,
-                        ...p.data
-                    })
-                })
-            }
-
-            else {
-                console.log("Algolia field")
-
-                let results = await projectIndex
-                    .search(query.search, {
-                        filters: 'data.fields:' + query.field
-                    })
-                results.hits.forEach(p => {
-                    projects.push({
-                        id: p.objectID,
-                        ...p.data
-                    })
-                })
-            }
-            return {
-                props: { projects: projects, ...translations }
-            }
-        }
-
-        // Firebase
-        else {
-            const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-            const firestore = getFirestore(app)
-            const projectsCollection = collection(firestore, 'projects')
-            let projectsQuery
-            if (!query?.field || query?.field == "All") {
-                console.log("Firebase regular")
-                projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), limit(10))
-
-            }
-
-            else {
-                console.log("Firebase field")
-                projectsQuery = firebase_query(projectsCollection, firebase_where('fields', 'array-contains', query.field), orderBy('date', 'desc'), limit(10))
-            }
-            const projectsRef = await getDocs(projectsQuery)
-            projectsRef.forEach(p => {
-                projects.push({
-                    id: p.id,
-                    ...p.data(),
-                })
-            })
-            return {
-                props: { projects: projects, ...translations }
-            }
-        }
-    }
-
-    catch (e) {
-        console.error(e)
-        const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-
-        const firestore = getFirestore(app)
-        const projectsCollection = collection(firestore, 'projects')
-        const projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), limit(10))
-        const projectsRef = await getDocs(projectsQuery)
-        projectsRef.forEach(p => {
-            projects.push({
-                id: p.id,
-                ...p.data(),
-            })
+    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+    const firestore = getFirestore(app)
+    const projectsCollection = collection(firestore, 'projects')
+    const projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), limit(10))
+    const projectsRef = await getDocs(projectsQuery)
+    projectsRef.forEach(p => {
+        projects.push({
+            id: p.id,
+            ...p.data(),
         })
-        return {
-            props: { projects: projects, ...translations }
-        }
+    })
+    return {
+        props: { cached_projects: projects, ...translations }
     }
 }
 
