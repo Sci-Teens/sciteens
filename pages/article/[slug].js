@@ -62,7 +62,7 @@ function Article({ article, recommendations }) {
                 article_length += text.text?.split(' ').length
             }
         })
-        let time_to_read = Math.round(article_length / 200)
+        let time_to_read = Math.max(1, Math.round(article_length / 200))
 
         return `${time_to_read} minute read`
     }
@@ -197,7 +197,7 @@ function Article({ article, recommendations }) {
                                 <div>
                                     <div className="flex items-center mb-4">
                                         {author_image}
-                                        <p className="ml-6 text-black text-sm ">
+                                        <p className="ml-6 text-black text-lg ">
                                             {t('article.by')} {article.data.author} <br />
                                             <span className="text-gray-500"> {moment(article.data.date).format('MMMM DD, YYYY')} · {readingTime(article.data.text)} </span>
                                         </p>

@@ -82,7 +82,7 @@ function Articles({ articles }) {
                 article_length += text.text?.split(' ').length
             }
         })
-        let time_to_read = Math.round(article_length / 200)
+        let time_to_read = Math.max(1, Math.round(article_length / 200))
 
         return `${time_to_read} minute read · ${article_length} words`
     }
@@ -142,7 +142,6 @@ function Articles({ articles }) {
             </Link >
         )
     })
-
 
     return (
         <>

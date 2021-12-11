@@ -5,8 +5,11 @@ import { useRouter } from "next/router"
 import { sendPasswordResetEmail } from "@firebase/auth"
 import isEmail from "validator/lib/isEmail"
 import Head from "next/head"
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
 export default function Reset() {
+    const { t } = useTranslation('common')
 
     const [email, setEmail] = useState('')
     const [error_email, setErrorEmail] = useState('')
@@ -14,7 +17,7 @@ export default function Reset() {
     const router = useRouter()
 
     async function submitForgotPassword(e) {
-        event.preventDefault()
+        e.preventDefault()
         try {
             await sendPasswordResetEmail(auth, email)
             router.push('/signin/resetsent')
@@ -28,7 +31,7 @@ export default function Reset() {
     const onChange = (e) => {
         setEmail(e.target.value)
         if (e.target.value == "" || !isEmail(e.target.value)) {
-            setErrorEmail("Please input a valid email");
+            setErrorEmail(t('auth.valid_email'));
         }
         else {
             setErrorEmail("")
@@ -48,13 +51,13 @@ export default function Reset() {
                 <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow rounded-lg">
                     <form onSubmit={submitForgotPassword}>
                         <h1 className="text-3xl text-center font-semibold mb-2">
-                            Reset Password
+                            {t('auth.reset_password')}
                         </h1>
                         <p className="text-gray-700 text-center mb-6">
-                            Forgot your password? No worries! Submit your email below, and we’ll send you a reset link.
+                            {t('auth.why_reset_password')}
                         </p>
                         <label for="email" className="uppercase text-gray-600">
-                            Email
+                            {t('auth.email')}
                         </label>
                         <input
                             value={email}
@@ -77,11 +80,19 @@ export default function Reset() {
                                 onClick={submitForgotPassword}
                                 disabled={error_email}
                             >
-                                Reset Password
+                                {t('auth.reset_password')}
                             </button>
                         </div>
                     </form>
                 </div>
             </main>
         </div >)
+}
+
+export async function getStaticProps({ locale }) {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale, ['common'])),
+        },
+    };
 }

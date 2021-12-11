@@ -8,24 +8,27 @@ import { AppContext } from '../../context/context'
 import isEmail from 'validator/lib/isEmail'
 import { doc, getDoc } from '@firebase/firestore';
 import { useFirestore, useAuth } from 'reactfire';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
 export default function MentorSignIn() {
+    const { t } = useTranslation('common')
     const f_signin_errors = {
-        "auth/invalid-email": "Email address or password is invalid (if logging in with Gmail, try using the button below)",
+        "auth/invalid-email": t("auth.auth_invalid_email"),
         "auth/user-disabled":
-            "The account corresponding to this email has been disabled",
-        "auth/user-not-found": "There is no account associated with this email",
-        "auth/wrong-password": "Email address or password is invalid (if logging in with Gmail, try using the button below)",
+            t("auth.auth_user_disabled"),
+        "auth/user-not-found": t("auth.auth_user_not_found"),
+        "auth/wrong-password": t("auth.auth_wrong_password"),
         "Please verify your email before signing in":
-            "Please verify your email before signing in",
+            t("auth.please_verify"),
     }
 
     const f_signup_errors = {
-        "auth/invalid-email": "Email address is invalid",
-        "auth/email-already-in-use": "This email is already in use",
-        "auth/weak-password": "The password provided is weak",
+        "auth/invalid-email": t("auth.auth_invalid_email"),
+        "auth/email-already-in-use": t("auth.auth_email_in_use"),
+        "auth/weak-password": t("auth.auth_weak_password"),
         "Please verify your email before signing in":
-            "Please verify your email before signing in",
+            t("auth.please_verify"),
     }
 
     const [error_email, setErrorEmail] = useState('');
@@ -72,7 +75,7 @@ export default function MentorSignIn() {
             case "email":
                 setEmail(e.target.value)
                 if (e.target.value == "" || !isEmail(e.target.value)) {
-                    setErrorEmail("Please input a valid email");
+                    setErrorEmail(t("auth.valid_email"));
                 }
                 else {
                     setErrorEmail("")
@@ -89,29 +92,29 @@ export default function MentorSignIn() {
 
                 setPassword(e.target.value)
                 if (isWhitespace.test(e.target.value)) {
-                    setErrorPassword("Password must not contain Whitespaces")
+                    setErrorPassword(t("auth.password_whitespace"))
                 }
 
 
                 else if (!isContainsUppercase.test(e.target.value)) {
-                    setErrorPassword("Password must have at least one Uppercase Character")
+                    setErrorPassword(t("auth.password_uppercase"))
                 }
 
                 else if (!isContainsLowercase.test(e.target.value)) {
-                    setErrorPassword("Password must have at least one Lowercase Character")
+                    setErrorPassword(t("auth.password_lowercase"))
                 }
 
                 else if (!isContainsNumber.test(e.target.value)) {
-                    setErrorPassword("Password must contain at least one Digit")
+                    setErrorPassword(t("auth.password_digit"))
                 }
 
 
                 else if (!isContainsSymbol.test(e.target.value)) {
-                    setErrorPassword("Password must contain at least one Special Symbol")
+                    setErrorPassword(t("auth.password_symbol"))
                 }
 
                 else if (!isValidLength.test(e.target.value)) {
-                    setErrorPassword("Password must be 8-100 Characters Long.")
+                    setErrorPassword(t("auth.password_length"))
                 }
 
                 else {
@@ -134,10 +137,10 @@ export default function MentorSignIn() {
             <main>
                 <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow rounded-lg">
                     <h1 className="text-3xl text-center font-semibold mb-2">
-                        Educator Sign-in
+                        {t("auth.educator_sign_in")}
                     </h1>
                     <p className="text-gray-700 text-center mb-6">
-                        Sign in now to empower the next generation of young scientists. Are you a student?&nbsp;
+                        {t("auth.why_educator_sign_in")}&nbsp;
                         <Link href={router.query?.ref ? {
                             pathname: '/signin/student',
                             query: {
@@ -145,13 +148,13 @@ export default function MentorSignIn() {
                             }
                         } : '/signin/student'} >
                             <a className="font-bold cursor-pointer">
-                                Sign in here.
+                                {t("auth.sign_in_here")}
                             </a>
                         </Link>
                     </p>
                     <form onSubmit={emailSignIn}>
                         <label for="email" className="uppercase text-gray-600">
-                            Email
+                            {t("auth.email")}
                         </label>
                         <input
                             value={email}
@@ -169,7 +172,7 @@ export default function MentorSignIn() {
                         </p>
 
                         <label for="password" className="uppercase text-gray-600">
-                            Password
+                            {t("auth.password")}
                         </label>
                         <input
                             value={password}
@@ -188,7 +191,7 @@ export default function MentorSignIn() {
 
                         <div className="flex flex-col justify-between my-2">
                             <Link href="/signin/reset">
-                                <a className="text-gray-600 text-sm rounded py-2 flex-1 mr-1 mb-2">Forgot password?</a>
+                                <a className="text-gray-600 text-sm rounded py-2 flex-1 mr-1 mb-2">{t('auth.reset_password')}</a>
                             </Link>
 
                             <button type="submit"
@@ -196,13 +199,13 @@ export default function MentorSignIn() {
                                 onClick={emailSignIn}
                                 disabled={error_email || error_password || !email.length || !password.length}
                             >
-                                Sign In
+                                {t("auth.sign_in")}
                             </button >
                         </div >
                     </form>
                     <div className="mt-4 flex justify-center">
                         <p className="text-gray-700">
-                            New here?&nbsp;
+                            {t("auth.new_here")}&nbsp;
                             <Link href={router.query?.ref ? {
                                 pathname: '/signup/educator',
                                 query: {
@@ -210,7 +213,7 @@ export default function MentorSignIn() {
                                 }
                             } : '/signup/educator'}
                             >
-                                <a className="font-bold">Sign up</a>
+                                <a className="font-bold">{t("auth.sign_up")}</a>
 
                             </Link>
                         </p>
@@ -220,4 +223,12 @@ export default function MentorSignIn() {
 
         </div >
     )
+}
+
+export async function getStaticProps({ locale }) {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale, ['common'])),
+        },
+    };
 }
