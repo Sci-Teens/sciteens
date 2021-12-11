@@ -12,8 +12,31 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 
 
-function Courses({ courses }) {
+function Courses({ cached_courses }) {
     const router = useRouter()
+    const [courses, setCourses] = useState(cached_courses)
+
+    useEffect(async () => {
+        const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
+        const client = Prismic.default.client(apiEndpoint)
+        let predicates = []
+        if (router.query.search) {
+            predicates.push(Prismic.default.Predicates.fulltext('document', router.query.search))
+        }
+        if (router.query.field && router.query.field != "All") {
+            predicates.push(Prismic.default.Predicates.at("document.tags", [router.query.field]))
+        }
+        const cs = await client.query([
+            Prismic.default.Predicates.at("document.type", "course"),
+            ...predicates
+        ],
+            {
+                orderings: `[document.first_publication_date desc]`,
+                pageSize: 10,
+            })
+        setCourses(cs)
+    }, [router])
+
     const [search, setSearch] = useState('')
     const [field, setField] = useState('All')
     const [field_names] = useState([
@@ -176,32 +199,23 @@ function Courses({ courses }) {
     )
 }
 
-export async function getServerSideProps({ query, locale }) {
+export async function getStaticProps({ locale }) {
     // Fetch data from external API
     const translations = await serverSideTranslations(locale, ['common'])
     try {
         const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
         const client = Prismic.client(apiEndpoint)
-        let predicates = []
-        if (query.search) {
-            predicates.push(Prismic.Predicates.fulltext('document', query.search))
-        }
-        if (query.field && query.field != "All") {
-            predicates.push(Prismic.Predicates.at("document.tags", [query.field]))
-        }
         const courses = await client.query([
             Prismic.Predicates.at("document.type", "course"),
-            ...predicates,
         ],
             {
                 orderings: `[document.first_publication_date desc]`,
                 pageSize: 10,
-                page: query?.page ? query?.page : 1
             }
         )
 
         return {
-            props: { courses, ...translations }
+            props: { cached_courses: courses, ...translations }
         }
     }
     catch (e) {
