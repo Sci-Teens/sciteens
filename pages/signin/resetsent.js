@@ -4,6 +4,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 
 export default function ResetSent() {
+    const { t } = useTranslation('common')
     return (
         <div >
             <Head>

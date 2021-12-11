@@ -41,7 +41,7 @@ export default function FinishSignUp() {
 
     async function finishSignUp() {
         if (!terms) {
-            setErrorTerms('You must accept the terms and conditions')
+            setErrorTerms(t("auth.error_terms"))
         }
 
         else {
@@ -56,7 +56,7 @@ export default function FinishSignUp() {
                 setLoading(false)
                 console.error(error)
                 console.error("can't make a unique slug")
-                setErrorName("Couldn't create your account at this time ")
+                setErrorName(t("auth.sign_in_failed"))
             }
 
             const profile = {
@@ -86,7 +86,7 @@ export default function FinishSignUp() {
                 setLoading(false)
                 console.error(error)
                 console.error("can't make a profile")
-                setErrorName("Couldn't create your account at this time")
+                setErrorName(t("auth.sign_in_failed"))
             }
 
             try {
@@ -97,7 +97,7 @@ export default function FinishSignUp() {
                 setLoading(false)
                 console.error(error)
                 console.error("can't make a profile slug in firebase")
-                setErrorName("Couldn't create your account at this time")
+                setErrorName(t("auth.sign_in_failed"))
             }
 
             try {
@@ -108,7 +108,7 @@ export default function FinishSignUp() {
                 setLoading(false)
                 console.error(error)
                 console.error("can't make a unique email reference")
-                setErrorName("Couldn't create your account at this time")
+                setErrorName(t("auth.sign_in_failed"))
             }
 
             try {
@@ -120,7 +120,7 @@ export default function FinishSignUp() {
 
             catch (error) {
                 setLoading(false)
-                setErrorName('We were unable to complete your profile at this time')
+                setErrorName(t("auth.sign_in_failed"))
                 console.error(error)
             }
         }
@@ -132,11 +132,11 @@ export default function FinishSignUp() {
                 setFirstName(e.target.value.trim())
 
                 if (!isAlpha(e.target.value.trim()) || e.target.value.trim().length < 1) {
-                    setErrorName('Please use a valid name')
+                    setErrorName(t("auth.error_name"))
                 }
 
                 else if (e.target.value.trim().split(" ").length > 1) {
-                    setErrorName('Please only enter your first name (or connect it with hyphens)')
+                    setErrorName(t("auth.error_first_name"))
                 }
 
                 else {
@@ -147,11 +147,11 @@ export default function FinishSignUp() {
                 setLastName(e.target.value.trim())
 
                 if (!isAlpha(e.target.value.trim()) || e.target.value.trim().length < 1) {
-                    setErrorName('Please use a valid name')
+                    setErrorName(t("auth.error_name"))
                 }
 
                 else if (e.target.value.trim().split(" ").length > 1) {
-                    setErrorName('Please only enter your last name (or connect it with hyphens)')
+                    setErrorName(t("auth.error_last_name"))
                 }
 
                 else {
@@ -163,7 +163,7 @@ export default function FinishSignUp() {
 
                 console.log(e.target.value)
                 if (moment(e.target.value).isAfter(moment().subtract(13, 'years')) || e.target.value.length < 1) {
-                    setErrorBirthday('You must be 13 years old or older to use SciTeens')
+                    setErrorBirthday(t("auth.error_birthday"))
                 }
 
                 else {

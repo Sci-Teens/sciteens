@@ -76,11 +76,11 @@ export default function StudentSignUp() {
                 setFirstName(e.target.value.trim())
 
                 if (!isAlpha(e.target.value.trim()) || e.target.value.trim().length < 1) {
-                    setErrorName('Please use a valid name')
+                    setErrorName(t("auth.error_name"))
                 }
 
                 else if (e.target.value.trim().split(" ").length > 1) {
-                    setErrorName('Please only enter your first name (or connect it with hyphens)')
+                    setErrorName(t("auth.error_first_name"))
                 }
 
                 else {
@@ -91,11 +91,11 @@ export default function StudentSignUp() {
                 setLastName(e.target.value.trim())
 
                 if (!isAlpha(e.target.value.trim()) || e.target.value.trim().length < 1) {
-                    setErrorName('Please use a valid name')
+                    setErrorName(t("auth.error_name"))
                 }
 
                 else if (e.target.value.trim().split(" ").length > 1) {
-                    setErrorName('Please only enter your last name (or connect it with hyphens)')
+                    setErrorName(t("auth.error_last_name"))
                 }
 
                 else {
@@ -105,7 +105,7 @@ export default function StudentSignUp() {
             case "birthday":
                 setBirthday(e.target.value)
                 if (moment(e.target.value).isAfter(moment().subtract(13, 'years')) || e.target.value.length < 1) {
-                    setErrorBirthday('You must be 13 years old or older to use SciTeens')
+                    setErrorBirthday(t("auth.error_birthday"))
                 }
 
                 else {
@@ -115,7 +115,7 @@ export default function StudentSignUp() {
             case "email":
                 setEmail(e.target.value)
                 if (e.target.value == "" || !isEmail(e.target.value)) {
-                    setErrorEmail("Please input a valid email");
+                    setErrorEmail(t("auth.valid_email"));
                 }
                 else {
                     setErrorEmail("")
@@ -157,7 +157,7 @@ export default function StudentSignUp() {
         }
 
         catch (e) {
-            f_signup_errors[e.code] ? setErrorEmail(f_signup_errors[e.code]) : setErrorEmail("Couldn't create an accound at this time")
+            f_signup_errors[e.code] ? setErrorEmail(f_signup_errors[e.code]) : setErrorEmail(t("auth.sign_in_failed"))
             setEmail("")
         }
 
@@ -172,7 +172,7 @@ export default function StudentSignUp() {
         }
 
         catch (e) {
-            setErrorEmail("Couldn't create an accound at this time")
+            setErrorEmail(t("auth.sign_in_failed"))
 
         }
 
@@ -194,7 +194,7 @@ export default function StudentSignUp() {
 
         catch (e) {
             console.log(e.code)
-            f_signup_errors[e.code] ? setErrorEmail(f_signup_errors[e.code]) : setErrorEmail("Sign in failed. Please try again or create an account.")
+            f_signup_errors[e.code] ? setErrorEmail(f_signup_errors[e.code]) : setErrorEmail(t("auth.sign_in_failed"))
             setEmail("")
             setLoading(false)
         }
@@ -435,7 +435,6 @@ export default function StudentSignUp() {
                         </p>
                     </div>
                 </div>
-
             </main>
         </div >
 

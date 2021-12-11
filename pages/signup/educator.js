@@ -74,7 +74,7 @@ export default function MentorSignUp() {
 
     async function finishSignUp() {
         if (!terms) {
-            setErrorTerms('You must accept the terms and conditions')
+            setErrorTerms(t("auth.error_terms"))
         }
 
         else {
@@ -92,7 +92,7 @@ export default function MentorSignUp() {
 
             catch {
                 setLoading(false)
-                setErrorName('We were unable to complete your profile at this time')
+                setErrorName(t("auth.unable_to_create"))
             }
         }
     }
@@ -103,11 +103,11 @@ export default function MentorSignUp() {
                 setFirstName(e.target.value.trim())
 
                 if (!isAlpha(e.target.value.trim()) || e.target.value.trim().length < 1) {
-                    setErrorName('Please use a valid name')
+                    setErrorName(t("auth.error_name"))
                 }
 
                 else if (e.target.value.trim().split(" ").length > 1) {
-                    setErrorName('Please only enter your first name (or connect it with hyphens)')
+                    setErrorName('auth.error_first_name')
                 }
 
                 else {
@@ -117,11 +117,11 @@ export default function MentorSignUp() {
             case "last_name":
                 setLastName(e.target.value.trim())
                 if (!isAlpha(e.target.value.trim()) || e.target.value.trim().length < 1) {
-                    setErrorName('Please use a valid name')
+                    setErrorName(t("auth.error_name"))
                 }
 
                 else if (e.target.value.trim().split(" ").length > 1) {
-                    setErrorName('Please only enter your last name (or connect it with hyphens)')
+                    setErrorName(t("auth.error_last_name"))
                 }
 
                 else {
@@ -131,7 +131,7 @@ export default function MentorSignUp() {
             case "email":
                 setEmail(e.target.value)
                 if (e.target.value == "" || !isEmail(e.target.value)) {
-                    setErrorEmail("Please input a valid email");
+                    setErrorEmail(t("auth.valid_email"));
                 }
                 else {
                     setErrorEmail("")
@@ -144,7 +144,7 @@ export default function MentorSignUp() {
             case "institution":
                 setInstitution(e.target.value.trim())
                 if (!isAlpha(e.target.value.trim()) || e.target.value.trim().length < 1) {
-                    setErrorInstitution('Please provide a valid institution')
+                    setErrorInstitution(t("auth.valid_institution"))
                 }
 
                 else {
@@ -197,7 +197,7 @@ export default function MentorSignUp() {
 
         catch (e) {
             console.log(e.code)
-            f_signup_errors[e.code] ? setErrorEmail(f_signup_errors[e.code]) : setErrorEmail("Sign in failed. Please try again or create an account.")
+            f_signup_errors[e.code] ? setErrorEmail(f_signup_errors[e.code]) : setErrorEmail(t("auth.sign_in_failed"))
             setEmail("")
             setLoading(false)
         }

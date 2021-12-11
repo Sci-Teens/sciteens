@@ -58,7 +58,7 @@ export default function MentorSignIn() {
 
         catch (e) {
             console.log(e.code)
-            f_signin_errors[e.code] ? setErrorEmail(f_signin_errors[e.code]) : setErrorEmail("Sign in failed. Please try again or create an account.")
+            f_signin_errors[e.code] ? setErrorEmail(f_signin_errors[e.code]) : setErrorEmail(t("auth.sign_in_failed"))
             setEmail("")
             setLoading(false)
         }
