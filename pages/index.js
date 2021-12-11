@@ -37,7 +37,7 @@ export default function Home() {
         <meta name="keywords" content="SciTeens, sciteens, home, teen science" />
       </Head>
 
-      <div className="mt-0 lg:-mt-20 w-screen overflow-hidden">
+      <div className="mt-0 lg:-mt-20 overflow-x-hidden">
         {/* Landing screen */}
         <div className="relative h-screen text-center xl:text-left">
           <animated.div style={landing_spring} className="relative z-20 h-full w-auto lg:max-w-2xl flex flex-col lg:justify-center mx-5 md:mx-16 lg:ml-24 mb-12 pt-24">
@@ -73,42 +73,10 @@ export default function Home() {
             {t('index.furthering_accessibility')}
           </h2>
           <div className="flex flex-col lg:flex-row mx-5 md:mx-16 lg:mx-24">
-            <div className="flex flex-col">
-              <div className="flex flex-row bg-white shadow p-5 rounded-lg mb-8 mr-0 lg:mr-4">
-                <p className="flex flex-shrink-0 justify-center items-center text-sciteensLightGreen-regular text-base md:text-lg lg:text-xl font-bold 
-        bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px]border-sciteensLightGreen-regular
-        border-opacity-40 h-9 lg:h-12 w-9 lg:w-12 mr-4 whitespace-nowrap">1</p>
-                <p className="text-xs md:text-base lg:text-lg">
-                  {t('index.bridge_the_gap')}
-                </p>
-              </div>
-              <div className="flex flex-row bg-white shadow p-5 rounded-lg mb-8 mr-0 lg:mr-4">
-                <p className="flex flex-shrink-0 justify-center items-center text-sciteensLightGreen-regular text-base md:text-lg lg:text-xl font-bold 
-        bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px]border-sciteensLightGreen-regular
-        border-opacity-40 h-9 lg:h-12 w-9 lg:w-12 mr-4 whitespace-nowrap">2</p>
-                <p className="text-xs md:text-base lg:text-lg">
-                  {t('index.for_teens_by_teens')}
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <div className="flex flex-row bg-white shadow p-5 rounded-lg  mb-8 ml-0 lg:ml-4">
-                <p className="flex flex-shrink-0 justify-center items-center text-sciteensLightGreen-regular text-base md:text-lg lg:text-xl font-bold 
-        bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px]border-sciteensLightGreen-regular
-        border-opacity-40 h-9 lg:h-12 w-9 lg:w-12 mr-4 whitespace-nowrap">3</p>
-                <p className="text-xs md:text-base lg:text-lg">
-                  {t('index.collaborate_on_projects')}
-                </p>
-              </div>
-              <div className="flex flex-row bg-white shadow p-5 rounded-lg mb-8 ml-0 lg:ml-4">
-                <p className="flex flex-shrink-0 justify-center items-center text-sciteensLightGreen-regular text-base md:text-lg lg:text-xl font-bold 
-        bg-sciteensLightGreen-regular bg-opacity-25 rounded-full border-[3px]border-sciteensLightGreen-regular
-        border-opacity-40 h-9 lg:h-12 w-9 lg:w-12 mr-4 whitespace-nowrap">4</p>
-                <p className="text-xs md:text-base lg:text-lg">
-                  {t('index.spark_of_inspiration')}
-                </p>
-              </div>
-            </div>
+            <img src='assets/device_mockup.png' alt="" className="w-1/2" />
+            <p className="text-2xl ml-12 my-auto">
+              {t('index.collaborate_on_projects')}
+            </p>
           </div>
         </div>
 
@@ -119,6 +87,14 @@ export default function Home() {
             {t('index.sciteens_pride')}
           </h2>
           <div className="relative flex flex-col md:flex-row items-center md:items-stretch justify-between mx-5 md:mx-16 lg:mx-24 z-10">
+            <div className="bg-white shadow p-5 rounded-lg w-auto md:w-[45%] lg:w-[30%] mb-8">
+              <img src={'./assets/zondicons/globe.svg'} className="h-10 mb-6" alt="" />
+              <p className="text-sm lg:text-base mb-4">
+                "Working with students across the world with SciTeens was amazing... I am super grateful that I was
+                able to experience it."
+              </p>
+              <p className="text-lg lg:text-xl">- <span className="font-semibold">David L.</span>, United States</p>
+            </div>
             <div className="bg-white shadow p-5 rounded-lg w-auto md:w-[45%] lg:w-[30%] mb-8 md:mb-0">
               <img src={'./assets/zondicons/education.svg'} className="h-10 mb-6" alt="" />
               <p className="text-sm lg:text-base mb-4">
@@ -128,16 +104,8 @@ export default function Home() {
               </p>
               <p className="text-lg lg:text-xl">- <span className="font-semibold">Elisha M.</span>, Zimbabwe</p>
             </div>
-            <div className="bg-white shadow p-5 rounded-lg w-auto md:w-[45%] lg:w-[30%]">
-              <img src={'./assets/zondicons/globe.svg'} className="h-10 mb-6" alt="" />
-              <p className="text-sm lg:text-base mb-4">
-                "Working with students across the world with SciTeens was amazing... I am super grateful that I was
-                able to experience it."
-              </p>
-              <p className="text-lg lg:text-xl">- <span className="font-semibold">David L.</span>, United States</p>
-            </div>
-            <div className="hidden lg:flex flex-col items-baseline bg-white shadow p-5 rounded-lg w-[30%]">
-              <img src={'./assets/zondicons/education.svg'} className="h-10 mb-6" alt="" />
+            <div className="hidden lg:flex flex-col items-baseline bg-white shadow p-5 rounded-lg w-[30%] mb-8">
+              <img src={'./assets/zondicons/code.svg'} className="h-10 mb-6" alt="" />
               <p className="text-sm lg:text-base mb-4">
                 "Because of the coding boot camp I did with SciTeens, I was able to find my passion for coding and
                 further expand my knowledge in the STEM field."
@@ -145,7 +113,7 @@ export default function Home() {
               <p className="text-lg lg:text-xl">- <span className="font-semibold">Melissa R.</span>, United States</p>
             </div>
           </div>
-          <svg viewBox="0 0 900 40" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" version="1.1" className="-mt-32">
+          <svg viewBox="0 0 900 40" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" version="1.1" className="-mt-36">
             <rect x="0" y="0" width="100%" height="100%" fill="#F5FFF5" />
             <path d="M0 7L10.7 8C21.3 9 42.7 11 64.2 11.7C85.7 12.3 107.3 11.7 128.8 11.3C150.3 11 171.7 11 193 12.3C214.3 13.7 235.7 16.3 257 16.2C278.3 16 299.7 13 321.2 10.8C342.7 8.7 364.3 7.3 385.8 8C407.3 8.7 428.7 11.3 450 11.8C471.3 12.3 492.7 10.7 514.2 11.5C535.7 12.3 557.3 15.7 578.8 15.3C600.3 15 621.7 11 643 8.8C664.3 6.7 685.7 6.3 707 7.8C728.3 9.3 749.7 12.7 771.2 14.3C792.7 16 814.3 16 835.8 14.7C857.3 13.3 878.7 10.7 889.3 9.3L900 8L900 41L889.3 41C878.7 41 857.3 41 835.8 41C814.3 41 792.7 41 771.2 41C749.7 41 728.3 41 707 41C685.7 41 664.3 41 643 41C621.7 41 600.3 41 578.8 41C557.3 41 535.7 41 514.2 41C492.7 41 471.3 41 450 41C428.7 41 407.3 41 385.8 41C364.3 41 342.7 41 321.2 41C299.7 41 278.3 41 257 41C235.7 41 214.3 41 193 41C171.7 41 150.3 41 128.8 41C107.3 41 85.7 41 64.2 41C42.7 41 21.3 41 10.7 41L0 41Z" fill="#58b386" />
             <path d="M0 18L10.7 17.8C21.3 17.7 42.7 17.3 64.2 17.3C85.7 17.3 107.3 17.7 128.8 18.7C150.3 19.7 171.7 21.3 193 22.5C214.3 23.7 235.7 24.3 257 24C278.3 23.7 299.7 22.3 321.2 21C342.7 19.7 364.3 18.3 385.8 19.2C407.3 20 428.7 23 450 24.5C471.3 26 492.7 26 514.2 24.3C535.7 22.7 557.3 19.3 578.8 19.5C600.3 19.7 621.7 23.3 643 24.3C664.3 25.3 685.7 23.7 707 22.2C728.3 20.7 749.7 19.3 771.2 18.5C792.7 17.7 814.3 17.3 835.8 17.2C857.3 17 878.7 17 889.3 17L900 17L900 41L889.3 41C878.7 41 857.3 41 835.8 41C814.3 41 792.7 41 771.2 41C749.7 41 728.3 41 707 41C685.7 41 664.3 41 643 41C621.7 41 600.3 41 578.8 41C557.3 41 535.7 41 514.2 41C492.7 41 471.3 41 450 41C428.7 41 407.3 41 385.8 41C364.3 41 342.7 41 321.2 41C299.7 41 278.3 41 257 41C235.7 41 214.3 41 193 41C171.7 41 150.3 41 128.8 41C107.3 41 85.7 41 64.2 41C42.7 41 21.3 41 10.7 41L0 41Z" fill="#439e70" />
