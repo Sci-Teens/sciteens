@@ -1,18 +1,23 @@
 import { useState, useEffect } from "react"
 import { useContext } from "react";
-import isAlpha from 'validator/lib/isAlpha'
-import isEmail from "validator/lib/isEmail";
-import { doc, setDoc, updateDoc } from '@firebase/firestore';
-import { updateProfile } from "@firebase/auth";
-import { AppContext } from '../../context/context'
-import { useFirestore, useAuth } from 'reactfire';
-import { createUserWithEmailAndPassword, RecaptchaVerifier, sendEmailVerification } from '@firebase/auth'
-import { useRouter } from "next/router";
-import moment from 'moment';
+
 import Link from 'next/link'
 import Head from "next/head"
+import { useRouter } from "next/router";
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
+
+import { useFirestore, useAuth } from 'reactfire';
+import { doc, setDoc, updateDoc } from '@firebase/firestore';
+import { updateProfile } from "@firebase/auth";
+import { createUserWithEmailAndPassword, RecaptchaVerifier, sendEmailVerification } from '@firebase/auth'
+
+import isAlpha from 'validator/lib/isAlpha'
+import isEmail from "validator/lib/isEmail";
+import moment from 'moment';
+
+import { AppContext } from '../../context/context'
+import { validatePassword, createUniqueSlug } from "../../context/helpers";
 
 export default function MentorSignUp() {
     const { t } = useTranslation('common')
@@ -47,30 +52,6 @@ export default function MentorSignUp() {
     const auth = useAuth()
     const router = useRouter()
     const { setProfile } = useContext(AppContext)
-
-    async function createUniqueSlug(check_slug, num) {
-        const slugDoc = doc(firestore, 'profile-slugs', check_slug)
-        const slugRef = await getDoc(slugDoc)
-
-        if (slugRef.exists()) {
-            if (num == 1) {
-                check_slug = check_slug + "-" + 1;
-            } else {
-                check_slug = check_slug.replace(
-                    /[0-9]+(?!.*[0-9])/,
-                    function (match) {
-                        return parseInt(match, 10) + 1;
-                    }
-                );
-            }
-
-            // check_slug = check_slug + "-" + num;
-            num += 1;
-            return create_unique_slug(check_slug, num);
-        } else {
-            return check_slug;
-        }
-    }
 
     useEffect(async () => {
         if (process.browser && !document.getElementById('recaptcha-container').hasChildNodes()) {
@@ -157,44 +138,8 @@ export default function MentorSignUp() {
                 }
                 break;
             case "password":
-                const isWhitespace = /^(?=.*\s)/;
-                const isContainsSymbol =
-                    /^(?=.*[~`!@#$%^&*()--+={}\[\]|\\:;"'<>,.?/_₹])/;
-                const isContainsUppercase = /^(?=.*[A-Z])/;
-                const isContainsLowercase = /^(?=.*[a-z])/;
-                const isContainsNumber = /^(?=.*[0-9])/;
-                const isValidLength = /^.{10,16}$/;
-
                 setPassword(e.target.value)
-                if (isWhitespace.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_whitespace"))
-                }
-
-
-                else if (!isContainsUppercase.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_uppercase"))
-                }
-
-                else if (!isContainsLowercase.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_lowercase"))
-                }
-
-                else if (!isContainsNumber.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_digit"))
-                }
-
-
-                else if (!isContainsSymbol.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_symbol"))
-                }
-
-                else if (!isValidLength.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_length"))
-                }
-
-                else {
-                    setErrorPassword("")
-                }
+                setErrorPassword(validatePassword(e.target.value, t))
                 break;
             case "institution":
                 setInstitution(e.target.value.trim())
@@ -213,7 +158,7 @@ export default function MentorSignUp() {
         setLoading(true)
         try {
             const res = await createUserWithEmailAndPassword(auth, email, password)
-            const unique_slug = await createUniqueSlug(first_name.toLowerCase() + "-" + last_name.toLowerCase(), 1)
+            const unique_slug = await createUniqueSlug(firestore, first_name.toLowerCase() + "-" + last_name.toLowerCase(), 'profile-slugs', 1)
             const profile = {
                 display: first_name + " " + last_name,
                 authorized: true, // Only students are authorized upon signup

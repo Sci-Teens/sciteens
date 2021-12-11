@@ -35,7 +35,7 @@ export default function SignUpIndex() {
                                 ref: (router.query?.ref)
                             }
                         } : '/signin/student'} >
-                            <a className="font-bold">{t("auth.sign_in")}</a>
+                            <a className="font-bold">{t("auth.sign_in_link")}</a>
                         </Link>
                     </div>
                     <div className="flex flex-wrap mx-auto justify-center">

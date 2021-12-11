@@ -5,11 +5,13 @@ import Head from 'next/head'
 import { signInWithEmailAndPassword } from '@firebase/auth'
 import { useContext, useState } from 'react'
 import { AppContext } from '../../context/context'
+import { validatePassword } from '../../context/helpers';
 import isEmail from 'validator/lib/isEmail'
 import { doc, getDoc } from '@firebase/firestore';
 import { useFirestore, useAuth } from 'reactfire';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
+
 
 export default function MentorSignIn() {
     const { t } = useTranslation('common')
@@ -74,44 +76,8 @@ export default function MentorSignIn() {
                 }
                 break;
             case "password":
-                const isWhitespace = /^(?=.*\s)/;
-                const isContainsSymbol =
-                    /^(?=.*[~`!@#$%^&*()--+={}\[\]|\\:;"'<>,.?/_₹])/;
-                const isContainsUppercase = /^(?=.*[A-Z])/;
-                const isContainsLowercase = /^(?=.*[a-z])/;
-                const isContainsNumber = /^(?=.*[0-9])/;
-                const isValidLength = /^.{8,100}$/;
-
                 setPassword(e.target.value)
-                if (isWhitespace.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_whitespace"))
-                }
-
-
-                else if (!isContainsUppercase.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_uppercase"))
-                }
-
-                else if (!isContainsLowercase.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_lowercase"))
-                }
-
-                else if (!isContainsNumber.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_digit"))
-                }
-
-
-                else if (!isContainsSymbol.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_symbol"))
-                }
-
-                else if (!isValidLength.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_length"))
-                }
-
-                else {
-                    setErrorPassword("")
-                }
+                setErrorPassword(validatePassword(e.target.value, t))
                 break;
         }
     }

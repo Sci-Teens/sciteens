@@ -1,18 +1,22 @@
 import { useState, useEffect } from "react"
 import { useContext } from "react";
-import isAlpha from 'validator/lib/isAlpha'
-import isEmail from "validator/lib/isEmail";
-import { doc, getDoc, setDoc, updateDoc } from '@firebase/firestore';
-import { updateProfile } from "@firebase/auth";
-import { AppContext } from '../../context/context'
-import { useFirestore, useAuth } from 'reactfire';
-import { signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, getAdditionalUserInfo, RecaptchaVerifier, sendEmailVerification } from '@firebase/auth'
-import { useRouter } from "next/router";
-import moment from 'moment';
+
 import Link from "next/link";
 import Head from "next/head"
+import { useRouter } from "next/router";
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
+
+import { useFirestore, useAuth } from 'reactfire';
+import { doc, getDoc, setDoc } from '@firebase/firestore';
+import { updateProfile, createUserWithEmailAndPassword, RecaptchaVerifier, sendEmailVerification } from '@firebase/auth'
+
+import isAlpha from 'validator/lib/isAlpha'
+import isEmail from "validator/lib/isEmail";
+import moment from 'moment';
+
+import { AppContext } from '../../context/context'
+import { validatePassword, createUniqueSlug, providerSignIn } from "../../context/helpers";
 
 export default function StudentSignUp() {
     const { t } = useTranslation('common')
@@ -46,30 +50,6 @@ export default function StudentSignUp() {
     const auth = useAuth()
     const router = useRouter()
     const { setProfile } = useContext(AppContext)
-
-    async function createUniqueSlug(check_slug, num) {
-        const slugDoc = doc(firestore, 'profile-slugs', check_slug)
-        const slugRef = await getDoc(slugDoc)
-
-        if (slugRef.exists()) {
-            if (num == 1) {
-                check_slug = check_slug + "-" + 1;
-            } else {
-                check_slug = check_slug.replace(
-                    /[0-9]+(?!.*[0-9])/,
-                    function (match) {
-                        return parseInt(match, 10) + 1;
-                    }
-                );
-            }
-
-            // check_slug = check_slug + "-" + num;
-            num += 1;
-            return create_unique_slug(check_slug, num);
-        } else {
-            return check_slug;
-        }
-    }
 
     useEffect(async () => {
         if (process.browser && !document.getElementById('recaptcha-container').hasChildNodes()) {
@@ -142,44 +122,8 @@ export default function StudentSignUp() {
                 }
                 break;
             case "password":
-                const isWhitespace = /^(?=.*\s)/;
-                const isContainsSymbol =
-                    /^(?=.*[~`!@#$%^&*()--+={}\[\]|\\:;"'<>,.?/_₹])/;
-                const isContainsUppercase = /^(?=.*[A-Z])/;
-                const isContainsLowercase = /^(?=.*[a-z])/;
-                const isContainsNumber = /^(?=.*[0-9])/;
-                const isValidLength = /^.{10,16}$/;
-
                 setPassword(e.target.value)
-                if (isWhitespace.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_whitespace"))
-                }
-
-
-                else if (!isContainsUppercase.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_uppercase"))
-                }
-
-                else if (!isContainsLowercase.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_lowercase"))
-                }
-
-                else if (!isContainsNumber.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_digit"))
-                }
-
-
-                else if (!isContainsSymbol.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_symbol"))
-                }
-
-                else if (!isValidLength.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_length"))
-                }
-
-                else {
-                    setErrorPassword("")
-                }
+                setErrorPassword(validatePassword(e.target.value, t))
                 break;
         }
     }
@@ -218,44 +162,18 @@ export default function StudentSignUp() {
         }
 
         try {
-            unique_slug = await createUniqueSlug(first_name.toLowerCase() + "-" + last_name.toLowerCase(), 1)
-        }
-
-        catch (e) {
-            console.log("Couldn't create unique slug")
-        }
-
-        try {
+            unique_slug = await createUniqueSlug(firebase, first_name.toLowerCase() + "-" + last_name.toLowerCase(), 'profile-slugs', 1)
             await setDoc(doc(firestore, 'profiles', res.user.uid), profile)
+            await setDoc(doc(firestore, 'profile-slugs', unique_slug), { slug: unique_slug })
+            await setDoc(doc(firestore, 'emails', res.user.uid), { email: res.user.email })
+            await sendEmailVerification(res.user)
+
+
         }
 
         catch (e) {
             setErrorEmail("Couldn't create an accound at this time")
-        }
 
-        try {
-            await setDoc(doc(firestore, 'profile-slugs', unique_slug), { slug: unique_slug })
-        }
-
-        catch (e) {
-            console.error('couldn\'t set profile slug')
-        }
-
-        try {
-            await setDoc(doc(firestore, 'emails', res.user.uid), { email: res.user.email })
-        }
-
-        catch (e) {
-
-        } console.error("couldn't set user email at this time")
-
-        try {
-            await sendEmailVerification(res.user)
-
-        }
-
-        catch (e) {
-            console.error("Couldn't send verification email")
         }
 
         try {
@@ -280,37 +198,6 @@ export default function StudentSignUp() {
             setEmail("")
             setLoading(false)
         }
-    }
-
-    async function providerSignIn() {
-        const provider = new GoogleAuthProvider()
-        try {
-            const res = await signInWithPopup(auth, provider)
-            const addInfo = await getAdditionalUserInfo(res)
-            if (addInfo.isNewUser) {
-                // Complete profile
-                router.push(`/signup/finish${res.user.displayName ? `?first_name=${res.user.displayName.split(' ')[0]}&last_name=${res.user.displayName.split(' ')[1]}` : ''}`)
-            }
-
-            else {
-                const prof = await getDoc(doc(firestore, 'profiles', res.user.uid))
-                setProfile(prof.data())
-                if (router.query.ref) {
-                    let ref = router.query.ref.split("|")
-                    let section = ref[0]
-                    let id = ref[1]
-                    if (section == "projects") {
-                        section = "project"
-                    }
-                    router.push(`/${section}/${id}`)
-                } else {
-                    router.push('/')
-                }
-            }
-        } catch (e) {
-            console.error(e)
-        }
-        return true;
     }
 
     return (
@@ -529,7 +416,7 @@ export default function StudentSignUp() {
                     </div>
                     <button
                         className="p-3 shadow bg-white rounded-lg w-full mb-2 hover:shadow-md flex items-center justify-center"
-                        onClick={providerSignIn}
+                        onClick={() => providerSignIn(auth, firestore, router, setProfile)}
                     >
                         <img src="/assets/logos/Google.png" alt="Google Logo" className="h-5 w-5 mr-2" />
                         {t("auth.google_sign_in")}

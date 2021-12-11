@@ -1,15 +1,19 @@
-import Link from 'next/link'
-import { useRouter } from 'next/router';
-import Head from 'next/head';
-
-import { signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, getAdditionalUserInfo } from '@firebase/auth'
 import { useContext, useState } from 'react'
-import { AppContext } from '../../context/context'
-import isEmail from 'validator/lib/isEmail'
-import { doc, getDoc } from '@firebase/firestore';
-import { useFirestore, useAuth } from 'reactfire';
+
+import Link from 'next/link'
+import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
+
+import { useFirestore, useAuth } from 'reactfire';
+import { doc, getDoc } from '@firebase/firestore';
+import { signInWithEmailAndPassword } from '@firebase/auth'
+
+import isEmail from 'validator/lib/isEmail'
+
+import { AppContext } from '../../context/context'
+import { validatePassword, providerSignIn } from '../../context/helpers';
 
 export default function StudentSignIn() {
     const { t } = useTranslation('common')
@@ -74,77 +78,10 @@ export default function StudentSignIn() {
                 }
                 break;
             case "password":
-                const isWhitespace = /^(?=.*\s)/;
-                const isContainsSymbol =
-                    /^(?=.*[~`!@#$%^&*()--+={}\[\]|\\:;"'<>,.?/_₹])/;
-                const isContainsUppercase = /^(?=.*[A-Z])/;
-                const isContainsLowercase = /^(?=.*[a-z])/;
-                const isContainsNumber = /^(?=.*[0-9])/;
-                const isValidLength = /^.{10,16}$/;
-
                 setPassword(e.target.value)
-                if (isWhitespace.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_whitespace"))
-                }
-
-
-                else if (!isContainsUppercase.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_uppercase"))
-                }
-
-                else if (!isContainsLowercase.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_lowercase"))
-                }
-
-                else if (!isContainsNumber.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_digit"))
-                }
-
-
-                else if (!isContainsSymbol.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_symbol"))
-                }
-
-                else if (!isValidLength.test(e.target.value)) {
-                    setErrorPassword(t("auth.password_length"))
-                }
-
-                else {
-                    setErrorPassword("")
-                }
+                setErrorPassword(validatePassword(e.target.value, t))
                 break;
         }
-    }
-
-    async function providerSignIn() {
-        const provider = new GoogleAuthProvider()
-        try {
-            const res = await signInWithPopup(auth, provider)
-            const addInfo = await getAdditionalUserInfo(res)
-
-            if (addInfo.isNewUser) {
-                // Complete profile
-                router.push(`/signup/finish${res.user.displayName ? `?first_name=${res.user.displayName.split(' ')[0]}&last_name=${res.user.displayName.split(' ')[1]}` : ''}`)
-            }
-            else {
-                const prof = await getDoc(doc(firestore, 'profiles', res.user.uid))
-                setProfile(prof.data())
-                if (router.query.ref) {
-                    let ref = router.query.ref.split("|")
-                    let section = ref[0]
-                    let id = ref[1]
-                    if (section == "projects") {
-                        section = "project"
-                    }
-                    router.push(`/${section}/${id}`)
-                } else {
-                    router.push('/')
-                }
-            }
-        } catch (e) {
-            console.error(e)
-        }
-        return true;
     }
 
     return (
@@ -232,7 +169,7 @@ export default function StudentSignIn() {
                     </div>
                     <button
                         className="p-2 shadow bg-white rounded w-full mb-2 hover:shadow-md flex items-center justify-center"
-                        onClick={providerSignIn}
+                        onClick={() => providerSignIn(auth, firestore, router, setProfile)}
                     >
                         <img src="/assets/logos/Google.png" alt="Google Logo" className="h-5 w-5 mr-2" />
                         {t('auth.google_sign_in')}
