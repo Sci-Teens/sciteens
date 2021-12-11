@@ -23,14 +23,6 @@ export default function MentorSignIn() {
             t("auth.please_verify"),
     }
 
-    const f_signup_errors = {
-        "auth/invalid-email": t("auth.auth_invalid_email"),
-        "auth/email-already-in-use": t("auth.auth_email_in_use"),
-        "auth/weak-password": t("auth.auth_weak_password"),
-        "Please verify your email before signing in":
-            t("auth.please_verify"),
-    }
-
     const [error_email, setErrorEmail] = useState('');
     const [error_password, setErrorPassword] = useState('');
     const [email, setEmail] = useState('')

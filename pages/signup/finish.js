@@ -9,8 +9,11 @@ import Head from "next/head";
 import Link from 'next/link';
 import { AppContext } from '../../context/context'
 import { createUniqueSlug } from "../../context/helpers";
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
 export default function FinishSignUp() {
+    const { t } = useTranslation('common')
     const [first_name, setFirstName] = useState('')
     const [last_name, setLastName] = useState('')
     const [birthday, setBirthday] = useState('')
@@ -183,18 +186,17 @@ export default function FinishSignUp() {
             <main>
                 <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow rounded-lg">
                     <h1 className="text-3xl text-center font-semibold mb-2">
-                        Just a few more things.
+                        {t('auth.finish_signup')}
                     </h1>
                     <p className="text-gray-700 text-center mb-6">
-                        Before you can get started on SciTeens, please fill out a few more things
-                        about yourself.
+                        {t('auth.why_finish_signup')}
                     </p>
 
                     <form onSubmit={finishSignUp}>
                         <div className="flex flex-row">
                             <div className="mr-1">
                                 <label for="first-name" className="uppercase text-gray-600">
-                                    First Name
+                                    {t('auth.first_name')}
                                 </label>
                                 <input
                                     onChange={e => onChange(e, 'first_name')}
@@ -213,7 +215,7 @@ export default function FinishSignUp() {
 
                             <div className="ml-2">
                                 <label for="last-name" className="uppercase text-gray-600 mt-4">
-                                    Last Name
+                                    {t('auth.last_name')}
                                 </label>
                                 <input
                                     onChange={e => onChange(e, 'last_name')}
@@ -234,7 +236,7 @@ export default function FinishSignUp() {
                             </div>
                         </div>
 
-                        <label for="birthday" className="uppercase text-gray-600">Birthday</label>
+                        <label for="birthday" className="uppercase text-gray-600">{t('auth.birthday')}</label>
                         <input
                             required
                             onChange={e => onChange(e, 'birthday')}
@@ -253,7 +255,7 @@ export default function FinishSignUp() {
                             }
                         </p>
 
-                        <label for="gender" className="uppercase text-gray-600">Gender</label>
+                        <label for="gender" className="uppercase text-gray-600">{t('auth.gender')}</label>
                         <select
                             onChange={e => setGender(e.target.value)}
                             name="gender"
@@ -261,13 +263,13 @@ export default function FinishSignUp() {
                             value={gender}
                             className="mb-4 appearance-none border-transparent border-2 bg-gray-100 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
                         >
-                            <option selected value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
-                            <option value="Prefer not to answer">Prefer not to answer</option>
+                            <option selected value="Male">{t('auth.male')}</option>
+                            <option value="Female">{t('auth.female')}</option>
+                            <option value="Other">{t('auth.other')}</option>
+                            <option value="Prefer not to answer">{t('auth.prefer_not_answer')}</option>
                         </select>
 
-                        <label for="race" className="uppercase text-gray-600">Race</label>
+                        <label for="race" className="uppercase text-gray-600">{t('auth.race')}</label>
                         <select
                             onChange={e => setRace(e.target.value)}
                             name="race"
@@ -276,25 +278,25 @@ export default function FinishSignUp() {
                             className="mb-4 appearance-none border-transparent border-2 bg-gray-100 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
                         >
                             <option selected value="American Indian or Alaska Native">
-                                American Indian or Alaska Native
+                                {t('auth.native_american')}
                             </option>
                             <option
                                 value="Asian (including Indian subcontinent and Philippines origin)"
-                            >Asian (including Indian subcontinent and Philippines origin)
+                            >{t('auth.asian')}
                             </option>
                             <option value="Black or African American"
-                            >Black or African American
+                            >{t('auth.black')}
                             </option>
                             <option value="Hispanic or Latino"
-                            >Hispanic or Latino
+                            >{t('auth.hispanic')}
                             </option>
                             <option value="White (including Middle Eastern origin)"
-                            >White (including Middle Eastern origin)
+                            >{t('auth.white')}
                             </option>
                             <option value="Native Hawaiian or Other Pacific Islander"
-                            >Native Hawaiian or Other Pacific Islander
+                            >{t('auth.navite_hawaiian')}
                             </option>
-                            <option value="Prefer not to answer">Prefer not to answer</option>
+                            <option value="Prefer not to answer">{t('auth.prefer_not_answer')}</option>
                         </select>
 
                         <div className="flex flex-col justify-between my-2">
@@ -312,8 +314,7 @@ export default function FinishSignUp() {
                                     />
                                     <label for="terms" className="text-sm text-gray-600 whitespace-nowrap">
                                         <div className="flex flex-row">
-                                            I have read and accept the <Link href='/legal/terms'><a className="text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark"> terms</a></Link> and
-                                            <Link href='/legal/privacy'><a className="text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark"> privacy</a></Link>.
+                                            {t('auth.terms')} <Link href='/legal/terms'><a className="text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark">{t('auth.terms_link')}</a></Link>
                                         </div>
                                     </label>
                                 </div>
@@ -327,7 +328,7 @@ export default function FinishSignUp() {
                                 className="bg-sciteensLightGreen-regular text-white text-lg font-semibold rounded-lg p-2 w-full hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
                                 onClick={finishSignUp}
                             >
-                                Finish
+                                {t('auth.finish')}
                                 {
                                     loading &&
                                     <img
@@ -344,4 +345,12 @@ export default function FinishSignUp() {
             </main>
         </div >
     )
+}
+
+export async function getStaticProps({ locale }) {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale, ['common'])),
+        },
+    };
 }

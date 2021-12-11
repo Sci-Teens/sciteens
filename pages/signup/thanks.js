@@ -1,22 +1,25 @@
 import Link from 'next/link'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
+
 export default function SignUpThanks() {
+    const { t } = useTranslation('common')
     return (
         <div className="relative h-screen flex flex-col justify-center items-center mx-auto -mt-12 z-30 w-full max-w-prose text-center">
             <img src="/assets/sciteens_logo_main.svg" alt="SciTeens Logo Main" />
             <h1 className="text-2xl text-bold">
-                Thanks for signing up!
+                {t("auth.thanks_for_signing_up")}
             </h1>
             <p className="text-lg">
-                We'll send you a confirmation email shortly; be sure to verify your email to post projects and send/receive feedback!
-                In the mean time, feel free to check out some of our latest&nbsp;
+                {t("auth.send_confirmation")}&nbsp;
                 <Link href="/articles">
-                    <a className="underline">articles</a>
+                    <a className="underline">{t("auth.articles")}</a>
                 </Link>
-                &nbsp;or&nbsp;
+                &nbsp;{t("auth.or")}&nbsp;
                 <Link href="/projects">
-                    <a className="underline">projects</a>
+                    <a className="underline">{t("auth.projects")}</a>
                 </Link>&nbsp;
-                for some inspiration, and feel free to follow us on our social media platforms to stay up-to-date with SciTeens news!
+                {t("auth.for_inspiration")}
             </p>
             <div className="flex flex-row bg-sciteensGreen-regular p-2 rounded-lg">
                 <a href="https://www.facebook.com/SciTeensinfo" target="_blank" rel="noopener noreferrer">
@@ -37,4 +40,12 @@ export default function SignUpThanks() {
             </div>
         </div>
     )
+}
+
+export async function getStaticProps({ locale }) {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale, ['common'])),
+        },
+    };
 }

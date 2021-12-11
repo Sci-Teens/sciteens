@@ -2,8 +2,11 @@ import Link from "next/link"
 import { useState } from "react"
 import { useRouter } from "next/router"
 import Head from "next/head"
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
 export default function SignUpIndex() {
+    const { t } = useTranslation('common')
     const [show_mentor_info, setShowMentorInfo] = useState(false)
     const [show_student_info, setShowStudentInfo] = useState(false)
 
@@ -22,17 +25,17 @@ export default function SignUpIndex() {
             <main className="h-screen flex justify-center -mt-8">
                 <div className="flex flex-col justify-center items-center text-center">
                     <h1 className="text-4xl">
-                        I am a
+                        {t("auth.i_am_a")}
                     </h1>
                     <div className="mx-auto">
-                        Have an account?&nbsp;
+                        {t("auth.have_account")}&nbsp;
                         <Link href={router.query?.ref ? {
                             pathname: '/signin/student',
                             query: {
                                 ref: (router.query?.ref)
                             }
                         } : '/signin/student'} >
-                            <a className="font-bold">Sign In instead</a>
+                            <a className="font-bold">{t("auth.sign_in")}</a>
                         </Link>
                     </div>
                     <div className="flex flex-wrap mx-auto justify-center">
@@ -55,8 +58,7 @@ export default function SignUpIndex() {
                                             }}
                                         />
                                         <h2 className="text-xl text-sciteensGreen-regular mx-2">
-                                            Sign up as a student if you are currently in high school or
-                                            between the ages of 13 and 18.
+                                            {t("auth.student_info")}
                                         </h2>
                                     </div> : <div className="relative">
                                         <img
@@ -74,7 +76,7 @@ export default function SignUpIndex() {
                                             className="h-40 p-4 mx-auto"
                                         />
                                         <h2 className="text-xl text-sciteensGreen-regular">
-                                            Student
+                                            {t("auth.student")}
                                         </h2>
                                     </div>}
                             </a>
@@ -99,8 +101,7 @@ export default function SignUpIndex() {
                                             }}
                                         />
                                         <h2 className="text-lg text-sciteensGreen-regular mx-2">
-                                            Sign up as an educator if you are in academia or industry, and
-                                            want to help STEM high school students.
+                                            {t("auth.educator_info")}
                                         </h2>
                                     </div> :
                                     <div className="relative">
@@ -119,10 +120,10 @@ export default function SignUpIndex() {
                                             className="h-40 p-4 mx-auto"
                                         />
                                         <h2 className="text-xl text-sciteensGreen-regular">
-                                            Educator
+                                            {t("auth.educator")}
                                         </h2>
                                         <p className="text-gray-700 text-sm italic">
-                                            (And other options...)
+                                            {t("auth.and_other_options")}
                                         </p>
                                     </div>}
                             </a>
@@ -131,9 +132,9 @@ export default function SignUpIndex() {
                     </div >
                     <div className="mx-auto mb-1/4">
                         <p className="text-gray-700">
-                            Neither of the above?&nbsp;
+                            {t("auth.neither_of_above")}&nbsp;
                             <Link href="/getinvolved">
-                                <a className="font-bold">See how you can help</a>
+                                <a className="font-bold">{t("auth.involved_link")}</a>
                             </Link>
                         </p>
                     </div >
@@ -141,4 +142,12 @@ export default function SignUpIndex() {
             </main>
         </div >
     )
+}
+
+export async function getStaticProps({ locale }) {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale, ['common'])),
+        },
+    };
 }

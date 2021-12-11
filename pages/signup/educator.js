@@ -11,14 +11,17 @@ import { useRouter } from "next/router";
 import moment from 'moment';
 import Link from 'next/link'
 import Head from "next/head"
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
 export default function MentorSignUp() {
+    const { t } = useTranslation('common')
     const f_signup_errors = {
-        "auth/invalid-email": "Email address is invalid",
-        "auth/email-already-in-use": "This email is already in use",
-        "auth/weak-password": "The password provided is weak",
+        "auth/invalid-email": t("auth.auth_invalid_email"),
+        "auth/email-already-in-use": t("auth.auth_email_in_use"),
+        "auth/weak-password": t("auth.auth_weak_password"),
         "Please verify your email before signing in":
-            "Please verify your email before signing in",
+            t("auth.please_verify"),
     }
 
     const [first_name, setFirstName] = useState('')
@@ -164,29 +167,29 @@ export default function MentorSignUp() {
 
                 setPassword(e.target.value)
                 if (isWhitespace.test(e.target.value)) {
-                    setErrorPassword("Password must not contain Whitespaces")
+                    setErrorPassword(t("auth.password_whitespace"))
                 }
 
 
                 else if (!isContainsUppercase.test(e.target.value)) {
-                    setErrorPassword("Password must have at least one Uppercase Character")
+                    setErrorPassword(t("auth.password_uppercase"))
                 }
 
                 else if (!isContainsLowercase.test(e.target.value)) {
-                    setErrorPassword("Password must have at least one Lowercase Character")
+                    setErrorPassword(t("auth.password_lowercase"))
                 }
 
                 else if (!isContainsNumber.test(e.target.value)) {
-                    setErrorPassword("Password must contain at least one Digit")
+                    setErrorPassword(t("auth.password_digit"))
                 }
 
 
                 else if (!isContainsSymbol.test(e.target.value)) {
-                    setErrorPassword("Password must contain at least one Special Symbol")
+                    setErrorPassword(t("auth.password_symbol"))
                 }
 
                 else if (!isValidLength.test(e.target.value)) {
-                    setErrorPassword("Password must be 10-16 Characters Long.")
+                    setErrorPassword(t("auth.password_length"))
                 }
 
                 else {
@@ -267,10 +270,10 @@ export default function MentorSignUp() {
             <main>
                 <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow rounded-lg">
                     <h1 className="text-3xl text-center font-semibold mb-2">
-                        Educate on SciTeens
+                        {t("auth.educate_on_sciteens")}
                     </h1>
                     <p className="text-gray-700 text-center mb-6">
-                        Empower the next generation of STEM leaders from across the globe.
+                        {t("auth.why_educate_on_sciteens")}
                     </p>
 
                     <form onSubmit={emailSignUp}>
@@ -278,7 +281,7 @@ export default function MentorSignUp() {
                             <div className="mr-1">
 
                                 <label htmlFor="first-name" className="uppercase text-gray-600">
-                                    First Name
+                                    {t("auth.first_name")}
                                 </label>
                                 <input
                                     onChange={e => onChange(e, 'first_name')}
@@ -298,7 +301,7 @@ export default function MentorSignUp() {
                             <div className="ml-1">
 
                                 <label htmlFor="last-name" className="uppercase text-gray-600 mt-4">
-                                    Last Name
+                                    {t("auth.last_name")}
                                 </label>
                                 <input
                                     onChange={e => onChange(e, 'last_name')}
@@ -320,7 +323,7 @@ export default function MentorSignUp() {
                         </div>
 
                         <label htmlFor="email" className="uppercase text-gray-600">
-                            Email
+                            {t("auth.email")}
                         </label>
                         <input
                             value={email}
@@ -338,7 +341,7 @@ export default function MentorSignUp() {
                         </p>
 
                         <label htmlFor="password" className="uppercase text-gray-600">
-                            Password
+                            {t("auth.password")}
                         </label>
                         <input
                             value={password}
@@ -356,7 +359,7 @@ export default function MentorSignUp() {
                         </p>
 
                         <label htmlFor="institution" className="uppercase text-gray-600 mt-4">
-                            Institution
+                            {t("auth.institution")}
                         </label>
                         <input
                             onChange={e => onChange(e, 'institution')}
@@ -375,7 +378,7 @@ export default function MentorSignUp() {
                             {error_institution}
                         </p>
 
-                        <label htmlFor="position" className="uppercase text-gray-600">I am a(n)</label>
+                        <label htmlFor="position" className="uppercase text-gray-600">{t("auth.position")}</label>
                         <div className="relative w-full">
                             <select
                                 name="position"
@@ -384,17 +387,17 @@ export default function MentorSignUp() {
                                 value={position}
                                 className="block mb-4 appearance-none border-transparent border-2 bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
                             >
-                                <option selected value="Educator">Educator</option>
-                                <option value="Professional">Professional</option>
-                                <option value="Researcher">Researcher</option>
-                                <option value="Prefer not to answer">Prefer not to answer</option>
+                                <option selected value="Educator">{t("auth.educator")}</option>
+                                <option value="Professional">{t("auth.professional")}</option>
+                                <option value="Researcher">{t("auth.researcher")}</option>
+                                <option value="Prefer not to answer">{t("auth.prefer_not_answer")}</option>
                             </select>
                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                                 <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
                             </div>
                         </div>
 
-                        <label htmlFor="gender" className="uppercase text-gray-600">Gender</label>
+                        <label htmlFor="gender" className="uppercase text-gray-600">{t("auth.gender")}</label>
                         <div className="relative w-full">
                             <select
                                 onChange={e => setGender(e.target.value)}
@@ -403,17 +406,17 @@ export default function MentorSignUp() {
                                 value={gender}
                                 className="mb-4 appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:placeholder-gray-700 focus:bg-white focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
                             >
-                                <option selected value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Other">Other</option>
-                                <option value="Prefer not to answer">Prefer not to answer</option>
+                                <option selected value="Male">{t("auth.male")}</option>
+                                <option value="Female">{t("auth.female")}</option>
+                                <option value="Other">{t("auth.other")}</option>
+                                <option value="Prefer not to answer">{t("auth.prefer_not_answer")}</option>
                             </select>
                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                                 <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
                             </div>
                         </div>
 
-                        <label htmlFor="race" className="uppercase text-gray-600">Race</label>
+                        <label htmlFor="race" className="uppercase text-gray-600">{t("auth.race")}</label>
                         <div className="relative w-full">
                             <select
                                 onChange={e => setRace(e.target.value)}
@@ -423,25 +426,25 @@ export default function MentorSignUp() {
                                 className="mb-4 appearance-none border-2 border-transparent bg-gray-100 w-full mr-3 p-2 leading-tight rounded-lg focus:outline-none focus:placeholder-gray-700 focus:bg-white focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
                             >
                                 <option selected value="American Indian or Alaska Native">
-                                    American Indian or Alaska Native
+                                    {t("auth.american_indian")}
                                 </option>
                                 <option
                                     value="Asian (including Indian subcontinent and Philippines origin)"
-                                >Asian (including Indian subcontinent and Philippines origin)
+                                >{t("auth.asian")}
                                 </option>
                                 <option value="Black or African American"
-                                >Black or African American
+                                >{t("auth.black")}
                                 </option>
                                 <option value="Hispanic or Latino"
-                                >Hispanic or Latino
+                                >{t("auth.hispanic")}
                                 </option>
                                 <option value="White (including Middle Eastern origin)"
-                                >White (including Middle Eastern origin)
+                                >{t("auth.white")}
                                 </option>
                                 <option value="Native Hawaiian or Other Pacific Islander"
-                                >Native Hawaiian or Other Pacific Islander
+                                >{t("auth.native_hawaiian")}
                                 </option>
-                                <option value="Prefer not to answer">Prefer not to answer</option>
+                                <option value="Prefer not to answer">{t("auth.prefer_not_answer")}</option>
                             </select>
                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                                 <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
@@ -462,8 +465,7 @@ export default function MentorSignUp() {
                                 />
                                 <label htmlFor="terms" className="text-sm text-gray-600 whitespace-nowrap">
                                     <div className="flex flex-row">
-                                        I have read and accept the <Link href='/legal/terms'><a className="text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark"> terms</a></Link> and
-                                        <Link href='/legal/privacy'><a className="text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark"> privacy</a></Link>.
+                                        {t("auth.terms")} <Link href='/legal/terms'><a className="text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark">{t("auth.terms_link")}</a></Link>
                                     </div>
                                 </label>
                             </div>
@@ -477,7 +479,7 @@ export default function MentorSignUp() {
                             className="bg-sciteensLightGreen-regular text-white text-lg font-semibold rounded-lg p-2 w-full hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
                             onClick={emailSignUp}
                         >
-                            Create Account
+                            {t("auth.create_account")}
                             {
                                 loading &&
                                 <img
@@ -491,7 +493,7 @@ export default function MentorSignUp() {
                     </form >
                     <div className="mt-4 flex justify-center">
                         <p className="text-gray-700">
-                            Have an account?&nbsp;
+                            {t("auth.have_account")}&nbsp;
                             <Link href={router.query?.ref ? {
                                 pathname: '/signin/educator',
                                 query: {
@@ -499,7 +501,7 @@ export default function MentorSignUp() {
                                 }
                             } : '/signin/educator'}
                                 className="font-bold">
-                                <a className="font-bold">Sign in</a>
+                                <a className="font-bold">{t("auth.sign_in_link")}</a>
                             </Link>
                         </p>
                     </div>
@@ -507,4 +509,12 @@ export default function MentorSignUp() {
             </main>
         </div >
     )
+}
+
+export async function getStaticProps({ locale }) {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale, ['common'])),
+        },
+    };
 }
