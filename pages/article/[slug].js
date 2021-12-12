@@ -254,14 +254,30 @@ function Article({ article, recommendations }) {
     )
 }
 
-export async function getServerSideProps({ query, locale }) {
+export async function getStaticPaths() {
+    let paths = []
+    const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
+    const client = Prismic.client(apiEndpoint)
+    const articles = await client.query(
+        Prismic.Predicates.at('document.type', 'blog'),
+    )
+    for (let article of articles.results) {
+        paths.push({
+            params: { slug: article.uid }
+        })
+    }
+
+    return { paths: paths, fallback: false }
+}
+
+export async function getStaticProps({ params, locale }) {
     // Fetch data from external API
     const translations = await serverSideTranslations(locale, ['common'])
     try {
         const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
         const client = Prismic.client(apiEndpoint)
         const article = await client.getByUID(
-            'blog', query?.slug
+            'blog', params?.slug
         )
         const recommendationsQuery = await client.query([
             Prismic.Predicates.at("document.type", "blog"),
