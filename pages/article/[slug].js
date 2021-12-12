@@ -256,15 +256,20 @@ export async function getStaticPaths() {
     let paths = []
     const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
     const client = Prismic.client(apiEndpoint)
-    const articles = await client.query(
+    const res = await client.query(
         Prismic.Predicates.at('document.type', 'blog'),
     )
-    for (let article of articles.results) {
-        paths.push({
-            params: { slug: article.uid }
-        })
+    for (let i = 1; i <= res.total_pages; i++) {
+        const articles = await client.query(
+            Prismic.Predicates.at('document.type', 'blog'),
+            { pageSize: 20, page: i }
+        )
+        for (let article of articles.results) {
+            paths.push({
+                params: { slug: article.uid }
+            })
+        }
     }
-
     return { paths: paths, fallback: false }
 }
 
