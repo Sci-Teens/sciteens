@@ -181,7 +181,6 @@ function Projects({ cached_projects }) {
                     <div className="h-full max-w-[100px] md:max-w-[200px] max-h-[100px] md:max-h-[200px] relative overflow-hidden rounded-lg">
                         <img src={project.project_photo ? project.project_photo : ''} className="rounded-lg object-cover flex-shrink-0"></img>
                     </div>
-                    {/* <Image src={"https://source.unsplash.com/collection/1677633/"} alt="Project Image" height={128} width={128} loader={imageLoader}></Image> */}
                     <div className="ml-4 w-3/4 lg:w-11/12">
                         {project.member_arr && <div className="flex flex-row items-center mb-3">
                             <div className="flex -space-x-2 overflow-hidden">
@@ -200,7 +199,7 @@ function Projects({ cached_projects }) {
                         <div className="flex flex-row">
                             {project.fields.map((field, index) => {
                                 if (index < checkForLongFields(project.fields))
-                                    return <p className="hidden lg:flex text-xs py-1.5 px-3 bg-gray-100 rounded-full mr-2 mb-2 z-30 shadow whitespace-nowrap">{field}</p>
+                                    return <p className="text-xs py-1.5 px-3 bg-gray-100 rounded-full mr-2 mb-2 z-30 shadow whitespace-nowrap">{field}</p>
                             })}
                             {project.fields.length >= 3 &&
                                 <p className="hidden lg:flex text-xs text-gray-600 mt-1.5 whitespace-nowrap">+ {project.fields.length - checkForLongFields(project.fields)} more field{project.fields.length - checkForLongFields(project.fields) == 1 ? "" : "s"}</p>

@@ -124,7 +124,7 @@ function Courses({ cached_courses }) {
                     <div className="ml-4 w-3/4 lg:w-11/12">
                         <h3 className="font-semibold text-base md:text-xl lg:text-2xl mb-2 line-clamp-2">{RichText.asText(course.data.name)}</h3>
                         <p className="hidden md:block mb-2 line-clamp-none md:line-clamp-2 lg:line-clamp-3">{RichText.asText(course.data.description)}</p>
-                        <p className="hidden lg:flex text-xs">{moment(course.data.start).format('ll') + " - " + moment(course.data.end).format('ll')}</p>
+                        <p className="flex text-xs">{moment(course.data.start).format('ll') + " - " + moment(course.data.end).format('ll')}</p>
                     </div>
 
                 </animated.div>
