@@ -17,24 +17,26 @@ function Courses({ cached_courses }) {
     const [courses, setCourses] = useState(cached_courses)
 
     useEffect(async () => {
-        const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
-        const client = Prismic.default.client(apiEndpoint)
-        let predicates = []
-        if (router.query.search) {
-            predicates.push(Prismic.default.Predicates.fulltext('document', router.query.search))
+        if (router.asPath !== '/courses') {
+            const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
+            const client = Prismic.default.client(apiEndpoint)
+            let predicates = []
+            if (router.query.search) {
+                predicates.push(Prismic.default.Predicates.fulltext('document', router.query.search))
+            }
+            if (router.query.field && router.query.field != "All") {
+                predicates.push(Prismic.default.Predicates.at("document.tags", [router.query.field]))
+            }
+            const cs = await client.query([
+                Prismic.default.Predicates.at("document.type", "course"),
+                ...predicates
+            ],
+                {
+                    orderings: `[document.first_publication_date desc]`,
+                    pageSize: 10,
+                })
+            setCourses(cs)
         }
-        if (router.query.field && router.query.field != "All") {
-            predicates.push(Prismic.default.Predicates.at("document.tags", [router.query.field]))
-        }
-        const cs = await client.query([
-            Prismic.default.Predicates.at("document.type", "course"),
-            ...predicates
-        ],
-            {
-                orderings: `[document.first_publication_date desc]`,
-                pageSize: 10,
-            })
-        setCourses(cs)
     }, [router])
 
     const [search, setSearch] = useState('')

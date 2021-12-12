@@ -36,24 +36,27 @@ function Articles({ cached_articles }) {
     const [articles, setArticles] = useState(cached_articles)
 
     useEffect(async () => {
-        const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
-        const client = Prismic.default.client(apiEndpoint)
-        let predicates = []
-        if (router.query.search) {
-            predicates.push(Prismic.default.Predicates.fulltext('document', router.query.search))
+        if (router.asPath !== '/articles') {
+            const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
+            const client = Prismic.default.client(apiEndpoint)
+            let predicates = []
+            if (router.query.search) {
+                predicates.push(Prismic.default.Predicates.fulltext('document', router.query.search))
+            }
+            if (router.query.field && router.query.field != "All") {
+                predicates.push(Prismic.default.Predicates.at("document.tags", [router.query.field]))
+            }
+            const as = await client.query([
+                Prismic.default.Predicates.at("document.type", "blog"),
+                ...predicates
+            ],
+                {
+                    orderings: `[document.first_publication_date desc]`,
+                    pageSize: 10,
+                })
+            setArticles(as)
         }
-        if (router.query.field && router.query.field != "All") {
-            predicates.push(Prismic.default.Predicates.at("document.tags", [router.query.field]))
-        }
-        const as = await client.query([
-            Prismic.default.Predicates.at("document.type", "blog"),
-            ...predicates
-        ],
-            {
-                orderings: `[document.first_publication_date desc]`,
-                pageSize: 10,
-            })
-        setArticles(as)
+
     }, [router])
 
     const [search, setSearch] = useState('')
@@ -203,7 +206,7 @@ function Articles({ cached_articles }) {
                             maxLength="100"
                         />
                         <select
-                            onChange={e => setField(e.target.value)}
+                            onChange={e => handleFieldSearch(e.target.value)}
                             name="field"
                             id="field"
                             value={field}

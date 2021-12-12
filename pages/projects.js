@@ -22,68 +22,65 @@ function Projects({ cached_projects }) {
     const [projects, setProjects] = useState(cached_projects)
 
     useEffect(async () => {
-        let projects = []
-        if (router.query.search) {
-            // Fetch data from external API (Algolia)
-            const searchClient = algoliasearch(
-                process.env.NEXT_PUBLIC_AL_APP_ID,
-                process.env.NEXT_PUBLIC_AL_SEARCH_KEY
-            );
+        if (router.asPath !== '/projects') {
+            let ps = []
+            if (router.query.search) {
+                // Fetch data from external API (Algolia)
+                const searchClient = algoliasearch(
+                    process.env.NEXT_PUBLIC_AL_APP_ID,
+                    process.env.NEXT_PUBLIC_AL_SEARCH_KEY
+                );
 
-            const projectIndex = searchClient.initIndex("prod_PROJECTS")
+                const projectIndex = searchClient.initIndex("prod_PROJECTS")
 
-            if (!router.query?.field || router.query?.field == "All") {
-                console.log("Algolia regular")
-
-                let results = await projectIndex
-                    .search(query.search)
-                results.hits.forEach(p => {
-                    projects.push({
-                        id: p.objectID,
-                        ...p.data
+                if (!router.query?.field || router.query?.field == "All") {
+                    let results = await projectIndex
+                        .search(query.search)
+                    results.hits.forEach(p => {
+                        ps.push({
+                            id: p.objectID,
+                            ...p.data
+                        })
                     })
-                })
+                }
+
+                else {
+                    let results = await projectIndex
+                        .search(query.search, {
+                            filters: 'data.fields:' + query.field
+                        })
+                    results.hits.forEach(p => {
+                        ps.push({
+                            id: p.objectID,
+                            ...p.data
+                        })
+                    })
+                }
+                setProjects(ps)
             }
 
+            // Firebase
             else {
-                console.log("Algolia field")
+                const projectsCollection = collection(firestore, 'projects')
+                let projectsQuery
+                if (!router.query?.field || router.query?.field == "All") {
+                    console.log("Firebase regular")
+                    projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), limit(10))
 
-                let results = await projectIndex
-                    .search(query.search, {
-                        filters: 'data.fields:' + query.field
-                    })
-                results.hits.forEach(p => {
-                    projects.push({
-                        id: p.objectID,
-                        ...p.data
+                }
+
+                else {
+                    projectsQuery = firebase_query(projectsCollection, firebase_where('fields', 'array-contains', router.query.field), orderBy('date', 'desc'), limit(10))
+                }
+                const projectsRef = await getDocs(projectsQuery)
+                projectsRef.forEach(p => {
+                    ps.push({
+                        id: p.id,
+                        ...p.data(),
                     })
                 })
+                setProjects(ps)
             }
-            setProjects(projects)
-        }
-
-        // Firebase
-        else {
-            const projectsCollection = collection(firestore, 'projects')
-            let projectsQuery
-            if (!router.query?.field || router.query?.field == "All") {
-                console.log("Firebase regular")
-                projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), limit(10))
-
-            }
-
-            else {
-                console.log("Firebase field")
-                projectsQuery = firebase_query(projectsCollection, firebase_where('fields', 'array-contains', router.query.field), orderBy('date', 'desc'), limit(10))
-            }
-            const projectsRef = await getDocs(projectsQuery)
-            projectsRef.forEach(p => {
-                projects.push({
-                    id: p.id,
-                    ...p.data(),
-                })
-            })
-            setProjects(projects)
         }
     }, [router])
 
@@ -196,7 +193,7 @@ function Projects({ cached_projects }) {
                         </div>}
                         <h3 className="font-semibold text-base md:text-xl lg:text-2xl mb-2 line-clamp-2">{project.title}</h3>
                         <p className="hidden md:block mb-4 line-clamp-none md:line-clamp-2 lg:line-clamp-3">{project.abstract}</p>
-                        <div className="flex flex-row">
+                        <div className="hidden lg:flex flex-row">
                             {project.fields.map((field, index) => {
                                 if (index < checkForLongFields(project.fields))
                                     return <p className="text-xs py-1.5 px-3 bg-gray-100 rounded-full mr-2 mb-2 z-30 shadow whitespace-nowrap">{field}</p>
