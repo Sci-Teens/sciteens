@@ -1,7 +1,5 @@
-import { useAmp } from 'next/amp'
 import { RichText } from 'prismic-reactjs';
 import { useState, useEffect } from 'react'
-export const config = { amp: 'hybrid' };
 var Prismic = require("@prismicio/client");
 import Link from 'next/link';
 import moment from 'moment';
@@ -18,7 +16,7 @@ function Article({ article, recommendations }) {
     const [rightVisible, setRightVisible] = useState(true)
     const [scrollIndex, setScrollIndex] = useState(-1)
     const [swipePosition, setSwipePositon] = useState(0)
-    const isAmp = useAmp()
+    const isAmp = false
     const { t } = useTranslation('common')
 
 
@@ -286,7 +284,7 @@ export async function getStaticProps({ params, locale }) {
         let recommendations = []
         let index = 0
         do {
-            if (recommendationsQuery.results[index].id != article.id) {
+            if (recommendationsQuery.results[index].uid != article.uid) {
                 recommendations.push(recommendationsQuery.results[index])
             }
             index++
