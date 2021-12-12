@@ -56,6 +56,8 @@ function Articles({ cached_articles }) {
                 })
             setArticles(as)
         }
+        moment.locale(router?.locale ? router.locale : 'en');
+
 
     }, [router])
 

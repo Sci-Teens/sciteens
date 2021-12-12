@@ -112,7 +112,11 @@ export default function NavBar() {
                         {status === "success" && signInCheckResult?.signedIn === true ?
                             <div onClick={() => setShowProfileMenu(!showProfileMenu)} >
                                 <button className="relative h-10 w-10 rounded-full border-4 border-white hover:border-gray-100 hover:shadow-inner" >
-                                    <img src={signInCheckResult.user.photoURL} className="object-contain rounded-full" />
+                                    {signInCheckResult?.user?.photoURL ?
+                                        <img id="profile_photo" src={signInCheckResult.user.photoURL} className="object-contain rounded-full" />
+                                        :
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" className="object-contain rounded-full"><path fill="#4A5568" d="M10 20a10 10 0 1 1 0-20 10 10 0 0 1 0 20zM7 6v2a3 3 0 1 0 6 0V6a3 3 0 1 0-6 0zm-3.65 8.44a8 8 0 0 0 13.3 0 15.94 15.94 0 0 0-13.3 0z" /></svg>}
+
                                 </button>
                                 <div onClick={() => setShowProfileMenu(false)} className={`border border-gray-200 p-4 rounded-lg bg-white absolute shadow-lg top-14 w-32 right-4 z-50 ${showProfileMenu ? "" : "hidden"}`}>
                                     <Link href={`/profile/${profile?.slug ? profile.slug : ''}`} >
@@ -196,7 +200,11 @@ export default function NavBar() {
                         <hr className="w-[80%] mx-auto bg-black" />
                         <div className="mx-8">
                             <div className="flex flex-row mt-6 mb-2 mx-auto">
-                                <img src={signInCheckResult.user.photoURL} alt="" className="h-10 mr-6" />
+                                {signInCheckResult?.user?.photoURL ?
+                                    <img id="profile_photo" src={signInCheckResult.user.photoURL} className="rounded-full h-10 mr-6" />
+                                    :
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" className="rounded-full h-10 mr-6"><path fill="#4A5568" d="M10 20a10 10 0 1 1 0-20 10 10 0 0 1 0 20zM7 6v2a3 3 0 1 0 6 0V6a3 3 0 1 0-6 0zm-3.65 8.44a8 8 0 0 0 13.3 0 15.94 15.94 0 0 0-13.3 0z" /></svg>}
+
                                 <p className="text-xl my-auto">{signInCheckResult.user.displayName}</p>
                             </div>
                             <div className="flex flex-col text-left ml-4">

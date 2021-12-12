@@ -31,6 +31,8 @@ export default function Discussion({ type, item_id }) {
 
     const router = useRouter()
 
+    moment.locale(router?.locale ? router.locale : 'en');
+
     const onChange = async (e, isComment, index) => {
         if (isComment) {
             setComment(e.target.value)

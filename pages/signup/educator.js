@@ -420,7 +420,7 @@ export default function MentorSignUp() {
                         </div>
                         <button
                             type="submit"
-                            disabled={loading || error_name || error_institution || error_email || error_password || !recaptchaSolved}
+                            disabled={loading || error_name || !first_name || !last_name || error_institution || !institution || error_email || !email || error_password || !password || !recaptchaSolved}
                             className="bg-sciteensLightGreen-regular text-white text-lg font-semibold rounded-lg p-2 w-full hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
                             onClick={emailSignUp}
                         >
