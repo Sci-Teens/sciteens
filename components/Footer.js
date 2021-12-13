@@ -1,8 +1,15 @@
 import Link from "next/link"
 import { useRouter } from "next/router"
+import { useEffect } from "react"
+import { i18n } from "next-i18next"
 
 export default function Footer() {
     const router = useRouter()
+
+    useEffect(() => {
+        i18n.addResourceBundle(router.locale, 'common')
+    }, [router.isReady])
+
     return (
         <footer>
             <svg viewBox="0 0 900 40" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" version="1.1">
@@ -14,69 +21,69 @@ export default function Footer() {
             <div className="px-10 md:px-24 bg-sciteensGreen-regular text-gray-100 pt-4 pb-8">
                 <div className="flex flex-col md:flex-row mr-0 lg:mr-12 justify-between">
                     <div className="w-1/8 mb-8 md:mb-0">
-                        <p className="text-white font-semibold mb-1 md:mb-2">ORGANIZATION</p>
+                        <p className="text-white font-semibold mb-1 md:mb-2">{i18n.t('footer.organization')}</p>
                         <ul>
                             <li>
                                 <Link href='/about'>
                                     <a>
-                                        About
+                                        {i18n.t('footer.about')}
                                     </a>
                                 </Link>
                             </li>
                             <li>
-                                <Link href='/faq'>
+                                <Link href='/get-started'>
                                     <a>
-                                        FAQ
+                                        {i18n.t('footer.get_started')}
                                     </a>
                                 </Link>
                             </li>
                             <li>
                                 <a href="mailto:info@sciteens.org" target="_blank">
-                                    Contact
+                                    {i18n.t('footer.contact')}
                                 </a>
                             </li>
                             <li>
                                 <Link href='/getinvolved'>
                                     <a>
-                                        Get Involved
+                                        {i18n.t('footer.get_involved')}
                                     </a>
                                 </Link>
                             </li>
                             <li>
                                 <a href="https://docs.google.com/forms/d/e/1FAIpQLScbDPaXgLflGrV3NSXpOTSFYoU2dIcEFy-xT2Kz9-6dMUYotQ/viewform?usp=sf_link" target="_blank">
-                                    Feedback
+                                    {i18n.t('footer.feedback')}
                                 </a>
                             </li>
                         </ul>
                     </div>
                     <div className="w-1/8 mb-8 md:mb-0">
-                        <p className="text-white font-semibold mb-1 md:mb-2">LEGAL</p>
+                        <p className="text-white font-semibold mb-1 md:mb-2">{i18n.t('footer.legal')}</p>
                         <ul>
                             <li>
                                 <Link href='/legal/privacy'>
                                     <a>
-                                        Privacy
+                                        {i18n.t('footer.privacy')}
                                     </a>
                                 </Link>
                             </li>
                             <li>
                                 <Link href='/legal/terms'>
                                     <a>
-                                        Terms
+                                        {i18n.t('footer.terms')}
                                     </a>
                                 </Link>
                             </li>
                             <li>
                                 <Link href='/legal/gdpr'>
                                     <a>
-                                        Cookies
+                                        {i18n.t('footer.cookies')}
                                     </a>
                                 </Link>
                             </li>
                         </ul>
                     </div>
                     <div className="w-1/8 mb-8 md:mb-0">
-                        <p className="text-white font-semibold mb-1 md:mb-2">LANGUAGE</p>
+                        <p className="text-white font-semibold mb-1 md:mb-2">{i18n.t('footer.language')}</p>
                         <ul>
                             <li>
                                 <Link href={router.pathname} locale="en">
@@ -101,7 +108,7 @@ export default function Footer() {
                         </ul>
                     </div>
                     <div className="w-1/8 mb-8 md:mb-0">
-                        <p className="text-white font-semibold mb-2">FOLLOW US</p>
+                        <p className="text-white font-semibold mb-2">{i18n.t('footer.follow_us')}</p>
                         <div className="flex flex-row">
                             <a href="https://www.facebook.com/SciTeensinfo" target="_blank" rel="noopener noreferrer">
                                 <img className="h-6 mr-4" src={'../assets/icons/facebook-flat.svg'} alt="Facebook" />
