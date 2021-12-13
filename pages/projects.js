@@ -14,6 +14,7 @@ import { collection, query as firebase_query, orderBy, getDocs, limit, getFirest
 import algoliasearch from "algoliasearch/lite";
 import { useSpring, animated, config } from '@react-spring/web'
 import ProfilePhoto from "../components/ProfilePhoto"
+import { getTranslatedFieldsDict } from '../context/helpers';
 
 
 function Projects({ cached_projects }) {
@@ -86,21 +87,6 @@ function Projects({ cached_projects }) {
 
     const [search, setSearch] = useState('')
     const [field, setField] = useState('All')
-    const [field_names] = useState([
-        "All",
-        "Biology",
-        "Chemistry",
-        "Cognitive Science",
-        "Computer Science",
-        "Earth Science",
-        "Electrical Engineering",
-        "Environmental Science",
-        "Mathematics",
-        "Mechanical Engineering",
-        "Medicine",
-        "Physics",
-        "Space Science",
-    ])
 
     const imageLoader = ({ src, width, height }) => {
         return `${src}/${width || 256}x${height || 256}`
@@ -196,7 +182,7 @@ function Projects({ cached_projects }) {
                         <div className="hidden lg:flex flex-row">
                             {project.fields.map((field, index) => {
                                 if (index < checkForLongFields(project.fields))
-                                    return <p className="text-xs py-1.5 px-3 bg-gray-100 rounded-full mr-2 mb-2 z-30 shadow whitespace-nowrap">{field}</p>
+                                    return <p className="text-xs py-1.5 px-3 bg-gray-100 rounded-full mr-2 mb-2 z-30 shadow whitespace-nowrap">{getTranslatedFieldsDict(t)[field]}</p>
                             })}
                             {project.fields.length >= 3 &&
                                 <p className="hidden lg:flex text-xs text-gray-600 mt-1.5 whitespace-nowrap">+ {project.fields.length - checkForLongFields(project.fields)} more field{project.fields.length - checkForLongFields(project.fields) == 1 ? "" : "s"}</p>
@@ -273,16 +259,14 @@ function Projects({ cached_projects }) {
 
                         <h2 className="text-xl text-gray-700 mb-2">{t('projects.topics')}</h2>
                         <div className="flex flex-row flex-wrap">
-                            {
-                                field_names.map((f) => {
-                                    return (
-                                        <button key={f} onClick={() => handleFieldSearch(f)} className={`text-sm px-3 py-2 rounded-full mr-4 mb-4 shadow
-                                        ${f == field ? "bg-sciteensLightGreen-regular text-white" : "bg-white"}`}>
-                                            {f}
-                                        </button>
-                                    )
-                                })
-                            }
+                            {Object.entries(getTranslatedFieldsDict(t)).map(([key, value]) => {
+                                return (
+                                    <button key={value} onClick={() => handleFieldSearch(key)} className={`text-sm px-3 py-2 rounded-full mr-4 mb-4 shadow
+                                        ${key == field ? "bg-sciteensLightGreen-regular text-white" : "bg-white"}`}>
+                                        {value}
+                                    </button>
+                                )
+                            })}
                         </div>
                     </div>
                 </div>

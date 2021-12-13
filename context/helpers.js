@@ -55,6 +55,27 @@ export async function providerSignIn(auth, firestore, router, setProfile) {
     return true;
 }
 
+export function getTranslatedFieldsDict(t) {
+    // Returns dictionary of translated fields 
+    const FIELD_NAMES = {
+        "All": t("fields.all"),
+        "Biology": t("fields.biology"),
+        "Chemistry": t("fields.chemistry"),
+        "Cognitive Science": t("fields.cognitive_science"),
+        "Computer Science": t("fields.computer_science"),
+        "Earth Science": t("fields.earth_science"),
+        "Electrical Engineering": t("fields.electrical_engineering"),
+        "Environmental Science": t("fields.environmental_science"),
+        "Mathematics": t("fields.mathematics"),
+        "Mechanical Engineering": t("fields.mechanical_engineering"),
+        "Medicine": t("fields.medicine"),
+        "Physics": t("fields.physics"),
+        "Space Science": t("fields.space_science"),
+    }
+
+    return FIELD_NAMES
+}
+
 export function validatePassword(password, t) {
     // Validate a password, with support for translations (t)
     const isWhitespace = /^(?=.*\s)/;

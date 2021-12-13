@@ -1,15 +1,19 @@
-var Prismic = require("@prismicio/client");
+import { useState, useEffect } from 'react';
+
 import Link from 'next/link';
 import Image from 'next/image';
-import { RichText } from 'prismic-reactjs';
 import { useRouter } from "next/router";
 import Head from 'next/head';
-import { useState, useEffect } from 'react';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
+
+var Prismic = require("@prismicio/client");
+import { RichText } from 'prismic-reactjs';
 import { useSpring, animated, config } from '@react-spring/web';
 import moment from 'moment';
 import { resolveConfigFile } from 'prettier';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useTranslation } from 'next-i18next';
+
+import { getTranslatedFieldsDict } from '../context/helpers';
 
 
 function Courses({ cached_courses }) {
@@ -41,21 +45,6 @@ function Courses({ cached_courses }) {
 
     const [search, setSearch] = useState('')
     const [field, setField] = useState('All')
-    const [field_names] = useState([
-        "All",
-        "Biology",
-        "Chemistry",
-        "Cognitive Science",
-        "Computer Science",
-        "Earth Science",
-        "Electrical Engineering",
-        "Environmental Science",
-        "Mathematics",
-        "Mechanical Engineering",
-        "Medicine",
-        "Physics",
-        "Space Science",
-    ])
 
     const { t } = useTranslation('common')
     const imageLoader = ({ src, width, height }) => {
@@ -181,16 +170,14 @@ function Courses({ cached_courses }) {
 
                         <h2 className="text-xl text-gray-700 mb-2">{t('courses.topics')}</h2>
                         <div className="flex flex-row flex-wrap">
-                            {
-                                field_names.map((f) => {
-                                    return (
-                                        <button key={f} onClick={() => handleFieldSearch(f)} className={`text-sm px-3 py-2 rounded-full mr-4 mb-4 shadow
-                                        ${f == field ? "bg-sciteensLightGreen-regular text-white" : "bg-white"}`}>
-                                            {f}
-                                        </button>
-                                    )
-                                })
-                            }
+                            {Object.entries(getTranslatedFieldsDict(t)).map(([key, value]) => {
+                                return (
+                                    <button key={value} onClick={() => handleFieldSearch(key)} className={`text-sm px-3 py-2 rounded-full mr-4 mb-4 shadow
+                                        ${key == field ? "bg-sciteensLightGreen-regular text-white" : "bg-white"}`}>
+                                        {value}
+                                    </button>
+                                )
+                            })}
                         </div>
                     </div>
                 </div>

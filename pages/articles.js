@@ -4,7 +4,6 @@ import Link from 'next/link'
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from "next/router"
-import useSWR from 'swr';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 
@@ -13,23 +12,7 @@ import { RichText } from 'prismic-reactjs';
 
 import moment from 'moment'
 import { useSpring, animated, config } from '@react-spring/web'
-
-
-const FIELD_NAMES = [
-    "All",
-    "Biology",
-    "Chemistry",
-    "Cognitive Science",
-    "Computer Science",
-    "Earth Science",
-    "Electrical Engineering",
-    "Environmental Science",
-    "Mathematics",
-    "Mechanical Engineering",
-    "Medicine",
-    "Physics",
-    "Space Science",
-]
+import { getTranslatedFieldsDict } from '../context/helpers';
 
 function Articles({ cached_articles }) {
     const router = useRouter()
@@ -63,7 +46,6 @@ function Articles({ cached_articles }) {
 
     const [search, setSearch] = useState('')
     const [field, setField] = useState('All')
-    const [field_names] = useState(FIELD_NAMES)
 
     const imageLoader = ({ src, width, height }) => {
         return `${src}?fit=crop&crop=faces&w=${width || 256}&h=${height || 256}`
@@ -214,15 +196,14 @@ function Articles({ cached_articles }) {
                             value={field}
                             className="w-1/2 appearance-none border-transparent border-2 bg-white p-2 leading-tight rounded-r-lg focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensGreen-regular text-gray-700 placeholder-sciteensGreen-regular shadow"
                         >
-                            {
-                                field_names.map((name) => {
-                                    return (
-                                        <option key={name} value={name}>
-                                            {name}
-                                        </option>
-                                    )
-                                })
-                            }
+                            {Object.entries(getTranslatedFieldsDict(t)).map(([key, value]) => {
+                                return (
+                                    <option key={key} value={key}>
+                                        {value}
+                                    </option>
+                                )
+                            })}
+
                         </select>
                     </form>
                     {articlesComponent}
@@ -258,16 +239,14 @@ function Articles({ cached_articles }) {
 
                         <h2 className="text-xl text-gray-700 mb-2">{t('courses.topics')}</h2>
                         <div className="flex flex-row flex-wrap">
-                            {
-                                field_names.map((f) => {
-                                    return (
-                                        <button key={f} onClick={() => handleFieldSearch(f)} className={`text-sm px-3 py-2 rounded-full mr-4 mb-4 shadow
-                                        ${f == field ? "bg-sciteensLightGreen-regular text-white" : "bg-white"}`}>
-                                            {f}
-                                        </button>
-                                    )
-                                })
-                            }
+                            {Object.entries(getTranslatedFieldsDict(t)).map(([key, value]) => {
+                                return (
+                                    <button key={value} onClick={() => handleFieldSearch(key)} className={`text-sm px-3 py-2 rounded-full mr-4 mb-4 shadow
+                                        ${key == field ? "bg-sciteensLightGreen-regular text-white" : "bg-white"}`}>
+                                        {value}
+                                    </button>
+                                )
+                            })}
                         </div>
                     </div>
                 </div>

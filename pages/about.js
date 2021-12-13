@@ -172,7 +172,7 @@ export default function About() {
                                         className="w-20 h-20 lg:w-28 lg:h-28 rounded-full shadow m-auto mb-4" />
                                     <p className="text-base md:text-2xl text-center font-semibold mb-2">{member.name}</p>
                                     <p className={`hidden md:block text-center text-gray-700
-                                    ${member.name === "Aya Khalaf" || member.name === "Angelica Castillejos" ||
+                                    ${member.name === "Angelica Castillejos" ||
                                             member.name === "Tasman Rosenfeld" ? "text-sm" : "text-base"}`}>{member.about}</p>
                                 </animated.div>
                             })
