@@ -8,7 +8,7 @@ export default function Footer() {
 
     useEffect(() => {
         i18n.addResourceBundle(router.locale, 'common')
-    }, [router.isReady])
+    }, [router])
 
     return (
         <footer>

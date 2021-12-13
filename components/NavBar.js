@@ -38,7 +38,7 @@ export default function NavBar() {
 
     useEffect(() => {
         i18n.addResourceBundle(router.locale, 'common')
-    }, [router.isReady])
+    }, [router])
 
     useEffect(() => {
 
