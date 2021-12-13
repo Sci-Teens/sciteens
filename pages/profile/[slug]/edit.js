@@ -1,17 +1,19 @@
 import React, { useState, useCallback, useEffect, useContext } from "react"
-import moment from "moment"
+
+import Error from 'next/error'
+import { useRouter } from "next/router"
+import Link from "next/link"
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
+
 import { useSigninCheck, useStorage, useFirestore } from "reactfire"
 import { collection, updateDoc, limit, getFirestore, query as firebase_query, where, getDocs, doc, setDoc } from "@firebase/firestore"
 import { listAll, ref, getDownloadURL, getMetadata, uploadBytes } from "@firebase/storage";
 import { updateProfile as updateFirebaseProfile } from "@firebase/auth";
-import Error from 'next/error'
-import { useRouter } from "next/router"
+
 import { useDropzone } from 'react-dropzone'
 import File from "../../../components/File"
-import Link from "next/link"
 import { AppContext } from '../../../context/context'
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useTranslation } from 'next-i18next';
 
 export default function UpdateProfilePage({ user_profile }) {
     const { t } = useTranslation('common')
@@ -19,21 +21,6 @@ export default function UpdateProfilePage({ user_profile }) {
     const [about, setAbout] = useState('')
     const [member, setMember] = useState('')
     const [members, setMembers] = useState([])
-    const [field_names] = useState([
-        "Biology",
-        "Chemistry",
-        "Cognitive Science",
-        "Computer Science",
-        "Earth Science",
-        "Electrical Engineering",
-        "Environmental Science",
-        "Mathematics",
-        "Mechanical Engineering",
-        "Medicine",
-        "Physics",
-        "Space Science",
-    ])
-    const [field_values, setFieldValues] = useState(new Array(field_names.length).fill(false))
     const [file_extensions] = useState([
         "text/html",
         "image/png",
@@ -167,7 +154,7 @@ export default function UpdateProfilePage({ user_profile }) {
             }
 
             else if (f.size > 8000000) {
-                setErrorFile("This file is too large")
+                setErrorFile(t("project_create_edit.file_too_large"))
             }
 
             else {

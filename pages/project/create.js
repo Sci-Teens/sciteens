@@ -1,19 +1,26 @@
 import { useState, useCallback, useEffect, useContext } from "react"
-import { AppContext } from "../../context/context"
-import moment from "moment"
+
 import Head from "next/head"
-import { useFirestore, useSigninCheck, useStorage } from "reactfire"
-import { collection, query, startAt, endAt, orderBy, limit, getDocs, addDoc, setDoc, doc, updateDoc } from "@firebase/firestore"
-import { getStorage, ref, uploadBytes, updateMetadata, getDownloadURL } from "@firebase/storage"
 import Error from 'next/error'
 import { useRouter } from "next/router"
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
+
+import { useFirestore, useSigninCheck, useStorage } from "reactfire"
+import { collection, query, startAt, endAt, orderBy, limit, getDocs, addDoc, setDoc, doc, updateDoc } from "@firebase/firestore"
+import { ref, uploadBytes, updateMetadata, getDownloadURL } from "@firebase/storage"
+
 import isEmail from 'validator/lib/isEmail'
 import debounce from "lodash/debounce";
+import moment from "moment"
 import { useDropzone } from 'react-dropzone'
-import File from '../../components/File'
 import { useTransition, animated } from "@react-spring/web"
+import { getTranslatedFieldsDict } from "../../context/helpers"
+import { AppContext } from "../../context/context"
+import File from '../../components/File'
 
 export default function CreateProject() {
+    const { t } = useTranslation('common')
     const [loading, setLoading] = useState(false)
     const [title, setTitle] = useState('')
     const [start_date, setStartDate] = useState('')
@@ -22,21 +29,8 @@ export default function CreateProject() {
     const [member, setMember] = useState('')
     const [members, setMembers] = useState([])
     const [select_photo_mode, setMode] = useState(false)
-    const [field_names] = useState([
-        "Biology",
-        "Chemistry",
-        "Cognitive Science",
-        "Computer Science",
-        "Earth Science",
-        "Electrical Engineering",
-        "Environmental Science",
-        "Mathematics",
-        "Mechanical Engineering",
-        "Medicine",
-        "Physics",
-        "Space Science",
-    ])
-    const [field_values, setFieldValues] = useState(new Array(field_names.length).fill(false))
+    const [field_values, setFieldValues] = useState(new Array(Object.keys(getTranslatedFieldsDict(t)).length).fill(false))
+
     const [file_extensions] = useState([
         "text/html",
         "image/png",
@@ -92,7 +86,7 @@ export default function CreateProject() {
                 links: [],
                 date: moment().toISOString(),
                 subscribers: [],
-                fields: field_names.filter((item, i) => field_values[i]),
+                fields: Object.keys(getTranslatedFieldsDict(t)).filter((item, i) => field_values[i]),
                 member_uids: [signInCheckResult.user.uid],
                 member_arr: [
                     {
@@ -126,7 +120,7 @@ export default function CreateProject() {
         }
 
         catch (error) {
-            setErrorTitle("We couldn't create your project at this time")
+            setErrorTitle(t("project_create_edit.could_not_create"))
             console.error(error)
             setLoading(false)
         }
@@ -137,16 +131,16 @@ export default function CreateProject() {
         for (const f of fs) {
             const reader = new FileReader()
 
-            reader.onabort = () => setErrorFile('File reading was aborted')
-            reader.onerror = () => setErrorFile('Failed to read the file')
+            reader.onabort = () => setErrorFile(t("project_create_edit.file_aborted"))
+            reader.onerror = () => setErrorFile(t("project_create_edit.file_failed"))
             reader.onload = () => setErrorFile('')
 
             if (!(file_extensions.includes(f.type) || f.name.includes(".docx") || f.name.includes(".pptx"))) {
-                setErrorFile("This file format is not accepted")
+                setErrorFile(t("project_create_edit.file_format_not_accepted"))
             }
 
             else if (f.size > 8000000) {
-                setErrorFile("This file is too large")
+                setErrorFile(t("project_create_edit.file_too_large"))
             }
 
             else {
@@ -164,7 +158,7 @@ export default function CreateProject() {
             case "title":
                 setTitle(e.target.value)
                 if (e.target.value.trim() == "") {
-                    setErrorTitle("Please fill out your project title")
+                    setErrorTitle(t("project_create_edit.error_title"))
                 }
 
                 else {
@@ -176,7 +170,7 @@ export default function CreateProject() {
                 console.log(e.target.value)
                 setStartDate(e.target.value)
                 if (e.target.value == "") {
-                    setErrorStartDate("Please set a valid start date")
+                    setErrorStartDate(t("project_create_edit.error_start_date"))
                 }
 
                 else {
@@ -187,11 +181,11 @@ export default function CreateProject() {
             case "end_date":
                 setEndDate(e.target.value)
                 if (e.target.value == "") {
-                    setErrorEndDate("Please set a valid end date")
+                    setErrorEndDate(t("project_create_edit.error_end_date"))
                 }
 
                 else if (start_date != "" && start_date >= e.target.value) {
-                    setErrorEndDate("End date must come after start date")
+                    setErrorEndDate(t("project_create_edit.error_dates"))
                 }
 
                 else {
@@ -202,7 +196,7 @@ export default function CreateProject() {
             case "abstract":
                 setAbstract(e.target.value)
                 if (e.target.value == "") {
-                    setErrorAbstract("Please provide a brief overview of your project (or what you plan to complete for your project)")
+                    setErrorAbstract(t("project_create_edit.error_abstract"))
                 }
 
                 else {
@@ -213,7 +207,7 @@ export default function CreateProject() {
             case "member":
                 setMember(e.target.value)
                 if (!isEmail(e.target.value)) {
-                    setErrorMember("Please enter a valid email")
+                    setErrorMember(t("project_create_edit.error_email"))
                 }
 
                 else {
@@ -224,7 +218,7 @@ export default function CreateProject() {
 
             case "fields":
                 const id = e.target.id
-                const index = field_names.indexOf(id)
+                const index = Object.keys(getTranslatedFieldsDict(t)).indexOf(id)
                 let temp = [...field_values]
                 temp[index] = !temp[index]
                 setFieldValues([...temp])
@@ -240,7 +234,7 @@ export default function CreateProject() {
                 const res = await getDocs(q)
                 console.log(res)
                 if (res.empty) {
-                    setErrorMember("That email address doesn't exist")
+                    setErrorMember(t("project_create_edit.could_not_find_email"))
                 }
                 else {
                     setErrorMember("")
@@ -254,7 +248,7 @@ export default function CreateProject() {
             }
 
             catch (e) {
-                setErrorMember("Couldn't look for that address")
+                setErrorMember(t("project_create_edit.could_not_find_email"))
             }
 
         }, 500), []
@@ -294,14 +288,15 @@ export default function CreateProject() {
             <main>
                 <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow rounded-lg">
                     <h1 className="text-3xl text-center font-semibold mb-2">
-                        Create a Project
+                        {t("project_create_edit.create_project")}
                     </h1>
                     <p className="text-gray-700 text-center mb-6">
-                        Create a project to share your work and gain feedback from your peers and professional mentors.
+                        {t("project_create_edit.why_create_project")}
+
                     </p>
                     <form onSubmit={(e) => createProject(e)}>
                         <label for="title" className="uppercase text-gray-600">
-                            Title
+                            {t("project_create_edit.title")}
                         </label>
                         <input
                             onChange={e => onChange(e, 'title')}
@@ -319,7 +314,9 @@ export default function CreateProject() {
                             {error_title}
                         </p>
 
-                        <label for="start-date" className="uppercase text-gray-600">Start Date</label>
+                        <label for="start-date" className="uppercase text-gray-600">
+                            {t("project_create_edit.start_date")}
+                        </label>
                         <input
                             required
                             onChange={e => onChange(e, 'start_date')}
@@ -337,7 +334,9 @@ export default function CreateProject() {
                             }
                         </p>
 
-                        <label for="end-date" className="uppercase text-gray-600">End Date</label>
+                        <label for="end-date" className="uppercase text-gray-600">
+                            {t("project_create_edit.end_date")}
+                        </label>
                         <input
                             required
                             onChange={e => onChange(e, 'end_date')}
@@ -352,13 +351,11 @@ export default function CreateProject() {
                         >
                             {
                                 error_end_date
-                                    ? error_end_date
-                                    : "Your expected project end date"
                             }
                         </p>
 
                         <label for="abstract" className="uppercase text-gray-600">
-                            Summary
+                            {t("project_create_edit.summary")}
                         </label>
                         <textarea
                             onChange={e => onChange(e, 'abstract')}
@@ -377,7 +374,8 @@ export default function CreateProject() {
                         </p>
 
                         <label for="member" className="uppercase text-gray-600">
-                            Add Members
+                            {t("project_create_edit.add_members")}
+
                         </label>
                         <input
                             onChange={e => onChange(e, 'member')}
@@ -407,50 +405,49 @@ export default function CreateProject() {
                         }
 
                         <label for="fields" className="uppercase text-gray-600">
-                            Fields
-                        </label>
-                        {
-                            field_names.map((field, index) => {
-                                return (
-                                    <div>
-                                        <input
-                                            id={field}
-                                            className="form-checkbox active:outline-none text-sciteensLightGreen-regular mr-2"
-                                            type="checkbox"
-                                            value={field_values[index]}
-                                            checked={field_values[index]}
-                                            onChange={e => onChange(e, "fields")}
-                                        />
-                                        <label for={field} className="text-gray-700">
-                                            {field}
-                                            <br />
-                                        </label>
-                                    </div>
+                            {t("project_create_edit.fields")}
 
-                                )
-                            })
-                        }
+                        </label>
+
+                        {Object.entries(getTranslatedFieldsDict(t)).map(([key, value], index) => {
+                            return (
+                                <div>
+                                    <input
+                                        id={key}
+                                        className="form-checkbox active:outline-none text-sciteensLightGreen-regular mr-2"
+                                        type="checkbox"
+                                        value={field_values[index]}
+                                        checked={field_values[index]}
+                                        onChange={e => onChange(e, "fields")}
+                                    />
+                                    <label for={key} className="text-gray-700">
+                                        {value}
+                                        <br />
+                                    </label>
+                                </div>
+                            )
+                        })}
                         <div className="mb-4"></div>
                         <div {...getRootProps()} className={`w-full h-40 border-2 ${error_file ? 'bg-red-200 hover:bg-red-300' : 'bg-gray-100 hover:bg-gray-200'}  rounded-lg text-gray-700 border-gray-600 border-dashed flex items-center justify-center text-center`}>
                             <input {...getInputProps()} />
                             {
                                 isDragActive ?
-                                    <p>Drop the files here ...</p> :
-                                    <p>Drag 'n' drop some files here,<br /> or click to select files</p>
+                                    <p>{t("project_create_edit.drop_files")}</p> :
+                                    <p>{t("project_create_edit.drag_files")}</p>
                             }
                         </div>
                         <p className="text-sm text-red-800 mb-4">
                             {error_file}
                         </p>
                         {files.length == 0 &&
-                            <p className="text-sm">It's suggested you have at least one photo for display purposes.</p>
+                            <p className="text-sm">{t("project_create_edit.suggest_photo")}</p>
                         }
                         {files.length != 0 &&
                             <div className="mb-6">
                                 {files.length > 1 &&
-                                    <p className="mb-2">Since you have more than one photo, you can <span onClick={() => setMode(!select_photo_mode)} className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold cursor-pointer">change your display photo</span>.</p>
+                                    <p className="mb-2">{t("project_create_edit.multiple_photos")} <span onClick={() => setMode(!select_photo_mode)} className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold cursor-pointer">{t("project_create_edit.set_display_photo")}</span>.</p>
                                 }
-                                <label htmlFor="project_photo" className="uppercase text-gray-600 mt-2">Display Photo</label>
+                                <label htmlFor="project_photo" className="uppercase text-gray-600 mt-2">{t("project_create_edit.display_photo")}</label>
                                 <File file={files[0]} id={files[0].id} removeFile={removeFile} setPhoto={setPhoto}></File>
                             </div>
                         }
@@ -471,11 +468,11 @@ export default function CreateProject() {
                         </div>
                         <button
                             type="submit"
-                            disabled={loading || error_abstract || error_start_date || error_end_date || error_file || error_title}
+                            disabled={loading || error_abstract || !abstract || error_start_date || error_end_date || error_file || error_title || !title}
                             className="bg-sciteensLightGreen-regular text-white text-lg font-semibold rounded-lg p-2 mt-4 w-full hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
                             onClick={e => createProject(e)}
                         >
-                            Create
+                            {t("project_create_edit.create")}
                             {
                                 loading &&
                                 <img
@@ -499,4 +496,12 @@ export default function CreateProject() {
     else {
         return <div className="h-screen">loading...</div>
     }
+}
+
+export async function getStaticProps({ locale }) {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale, ['common'])),
+        },
+    };
 }
