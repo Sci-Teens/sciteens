@@ -1,5 +1,4 @@
 import { RichText } from 'prismic-reactjs';
-export const config = { amp: 'hybrid' };
 var Prismic = require("@prismicio/client");
 import Link from 'next/link';
 import moment from 'moment';
