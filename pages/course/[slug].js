@@ -142,7 +142,28 @@ function Course({ course }) {
     )
 }
 
-export async function getServerSideProps({ query, locale }) {
+export async function getStaticPaths() {
+    let paths = []
+    const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
+    const client = Prismic.client(apiEndpoint)
+    const res = await client.query(
+        Prismic.Predicates.at('document.type', 'blog'),
+    )
+    for (let i = 1; i <= res.total_pages; i++) {
+        const articles = await client.query(
+            Prismic.Predicates.at('document.type', 'blog'),
+            { pageSize: 20, page: i }
+        )
+        for (let article of articles.results) {
+            paths.push({
+                params: { slug: article.uid }
+            })
+        }
+    }
+    return { paths: paths, fallback: false }
+}
+
+export async function getStaticProps({ params, locale }) {
     // Fetch data from external API
     const translations = await serverSideTranslations(locale, ['common'])
 
@@ -150,7 +171,7 @@ export async function getServerSideProps({ query, locale }) {
         const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
         const client = Prismic.client(apiEndpoint)
         const course = await client.getByUID(
-            'course', query?.slug
+            'course', params?.slug
         )
         return {
             props: { course, ...translations }
