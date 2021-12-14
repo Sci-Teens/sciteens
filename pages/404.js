@@ -1,6 +1,9 @@
 import Link from 'next/link'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
 export default function FourOhFour() {
+    const { t } = useTranslation('common')
     return <>
         <div className="min-h-screen w-full mx-auto text-center mt-20">
             <h1 className="text-4xl py-4 font-semibold">
@@ -21,4 +24,13 @@ export default function FourOhFour() {
             </iframe>
         </div>
     </>
+}
+
+export async function getStaticProps({ locale }) {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale, ['common'])),
+            // Will be passed to the page component as props
+        },
+    };
 }

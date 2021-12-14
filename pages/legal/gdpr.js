@@ -1,6 +1,9 @@
 import Head from 'next/head'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
 export default function gdpr() {
+    const { t } = useTranslation('common')
     return (
         <div>
             <Head>
@@ -217,4 +220,13 @@ export default function gdpr() {
             </main>
         </div>
     )
+}
+
+export async function getStaticProps({ locale }) {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale, ['common'])),
+            // Will be passed to the page component as props
+        },
+    };
 }
