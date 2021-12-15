@@ -7,6 +7,8 @@ import { getStorage } from '@firebase/storage';
 import { AuthProvider, AnalyticsProvider, FirestoreProvider, StorageProvider, useFirebaseApp } from 'reactfire';
 import { set } from "lodash";
 
+import Banner from '../components/Banner'
+
 export default function Layout({ children }) {
     const app = useFirebaseApp()
     const firestore = getFirestore(app);
@@ -47,6 +49,7 @@ export default function Layout({ children }) {
         <AuthProvider sdk={auth}>
             <FirestoreProvider sdk={firestore}>
                 <StorageProvider sdk={storage}>
+                    <Banner></Banner>
                     <div className={`fixed z-50 w-full transform transition-transform duration-300 ${visibleNav ? "translate-y-0" : "-translate-y-32"}`}>
                         <NavBar />
                     </div>

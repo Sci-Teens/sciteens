@@ -1,18 +1,23 @@
+import { useEffect, useState, useContext } from "react";
+
+import Head from "next/head";
+import Error from 'next/error'
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
+
 import { doc, getDocs, getFirestore, query as firebase_query, collection, where, limit } from "@firebase/firestore";
 import { getApp, getApps, initializeApp } from "@firebase/app";
 import firebaseConfig from "../../../firebaseConfig";
 import { listAll, ref, getDownloadURL, getMetadata } from "@firebase/storage";
 import { useStorage } from "reactfire";
-import { useRouter } from "next/router";
-import Head from "next/head";
-import Error from 'next/error'
-import Link from "next/link";
+
 import moment from "moment";
-import { useEffect, useState, useContext } from "react";
 import { useSigninCheck } from "reactfire";
 import { AppContext } from "../../../context/context";
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useTranslation } from 'next-i18next';
+import File from '../../../components/File';
+
 
 function Project({ profile }) {
     const { t } = useTranslation('common')
@@ -40,7 +45,7 @@ function Project({ profile }) {
                     if (xhr.status == 200) {
                         console.log(blob)
                         blob.name = metadata.name
-                        setFiles([...files, blob])
+                        setFiles(fs => [...fs, blob])
                     }
                 };
                 xhr.open('GET', url);
@@ -90,6 +95,20 @@ function Project({ profile }) {
                 <img src={profile.image ? profile.image : 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fgetwallpapers.com%2Fwallpaper%2Ffull%2F3%2F7%2F2%2F538871.jpg&f=1&nofb=1'} className="w-full mt-0 object-contain" />
             </div>
         </article>
+        <div className="max-w-prose mx-auto mb-4 px-4 lg:px-0">
+            {
+                files.length > 0 && <h2 className="text-lg font-semibold mb-2">
+                    Files
+                </h2>
+            }
+            <div className="flex flex-col items-center space-y-2">
+                {
+                    files.map((f, id) => {
+                        return <File file={f} id={id} key={f.name}></File>
+                    })
+                }
+            </div>
+        </div>
     </>)
 }
 
