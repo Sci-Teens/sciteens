@@ -27,6 +27,25 @@ export default function Home() {
   // REACT SPRING ANIMATIONS
   const landing_spring = useSpring({ opacity: animate ? 1 : 0, transform: animate ? 'translateY(0)' : 'translateY(80px)', delay: 200, config: config.slow })
 
+  const [blob_spring1, setSpring1] = useSpring(() => ({
+    transform: 'translate(0, 0)',
+    from: {
+      transform: `translate(${Math.random() * 8}px, ${Math.random() * 60}px)` //translateX(${Math.random() * 10}px)
+    },
+    config: config.slow,
+    onRest: () => setSpring1({ transform: `translate(${Math.random() * 8}px, ${Math.random() * 60}px)` })
+  }))
+
+  const [blob_spring, setSpring] = useSpring(() => ({
+    transform: 'translateY(0px)',
+    from: {
+      transform: `translateY(${Math.random() * 60}px)` //translateX(${Math.random() * 10}px)
+    },
+    config: config.molasses,
+    onRest: () => setSpring({ transform: `translateY(${Math.random() * 60}px)` }),
+    delay: 500
+  }))
+
   const { t } = useTranslation('common');
   return (
     <div>
@@ -66,17 +85,45 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Partners */}
+        <div className="mx-auto w-[95%] md:w-[70%] grid grid-cols-4 grid-rows-1 mb-24">
+          <a href="https://www.google.com/nonprofits/" className="group py-5 md:py-8"
+            target="_blank" rel="noopener noreferrer">
+            <img src={'../assets/logos/Google_fullsize.png'} className="transition-all brightness-0 group-hover:brightness-100 opacity-50 group-hover:opacity-100 grayscale group-hover:grayscale-0 duration-300 m-auto h-10 md:h-14" alt="Google" />
+          </a>
+          <a href="https://innovation.mit.edu/opportunity/mit-ideas-global-challenge/"
+            className="group py-5 md:py-8" target="_blank" rel="noopener noreferrer">
+            <img src={'../assets/logos/MIT.png'} className="transition-all brightness-0 group-hover:brightness-100 opacity-50 group-hover:opacity-100 grayscale group-hover:grayscale-0 duration-300 m-auto h-10 md:h-14" alt="MIT" />
+          </a>
+          <a href="https://www.bio.fsu.edu/ysp/" className="group py-5 md:py-8"
+            target="_blank" rel="noopener noreferrer">
+            <img src={'../assets/logos/FSU1.png'} className="transition-all brightness-0 group-hover:brightness-100 opacity-50 group-hover:opacity-100 grayscale group-hover:grayscale-0 duration-300 m-auto h-10 md:h-14" alt="FSU" />
+          </a>
+          <a href="https://city.yale.edu/" className="group py-5 md:py-8"
+            target="_blank" rel="noopener noreferrer">
+            <img src={'../assets/logos/Yale.png'} className="transition-all brightness-0 group-hover:brightness-100 opacity-50 group-hover:opacity-100 grayscale group-hover:grayscale-0 duration-300 m-auto h-10 md:h-14" alt="Yale" />
+          </a>
+        </div>
+
 
         {/* Mission Statement & Information */}
         <div className="mb-32 md:mb-48">
-          <h2 className="text-center text-xl md:text-3xl lg:text-5xl font-semibold mb-12 mx-12 md:mx-32 lg:mx-56">
-            {t('index.furthering_accessibility')}
-          </h2>
           <div className="flex flex-col lg:flex-row mx-5 md:mx-16 lg:mx-24">
-            <img src='assets/device_mockup.png' alt="" className="w-1/2" />
-            <p className="text-2xl ml-12 my-auto">
-              {t('index.collaborate_on_projects')}
-            </p>
+            <div className='relative w-3/5'>
+              {/* <animated.div style={blob_spring1} className="absolute bg-sciteensGreen-regular h-16 w-16 rounded-full" /> */}
+              {/* <animated.div style={blob_spring} className="absolute shadow-lg top-4 right-5 bg-sciteensGreen-regular h-16 w-16 rounded-full grid place-items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className='w-1/2 h-1/2' viewBox="0 0 448 512"><path fill="#fff" d="M437.2 403.5L320 215V64h8c13.3 0 24-10.7 24-24V24c0-13.3-10.7-24-24-24H120c-13.3 0-24 10.7-24 24v16c0 13.3 10.7 24 24 24h8v151L10.8 403.5C-18.5 450.6 15.3 512 70.9 512h306.2c55.7 0 89.4-61.5 60.1-108.5zM137.9 320l48.2-77.6c3.7-5.2 5.8-11.6 5.8-18.4V64h64v160c0 6.9 2.2 13.2 5.8 18.4l48.2 77.6h-172z" /></svg>
+              </animated.div> */}
+              <img src='assets/device_mockup.png' alt="" />
+            </div>
+            <div className='w-2/5 my-auto'>
+              <h2 className="text-xl md:text-3xl lg:text-4xl font-semibold mb-4 ml-12">
+                {t('index.furthering_accessibility')}
+              </h2>
+              <p className="text-xl ml-12 my-auto">
+                {t('index.collaborate_on_projects')}
+              </p>
+            </div>
           </div>
         </div>
 
@@ -199,39 +246,7 @@ export default function Home() {
             </a>
           </div>
         </div>
-
-
-        {/* Partners */}
-        <div className="flex flex-col lg:flex-row justify-between mx-5 md:mx-16 lg:mx-24 mb-24">
-          <div>
-            <h2 className="text-center lg:text-left text-xl md:text-3xl lg:text-5xl font-semibold max-w-2xl mb-2">{t('index.partners')}</h2>
-            <p className="text-center lg:text-left text-sm md:text-xl">
-              {t('index.support_us')}&nbsp;
-              <a href='/donate'
-                className="font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark">{t('index.donating')}
-              </a>.
-            </p>
-          </div>
-          <div className="mx-auto lg:mr-auto w-[95%] md:w-[60%] grid grid-cols-2 grid-rows-2">
-            <a href="https://www.google.com/nonprofits/" className="py-5 md:py-8 transition-shadow hover:shadow-2xl"
-              target="_blank" rel="noopener noreferrer">
-              <img src={'../assets/logos/Google_fullsize.png'} className="m-auto h-10 md:h-16 lg:h-20" alt="Google" />
-            </a>
-            <a href="https://innovation.mit.edu/opportunity/mit-ideas-global-challenge/"
-              className="py-5 md:py-8 transition-shadow hover:shadow-2xl" target="_blank" rel="noopener noreferrer">
-              <img src={'../assets/logos/MIT.png'} className="m-auto h-10 md:h-16 lg:h-20" alt="MIT" />
-            </a>
-            <a href="https://city.yale.edu/" className="py-5 md:py-8 transition-shadow hover:shadow-2xl"
-              target="_blank" rel="noopener noreferrer">
-              <img src={'../assets/logos/Yale.png'} className="m-auto h-10 md:h-16 lg:h-20" alt="Yale" />
-            </a>
-            <a href="https://www.bio.fsu.edu/ysp/" className="py-5 md:py-8 transition-shadow hover:shadow-2xl"
-              target="_blank" rel="noopener noreferrer">
-              <img src={'../assets/logos/FSU.png'} className="m-auto h-10 md:h-16 lg:h-20" alt="FSU" />
-            </a>
-          </div>
-        </div>
-      </div >
+      </div>
     </div >
   )
 }
