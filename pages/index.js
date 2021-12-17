@@ -85,6 +85,26 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Partners */}
+        <div className="mx-auto w-[95%] md:w-[70%] grid grid-cols-4 grid-rows-1 mb-24">
+          <a href="https://www.google.com/nonprofits/" className="group py-5 md:py-8"
+            target="_blank" rel="noopener noreferrer">
+            <img src={'../assets/logos/Google_fullsize.png'} className="transition-all brightness-0 group-hover:brightness-100 opacity-50 group-hover:opacity-100 grayscale group-hover:grayscale-0 duration-300 m-auto h-10 md:h-14" alt="Google" />
+          </a>
+          <a href="https://innovation.mit.edu/opportunity/mit-ideas-global-challenge/"
+            className="group py-5 md:py-8" target="_blank" rel="noopener noreferrer">
+            <img src={'../assets/logos/MIT.png'} className="transition-all brightness-0 group-hover:brightness-100 opacity-50 group-hover:opacity-100 grayscale group-hover:grayscale-0 duration-300 m-auto h-10 md:h-14" alt="MIT" />
+          </a>
+          <a href="https://www.bio.fsu.edu/ysp/" className="group py-5 md:py-8"
+            target="_blank" rel="noopener noreferrer">
+            <img src={'../assets/logos/FSU1.png'} className="transition-all brightness-0 group-hover:brightness-100 opacity-50 group-hover:opacity-100 grayscale group-hover:grayscale-0 duration-300 m-auto h-10 md:h-14" alt="FSU" />
+          </a>
+          <a href="https://city.yale.edu/" className="group py-5 md:py-8"
+            target="_blank" rel="noopener noreferrer">
+            <img src={'../assets/logos/Yale.png'} className="transition-all brightness-0 group-hover:brightness-100 opacity-50 group-hover:opacity-100 grayscale group-hover:grayscale-0 duration-300 m-auto h-10 md:h-14" alt="Yale" />
+          </a>
+        </div>
+
 
         {/* Mission Statement & Information */}
         <div className="mb-32 md:mb-48">
@@ -226,39 +246,7 @@ export default function Home() {
             </a>
           </div>
         </div>
-
-
-        {/* Partners */}
-        <div className="flex flex-col lg:flex-row justify-between mx-5 md:mx-16 lg:mx-24 mb-24">
-          <div>
-            <h2 className="text-center lg:text-left text-xl md:text-3xl lg:text-5xl font-semibold max-w-2xl mb-2">{t('index.partners')}</h2>
-            <p className="text-center lg:text-left text-sm md:text-xl">
-              {t('index.support_us')}&nbsp;
-              <a href='/donate'
-                className="font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark">{t('index.donating')}
-              </a>.
-            </p>
-          </div>
-          <div className="mx-auto lg:mr-auto w-[95%] md:w-[60%] grid grid-cols-2 grid-rows-2">
-            <a href="https://www.google.com/nonprofits/" className="py-5 md:py-8 transition-shadow hover:shadow-2xl"
-              target="_blank" rel="noopener noreferrer">
-              <img src={'../assets/logos/Google_fullsize.png'} className="m-auto h-10 md:h-16 lg:h-20" alt="Google" />
-            </a>
-            <a href="https://innovation.mit.edu/opportunity/mit-ideas-global-challenge/"
-              className="py-5 md:py-8 transition-shadow hover:shadow-2xl" target="_blank" rel="noopener noreferrer">
-              <img src={'../assets/logos/MIT.png'} className="m-auto h-10 md:h-16 lg:h-20" alt="MIT" />
-            </a>
-            <a href="https://city.yale.edu/" className="py-5 md:py-8 transition-shadow hover:shadow-2xl"
-              target="_blank" rel="noopener noreferrer">
-              <img src={'../assets/logos/Yale.png'} className="m-auto h-10 md:h-16 lg:h-20" alt="Yale" />
-            </a>
-            <a href="https://www.bio.fsu.edu/ysp/" className="py-5 md:py-8 transition-shadow hover:shadow-2xl"
-              target="_blank" rel="noopener noreferrer">
-              <img src={'../assets/logos/FSU.png'} className="m-auto h-10 md:h-16 lg:h-20" alt="FSU" />
-            </a>
-          </div>
-        </div>
-      </div >
+      </div>
     </div >
   )
 }
