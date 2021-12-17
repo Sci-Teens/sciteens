@@ -97,7 +97,7 @@ export default function Home() {
           </a>
           <a href="https://www.bio.fsu.edu/ysp/" className="group py-5 md:py-8"
             target="_blank" rel="noopener noreferrer">
-            <img src={'../assets/logos/FSU1.png'} className="transition-all brightness-0 group-hover:brightness-100 opacity-50 group-hover:opacity-100 grayscale group-hover:grayscale-0 duration-300 m-auto h-10 md:h-14" alt="FSU" />
+            <img src={'../assets/logos/FSU.png'} className="transition-all brightness-0 group-hover:brightness-100 opacity-50 group-hover:opacity-100 grayscale group-hover:grayscale-0 duration-300 m-auto h-10 md:h-14" alt="FSU" />
           </a>
           <a href="https://city.yale.edu/" className="group py-5 md:py-8"
             target="_blank" rel="noopener noreferrer">
