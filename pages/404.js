@@ -6,13 +6,17 @@ export default function FourOhFour() {
     const { t } = useTranslation('common')
     return <>
         <div className="min-h-screen w-full mx-auto text-center mt-20">
+            <img src='/assets/404.png' alt="404" className='w-1/2 mx-auto' />
             <h1 className="text-4xl py-4 font-semibold">
-                404 - Sorry, we couldn't find that
+                Page not found
             </h1>
-            <p className="text-xl mb-4">
-                Here's a cool video to watch instead
+            <p className="text-xl mb-6">
+                This page may not exist or may have been deleted.
             </p>
-            <iframe
+            <Link href='/'>
+                <a className='text-xl text-white shadow bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark px-4 py-2 rounded-lg'>Return Home</a>
+            </Link>
+            {/* <iframe
                 width="500"
                 height="300"
                 src="https://www.youtube.com/embed/wiDpO99BT3w"
@@ -21,7 +25,7 @@ export default function FourOhFour() {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
                 className="mx-auto overflow-hidden max-w-full">
-            </iframe>
+            </iframe> */}
         </div>
     </>
 }
