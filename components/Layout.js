@@ -17,12 +17,15 @@ export default function Layout({ children }) {
 
     const [visibleNav, setVisibleNav] = useState(true)
 
+    const [visibleBanner, setVisibleBanner] = useState(true)
+
     useEffect(() => {
         // Functionality for showing/removing navbar based on scroll behavior
         let previousY = document.documentElement.scrollTop
         document.addEventListener('scroll', function () {
             let currentY = document.documentElement.scrollTop
 
+            // Navbar checks
             // If you're within 350px from the top of the page, the scrollbar is always visible
             if (currentY <= 350) {
                 setVisibleNav(true)
@@ -37,6 +40,13 @@ export default function Layout({ children }) {
                     previousY = currentY
                 }
             }
+
+            // Banner checks
+            if (currentY <= 75) {
+                setVisibleBanner(true)
+            } else {
+                setVisibleBanner(false)
+            }
         })
 
         return () => {
@@ -44,19 +54,25 @@ export default function Layout({ children }) {
         };
     }, [])
 
+    useEffect(() => {
+        console.log(visibleBanner);
+    }, [visibleBanner])
+
 
     return (
         <AuthProvider sdk={auth}>
             <FirestoreProvider sdk={firestore}>
                 <StorageProvider sdk={storage}>
-                    <Banner></Banner>
-                    <div className={`fixed z-50 w-full transform transition-transform duration-300 ${visibleNav ? "translate-y-0" : "-translate-y-32"}`}>
+                    <div className={`fixed w-full z-50 bottom-0 transform transition-all duration-300 ${visibleBanner ? "" : "translate-y-full"}`}>
+                        <Banner />
+                    </div>
+                    <div className={`fixed z-50 w-full transform transition-all duration-300 ${visibleNav ? "translate-y-0" : "-translate-y-32"}`}>
                         <NavBar />
                     </div>
                     <div className="pt-20">{children}</div>
                     <Footer />
                 </StorageProvider>
             </FirestoreProvider>
-        </AuthProvider >
+        </AuthProvider>
     )
 }
