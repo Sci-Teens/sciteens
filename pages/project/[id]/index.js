@@ -108,7 +108,7 @@ function Project({ query }) {
                 {project.member_arr && <div className="flex flex-row items-center mb-3">
                     <div className="flex -space-x-2 overflow-hidden">
                         {project.member_arr.map((member) => {
-                            return <div className="inline-block h-6 w-6 lg:h-8 lg:w-8 rounded-full ring-2 ring-white">
+                            return <div className="inline-block h-6 w-6 lg:h-8 lg:w-8 rounded-full ring-2 ring-white prose">
                                 <ProfilePhoto uid={member.uid}></ProfilePhoto>
                             </div>
                         })}

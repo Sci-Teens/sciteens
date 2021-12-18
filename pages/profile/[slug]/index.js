@@ -44,7 +44,6 @@ function Project({ profile }) {
                 xhr.onload = (e) => {
                     const blob = xhr.response;
                     if (xhr.status == 200) {
-                        console.log(blob)
                         blob.name = metadata.name
                         setFiles(fs => [...fs, blob])
                     }
@@ -61,7 +60,6 @@ function Project({ profile }) {
 
     useEffect(() => {
     }, [status])
-
 
     return (<>
         <Head>
@@ -110,13 +108,13 @@ function Project({ profile }) {
         {/* About */}
         <div className="w-1/2 mx-auto mb-4 mt-12">
             <h2 className="text-lg md:text-2xl font-semibold mb-2">About</h2>
-            <p className="text-gray-500">{profile.about == "" ? "This user hasn't written their about yet" : profile.about}</p>
+            <p className="text-gray-500">{profile.about == "" ? "This user hasn't written about themselves yet" : profile.about}</p>
         </div>
 
         {/* Projects */}
         <div className="w-1/2 mx-auto mb-4 mt-12">
             <h2 className="text-lg md:text-2xl font-semibold mb-2">Projects</h2>
-            <p className="text-gray-500">No projects</p>
+            <p className="text-gray-500">This user hasn't created any projects yet</p>
         </div>
 
         {/* Files */}
