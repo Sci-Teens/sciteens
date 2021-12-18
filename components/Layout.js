@@ -54,10 +54,6 @@ export default function Layout({ children }) {
         };
     }, [])
 
-    useEffect(() => {
-        console.log(visibleBanner);
-    }, [visibleBanner])
-
 
     return (
         <AuthProvider sdk={auth}>

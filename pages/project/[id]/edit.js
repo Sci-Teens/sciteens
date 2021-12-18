@@ -352,10 +352,10 @@ export default function UpdateProject({ query }) {
             <main>
                 <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow rounded-lg">
                     <h1 className="text-3xl text-center font-semibold mb-2">
-                        t('project_create_edit.update_project')
+                        {t('project_create_edit.update_project')}
                     </h1>
                     <p className="text-gray-700 text-center mb-6">
-                        t('project_create_edit.why_update_project') <span className="italic">{title}</span>.
+                        {t('project_create_edit.why_update_project')} <span className="italic">{title}</span>.
                     </p>
                     <form onSubmit={(e) => updateProject(e)}>
                         <label htmlFor="title" className="uppercase text-gray-600">

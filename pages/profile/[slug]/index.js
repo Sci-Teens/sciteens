@@ -4,6 +4,7 @@ import Head from "next/head";
 import Error from 'next/error'
 import Link from "next/link";
 import { useRouter } from "next/router";
+import ProfilePhoto from "../../../components/ProfilePhoto"
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 
@@ -61,6 +62,7 @@ function Project({ profile }) {
     useEffect(() => {
     }, [status])
 
+
     return (<>
         <Head>
             <title>{profile.display}'s Profile | SciTeens</title>
@@ -68,14 +70,22 @@ function Project({ profile }) {
             <meta name="description" content={profile?.about ? profile.about : `${profile.display}'s Profile on SciTeens`} />
             <meta name="keywords" content="SciTeens, sciteens, profile, teen science" />
         </Head>
-        <article className="prose-sm lg:prose mx-auto px-4 lg:px-0 mt-8">
+        <div className="w-5/6 md:w-2/3 lg:w-1/2 mx-auto px-4 lg:px-0 mt-12">
             <div>
                 <h1>
                 </h1>
                 <div className="leading-none m-0 p-0 flex flex-row justify-between">
-                    <h1>
-                        {profile.display}
-                    </h1>
+                    <div className="flex flex-row items-center mb-8">
+                        <div className="h-18 w-18 mr-5">
+                            <ProfilePhoto uid={profile.id}></ProfilePhoto>
+                        </div>
+                        <div>
+                            <h1 className="text-3xl">
+                                {profile.display}
+                            </h1>
+                            <p className="text-base text-gray-500">{profile.mentor ? "Educator" : "Student"}</p>
+                        </div>
+                    </div>
                     {(status === "success" && signInCheckResult.signedIn && current_user_profile?.slug === router.query?.slug) &&
                         <Link href={`/profile/${router?.query?.slug}/edit`}>
                             <div className="cursor-pointer h-1/3 py-1.5 px-6 border-2 text-xl font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark rounded-full border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark text-center">Edit</div>
@@ -87,17 +97,32 @@ function Project({ profile }) {
                 </h4>
                 <p>
                 </p>
-                <div className="border-b-2 mt-2">
+                <div className="mt-2">
                     {profile.about}
                 </div>
+                <hr className="py-1" />
             </div>
-            <div>
+            {/* <div>
                 <img src={profile.image ? profile.image : 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fgetwallpapers.com%2Fwallpaper%2Ffull%2F3%2F7%2F2%2F538871.jpg&f=1&nofb=1'} className="w-full mt-0 object-contain" />
-            </div>
-        </article>
-        <div className="max-w-prose mx-auto mb-4 px-4 lg:px-0">
+            </div> */}
+        </div>
+
+        {/* About */}
+        <div className="w-1/2 mx-auto mb-4 mt-12">
+            <h2 className="text-lg md:text-2xl font-semibold mb-2">About</h2>
+            <p className="text-gray-500">{profile.about == "" ? "This user hasn't written their about yet" : profile.about}</p>
+        </div>
+
+        {/* Projects */}
+        <div className="w-1/2 mx-auto mb-4 mt-12">
+            <h2 className="text-lg md:text-2xl font-semibold mb-2">Projects</h2>
+            <p className="text-gray-500">No projects</p>
+        </div>
+
+        {/* Files */}
+        <div className="w-1/2 mx-auto mb-4 mt-12">
             {
-                files.length > 0 && <h2 className="text-lg font-semibold mb-2">
+                files.length > 0 && <h2 className="text-lg md:text-2xl font-semibold mb-2">
                     Files
                 </h2>
             }
