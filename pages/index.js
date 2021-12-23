@@ -2,14 +2,17 @@ import Head from 'next/head'
 import { useState, useEffect } from 'react'
 import render from '../components/LoadDesk.js'
 import Link from 'next/link'
-import { useSpring, animated, config } from '@react-spring/web'
+import { useSpring, useTrail, animated, config } from '@react-spring/web'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 
 export default function Home() {
 
   const [rendered, setRendered] = useState(false)
-  const [animate, setAnimate] = useState(false)
+  const [animateLanding, setAnimateLanding] = useState(false)
+  const [animatePartners, setAnimatePartners] = useState(false)
+  const [animateMission, setAnimateMission] = useState(false)
+
 
   function renderDesk(canvas) {
     if (!rendered) {
@@ -21,32 +24,92 @@ export default function Home() {
   useEffect(() => {
     let canvas = document.getElementById("canvas")
     renderDesk(canvas)
-    setAnimate(true)
+    setAnimateLanding(true)
+
+    // Intersection Observer Stuff
+    const partners = document.getElementById('partners')
+    const mission = document.getElementById('mission')
+
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            switch (entry.target.id) {
+              case 'partners':
+                setAnimatePartners(true)
+                observer.unobserve(partners)
+                break;
+
+              case 'mission':
+                setAnimateMission(true)
+                observer.unobserve(mission)
+                break;
+              default:
+                break;
+            }
+          }
+        })
+      },
+      {
+        threshold: 1
+      }
+    )
+
+    // Add all elements to observer
+    observer.observe(partners)
+    observer.observe(mission)
   }, [])
 
-  // REACT SPRING ANIMATIONS
-  const landing_spring = useSpring({ opacity: animate ? 1 : 0, transform: animate ? 'translateY(0)' : 'translateY(80px)', delay: 200, config: config.slow })
-
-  const [blob_spring1, setSpring1] = useSpring(() => ({
-    transform: 'translate(0, 0)',
-    from: {
-      transform: `translate(${Math.random() * 8}px, ${Math.random() * 60}px)` //translateX(${Math.random() * 10}px)
-    },
-    config: config.slow,
-    onRest: () => setSpring1({ transform: `translate(${Math.random() * 8}px, ${Math.random() * 60}px)` })
-  }))
-
-  const [blob_spring, setSpring] = useSpring(() => ({
-    transform: 'translateY(0px)',
-    from: {
-      transform: `translateY(${Math.random() * 60}px)` //translateX(${Math.random() * 10}px)
-    },
-    config: config.molasses,
-    onRest: () => setSpring({ transform: `translateY(${Math.random() * 60}px)` }),
-    delay: 500
-  }))
-
   const { t } = useTranslation('common');
+
+  // REACT SPRING ANIMATIONS
+  const landing_spring = useSpring({ opacity: animateLanding ? 1 : 0, transform: animateLanding ? 'translateY(0)' : 'translateY(80px)', delay: 200, config: config.slow })
+
+  const partners_arr = [
+    {
+      'src': '../assets/logos/Google_fullsize.png',
+      'alt': 'Google',
+      'link': 'https://www.google.com/nonprofits/'
+    },
+    {
+      'src': '../assets/logos/MIT.png',
+      'alt': 'MIT',
+      'link': 'https://innovation.mit.edu/opportunity/mit-ideas-global-challenge/'
+    },
+    {
+      'src': '../assets/logos/FSU.png',
+      'alt': 'FSU',
+      'link': 'https://www.bio.fsu.edu/ysp/'
+    },
+    {
+      'src': '../assets/logos/Yale.png',
+      'alt': 'Yale',
+      'link': 'https://city.yale.edu/'
+    }
+  ]
+  const partnersTrail = useTrail(partners_arr.length,
+    {
+      opacity: animatePartners ? 1 : 0,
+      transform: animatePartners ? 'translateY(0px) rotate(0)' : 'translateY(-70px) rotate(-7deg)',
+      from: {
+        opacity: 0,
+        transform: 'translateY(-70px) rotate(-7deg)'
+      }
+    })
+
+  const missionSpring = useSpring({
+    opacity: animateMission ? 1 : 0, transform: animateMission ? 'translateX(0)' : 'translateX(-120px)', delay: 500, config: config.molasses
+  })
+  const missionTrail = useTrail(2,
+    {
+      opacity: animateMission ? 1 : 0,
+      transform: animateMission ? 'translateY(0px) rotate(0)' : 'translateY(50px) rotate(3deg)',
+      from: {
+        opacity: 0,
+        transform: 'translateY(50px) rotate(3deg)'
+      }
+    })
+
   return (
     <div>
       <Head>
@@ -85,51 +148,43 @@ export default function Home() {
           </div>
         </div>
 
+
         {/* Partners */}
-        <div className="mx-auto w-[95%] md:w-[70%] grid grid-cols-4 grid-rows-1 mb-24">
-          <a href="https://www.google.com/nonprofits/" className="group py-5 md:py-8"
-            target="_blank" rel="noopener noreferrer">
-            <img src={'../assets/logos/Google_fullsize.png'} className="transition-all brightness-0 group-hover:brightness-100 opacity-50 group-hover:opacity-100 grayscale group-hover:grayscale-0 duration-300 m-auto h-10 md:h-14" alt="Google" />
-          </a>
-          <a href="https://innovation.mit.edu/opportunity/mit-ideas-global-challenge/"
-            className="group py-5 md:py-8" target="_blank" rel="noopener noreferrer">
-            <img src={'../assets/logos/MIT.png'} className="transition-all brightness-0 group-hover:brightness-100 opacity-50 group-hover:opacity-100 grayscale group-hover:grayscale-0 duration-300 m-auto h-10 md:h-14" alt="MIT" />
-          </a>
-          <a href="https://www.bio.fsu.edu/ysp/" className="group py-5 md:py-8"
-            target="_blank" rel="noopener noreferrer">
-            <img src={'../assets/logos/FSU.png'} className="transition-all brightness-0 group-hover:brightness-100 opacity-50 group-hover:opacity-100 grayscale group-hover:grayscale-0 duration-300 m-auto h-10 md:h-14" alt="FSU" />
-          </a>
-          <a href="https://city.yale.edu/" className="group py-5 md:py-8"
-            target="_blank" rel="noopener noreferrer">
-            <img src={'../assets/logos/Yale.png'} className="transition-all brightness-0 group-hover:brightness-100 opacity-50 group-hover:opacity-100 grayscale group-hover:grayscale-0 duration-300 m-auto h-10 md:h-14" alt="Yale" />
-          </a>
+        <div id='partners' className='mx-auto w-[95%] md:w-[70%] grid grid-cols-2 grid-rows-2 md:grid-cols-4 md:grid-rows-1 mb-24'>
+          {partnersTrail.map((styles, index) => {
+            return (
+              <animated.a style={styles} href={partners_arr[index].link} className='group py-5 md:py-8'>
+                <animated.img src={partners_arr[index].src} alt={partners_arr[index].alt} className='transition-all brightness-0 group-hover:brightness-100 opacity-50 group-hover:opacity-100 grayscale group-hover:grayscale-0 duration-300 m-auto h-10 md:h-14' />
+              </animated.a>
+            )
+          })}
         </div>
 
 
         {/* Mission Statement & Information */}
-        <div className="mb-32 md:mb-48">
+        <div className="mb-28 md:mb-36">
           <div className="flex flex-col lg:flex-row mx-5 md:mx-16 lg:mx-24">
-            <div className='relative w-3/5'>
-              {/* <animated.div style={blob_spring1} className="absolute bg-sciteensGreen-regular h-16 w-16 rounded-full" /> */}
-              {/* <animated.div style={blob_spring} className="absolute shadow-lg top-4 right-5 bg-sciteensGreen-regular h-16 w-16 rounded-full grid place-items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className='w-1/2 h-1/2' viewBox="0 0 448 512"><path fill="#fff" d="M437.2 403.5L320 215V64h8c13.3 0 24-10.7 24-24V24c0-13.3-10.7-24-24-24H120c-13.3 0-24 10.7-24 24v16c0 13.3 10.7 24 24 24h8v151L10.8 403.5C-18.5 450.6 15.3 512 70.9 512h306.2c55.7 0 89.4-61.5 60.1-108.5zM137.9 320l48.2-77.6c3.7-5.2 5.8-11.6 5.8-18.4V64h64v160c0 6.9 2.2 13.2 5.8 18.4l48.2 77.6h-172z" /></svg>
-              </animated.div> */}
-              <img src='assets/device_mockup.png' alt="" />
+            <div className='relative w-3/5 transition-all'>
+              <animated.img style={missionSpring} id="mission_img" src='assets/device_mockup.png' alt="Computer and phone showing sciteens website" />
             </div>
-            <div className='w-2/5 my-auto'>
-              <h2 className="text-xl md:text-3xl lg:text-4xl font-semibold mb-4 ml-12">
-                {t('index.furthering_accessibility')}
-              </h2>
-              <p className="text-xl ml-12 my-auto">
-                {t('index.collaborate_on_projects')}
-              </p>
+            <div id="mission" className='w-2/5 my-auto'>
+              {missionTrail.map((styles, index) => {
+                return index == 0 ?
+                  <animated.h2 style={styles} className="text-xl md:text-3xl lg:text-4xl font-semibold mb-4 ml-12">
+                    {t('index.furthering_accessibility')}
+                  </animated.h2>
+                  :
+                  <animated.p style={styles} className="text-xl ml-12 my-auto">
+                    {t('index.collaborate_on_projects')}
+                  </animated.p>
+              })}
             </div>
           </div>
         </div>
 
 
         {/* Open Source & Testimonials */}
-        <div className="mb-32 md:mb-48">
+        <div className="mb-28 md:mb-36">
           <h2 className="text-center text-xl md:text-3xl lg:text-5xl font-semibold mb-12 mx-12 md:mx-28 lg:mx-48">
             {t('index.sciteens_pride')}
           </h2>
@@ -196,7 +251,7 @@ export default function Home() {
 
 
         {/* Featured Media */}
-        <div className="mb-32 md:mb-48">
+        <div className="mb-28 md:mb-36">
           <h2 className="text-center text-xl md:text-3xl lg:text-5xl font-semibold mb-12">
             {t('index.featured_media')}
           </h2>
