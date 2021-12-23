@@ -5,7 +5,6 @@ import { useRouter } from "next/router"
 import { useFirestore } from 'reactfire';
 import { useEffect, useState } from 'react';
 import { collection, query, orderBy, getDocs, limit } from '@firebase/firestore';
-import { useSpring, animated, config } from '@react-spring/web'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 
@@ -130,15 +129,31 @@ export default function About() {
                 t("about.about_tasman")
         },].sort(() => Math.random() - 0.5))
 
-    // REACT SPRING ANIMATIONS
-    const about_spring = useSpring({
-        transform: 'scale(1)',
-        from: {
-            transform: 'scale(0)'
-        },
-        config: config.stiff,
-        delay: 100
-    })
+    // Intersection Observer Stuff
+    useEffect(() => {
+
+        const member_elements = document.querySelectorAll(".member")
+
+        const observor = new IntersectionObserver(
+            entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.remove("scale-0")
+                        observor.unobserve(entry.target)
+                    }
+                })
+            },
+            {
+                threshold: 0.85
+            }
+        )
+
+        member_elements.forEach(member => {
+            observor.observe(member)
+        })
+
+    }, [])
+
 
     return (
         <div>
@@ -164,7 +179,7 @@ export default function About() {
                     <div className="w-full h-full inline-grid grid-cols-2 lg:grid-cols-3 place-items-center mb-8">
                         {
                             members.map((member) => {
-                                return <animated.div style={about_spring} key={member.name} className="relative w-11/12 h-[90%] bg-white p-4 md:p-8 mb-6 rounded-lg shadow">
+                                return <div key={member.name} className="member relative w-11/12 h-[90%] bg-white p-4 md:p-8 mb-6 rounded-lg shadow transition-all duration-500 scale-0">
                                     <img
                                         loading="lazy"
                                         src={`assets/headshots/${member.image}`}
@@ -174,7 +189,7 @@ export default function About() {
                                     <p className={`hidden md:block text-center text-gray-700
                                     ${member.name === "Angelica Castillejos" ||
                                             member.name === "Tasman Rosenfeld" ? "text-sm" : "text-base"}`}>{member.about}</p>
-                                </animated.div>
+                                </div>
                             })
                         }
                     </div>
