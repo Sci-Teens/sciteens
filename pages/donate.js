@@ -1,10 +1,19 @@
 import Link from 'next/link'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
+import Head from "next/head"
 
 export default function Donate() {
     const { t } = useTranslation('common')
-    return (
+    return (<>
+        <Head>
+            <title>Donate | SciTeens</title>
+            <link rel="icon" href="/favicon.ico" />
+            <meta name="description" content="Donate to help support SciTeens" />
+            <meta name="keywords" content="SciTeens, sciteens, donate, teen science" />
+            <meta property="og:type" content="website" />
+            <meta name="og:image" content="/assets/sciteens_initials.jpg" />
+        </Head>
         <div className="w-full">
             <div className="text-left px-4 py-8 md:p-8 w-full lg:w-2/3 mx-auto">
                 <h1 className="text-4xl">
@@ -50,6 +59,7 @@ export default function Donate() {
                 </p>
             </div>
         </div>
+    </>
     )
 }
 

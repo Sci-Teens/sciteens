@@ -167,6 +167,8 @@ function Articles({ cached_articles }) {
                 <link rel="icon" href="/favicon.ico" />
                 <meta name="description" content="SciTeens Articles Page" />
                 <meta name="keywords" content="SciTeens, sciteens, articles, teen science" />
+                <meta property="og:type" content="website" />
+                <meta name="og:image" content="/assets/sciteens_initials.jpg" />
             </Head>
             <div className="min-h-screen mx-auto lg:mx-16 xl:mx-32 flex flex-row mt-8 mb-24 overflow-x-hidden md:overflow-visible">
                 <div className="w-11/12 md:w-[85%] mx-auto lg:mx-0 lg:w-[60%]">

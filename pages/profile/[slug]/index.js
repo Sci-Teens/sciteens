@@ -138,6 +138,10 @@ function Project({ profile }) {
             <link rel="icon" href="/favicon.ico" />
             <meta name="description" content={profile?.about ? profile.about : `${profile.display}'s Profile on SciTeens`} />
             <meta name="keywords" content="SciTeens, sciteens, profile, teen science" />
+            <meta name="og:image" content="/assets/sciteens_initials.jpg" />
+            <meta property="og:type" content="website" />
+            <meta property="og:title" content={`${profile.display}'s Profile | SciTeens`} />
+            <meta property="og:description" content="Check out " />
         </Head>
         <div className="w-5/6 md:w-2/3 lg:w-1/2 mx-auto px-4 lg:px-0 mt-12">
             <div>

@@ -21,6 +21,8 @@ export default function SignUpIndex() {
                 <link rel="icon" href="/favicon.ico" />
                 <meta name="description" content="Sign up for SciTeens" />
                 <meta name="keywords" content="SciTeens, sciteens, sign up, teen science" />
+                <meta property="og:type" content="website" />
+                <meta name="og:image" content="/assets/sciteens_initials.jpg" />
             </Head>
             <main className="h-screen flex justify-center -mt-8">
                 <div className="flex flex-col justify-center items-center text-center">

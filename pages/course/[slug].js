@@ -73,6 +73,10 @@ function Course({ course }) {
                 <link rel="icon" href="/favicon.ico" />
                 <meta name="description" content={course.data.description} />
                 <meta name="keywords" content="SciTeens, sciteens, course, teen science" />
+                <meta name="og:image" content={course.data.image_main.url} />
+                <meta property="og:type" content="website" />
+                <meta property="og:title" content={`${RichText.asText(course.data.name)} | SciTeens`} />
+                <meta property="og:description" content={course.data.description} />
             </Head>
             <article className="prose-sm lg:prose mx-auto px-4 overflow-hidden break-words mt-8">
                 <div>

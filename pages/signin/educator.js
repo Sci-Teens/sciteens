@@ -91,6 +91,8 @@ export default function MentorSignIn() {
                 <link rel="icon" href="/favicon.ico" />
                 <meta name="description" content="Sign in to SciTeens" />
                 <meta name="keywords" content="SciTeens, sciteens, mentor sign in, teen science" />
+                <meta name="og:image" content="/assets/sciteens_initials.jpg" />
+                <meta property="og:type" content="website" />
             </Head>
             <main>
                 <div className="relative bg-white mx-auto px-4 md:px-12 lg:px-20 py-8 md:py-12 mt-8 mb-24 z-30 text-left w-11/12 md:w-2/3 lg:w-[45%] shadow rounded-lg">

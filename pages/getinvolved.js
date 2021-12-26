@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { useSpring, animated, config } from '@react-spring/web';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
+import Head from "next/head"
 
 export default function GetInvolved() {
     const { t } = useTranslation('common')
@@ -17,7 +18,15 @@ export default function GetInvolved() {
 
     return (
         <div>
-            <main>
+            <Head>
+                <title>Get Involved | SciTeens</title>
+                <link rel="icon" href="/favicon.ico" />
+                <meta name="description" content="Get involved with SciTeens" />
+                <meta name="keywords" content="SciTeens, sciteens, get involved, teen science" />
+                <meta property="og:type" content="website" />
+                <meta name="og:image" content="/assets/sciteens_initials.jpg" />
+            </Head>
+            <div>
                 <div className="text-left px-4 py-8 md:p-8 w-full lg:w-5/6 mx-auto">
                     <h1 className="text-3xl md:text-5xl text-center font-semibold my-4 mb-10">
                         {t('get_involved.want_to_get_involved')}
@@ -99,7 +108,7 @@ export default function GetInvolved() {
                         </animated.div>
                     </div>
                 </div>
-            </main >
+            </div >
         </div >
 
     )

@@ -188,7 +188,7 @@ function Article({ article, recommendations }) {
                             <meta name="keywords" content="SciTeens, sciteens, article, teen science" />
                             <meta name="og:image" content={article.data.image.url} />
                             <meta property="og:type" content="website" />
-                            <meta property="og:title" content={RichText.asText(article.data.title)} />
+                            <meta property="og:title" content={`${RichText.asText(article.data.title)} | SciTeens`} />
                             <meta property="og:description" content={article.data.description} />
                         </Head>
                         <main>
