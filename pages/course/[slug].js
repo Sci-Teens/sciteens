@@ -71,7 +71,7 @@ function Course({ course }) {
             <Head>
                 <title>{RichText.asText(course.data.name)} | SciTeens</title>
                 <link rel="icon" href="/favicon.ico" />
-                <meta name="description" content={course.data.description} />
+                <meta name="description" content={RichText.asText(course.data.description)} />
                 <meta name="keywords" content="SciTeens, sciteens, course, teen science" />
                 <meta name="og:image" content={course.data.image_main.url} />
                 <meta property="og:type" content="website" />
