@@ -186,6 +186,10 @@ function Article({ article, recommendations }) {
                             <link rel="icon" href="/favicon.ico" />
                             <meta name="description" content={article.data.description} />
                             <meta name="keywords" content="SciTeens, sciteens, article, teen science" />
+                            <meta name="og:image" content={article.data.image.url} />
+                            <meta property="og:type" content="website" />
+                            <meta property="og:title" content={`${RichText.asText(article.data.title)} | SciTeens`} />
+                            <meta property="og:description" content={article.data.description} />
                         </Head>
                         <main>
                             <article className="prose prose-sm lg:prose-lg mx-auto px-4 overflow-hidden break-words mt-8">

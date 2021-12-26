@@ -227,6 +227,8 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
         <meta name="description" content="SciTeens Home Page" />
         <meta name="keywords" content="SciTeens, sciteens, home, teen science" />
+        <meta property="og:type" content="website" />
+        <meta name="og:image" content="/assets/sciteens_initials.jpg" />
       </Head>
 
       <div className="mt-0 lg:-mt-20 overflow-x-hidden">

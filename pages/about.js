@@ -162,6 +162,8 @@ export default function About() {
                 <link rel="icon" href="/favicon.ico" />
                 <meta name="description" content="SciTeens About Page" />
                 <meta name="keywords" content="SciTeens, sciteens, science, teen science" />
+                <meta property="og:type" content="website" />
+                <meta name="og:image" content="/assets/sciteens_initials.jpg" />
             </Head>
             <main>
                 <div className="text-left px-4 py-8 md:p-8 w-full lg:w-5/6 mx-auto">
