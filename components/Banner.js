@@ -20,7 +20,7 @@ function Banner({ }) {
     }, [])
     return (
         banner?.data.show_banner ? <div className="w-full h-12 mx-auto text-center bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white textl-lg">
-            <p className="pt-3">{RichText.render(banner.data.message)}</p>
+            <div className="pt-3">{RichText.render(banner.data.message)}</div>
         </div> : <></>
     )
 }

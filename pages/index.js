@@ -75,17 +75,17 @@ export default function Home() {
     observer.observe(mission)
     observer.observe(testimonials)
     observer.observe(media)
-
-    if (window.innerWidth >= 1) {
-      testimonials_arr.push()
-    }
-    console.log(testimonials_arr);
   }, [])
 
   const { t } = useTranslation('common');
 
   // REACT SPRING ANIMATIONS
-  const landing_spring = useSpring({ opacity: animateLanding ? 1 : 0, transform: animateLanding ? 'translateY(0)' : 'translateY(80px)', delay: 200, config: config.slow })
+  const landing_spring = useSpring({
+    opacity: animateLanding ? 1 : 0,
+    transform: animateLanding ? 'translateY(0)' : 'translateY(80px)',
+    delay: 200,
+    config: config.slow
+  })
 
   const partners_arr = [
     {
@@ -233,9 +233,9 @@ export default function Home() {
 
       <div className="mt-0 lg:-mt-20 overflow-x-hidden">
         {/* Landing screen */}
-        <div className="relative h-screen text-center xl:text-left">
-          <animated.div style={landing_spring} className="relative z-20 h-full w-auto lg:max-w-2xl flex flex-col lg:justify-center mx-5 md:mx-16 lg:ml-24 mb-12 pt-24">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl whitespace-nowrap font-extrabold">🧪
+        <div className="relative h-screen text-center lg:text-left">
+          <animated.div style={landing_spring} className="relative z-20 h-full w-auto lg:max-w-xl xl:max-w-2xl flex flex-col lg:justify-center mx-5 md:mx-16 lg:ml-24 mb-12 pt-24">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl whitespace-nowrap font-extrabold">🧪
               {t('index.science_simplified')}
             </h1>
             <p className="text-sm md:text-2xl mt-4 mb-8">
@@ -265,8 +265,8 @@ export default function Home() {
         <div id='partners' className='mx-auto w-[95%] md:w-[70%] grid grid-cols-2 grid-rows-2 md:grid-cols-4 md:grid-rows-1 mb-24'>
           {partnersTrail.map((styles, index) => {
             return (
-              <animated.a style={styles} href={partners_arr[index].link} className='group py-5 md:py-8'>
-                <animated.img src={partners_arr[index].src} alt={partners_arr[index].alt} className='transition-all brightness-0 group-hover:brightness-100 opacity-50 group-hover:opacity-100 grayscale group-hover:grayscale-0 duration-300 m-auto h-10 md:h-14' />
+              <animated.a key={index} style={styles} href={partners_arr[index].link} className='group py-5 md:py-8'>
+                <animated.img src={partners_arr[index].src} alt={partners_arr[index].alt} className='transition-all brightness-0 group-hover:brightness-100 opacity-50 group-hover:opacity-100 grayscale group-hover:grayscale-0 duration-300 m-auto h-8 md:h-9 lg:h-14' />
               </animated.a>
             )
           })}
@@ -274,36 +274,37 @@ export default function Home() {
 
 
         {/* Mission Statement & Information */}
-        <div className="mb-28 md:mb-36">
-          <div className="flex flex-col lg:flex-row mx-5 md:mx-16 lg:mx-24">
-            <div className='relative w-11/12 lg:w-3/5 mx-auto transition-all'>
+        <div className="relative mb-28 md:mb-36">
+          <div className="flex flex-col-reverse lg:flex-row mx-5 md:mx-16 lg:mx-24">
+            <div className='relative w-11/12 lg:w-3/5 mt-6 lg:mt-0 mx-auto transition-all'>
               <animated.img style={missionSpring} id="mission_img" src='assets/device_mockup.png' alt="Computer and phone showing sciteens website" />
             </div>
-            <div id="mission" className='w-5/6 lg:w-2/5 mt-6 lg:my-auto mx-auto'>
+            <div className='w-5/6 lg:w-2/5 my-auto mx-auto'>
               {missionTrail.map((styles, index) => {
                 return index == 0 ?
-                  <animated.h2 style={styles} className="text-xl md:text-3xl lg:text-4xl font-semibold mb-4 ml-12">
+                  <animated.h2 key={index} style={styles} className="text-xl md:text-3xl lg:text-4xl font-semibold mb-4 ml-0 lg:ml-12">
                     {t('index.furthering_accessibility')}
                   </animated.h2>
                   :
-                  <animated.p style={styles} className="text-xl ml-12 my-auto">
+                  <animated.p key={index} style={styles} className="text-base md:text-lg lg:text-xl ml-0 lg:ml-12 my-auto">
                     {t('index.collaborate_on_projects')}
                   </animated.p>
               })}
             </div>
           </div>
+          <div id="mission" className='absolute left-0 h-20 top-[40%]' />
         </div>
 
 
         {/* Open Source & Testimonials */}
-        <div className="mb-28 md:mb-36">
+        <div className="relative mb-28 md:mb-36">
           <animated.h2 style={testimonialsTitleSpring} className="text-center text-xl md:text-3xl lg:text-5xl font-semibold mb-12 mx-12 md:mx-28 lg:mx-48">
             {t('index.sciteens_pride')}
           </animated.h2>
-          <div id='testimonials' className="relative flex flex-col md:flex-row items-center md:items-stretch justify-between mx-5 md:mx-16 lg:mx-24 z-10">
+          <div className="relative flex flex-col md:flex-row items-center md:items-stretch justify-between mx-5 md:mx-16 lg:mx-24 z-10">
             {testimonialsTrail.map((styles, index) => {
               return (
-                <animated.div style={styles} className="last-of-type:hidden lg:last-of-type:block bg-white shadow p-5 rounded-lg w-auto md:w-[45%] lg:w-[30%] lg:first-of-type:mb-8 lg:last-of-type:mb-8">
+                <animated.div key={index} style={styles} className="last-of-type:hidden lg:last-of-type:block bg-white shadow p-5 rounded-lg w-auto md:w-[45%] lg:w-[30%] lg:first-of-type:mb-8 lg:last-of-type:mb-8 first-of-type:mb-5 md:first-of-type:mb-0">
                   <animated.img src={testimonials_arr[index].image} className="h-10 mb-6" alt="" />
                   <animated.p className="text-sm lg:text-base mb-4">
                     {testimonials_arr[index].body}
@@ -313,7 +314,7 @@ export default function Home() {
               )
             })}
           </div>
-          <svg viewBox="0 0 900 40" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" version="1.1" className="-mt-36">
+          <svg viewBox="0 0 900 40" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" version="1.1" className="-mt-32 lg:-mt-36">
             <rect x="0" y="0" width="100%" height="100%" fill="#F5FFF5" />
             <path d="M0 7L10.7 8C21.3 9 42.7 11 64.2 11.7C85.7 12.3 107.3 11.7 128.8 11.3C150.3 11 171.7 11 193 12.3C214.3 13.7 235.7 16.3 257 16.2C278.3 16 299.7 13 321.2 10.8C342.7 8.7 364.3 7.3 385.8 8C407.3 8.7 428.7 11.3 450 11.8C471.3 12.3 492.7 10.7 514.2 11.5C535.7 12.3 557.3 15.7 578.8 15.3C600.3 15 621.7 11 643 8.8C664.3 6.7 685.7 6.3 707 7.8C728.3 9.3 749.7 12.7 771.2 14.3C792.7 16 814.3 16 835.8 14.7C857.3 13.3 878.7 10.7 889.3 9.3L900 8L900 41L889.3 41C878.7 41 857.3 41 835.8 41C814.3 41 792.7 41 771.2 41C749.7 41 728.3 41 707 41C685.7 41 664.3 41 643 41C621.7 41 600.3 41 578.8 41C557.3 41 535.7 41 514.2 41C492.7 41 471.3 41 450 41C428.7 41 407.3 41 385.8 41C364.3 41 342.7 41 321.2 41C299.7 41 278.3 41 257 41C235.7 41 214.3 41 193 41C171.7 41 150.3 41 128.8 41C107.3 41 85.7 41 64.2 41C42.7 41 21.3 41 10.7 41L0 41Z" fill="#58b386" />
             <path d="M0 18L10.7 17.8C21.3 17.7 42.7 17.3 64.2 17.3C85.7 17.3 107.3 17.7 128.8 18.7C150.3 19.7 171.7 21.3 193 22.5C214.3 23.7 235.7 24.3 257 24C278.3 23.7 299.7 22.3 321.2 21C342.7 19.7 364.3 18.3 385.8 19.2C407.3 20 428.7 23 450 24.5C471.3 26 492.7 26 514.2 24.3C535.7 22.7 557.3 19.3 578.8 19.5C600.3 19.7 621.7 23.3 643 24.3C664.3 25.3 685.7 23.7 707 22.2C728.3 20.7 749.7 19.3 771.2 18.5C792.7 17.7 814.3 17.3 835.8 17.2C857.3 17 878.7 17 889.3 17L900 17L900 41L889.3 41C878.7 41 857.3 41 835.8 41C814.3 41 792.7 41 771.2 41C749.7 41 728.3 41 707 41C685.7 41 664.3 41 643 41C621.7 41 600.3 41 578.8 41C557.3 41 535.7 41 514.2 41C492.7 41 471.3 41 450 41C428.7 41 407.3 41 385.8 41C364.3 41 342.7 41 321.2 41C299.7 41 278.3 41 257 41C235.7 41 214.3 41 193 41C171.7 41 150.3 41 128.8 41C107.3 41 85.7 41 64.2 41C42.7 41 21.3 41 10.7 41L0 41Z" fill="#439e70" />
@@ -347,15 +348,16 @@ export default function Home() {
             <path d="M0 12L10.7 13.7C21.3 15.3 42.7 18.7 64.2 19.3C85.7 20 107.3 18 128.8 18C150.3 18 171.7 20 193 20C214.3 20 235.7 18 257 16.8C278.3 15.7 299.7 15.3 321.2 14.7C342.7 14 364.3 13 385.8 13.5C407.3 14 428.7 16 450 16.5C471.3 17 492.7 16 514.2 15.8C535.7 15.7 557.3 16.3 578.8 16.8C600.3 17.3 621.7 17.7 643 18.3C664.3 19 685.7 20 707 19.2C728.3 18.3 749.7 15.7 771.2 14.3C792.7 13 814.3 13 835.8 14C857.3 15 878.7 17 889.3 18L900 19L900 0L889.3 0C878.7 0 857.3 0 835.8 0C814.3 0 792.7 0 771.2 0C749.7 0 728.3 0 707 0C685.7 0 664.3 0 643 0C621.7 0 600.3 0 578.8 0C557.3 0 535.7 0 514.2 0C492.7 0 471.3 0 450 0C428.7 0 407.3 0 385.8 0C364.3 0 342.7 0 321.2 0C299.7 0 278.3 0 257 0C235.7 0 214.3 0 193 0C171.7 0 150.3 0 128.8 0C107.3 0 85.7 0 64.2 0C42.7 0 21.3 0 10.7 0L0 0Z" fill="#439e70" />
             <path d="M0 5L10.7 5.3C21.3 5.7 42.7 6.3 64.2 7.3C85.7 8.3 107.3 9.7 128.8 9.7C150.3 9.7 171.7 8.3 193 7.8C214.3 7.3 235.7 7.7 257 8C278.3 8.3 299.7 8.7 321.2 9.3C342.7 10 364.3 11 385.8 11.7C407.3 12.3 428.7 12.7 450 12.3C471.3 12 492.7 11 514.2 11C535.7 11 557.3 12 578.8 12.7C600.3 13.3 621.7 13.7 643 12.3C664.3 11 685.7 8 707 6.5C728.3 5 749.7 5 771.2 6.3C792.7 7.7 814.3 10.3 835.8 11C857.3 11.7 878.7 10.3 889.3 9.7L900 9L900 0L889.3 0C878.7 0 857.3 0 835.8 0C814.3 0 792.7 0 771.2 0C749.7 0 728.3 0 707 0C685.7 0 664.3 0 643 0C621.7 0 600.3 0 578.8 0C557.3 0 535.7 0 514.2 0C492.7 0 471.3 0 450 0C428.7 0 407.3 0 385.8 0C364.3 0 342.7 0 321.2 0C299.7 0 278.3 0 257 0C235.7 0 214.3 0 193 0C171.7 0 150.3 0 128.8 0C107.3 0 85.7 0 64.2 0C42.7 0 21.3 0 10.7 0L0 0Z" fill="#2d8a5b" />
           </svg>
+          <div id='testimonials' className='absolute h-20 left-0 top-[38%]' />
         </div>
 
 
         {/* Featured Media */}
-        <div className="mb-28 md:mb-36">
+        <div className="relative mb-28 md:mb-36">
           <animated.h2 style={mediaTitleSpring} className="text-center text-xl md:text-3xl lg:text-5xl font-semibold mb-12">
             {t('index.featured_media')}
           </animated.h2>
-          <div id='media' className="grid grid-rows-3 grid-cols-1 lg:grid-rows-2 lg:grid-cols-2 mx-5 md:mx-16 lg:mx-24">
+          <div className="grid grid-rows-3 grid-cols-1 lg:grid-rows-2 lg:grid-cols-2 mx-5 md:mx-16 lg:mx-24">
             <animated.a style={mediaSpring1} href="https://www.neonscience.org/impact/observatory-blog/sciteens-data-science-and-ecology-gen-z"
               className="group col-span-1 row-span-1 lg:row-span-2 bg-white rounded-lg shadow overflow-hidden mr-0 lg:mr-4 mb-4 lg:mb-0"
               target="_blank" rel="noopener noreferrer">
@@ -400,6 +402,7 @@ export default function Home() {
               </div>
             </animated.a>
           </div>
+          <div id='media' className='absolute left-0 h-20 top-[40%]' />
         </div>
       </div>
     </div >

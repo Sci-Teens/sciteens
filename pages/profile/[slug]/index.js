@@ -99,7 +99,7 @@ function Project({ profile }) {
             <Link key={project.id} href={`/project/${project.id}`}>
                 <animated.a style={project_spring} className="p-4 bg-white shadow rounded-lg z-50 mt-6 md:mt-8 flex items-center cursor-pointer overflow-hidden">
                     <div className="h-full max-w-[100px] md:max-w-[200px] max-h-[100px] md:max-h-[200px] relative overflow-hidden rounded-lg">
-                        <img src={project.project_photo ? project.project_photo : ''} className="rounded-lg object-cover flex-shrink-0"></img>
+                        <img src={project.project_photo ? project.project_photo : ''} className="rounded-lg object-cover"></img>
                     </div>
                     <div className="ml-4 w-3/4 lg:w-11/12">
                         {project.member_arr && <div className="flex flex-row items-center mb-3">
