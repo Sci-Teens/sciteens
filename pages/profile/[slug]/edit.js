@@ -183,13 +183,6 @@ export default function UpdateProfilePage({ user_profile }) {
         }
     }
 
-    const removeFile = (e, id) => {
-        e.preventDefault()
-        let temp = [...files]
-        temp.splice(id, 1)
-        setFiles([...temp])
-    }
-
     const removeFile = async (e, id) => {
         e.preventDefault()
         let temp_files = [...files]
