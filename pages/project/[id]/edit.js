@@ -9,7 +9,7 @@ import { useTranslation } from 'next-i18next';
 
 import { useFirestore, useSigninCheck, useStorage } from "reactfire"
 import { collection, startAt, endAt, orderBy, limit, getDoc, doc, updateDoc, setDoc } from "@firebase/firestore"
-import { listAll, ref, getDownloadURL, getMetadata, uploadBytes, updateMetadata } from "@firebase/storage";
+import { listAll, ref, getDownloadURL, getMetadata, uploadBytes, updateMetadata, deleteObject } from "@firebase/storage";
 
 import moment from "moment"
 import isEmail from 'validator/lib/isEmail'
@@ -134,6 +134,7 @@ export default function UpdateProject({ query }) {
                 setPhoto(undefined, index)
             }
         })
+        console.log(metadata_arr)
     }, [files, metadata_arr])
 
 
@@ -170,20 +171,23 @@ export default function UpdateProject({ query }) {
 
         try {
             for (const f of files) {
-                const fileRef = ref(storage, `projects/${query.id}/${f.name}`);
-                await uploadBytes(fileRef, f)
-                if (f.name == project_photo) {
-                    await updateMetadata(fileRef, {
-                        customMetadata: {
-                            'project_photo': 'true',
-                        }
-                    })
-                    const downloadURL = await getDownloadURL(fileRef)
-                    await updateDoc(doc(firestore, 'projects', query.id), {
-                        project_photo: downloadURL,
-                    })
+                if (f) {
+                    const fileRef = ref(storage, `projects/${query.id}/${f.name}`);
+                    await uploadBytes(fileRef, f)
+                    if (f.name == project_photo) {
+                        await updateMetadata(fileRef, {
+                            customMetadata: {
+                                'project_photo': 'true',
+                            }
+                        })
+                        const downloadURL = await getDownloadURL(fileRef)
+                        await updateDoc(doc(firestore, 'projects', query.id), {
+                            project_photo: downloadURL,
+                        })
+                    }
                 }
             }
+
             router.push(`/project/${query.id}`)
             setLoading(false)
         }
@@ -325,15 +329,20 @@ export default function UpdateProject({ query }) {
         setMembers([...temp])
     }
 
-    const removeFile = (e, id) => {
+    const removeFile = async (e, id) => {
         e.preventDefault()
-        let temp = [...files]
-        const removed = temp.splice(id, 1)
-        console.log(temp);
-        setFiles([...temp])
-        if (removed?.name == project_photo) {
+        let temp_files = [...files]
+        let temp_metadata = [...metadata_arr]
+        const removed_file = temp_files.splice(id, 1)
+        const removed_metadata = temp_metadata.splice(id, 1)
+        setFiles([...temp_files])
+        setMetadata([...temp_metadata])
+        if (removed_file[0]?.name == project_photo) {
             setProjectPhoto(null)
         }
+
+        const removed_file_ref = ref(storage, removed_metadata[0].fullPath)
+        await deleteObject(removed_file_ref)
     }
 
     const setPhoto = (e, id) => {

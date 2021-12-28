@@ -8,7 +8,7 @@ import { useTranslation } from 'next-i18next';
 
 import { useSigninCheck, useStorage, useFirestore } from "reactfire"
 import { collection, updateDoc, limit, getFirestore, query as firebase_query, where, getDocs, doc, setDoc } from "@firebase/firestore"
-import { listAll, ref, getDownloadURL, getMetadata, uploadBytes } from "@firebase/storage";
+import { listAll, ref, getDownloadURL, getMetadata, uploadBytes, deleteObject } from "@firebase/storage";
 import { updateProfile as updateFirebaseProfile } from "@firebase/auth";
 
 import { useDropzone } from 'react-dropzone'
@@ -38,6 +38,7 @@ export default function UpdateProfilePage({ user_profile }) {
         "application/vnd.jupyter.dragindex",
     ])
     const [files, setFiles] = useState([])
+    const [metadata_arr, setMetadata] = useState([])
     const [profile_photo, setProfilePhoto] = useState(null)
 
     const [error_about, setErrorAbout] = useState('')
@@ -82,6 +83,7 @@ export default function UpdateProfilePage({ user_profile }) {
                     if (xhr.status == 200) {
                         blob.name = metadata.name
                         setFiles(oldFiles => [...oldFiles, blob])
+                        setMetadata(oldMetadata => [...oldMetadata, metadata])
 
                         if (metadata.name.includes('profile_photo')) {
                             setProfilePhoto(metadata.name)
@@ -186,6 +188,18 @@ export default function UpdateProfilePage({ user_profile }) {
         let temp = [...files]
         temp.splice(id, 1)
         setFiles([...temp])
+    }
+
+    const removeFile = async (e, id) => {
+        e.preventDefault()
+        let temp_files = [...files]
+        let temp_metadata = [...metadata_arr]
+        const removed_file = temp_files.splice(id, 1)
+        const removed_metadata = temp_metadata.splice(id, 1)
+        setFiles([...temp_files])
+        setMetadata([...temp_metadata])
+        const removed_file_ref = ref(storage, removed_metadata[0].fullPath)
+        await deleteObject(removed_file_ref)
     }
 
     const setPhoto = (e, file) => {
