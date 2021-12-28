@@ -40,29 +40,34 @@ export default function Layout({ children }) {
                     previousY = currentY
                 }
             }
-
-            // Banner checks
-            if (currentY <= 75) {
-                setVisibleBanner(true)
-            } else {
-                setVisibleBanner(false)
-            }
         })
+
+        // Check if the user closed the banner in sessionStorage
+        if (sessionStorage.getItem('visibleBanner')) {
+            setVisibleBanner(false)
+        }
 
         return () => {
             document.removeEventListener('scroll', function () { })
         };
     }, [])
 
+    function closeBanner() {
+        if (!sessionStorage.getItem('visibleBanner')) {
+            sessionStorage.setItem('visibleBanner', false)
+        }
+        setVisibleBanner(false)
+    }
+
 
     return (
         <AuthProvider sdk={auth}>
             <FirestoreProvider sdk={firestore}>
                 <StorageProvider sdk={storage}>
-                    <div className={`fixed w-full z-50 bottom-0 transform transition-all duration-300 ${visibleBanner ? "" : "translate-y-full"}`}>
-                        <Banner />
-                    </div>
                     <div className={`fixed z-50 w-full transform transition-all duration-300 ${visibleNav ? "translate-y-0" : "-translate-y-32"}`}>
+                        {visibleBanner &&
+                            <Banner closeBanner={closeBanner} />
+                        }
                         <NavBar />
                     </div>
                     <div className="pt-20">{children}</div>
