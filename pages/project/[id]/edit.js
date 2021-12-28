@@ -526,7 +526,7 @@ export default function UpdateProject({ query }) {
                                     {files.map((f, id) => {
                                         if (project_photo != "" && f?.name != project_photo || id > 0)
                                             return f && <div className="flex flex-row w-full">
-                                                <button onClick={e => setPhoto(e, id)} className={`transition-all duration-500 border-2 text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:bg-gray-50 rounded-lg ${select_photo_mode ? "px-3 mr-4" : "border-none w-0 overflow-hidden"}`}>Select</button>
+                                                <button onClick={e => setPhoto(e, id)} className={`transition-all duration-500 border-2 text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:bg-gray-50 rounded-lg ${select_photo_mode ? "w-28 mr-4" : "border-none w-0 overflow-hidden"}`}>Select</button>
                                                 <File file={f} id={id} key={f.id} removeFile={removeFile} setPhoto={setPhoto}></File>
                                             </div>
                                     })

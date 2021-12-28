@@ -167,8 +167,8 @@ function Projects({ cached_projects }) {
                     <div className="ml-4 w-3/4 lg:w-11/12">
                         {project.member_arr && <div className="flex flex-row items-center mb-3">
                             <div className="flex -space-x-2 overflow-hidden">
-                                {project.member_arr.map((member) => {
-                                    return <div className="inline-block h-6 w-6 lg:h-8 lg:w-8 rounded-full ring-2 ring-white">
+                                {project.member_arr.map((member, index) => {
+                                    return <div key={index} className="inline-block h-6 w-6 lg:h-8 lg:w-8 rounded-full ring-2 ring-white">
                                         <ProfilePhoto uid={member.uid}></ProfilePhoto>
                                     </div>
                                 })}
@@ -182,7 +182,7 @@ function Projects({ cached_projects }) {
                         <div className="hidden lg:flex flex-row">
                             {project.fields.map((field, index) => {
                                 if (index < checkForLongFields(project.fields))
-                                    return <p className="text-xs py-1.5 px-3 bg-gray-100 rounded-full mr-2 mb-2 z-30 shadow whitespace-nowrap">{getTranslatedFieldsDict(t)[field]}</p>
+                                    return <p key={index} className="text-xs py-1.5 px-3 bg-gray-100 rounded-full mr-2 mb-2 z-30 shadow whitespace-nowrap">{getTranslatedFieldsDict(t)[field]}</p>
                             })}
                             {project.fields.length >= 3 &&
                                 <p className="hidden lg:flex text-xs text-gray-600 mt-1.5 whitespace-nowrap">+ {project.fields.length - checkForLongFields(project.fields)} more field{project.fields.length - checkForLongFields(project.fields) == 1 ? "" : "s"}</p>
@@ -194,9 +194,9 @@ function Projects({ cached_projects }) {
         )
     })
 
-    const loadingComponent = (new Array(10)).fill(1).map(() => {
+    const loadingComponent = (new Array(10)).fill(1).map((index) => {
         return (
-            <div className="p-4 h-16 bg-gray-100 shadow rounded-lg z-50 mt-4"></div>
+            <div key={index} className="p-4 h-16 bg-gray-100 shadow rounded-lg z-50 mt-4"></div>
         )
     })
 
