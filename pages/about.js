@@ -123,6 +123,11 @@ export default function About() {
             about: t("about.about_ohm")
         },
         {
+            name: "Luke Sutor",
+            image: "luke.jpg",
+            about: t("about.about_luke")
+        },
+        {
             name: "Tasman Rosenfeld",
             image: "tasman.jpg",
             about:
