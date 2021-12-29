@@ -280,7 +280,7 @@ export default function FinishSignUp() {
                             className="mb-4 appearance-none border-transparent border-2 bg-gray-100 w-full mr-3 p-2 leading-tight rounded focus:outline-none focus:bg-white focus:placeholder-gray-700 focus:border-sciteensLightGreen-regular text-gray-700 placeholder-sciteensGreen-regular"
                         >
                             <option selected value="American Indian or Alaska Native">
-                                {t('auth.native_american')}
+                                {t('auth.american_indian')}
                             </option>
                             <option
                                 value="Asian (including Indian subcontinent and Philippines origin)"
@@ -296,7 +296,7 @@ export default function FinishSignUp() {
                             >{t('auth.white')}
                             </option>
                             <option value="Native Hawaiian or Other Pacific Islander"
-                            >{t('auth.navite_hawaiian')}
+                            >{t('auth.native_hawaiian')}
                             </option>
                             <option value="Prefer not to answer">{t('auth.prefer_not_answer')}</option>
                         </select>
@@ -316,7 +316,7 @@ export default function FinishSignUp() {
                                     />
                                     <label for="terms" className="text-sm text-gray-600 whitespace-nowrap">
                                         <div className="flex flex-row">
-                                            {t('auth.terms')} <Link href='/legal/terms'><a className="text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark">{t('auth.terms_link')}</a></Link>
+                                            {t('auth.terms')}&nbsp;<Link href='/legal/terms'><a className="text-sciteensLightGreen-regular font-semibold hover:text-sciteensLightGreen-dark">{t('auth.terms_link')}</a></Link>
                                         </div>
                                     </label>
                                 </div>
@@ -330,7 +330,7 @@ export default function FinishSignUp() {
                                 className="bg-sciteensLightGreen-regular text-white text-lg font-semibold rounded-lg p-2 w-full hover:bg-sciteensLightGreen-dark shadow outline-none disabled:opacity-50"
                                 onClick={finishSignUp}
                             >
-                                {t('auth.finish')}
+                                {t('auth.create_account')}
                                 {
                                     loading &&
                                     <img
