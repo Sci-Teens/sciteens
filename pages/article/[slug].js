@@ -10,6 +10,9 @@ import Discussion from '../../components/Discussion';
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
+import { AnalyticsProvider, useAnalytics } from 'reactfire';
+import { logEvent } from 'firebase/analytics';
+
 
 function Article({ article, recommendations }) {
     const [leftVisible, setLeftVisible] = useState(false)
@@ -18,7 +21,21 @@ function Article({ article, recommendations }) {
     const [swipePosition, setSwipePositon] = useState(0)
     const isAmp = false
     const { t } = useTranslation('common')
+    let analytics
+    if (!typeof window === 'undefined')
+        analytics = getAnalytics(app)
 
+    async function handleRate(type) {
+        if (!typeof window === 'undefined') {
+            if (type = "positive") {
+                return logEvent(analytics, "rate_article", { name: RichText.asText(article.data.title), rating: "positive" })
+            }
+
+            else {
+                return logEvent(analytics, "rate_article", { name: RichText.asText(article.data.title), rating: "negative" })
+            }
+        }
+    }
 
     const handleSwipe = (e, call) => {
         if (call == 'start') {
@@ -225,12 +242,12 @@ function Article({ article, recommendations }) {
 
                                     {/* Thumbs Up / Thumbs Down Element */}
                                     <div className='flex flex-col md:flex-row justify-between place-items-center bg-white rounded-lg md:rounded-full shadow'>
-                                        <p className='ml-0 md:ml-14 text-sm md:text-lg lg:text-xl font-semibold text-black'>Did you enjoy this article?</p>
+                                        <p className='ml-0 md:ml-14 text-sm md:text-lg lg:text-xl font-semibold text-black'>{t('article.rate')}</p>
                                         <div className='mr-0 md:mr-14 my-auto h-auto pb-4 md:pb-0'>
-                                            <button className='mr-12 border-2 p-2 rounded-lg border-gray-600 text-gray-600 hover:border-green-500 hover:text-green-500 hover:bg-green-50'>
+                                            <button className='mr-12 border-2 p-2 rounded-lg border-gray-600 text-gray-600 hover:border-green-500 hover:text-green-500 hover:bg-green-50' onClick={e => handleRate('positive')}>
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" className='w-5 lg:w-7 h-5 lg:h-7 fill-current'><path d="M11 0h1v3l3 7v8a2 2 0 0 1-2 2H5c-1.1 0-2.31-.84-2.7-1.88L0 12v-2a2 2 0 0 1 2-2h7V2a2 2 0 0 1 2-2zm6 10h3v10h-3V10z" /></svg>
                                             </button>
-                                            <button className='border-2 p-2 rounded-lg border-gray-600 text-gray-600 hover:border-red-500 hover:text-red-500 hover:bg-red-50'>
+                                            <button className='border-2 p-2 rounded-lg border-gray-600 text-gray-600 hover:border-red-500 hover:text-red-500 hover:bg-red-50' onClick={e => handleRate('negative')}>
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" className='w-5 lg:w-7 h-5 lg:h-7 fill-current'><path d="M11 20a2 2 0 0 1-2-2v-6H2a2 2 0 0 1-2-2V8l2.3-6.12A3.11 3.11 0 0 1 5 0h8a2 2 0 0 1 2 2v8l-3 7v3h-1zm6-10V0h3v10h-3z" /></svg>
                                             </button>
                                         </div>
@@ -243,7 +260,7 @@ function Article({ article, recommendations }) {
                                 <Discussion type={"article"} item_id={router.query.slug} />
                                 <div className="h-px bg-gray-300 my-2" />
                             </article>
-                            <h3 className="font-semibold text-2xl md:text-5xl text-center mt-8">More on this topic...</h3>
+                            <h3 className="font-semibold text-2xl md:text-5xl text-center mt-8">{t('article.related')}</h3>
                             <div className="relative">
                                 <div id="readMore" style={{ scrollBehavior: 'smooth' }} className="transition-all flex flex-row px-[12.5vw] md:px-[16.5vw] pb-8 overflow-x-hidden" onTouchMove={e => handleSwipe(e, 'move')} onTouchStart={e => handleSwipe(e, 'start')} >
                                     {recommendationsRendered}
