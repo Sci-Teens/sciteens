@@ -13,13 +13,16 @@ import { RichText } from 'prismic-reactjs';
 import moment from 'moment'
 import { useSpring, animated, config } from '@react-spring/web'
 import { getTranslatedFieldsDict } from '../context/helpers';
+import ReactPaginate from 'react-paginate';
 
 function Articles({ cached_articles }) {
     const router = useRouter()
     const [articles, setArticles] = useState(cached_articles)
+    const [page, setPage] = useState(1)
 
     useEffect(async () => {
-        if (router.asPath !== '/articles') {
+        let isSubscribed = true
+        if (isSubscribed) {
             const apiEndpoint = 'https://sciteens.cdn.prismic.io/api/v2'
             const client = Prismic.default.client(apiEndpoint)
             let predicates = []
@@ -36,12 +39,13 @@ function Articles({ cached_articles }) {
                 {
                     orderings: `[document.first_publication_date desc]`,
                     pageSize: 10,
+                    page: router.query?.page ? router.query.page : 1
                 })
             setArticles(as)
+            moment.locale(router?.locale ? router.locale : 'en');
         }
-        moment.locale(router?.locale ? router.locale : 'en');
 
-
+        return () => (isSubscribed = false)
     }, [router])
 
     const [search, setSearch] = useState('')
@@ -82,6 +86,20 @@ function Articles({ cached_articles }) {
         // router.push(`/articles?${search.trim() ? 'search=' + search.trim() : ''}${field ? '&field=' + field : ''}`)
     }
 
+    async function handlePageChange(e) {
+        let q = {}
+        if (search) {
+            q.search = search
+        }
+        if (field) {
+            q.field = field
+        }
+        q.page = e.selected + 1
+        router.push({
+            pathname: '/articles',
+            query: q
+        })
+    }
     async function handleFieldSearch(field) {
         let q = {}
         q.field = field
@@ -216,6 +234,22 @@ function Articles({ cached_articles }) {
                             </i>
                         </div>
                     }
+                    <div className='flex w-full items-center justify-center'>
+                        <ReactPaginate
+                            breakLabel="..."
+                            nextLabel=">"
+                            onPageChange={(e) => handlePageChange(e)}
+                            pageRangeDisplayed={2}
+                            pageCount={articles.total_pages}
+                            previousLabel="<"
+                            renderOnZeroPageCount={false}
+                            className='mx-auto flex flex-row gap-2 mt-2 items-center h-full font-bold'
+                            pageClassName="rounded-lg px-3 py-2 bg-white text-black shadow h-full"
+                            previousLinkClassName="rounded-lg px-3 py-2 bg-white text-black shadow h-full"
+                            nextLinkClassName="rounded-lg px-3 py-2 bg-white text-black shadow h-full"
+                            activeLinkClassName="text-sciteensGreen-regular"
+                        ></ReactPaginate>
+                    </div>
                 </div>
                 <div className="hidden lg:block w-0 lg:w-[30%] lg:ml-32">
                     <div className="sticky top-1/2 transform -translate-y-1/2 w-full">

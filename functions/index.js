@@ -759,7 +759,7 @@ exports.updateUserStats = functions.pubsub
         // Fetch all users on the platform
         var mentors = 0;
         var students = 0;
-        return admin
+        await admin
             .auth()
             .listUsers()
             .then((res) => {
