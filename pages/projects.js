@@ -102,10 +102,7 @@ function Projects({ cached_projects }) {
 
     const ref = useRef(null);
     const isBottomVisible = useIntersectionObserver(ref, { threshold: 0 }, false);
-    useEffect(() => {
-        //load next page when bottom is visible
-        isBottomVisible && console.log("Botom!")
-    }, [isBottomVisible]);
+
 
     async function load_more_projects() {
         if (!router?.query?.search) {
@@ -114,11 +111,11 @@ function Projects({ cached_projects }) {
             let projectsQuery
             if (!router.query?.field || router.query?.field == "All") {
                 console.log("Firebase regular")
-                projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), startAfter(projects[-1]), limit(10))
+                projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), startAfter(projects[projects.length - 1].date), limit(10))
             }
 
             else {
-                projectsQuery = firebase_query(projectsCollection, firebase_where('fields', 'array-contains', router.query.field), orderBy('date', 'desc'), startAfter(projects[-1]), limit(10))
+                projectsQuery = firebase_query(projectsCollection, firebase_where('fields', 'array-contains', router.query.field), orderBy('date', 'desc'), startAfter(projects[projects.length - 1].date), limit(10))
             }
             const projectsRef = await getDocs(projectsQuery)
             projectsRef.forEach(p => {
@@ -130,6 +127,11 @@ function Projects({ cached_projects }) {
             setProjects(old_ps => [...old_ps, ...ps])
         }
     }
+    useEffect(() => {
+        //load next page when bottom is visible
+        isBottomVisible && load_more_projects()
+    }, [isBottomVisible]);
+
 
     async function handleChange(e, target) {
         e.preventDefault();
