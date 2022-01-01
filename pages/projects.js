@@ -1,15 +1,16 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 import Link from 'next/link'
 import Head from 'next/head'
 import { useRouter } from "next/router"
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
+import { useIntersectionObserver } from '../context/helpers';
 
 import { useFirestore, useFirestoreCollectionData } from 'reactfire';
 import firebaseConfig from '../firebaseConfig';
 import { getApp, getApps, initializeApp } from "@firebase/app";
-import { collection, query as firebase_query, orderBy, getDocs, limit, getFirestore, where as firebase_where } from '@firebase/firestore';
+import { collection, query as firebase_query, orderBy, getDocs, limit, getFirestore, where as firebase_where, startAfter } from '@firebase/firestore';
 
 import algoliasearch from "algoliasearch/lite";
 import { useSpring, animated, config } from '@react-spring/web'
@@ -98,6 +99,37 @@ function Projects({ cached_projects }) {
             setField(router.query?.field ? router.query.field : '')
         }
     }, [router])
+
+    const ref = useRef(null);
+    const isBottomVisible = useIntersectionObserver(ref, { threshold: 0 }, false);
+    useEffect(() => {
+        //load next page when bottom is visible
+        isBottomVisible && console.log("Botom!")
+    }, [isBottomVisible]);
+
+    async function load_more_projects() {
+        if (!router?.query?.search) {
+            let ps = []
+            const projectsCollection = collection(firestore, 'projects')
+            let projectsQuery
+            if (!router.query?.field || router.query?.field == "All") {
+                console.log("Firebase regular")
+                projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), startAfter(projects[-1]), limit(10))
+            }
+
+            else {
+                projectsQuery = firebase_query(projectsCollection, firebase_where('fields', 'array-contains', router.query.field), orderBy('date', 'desc'), startAfter(projects[-1]), limit(10))
+            }
+            const projectsRef = await getDocs(projectsQuery)
+            projectsRef.forEach(p => {
+                ps.push({
+                    id: p.id,
+                    ...p.data(),
+                })
+            })
+            setProjects(old_ps => [...old_ps, ...ps])
+        }
+    }
 
     async function handleChange(e, target) {
         e.preventDefault();
@@ -233,6 +265,8 @@ function Projects({ cached_projects }) {
                             </i>
                         </div>
                     }
+                    <div ref={ref} style={{ width: "100%", height: "20px" }}>
+                    </div>
                 </div >
 
                 <div className="hidden lg:block w-0 lg:w-[30%] lg:ml-32">
