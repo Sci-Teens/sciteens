@@ -176,8 +176,10 @@ function Projects({ cached_projects }) {
 
     // REACT SPRING ANIMATIONS
     useEffect(() => {
-        set({ opacity: 0, transform: 'translateX(150px)', config: { tension: 10000, clamp: true } })
-        window.setTimeout(function () { set({ opacity: 1, transform: 'translateX(0)', config: config.slow }) }, 10)
+        if (projects.length <= 10) {
+            set({ opacity: 0, transform: 'translateX(150px)', config: { tension: 10000, clamp: true } })
+            window.setTimeout(function () { set({ opacity: 1, transform: 'translateX(0)', config: config.slow }) }, 10)
+        }
     }, [projects])
 
     const [project_spring, set] = useSpring(() => ({
