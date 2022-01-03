@@ -114,9 +114,16 @@ function Project({ query }) {
                             </div>
                         })}
                     </div>
-                    <p className="ml-2">By {project.member_arr.map((member) => {
-                        return member.display + " "
-                    })}</p>
+                    <p className="ml-2">By&nbsp;
+                        {project.member_arr.map((member) => {
+                            return (
+                                <Link href={`/profile/${member.slug ? member.slug : ''}`}>
+                                    <a className="text-sciteensGreen-regular hover:text-sciteensGreen-dark no-underline font-bold">
+                                        {member.display + " "}
+                                    </a>
+                                </Link>
+                            )
+                        })}</p>
                 </div>}
                 <div>
                     {
