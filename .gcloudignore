@@ -1,4 +1,5 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+.gcloudignore
+.gitignore
 
 # dependencies
 /node_modules
@@ -36,8 +37,3 @@ yarn-error.log*
 
 # Firebase 
 .firebaserc
-
-# Containerization
-cloud-build.yaml
-Dockerfile
-.dockerignore
