@@ -6,18 +6,23 @@ import { getFirestore } from '@firebase/firestore';
 import { getStorage } from '@firebase/storage';
 import { getAnalytics } from "firebase/analytics";
 import { AuthProvider, AnalyticsProvider, FirestoreProvider, StorageProvider, useFirebaseApp } from 'reactfire';
-import { set } from "lodash";
 
 import Banner from '../components/Banner'
+import MyPageViewLogger from "./Analytics";
 
 export default function Layout({ children }) {
     const app = useFirebaseApp()
     const firestore = getFirestore(app);
     const auth = getAuth(app);
     const storage = getStorage(app)
-    let analytics = null
-    if (!typeof window === 'undefined')
+    let analytics
+    if (typeof window === 'undefined') {
+        analytics = null
+    }
+
+    else {
         analytics = getAnalytics(app)
+    }
 
     const [visibleNav, setVisibleNav] = useState(true)
 
@@ -82,9 +87,10 @@ export default function Layout({ children }) {
 
 
     return (
-        analytics ?
+        typeof window === 'undefined' ? wrapper :
             <AnalyticsProvider sdk={analytics}>
                 {wrapper}
-            </AnalyticsProvider> : wrapper
+                <MyPageViewLogger />
+            </AnalyticsProvider>
     )
 }

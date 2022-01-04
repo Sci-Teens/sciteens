@@ -10,7 +10,6 @@ import Discussion from '../../components/Discussion';
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
-import { AnalyticsProvider, useAnalytics } from 'reactfire';
 import { logEvent } from 'firebase/analytics';
 
 
