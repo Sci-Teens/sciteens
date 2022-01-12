@@ -38,6 +38,6 @@ yarn-error.log*
 .firebaserc
 
 # Containerization
-cloud-build.yaml
-Dockerfile
-.dockerignore
+# cloud-build.yaml
+# Dockerfile
+# .dockerignore

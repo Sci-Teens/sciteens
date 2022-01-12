@@ -1,0 +1,36 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        docker pull gcr.io/directed-relic-266701/website:latest || exit 0
+  - name: gcr.io/cloud-builders/docker
+    timeout: 1200s
+    args:
+      [
+        'build',
+        '-f',
+        'Dockerfile',
+        '-t',
+        'gcr.io/directed-relic-266701/website',
+        '--cache-from',
+        'gcr.io/directed-relic-266701/website:latest',
+        '.',
+        '--env',
+        'NODE_ENV=${_NODE_ENV}',
+        'NEXT_PUBLIC_FB_PROJECT_ID=${_NEXT_PUBLIC_FB_PROJECT_ID}',
+        'NEXT_PUBLIC_FB_API_KEY=${_NEXT_PUBLIC_FB_API_KEY}',
+        'NEXT_PUBLIC_FB_MESSAGING_SENDER_ID=${_NEXT_PUBLIC_FB_MESSAGING_SENDER_ID}',
+        'NEXT_PUBLIC_FB_APP_ID=${_NEXT_PUBLIC_FB_APP_ID}',
+        'NEXT_PUBLIC_FB_MEASUREMENT_ID=${_NEXT_PUBLIC_FB_MEASUREMENT_ID}',
+        'NEXT_PUBLIC_AL_APP_ID=${_NEXT_PUBLIC_AL_APP_ID}',
+        'NEXT_PUBLIC_AL_ADMIN_KEY=${_NEXT_PUBLIC_AL_ADMIN_KEY}',
+        'NEXT_PUBLIC_AL_SEARCH_KEY=${_NEXT_PUBLIC_AL_SEARCH_KEY}',
+        'NEXT_PUBLIC_GM_API_KEY=${_NEXT_PUBLIC_GM_API_KEY}',
+        'NEXT_PUBLIC_GC_GRADE=${_NEXT_PUBLIC_GC_GRADE}',
+      ]
+
+timeout: 1200s
+images:
+  - gcr.io/directed-relic-266701/website
