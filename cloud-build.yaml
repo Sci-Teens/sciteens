@@ -33,4 +33,4 @@ steps:
 
 timeout: 1200s
 images:
-  - gcr.io/directed-relic-266701/website
+  - gcr.io/${_NEXT_PUBLIC_FB_PROJECT_ID}/website
