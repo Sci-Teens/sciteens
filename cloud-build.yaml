@@ -17,7 +17,7 @@ steps:
         '--cache-from',
         'gcr.io/directed-relic-266701/website:latest',
         '.',
-        '--env',
+        '--build-arg',
         'NODE_ENV=${_NODE_ENV}',
         'NEXT_PUBLIC_FB_PROJECT_ID=${_NEXT_PUBLIC_FB_PROJECT_ID}',
         'NEXT_PUBLIC_FB_API_KEY=${_NEXT_PUBLIC_FB_API_KEY}',
