@@ -44,3 +44,20 @@ steps:
 timeout: 1200s
 images:
   - gcr.io/${_NEXT_PUBLIC_FB_PROJECT_ID}/website
+# Deploy container image to Cloud Run
+ - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+   entrypoint: gcloud
+   args:
+   [
+     'run',
+     'deploy',
+     'website',
+     '--image',
+     'gcr.io/${_NEXT_PUBLIC_FB_PROJECT_ID}/website',
+    '--region',
+    'us-east1',
+    '--platform',
+    'managed',
+    '--port',
+    '3000',
+   ]
