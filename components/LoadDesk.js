@@ -53,7 +53,6 @@ export default async function render(width, height) {
         if (loadingScreen) {
             loadingScreen.style.zIndex = -1
             container.classList.remove('scale-75')
-            container.style.zIndex = 10
         }
     });
 
@@ -99,6 +98,7 @@ export default async function render(width, height) {
                 requestAnimationFrame(animate);
                 gltf.scene.rotation.y += rotation;
                 renderer.render(scene, camera);
+
             };
 
             animate();
