@@ -4,6 +4,8 @@ This is the work-in-progress version of the open-source [SciTeens](https://scite
 
 # Learning
 If you'd like to learn about web development, you can explore this repository and the tools that we use. We've provided the tools that we use below, as well as some good learning guides for getting started with each of these tools. 
+- **Tailwind CSS**<br>
+[Tailwind CSS](https://tailwindcss.com/) is a class-based CSS framework that allows us to style our website. It's pretty straightforward to learn, the [documentation](https://tailwindcss.com/docs/utility-first) is fantastic, and you can [try it yourself](https://play.tailwindcss.com/) without downloading anything. 
 - **React**<br>
 React is a framework that allows us to create the functionality for each of our pages. To get started, be sure to check out [this website](https://beta.reactjs.org/learn)
 - **Next JS**<br>
