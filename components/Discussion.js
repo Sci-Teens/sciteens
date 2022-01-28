@@ -3,12 +3,16 @@ import { useState, useCallback, useEffect } from "react";
 import { useFirestore, useFirestoreCollectionData, useSigninCheck } from "reactfire"
 import { useRouter } from "next/router";
 import Link from "next/link";
-const { Client } = require("@conversationai/perspectiveapi-js-client");
-const client = new Client(process.env.NEXT_PUBLIC_GM_API_KEY);
+// const { Client } = require("@conversationai/perspectiveapi-js-client");
+// const client = new Client(process.env.NEXT_PUBLIC_GM_API_KEY);
 import ProfilePhoto from "./ProfilePhoto";
 
 import debounce from "lodash/debounce";
 import moment from "moment";
+
+const {google} = require('googleapis');
+const PERSPECTIVE_API_KEY = process.env.NEXT_PUBLIC_GM_API_KEY;
+const DISCOVERY_URL = 'https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1';
 
 export default function Discussion({ type, item_id }) {
     const { authStatus, data: signInCheckResult } = useSigninCheck();
@@ -19,6 +23,11 @@ export default function Discussion({ type, item_id }) {
     const { data: discussion } = useFirestoreCollectionData(discussionQuery, {
         idField: 'id'
     });
+    const profanityThresholds = {
+        'INSULT': 0.7,
+        'PROFANITY': 0.7,
+        'TOXICITY': 0.7
+    }
 
     const [loading, setLoading] = useState(false)
     const [comment, setComment] = useState('')
@@ -53,33 +62,64 @@ export default function Discussion({ type, item_id }) {
             setErrorReply("")
             setErrorReplyIndex(-1)
             // Check for profanity 
-            CheckToxicity(e.target.value.trim(), isComment, index)
+            // CheckToxicity(e.target.value.trim(), isComment, index)
+            evaluateMessage(e.target.value.trim())
         }
     }
+    async function evaluateMessage(text) {
+        const analyzer = google.commentanalyzer('v1alpha1');
+      
+        const requestedAttributes = {};
+        for (const key in attributeThresholds) {
+          requestedAttributes[key] = {};
+        }
+      
+        const req = {
+          comment: {text: text},
+          languages: ['en'],
+          requestedAttributes: requestedAttributes,
+        };
+      
+        const res = await analyzer.comments.analyze({
+          key: process.env.PERSPECTIVE_API_KEY,
+          resource: req},
+        );
+      
+        data = {};
+      
+        for (const key in res['data']['attributeScores']) {
+          data[key] =
+              res['data']['attributeScores'][key]['summaryScore']['value'] >
+              attributeThresholds[key];
+        }
+        console.log(data)
+        return data;
+      }
 
-    const CheckToxicity = useCallback(debounce(async (c, isComment, index) => {
-        const THRESHOLD = 0.7
-        try {
-            const res = await client.getScores(c, {
-                attributes: ["TOXICITY", "PROFANITY", "INSULT"],
-            })
-            console.log(res)
-            if (res.INSULT > THRESHOLD || res.PROFANITY > THRESHOLD || res.TOXICITY > THRESHOLD) {
-                console.log(replyingToId);
-                if (isComment) {
-                    setErrorComment("Please refrain from submitting inappropriate comments")
-                } else {
-                    setErrorReply("Please refrain from submitting inappropriate comments")
-                    setErrorReplyIndex(index)
-                }
-            }
-        }
-        catch (e) {
-            setErrorComment("")
-            setErrorReply("")
-            setErrorReplyIndex(-1)
-        }
-    }, 1000), [])
+    // const CheckToxicity = useCallback(debounce(async (c, isComment, index) => {
+    //     const THRESHOLD = 0.7
+    //     try {
+    //         const res = await client.getScores(c, {
+    //             attributes: ["TOXICITY", "PROFANITY", "INSULT"],
+    //         })
+    //         console.log(res)
+    //         if (res.INSULT > THRESHOLD || res.PROFANITY > THRESHOLD || res.TOXICITY > THRESHOLD) {
+    //             console.log(replyingToId);
+    //             if (isComment) {
+    //                 setErrorComment("Please refrain from submitting inappropriate comments")
+    //             } else {
+    //                 setErrorReply("Please refrain from submitting inappropriate comments")
+    //                 setErrorReplyIndex(index)
+    //             }
+    //         }
+    //     }
+    //     catch (e) {
+    //         setErrorComment("")
+    //         setErrorReply("")
+    //         setErrorReplyIndex(-1)
+    //     }
+    // }, 1000), [])
+
 
     const postComment = async (e) => {
         e.preventDefault()
@@ -90,7 +130,7 @@ export default function Discussion({ type, item_id }) {
             })
             return
         }
-        console.log(e)
+        // console.log(e)
         if (process.client) {
             document.getElementById('discussion-form').checkValidity()
         }
