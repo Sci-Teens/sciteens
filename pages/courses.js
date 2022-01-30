@@ -11,7 +11,6 @@ var Prismic = require("@prismicio/client");
 import { RichText } from 'prismic-reactjs';
 import { useSpring, animated, config } from '@react-spring/web';
 import moment from 'moment';
-import { resolveConfigFile } from 'prettier';
 
 import { getTranslatedFieldsDict } from '../context/helpers';
 
