@@ -58,7 +58,19 @@ steps:
         '--port',
         '3000',
       ]
-
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args: [
+      'run',
+      'services',
+      'update-traffic',
+      'website',
+      '--to-latest',
+      '--platform',
+      'managed',
+      '--region'
+      'us-east1'
+    ]
 timeout: 1200s
 images:
   - gcr.io/${_NEXT_PUBLIC_FB_PROJECT_ID}/website
