@@ -68,7 +68,7 @@ steps:
       '--to-latest',
       '--platform',
       'managed',
-      '--region'
+      '--region',
       'us-east1'
     ]
 timeout: 1200s
