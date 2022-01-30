@@ -2,6 +2,7 @@ import { collection, query, addDoc, orderBy } from "@firebase/firestore"
 import { useState, useCallback, useEffect } from "react";
 import { useFirestore, useFirestoreCollectionData, useSigninCheck } from "reactfire"
 import { useRouter } from "next/router";
+import { post } from "../context/helpers.js";
 import Link from "next/link";
 // const { Client } = require("@conversationai/perspectiveapi-js-client");
 // const client = new Client(process.env.NEXT_PUBLIC_GM_API_KEY);
@@ -10,9 +11,7 @@ import ProfilePhoto from "./ProfilePhoto";
 import debounce from "lodash/debounce";
 import moment from "moment";
 
-const {google} = require('googleapis');
-const PERSPECTIVE_API_KEY = process.env.NEXT_PUBLIC_GM_API_KEY;
-const DISCOVERY_URL = 'https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1';
+const API_KEY = process.env.NEXT_PUBLIC_GM_API_KEY;
 
 export default function Discussion({ type, item_id }) {
     const { authStatus, data: signInCheckResult } = useSigninCheck();
@@ -23,11 +22,6 @@ export default function Discussion({ type, item_id }) {
     const { data: discussion } = useFirestoreCollectionData(discussionQuery, {
         idField: 'id'
     });
-    const profanityThresholds = {
-        'INSULT': 0.7,
-        'PROFANITY': 0.7,
-        'TOXICITY': 0.7
-    }
 
     const [loading, setLoading] = useState(false)
     const [comment, setComment] = useState('')
@@ -63,38 +57,40 @@ export default function Discussion({ type, item_id }) {
             setErrorReplyIndex(-1)
             // Check for profanity 
             // CheckToxicity(e.target.value.trim(), isComment, index)
-            evaluateMessage(e.target.value.trim())
+            getScores(e.target.value.trim(), isComment, index)
         }
     }
-    async function evaluateMessage(text) {
-        const analyzer = google.commentanalyzer('v1alpha1');
-      
-        const requestedAttributes = {};
-        for (const key in attributeThresholds) {
-          requestedAttributes[key] = {};
-        }
-      
-        const req = {
-          comment: {text: text},
-          languages: ['en'],
-          requestedAttributes: requestedAttributes,
-        };
-      
-        const res = await analyzer.comments.analyze({
-          key: process.env.PERSPECTIVE_API_KEY,
-          resource: req},
-        );
-      
-        data = {};
-      
-        for (const key in res['data']['attributeScores']) {
-          data[key] =
-              res['data']['attributeScores'][key]['summaryScore']['value'] >
-              attributeThresholds[key];
-        }
-        console.log(data)
-        return data;
-      }
+  
+    const postLink = 'https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key='+API_KEY
+    const getScores = (userComment, isComment, index) => {
+        const THRESHOLD = 0.7
+        post(postLink, 
+            {
+            comment: {text: userComment}, 
+            languages: ["en"], 
+            requestedAttributes: {TOXICITY: {}, PROFANITY: {}, INSULT: {}} 
+            })
+            .then((res) => {
+                console.log(res.attributeScores.INSULT.summaryScore.value);
+                try {
+                    if (res.attributeScores.INSULT.summaryScore.value > THRESHOLD 
+                        || res.attributeScores.PROFANITY.summaryScore.value > THRESHOLD 
+                            || res.attributeScores.TOXICITY.summaryScore.value > THRESHOLD) {
+                        if (isComment) {
+                            setErrorComment("Please refrain from submitting inappropriate comments")
+                        } else {
+                            setErrorReply("Please refrain from submitting inappropriate comments")
+                            setErrorReplyIndex(index)
+                        }
+                    }
+                }
+                catch (e) {
+                    setErrorComment("")
+                    setErrorReply("")
+                    setErrorReplyIndex(-1)
+                }
+            });
+    }
 
     // const CheckToxicity = useCallback(debounce(async (c, isComment, index) => {
     //     const THRESHOLD = 0.7

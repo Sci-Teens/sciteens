@@ -153,3 +153,32 @@ export function useIntersectionObserver(ref, options, forward = true) {
 
     return isIntersecting;
 }
+
+function convertToJSON(res) {
+    if (!res.ok) {
+      throw `API request failed with response status ${res.status} and text: ${res.statusText}`;
+    }
+  
+    return res
+      .clone() // clone so that the original is still readable for debugging
+      .json() // start converting to JSON object
+      .catch((error) => {
+        // throw an error containing the text that couldn't be converted to JSON
+        return res.text().then((text) => {
+          throw `API request's result could not be converted to a JSON object: \n${text}`;
+        });
+      });
+  }
+
+export function post(endpoint, params = {}) {
+    console.log(endpoint)
+    return fetch(endpoint, {
+      method: "post",
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify(params),
+    })
+      .then(convertToJSON) 
+      .catch((error) => {
+        throw `POST request to ${endpoint} failed with error:\n${error}`;
+      });
+  }
