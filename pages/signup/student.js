@@ -132,7 +132,7 @@ export default function StudentSignUp() {
         event.preventDefault()
         setLoading(true)
         let res;
-        let unique_slug;
+        let unique_slug = await createUniqueSlug(firestore, first_name.toLowerCase() + "-" + last_name.toLowerCase(), 'profile-slugs', 1)
         const profile = {
             display: first_name + " " + last_name,
             authorized: true, // Only students are authorized upon signup
@@ -154,29 +154,10 @@ export default function StudentSignUp() {
 
         try {
             res = await createUserWithEmailAndPassword(auth, email, password)
-        }
-
-        catch (e) {
-            f_signup_errors[e.code] ? setErrorEmail(f_signup_errors[e.code]) : setErrorEmail(t("auth.sign_in_failed"))
-            setEmail("")
-        }
-
-        try {
-            unique_slug = await createUniqueSlug(firebase, first_name.toLowerCase() + "-" + last_name.toLowerCase(), 'profile-slugs', 1)
             await setDoc(doc(firestore, 'profiles', res.user.uid), profile)
             await setDoc(doc(firestore, 'profile-slugs', unique_slug), { slug: unique_slug })
             await setDoc(doc(firestore, 'emails', res.user.uid), { email: res.user.email })
             await sendEmailVerification(res.user)
-
-
-        }
-
-        catch (e) {
-            setErrorEmail(t("auth.sign_in_failed"))
-
-        }
-
-        try {
             await updateProfile(res.user, { displayName: first_name + " " + last_name })
             setProfile(profile)
             if (router.query.ref) {
@@ -193,7 +174,7 @@ export default function StudentSignUp() {
         }
 
         catch (e) {
-            console.log(e.code)
+            console.log(e)
             f_signup_errors[e.code] ? setErrorEmail(f_signup_errors[e.code]) : setErrorEmail(t("auth.sign_in_failed"))
             setEmail("")
             setLoading(false)

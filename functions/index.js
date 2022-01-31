@@ -759,16 +759,23 @@ exports.updateUserStats = functions.pubsub
         // Fetch all users on the platform
         var mentors = 0;
         var students = 0;
+        var ethnicities = []
+        var genders = []
+        var races = []
+
         await admin
             .auth()
             .listUsers()
             .then((res) => {
-                res.users.forEach((user) => {
+                res.users.forEach(async (user) => {
                     console.log("Checking user " + user.displayName);
                     // Determine if the user is a mentor
                     if (user.customClaims && user.customClaims["mentor"]) {
                         mentors += 1;
                     } else {
+                        await admin.firestore().collection("profiles").doc(user.uid).get().then((student) => {
+
+                        })
                         students += 1;
                     }
                 });
