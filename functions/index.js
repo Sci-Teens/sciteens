@@ -16,6 +16,8 @@ const mailjet = require("node-mailjet").connect(
 const Prismic = require("@prismicio/client");
 const { firestore } = require("firebase-admin");
 
+const axios = require("axios").default
+
 // Slugify
 let slugify;
 
@@ -801,6 +803,10 @@ exports.updateUserStats = functions.pubsub
                     admin.firestore().collection("statistics").doc("students").update({
                         count: students,
                     }),
+                    axios.post('https://discordapp.com/api/webhooks/937823121803722804/8FNDte3f2S8Hc4_E3hm5Iqz-lNyZFwlKiZsaTw7lJf9oXD_aN5DecAs4GrWSWKh7weHJ',
+                        {
+                            "content": `Weekly Update: There are ${students} students and ${mentors} mentors!`
+                        })
                 ]);
             }).then(() => {
                 // Count occurences for gender, races, and ethnicities
