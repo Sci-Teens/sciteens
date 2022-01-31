@@ -755,7 +755,7 @@ exports.newProjectInvite = functions.firestore
 exports.updateUserStats = functions.pubsub
     .schedule("0 0 * * 0")
     .timeZone("America/New_York")
-    .onRun((context) => {
+    .onRun(async (context) => {
         // Fetch all users on the platform
         var mentors = 0;
         var students = 0;
@@ -773,11 +773,23 @@ exports.updateUserStats = functions.pubsub
                     if (user.customClaims && user.customClaims["mentor"]) {
                         mentors += 1;
                     } else {
-                        await admin.firestore().collection("profiles").doc(user.uid).get().then((student) => {
-
-                        })
                         students += 1;
                     }
+
+                    await admin.firestore().collection("profiles").doc(user.uid).get().then((student) => {
+                        if (student.data()?.race) {
+                            races.append(student.data().race)
+                        }
+
+                        if (student.data()?.ethnicity) {
+                            ethnicities.append(student.data().ethnicity)
+                        }
+
+
+                        if (student.data()?.gender) {
+                            genders.append(student.data().gender)
+                        }
+                    })
                 });
             })
             .then(() => {
@@ -788,6 +800,35 @@ exports.updateUserStats = functions.pubsub
                     }),
                     admin.firestore().collection("statistics").doc("students").update({
                         count: students,
+                    }),
+                ]);
+            }).then(() => {
+                // Count occurences for gender, races, and ethnicities
+                counts_gender = {}
+                counts_ethnicity = {}
+                counts_race = {}
+
+                for (const g of genders) {
+                    counts_gender[g] = counts_gender[g] ? counts_gender[g] + 1 : 1;
+                }
+
+                for (const r of races) {
+                    counts_race[r] = counts_race[r] ? counts_race[r] + 1 : 1;
+                }
+
+                for (const e of ethnicities) {
+                    counts_ethnicity[e] = counts_ethnicity[e] ? counts_ethnicity[e] + 1 : 1;
+                }
+            }).then(() => {
+                Promise.all([
+                    admin.firestore().collection("statistics").doc("ethnicity").update({
+                        count: counts_ethnicity,
+                    }),
+                    admin.firestore().collection("statistics").doc("race").update({
+                        count: counts_race,
+                    }),
+                    admin.firestore().collection("statistics").doc("gender").update({
+                        count: counts_gender,
                     }),
                 ]);
             });
