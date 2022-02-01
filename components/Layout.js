@@ -1,5 +1,16 @@
-import NavBar from "./NavBar";
-import Footer from "./Footer";
+const NavBar = dynamic(
+    () => import('./NavBar'),
+    { ssr: false }
+)
+
+const Footer = dynamic(
+    () => import('./Footer'),
+    { ssr: false }
+)
+
+
+// import NavBar from "./NavBar";
+// import Footer from "./Footer";
 import { useState, useEffect } from 'react'
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from '@firebase/firestore';
@@ -9,6 +20,7 @@ import { AuthProvider, AnalyticsProvider, FirestoreProvider, StorageProvider, us
 
 import Banner from '../components/Banner'
 import MyPageViewLogger from "./Analytics";
+import dynamic from 'next/dynamic'
 
 export default function Layout({ children }) {
     const app = useFirebaseApp()

@@ -16,6 +16,8 @@ const mailjet = require("node-mailjet").connect(
 const Prismic = require("@prismicio/client");
 const { firestore } = require("firebase-admin");
 
+const axios = require("axios").default
+
 // Slugify
 let slugify;
 
@@ -755,15 +757,19 @@ exports.newProjectInvite = functions.firestore
 exports.updateUserStats = functions.pubsub
     .schedule("0 0 * * 0")
     .timeZone("America/New_York")
-    .onRun((context) => {
+    .onRun(async (context) => {
         // Fetch all users on the platform
         var mentors = 0;
         var students = 0;
+        var ethnicities = []
+        var genders = []
+        var races = []
+
         await admin
             .auth()
             .listUsers()
             .then((res) => {
-                res.users.forEach((user) => {
+                res.users.forEach(async (user) => {
                     console.log("Checking user " + user.displayName);
                     // Determine if the user is a mentor
                     if (user.customClaims && user.customClaims["mentor"]) {
@@ -771,6 +777,21 @@ exports.updateUserStats = functions.pubsub
                     } else {
                         students += 1;
                     }
+
+                    await admin.firestore().collection("profiles").doc(user.uid).get().then((student) => {
+                        if (student.data()?.race) {
+                            races.append(student.data().race)
+                        }
+
+                        if (student.data()?.ethnicity) {
+                            ethnicities.append(student.data().ethnicity)
+                        }
+
+
+                        if (student.data()?.gender) {
+                            genders.append(student.data().gender)
+                        }
+                    })
                 });
             })
             .then(() => {
@@ -781,6 +802,39 @@ exports.updateUserStats = functions.pubsub
                     }),
                     admin.firestore().collection("statistics").doc("students").update({
                         count: students,
+                    }),
+                    axios.post('https://discordapp.com/api/webhooks/937823121803722804/8FNDte3f2S8Hc4_E3hm5Iqz-lNyZFwlKiZsaTw7lJf9oXD_aN5DecAs4GrWSWKh7weHJ',
+                        {
+                            "content": `Weekly Update: There are ${students} students and ${mentors} mentors!`
+                        })
+                ]);
+            }).then(() => {
+                // Count occurences for gender, races, and ethnicities
+                counts_gender = {}
+                counts_ethnicity = {}
+                counts_race = {}
+
+                for (const g of genders) {
+                    counts_gender[g] = counts_gender[g] ? counts_gender[g] + 1 : 1;
+                }
+
+                for (const r of races) {
+                    counts_race[r] = counts_race[r] ? counts_race[r] + 1 : 1;
+                }
+
+                for (const e of ethnicities) {
+                    counts_ethnicity[e] = counts_ethnicity[e] ? counts_ethnicity[e] + 1 : 1;
+                }
+            }).then(() => {
+                Promise.all([
+                    admin.firestore().collection("statistics").doc("ethnicity").update({
+                        count: counts_ethnicity,
+                    }),
+                    admin.firestore().collection("statistics").doc("race").update({
+                        count: counts_race,
+                    }),
+                    admin.firestore().collection("statistics").doc("gender").update({
+                        count: counts_gender,
                     }),
                 ]);
             });
