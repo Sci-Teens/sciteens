@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@conversationai/perspectiveapi-js-client": "^1.0.1",
     "@prismicio/client": "^5.1.0",
     "@react-spring/web": "^9.3.0",
     "@tailwindcss/line-clamp": "^0.2.2",
@@ -45,5 +44,19 @@
     "postcss": "^8.3.5",
     "prettier": "^2.4.1",
     "tailwindcss": "^2.2.4"
-  }
+  },
+  "name": "sciteens",
+  "description": "This is the work-in-progress version of the open-source SciTeens platform. This application is built in Next JS (A Server-Side Rendered React JS framework.) If you encounter issues with the website, please fork our site and commit fixes or detail the issues in the issues tab on GitHub. If you just want to explore the code, then enjoy!",
+  "version": "1.0.0",
+  "main": ".eslintrc.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sci-Teens/sciteens.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sci-Teens/sciteens/issues"
+  },
+  "homepage": "https://github.com/Sci-Teens/sciteens#readme"
 }
