@@ -260,7 +260,7 @@ function Article({ article, recommendations }) {
                                     {about_the_author}
 
                                 </div>
-                                <Discussion type={"article"} item_id={router.query.slug} />
+                                {/* <Discussion type={"article"} item_id={router.query.slug} /> */}
                                 <div className="h-px bg-gray-300 my-2" />
                             </article>
                             <h3 className="font-semibold text-2xl md:text-5xl text-center mt-8">{t('article.related')}</h3>

@@ -1,9 +1,8 @@
 import { collection, query, addDoc, orderBy } from "@firebase/firestore"
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useFirestore, useFirestoreCollectionData, useSigninCheck } from "reactfire"
 import { useRouter } from "next/router";
 import { post } from "../context/helpers.js";
-import Link from "next/link";
 import ProfilePhoto from "./ProfilePhoto";
 
 import debounce from "lodash/debounce";
@@ -12,8 +11,8 @@ import moment from "moment";
 export default function Discussion({ type, item_id }) {
     const { authStatus, data: signInCheckResult } = useSigninCheck();
     const firestore = useFirestore()
-    let discussionCollection;
-    discussionCollection = collection(firestore, type, item_id, 'discussion');
+
+    let discussionCollection = collection(firestore, type, item_id, 'discussion');
     const discussionQuery = query(discussionCollection, orderBy('date', 'asc'))
     const { data: discussion } = useFirestoreCollectionData(discussionQuery, {
         idField: 'id'
@@ -92,7 +91,6 @@ export default function Discussion({ type, item_id }) {
                 }
             });
     }, 500), [])
-    // const getScores = 
 
     const postComment = async (e) => {
         e.preventDefault()
