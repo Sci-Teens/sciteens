@@ -138,8 +138,9 @@ function Course({ course }) {
                         </div>
                     </>
                 }
-                <Discussion type={"course"} item_id={router.query.slug}>
-                </Discussion>
+                {typeof window !== 'undefined' &&
+                    <Discussion type={"course"} item_id={router.query.slug} />
+                }
             </div>
         </>
     )
