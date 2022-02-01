@@ -4,14 +4,10 @@ import { useFirestore, useFirestoreCollectionData, useSigninCheck } from "reactf
 import { useRouter } from "next/router";
 import { post } from "../context/helpers.js";
 import Link from "next/link";
-// const { Client } = require("@conversationai/perspectiveapi-js-client");
-// const client = new Client(process.env.NEXT_PUBLIC_GM_API_KEY);
 import ProfilePhoto from "./ProfilePhoto";
 
 import debounce from "lodash/debounce";
 import moment from "moment";
-
-const API_KEY = process.env.NEXT_PUBLIC_GM_API_KEY;
 
 export default function Discussion({ type, item_id }) {
     const { authStatus, data: signInCheckResult } = useSigninCheck();
@@ -37,6 +33,7 @@ export default function Discussion({ type, item_id }) {
     moment.locale(router?.locale ? router.locale : 'en');
 
     const onChange = async (e, isComment, index) => {
+        setLoading(true)
         if (isComment) {
             setComment(e.target.value)
         } else {
@@ -45,77 +42,57 @@ export default function Discussion({ type, item_id }) {
         if (e.target.value == "") {
             if (isComment) {
                 setErrorComment("Please submit a comment")
+
             } else {
                 setErrorReply("Please submit a comment")
                 setErrorReplyIndex(index)
             }
+            setLoading(false)
         }
 
         else {
             setErrorComment("")
             setErrorReply("")
             setErrorReplyIndex(-1)
-            // Check for profanity 
-            // CheckToxicity(e.target.value.trim(), isComment, index)
-            getScores(e.target.value.trim(), isComment, index)
+            await getScores(e.target.value.trim(), isComment, index)
+            setLoading(false)
         }
     }
-  
-    const postLink = 'https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key='+API_KEY
-    const getScores = (userComment, isComment, index) => {
+
+    const postLink = 'https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=' + process.env.NEXT_PUBLIC_GM_API_KEY
+    const getScores = useCallback(debounce(async (userComment, isComment, index) => {
+        setLoading(true)
         const THRESHOLD = 0.7
-        post(postLink, 
+        post(postLink,
             {
-            comment: {text: userComment}, 
-            languages: ["en"], 
-            requestedAttributes: {TOXICITY: {}, PROFANITY: {}, INSULT: {}} 
+                comment: { text: userComment },
+                languages: ["en"],
+                requestedAttributes: { TOXICITY: {}, PROFANITY: {}, INSULT: {} }
             })
             .then((res) => {
                 console.log(res.attributeScores.INSULT.summaryScore.value);
                 try {
-                    if (res.attributeScores.INSULT.summaryScore.value > THRESHOLD 
-                        || res.attributeScores.PROFANITY.summaryScore.value > THRESHOLD 
-                            || res.attributeScores.TOXICITY.summaryScore.value > THRESHOLD) {
+                    if (res.attributeScores.INSULT.summaryScore.value > THRESHOLD
+                        || res.attributeScores.PROFANITY.summaryScore.value > THRESHOLD
+                        || res.attributeScores.TOXICITY.summaryScore.value > THRESHOLD) {
                         if (isComment) {
                             setErrorComment("Please refrain from submitting inappropriate comments")
                         } else {
                             setErrorReply("Please refrain from submitting inappropriate comments")
                             setErrorReplyIndex(index)
                         }
+                        setLoading(false)
                     }
                 }
                 catch (e) {
                     setErrorComment("")
                     setErrorReply("")
                     setErrorReplyIndex(-1)
+                    setLoading(false)
                 }
             });
-    }
-
-    // const CheckToxicity = useCallback(debounce(async (c, isComment, index) => {
-    //     const THRESHOLD = 0.7
-    //     try {
-    //         const res = await client.getScores(c, {
-    //             attributes: ["TOXICITY", "PROFANITY", "INSULT"],
-    //         })
-    //         console.log(res)
-    //         if (res.INSULT > THRESHOLD || res.PROFANITY > THRESHOLD || res.TOXICITY > THRESHOLD) {
-    //             console.log(replyingToId);
-    //             if (isComment) {
-    //                 setErrorComment("Please refrain from submitting inappropriate comments")
-    //             } else {
-    //                 setErrorReply("Please refrain from submitting inappropriate comments")
-    //                 setErrorReplyIndex(index)
-    //             }
-    //         }
-    //     }
-    //     catch (e) {
-    //         setErrorComment("")
-    //         setErrorReply("")
-    //         setErrorReplyIndex(-1)
-    //     }
-    // }, 1000), [])
-
+    }, 500), [])
+    // const getScores = 
 
     const postComment = async (e) => {
         e.preventDefault()
