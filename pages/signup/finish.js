@@ -46,19 +46,7 @@ export default function FinishSignUp() {
 
         else {
             setLoading(true)
-            let unique_slug;
-
-            try {
-                unique_slug = await createUniqueSlug(firestore, first_name.toLowerCase() + "-" + last_name.toLowerCase(), 'profile-slugs', 1)
-            }
-
-            catch (error) {
-                setLoading(false)
-                console.error(error)
-                console.error("can't make a unique slug")
-                setErrorName(t("auth.sign_in_failed"))
-            }
-
+            let unique_slug = await createUniqueSlug(firestore, first_name.toLowerCase() + "-" + last_name.toLowerCase(), 'profile-slugs', 1)
             const profile = {
                 display: first_name + " " + last_name,
                 authorized: true, // Only students are authorized upon signup
@@ -80,38 +68,8 @@ export default function FinishSignUp() {
 
             try {
                 await setDoc(doc(firestore, 'profiles', user.uid), profile)
-            }
-
-            catch (error) {
-                setLoading(false)
-                console.error(error)
-                console.error("can't make a profile")
-                setErrorName(t("auth.sign_in_failed"))
-            }
-
-            try {
                 await setDoc(doc(firestore, 'profile-slugs', unique_slug), { slug: unique_slug })
-            }
-
-            catch (error) {
-                setLoading(false)
-                console.error(error)
-                console.error("can't make a profile slug in firebase")
-                setErrorName(t("auth.sign_in_failed"))
-            }
-
-            try {
                 await setDoc(doc(firestore, 'emails', user.uid), { email: user.email })
-            }
-
-            catch (error) {
-                setLoading(false)
-                console.error(error)
-                console.error("can't make a unique email reference")
-                setErrorName(t("auth.sign_in_failed"))
-            }
-
-            try {
                 await sendEmailVerification(user)
                 await updateProfile(user, { displayName: first_name + " " + last_name })
                 setProfile(profile)
