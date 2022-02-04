@@ -11,7 +11,7 @@ export default function RenderFile({ file, id, removeFile, setPhoto }) {
                         className="h-11 w-11 m-1"
                     />
                     <div className="ml-2 line-clamp-1 text-left flex-1">
-                        <p>
+                        <p className="line-clamp-1">
                             {file?.name}
                         </p>
                         <p className="text-sm text-gray-700">

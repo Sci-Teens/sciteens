@@ -170,9 +170,6 @@ function Project({ profile }) {
                 </h4>
                 <p>
                 </p>
-                <div className="mt-2">
-                    {profile.about}
-                </div>
                 <hr className="py-1" />
             </div>
             {/* <div>
