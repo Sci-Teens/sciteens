@@ -29,12 +29,12 @@ function Article({ article, recommendations }) {
         if (typeof window !== 'undefined') {
             if (type == "positive") {
                 setVote("positive")
-                return logEvent(analytics, "rate_article", { name: RichText.asText(article.data.title), rating: "positive" })
+                return logEvent(analytics, "rate_positive", { page_location: window.location.href ? window.location.href : RichText.asText(article.data.title) })
             }
 
             else {
                 setVote("negative")
-                return logEvent(analytics, "rate_article", { name: RichText.asText(article.data.title), rating: "negative" })
+                return logEvent(analytics, "rage_negative", { page_location: window.location.href ? window.location.href : RichText.asText(article.data.title) })
             }
         }
     }
