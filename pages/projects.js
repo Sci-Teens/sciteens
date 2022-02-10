@@ -209,9 +209,17 @@ function Projects({ cached_projects }) {
                                     </div>
                                 })}
                             </div>
-                            <p className="ml-2">By {project.member_arr.map((member) => {
-                                return member.display + " "
-                            })}</p>
+                            <p className="ml-2">By&nbsp;
+                                {project.member_arr.map((member) => {
+                                    return (
+                                        <Link href={`/profile/${member.slug ? member.slug : ''}`}>
+                                            <a className="text-sciteensGreen-regular hover:text-sciteensGreen-dark no-underline font-bold">
+                                                {member.display + " "}
+                                            </a>
+                                        </Link>
+                                    )
+                                })}
+                            </p>
                         </div>}
                         <h3 className="font-semibold text-base md:text-xl lg:text-2xl mb-2 line-clamp-2">{project.title}</h3>
                         <p className="hidden md:block mb-4 line-clamp-none md:line-clamp-2 lg:line-clamp-3">{project.abstract}</p>
