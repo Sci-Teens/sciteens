@@ -755,7 +755,7 @@ exports.newProjectInvite = functions.firestore
     any given time. 
 */
 exports.updateUserStats = functions.pubsub
-    .schedule("0 0 * * 0")
+    .schedule("32 17 * * 0")
     .timeZone("America/New_York")
     .onRun(async (context) => {
         // Fetch all users on the platform
@@ -768,7 +768,7 @@ exports.updateUserStats = functions.pubsub
         await admin
             .auth()
             .listUsers()
-            .then((res) => {
+            .then(async (res) => {
                 res.users.forEach(async (user) => {
                     console.log("Checking user " + user.displayName);
                     // Determine if the user is a mentor
@@ -780,23 +780,23 @@ exports.updateUserStats = functions.pubsub
 
                     await admin.firestore().collection("profiles").doc(user.uid).get().then((student) => {
                         if (student.data()?.race) {
-                            races.append(student.data().race)
+                            races.push(student.data().race)
                         }
 
                         if (student.data()?.ethnicity) {
-                            ethnicities.append(student.data().ethnicity)
+                            ethnicities.push(student.data().ethnicity)
                         }
 
 
                         if (student.data()?.gender) {
-                            genders.append(student.data().gender)
+                            genders.push(student.data().gender)
                         }
                     })
                 });
             })
-            .then(() => {
+            .then(async () => {
                 // Update firebase to store the user counts
-                Promise.all([
+                await Promise.all([
                     admin.firestore().collection("statistics").doc("mentors").update({
                         count: mentors,
                     }),
@@ -825,8 +825,8 @@ exports.updateUserStats = functions.pubsub
                 for (const e of ethnicities) {
                     counts_ethnicity[e] = counts_ethnicity[e] ? counts_ethnicity[e] + 1 : 1;
                 }
-            }).then(() => {
-                Promise.all([
+            }).then(async () => {
+                await Promise.all([
                     admin.firestore().collection("statistics").doc("ethnicity").update({
                         count: counts_ethnicity,
                     }),
