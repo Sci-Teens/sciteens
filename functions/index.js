@@ -755,7 +755,7 @@ exports.newProjectInvite = functions.firestore
     any given time. 
 */
 exports.updateUserStats = functions.pubsub
-    .schedule("32 17 * * 0")
+    .schedule("0 0 * * 0")
     .timeZone("America/New_York")
     .onRun(async (context) => {
         // Fetch all users on the platform
@@ -837,6 +837,11 @@ exports.updateUserStats = functions.pubsub
                         count: counts_gender,
                     }),
                 ]);
+            }).then(async () => {
+                await axios.post('https://discordapp.com/api/webhooks/937823121803722804/8FNDte3f2S8Hc4_E3hm5Iqz-lNyZFwlKiZsaTw7lJf9oXD_aN5DecAs4GrWSWKh7weHJ',
+                    {
+                        "content": `Weekly Update: Here are the demographic breakdowns.\nEthnicity:${JSON.stringify(counts_ethnicity)}\nGender:${JSON.stringify(counts_gender)}\nRace:${JSON.stringify(counts_race)}`
+                    })
             });
     });
 
