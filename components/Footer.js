@@ -128,7 +128,10 @@ export default function Footer() {
                                     <img className="h-6 mr-4" src={'../assets/icons/youtube.svg'} alt="YouTube" />
                                 </a>
                                 <a href="https://www.tiktok.com/@sciteens" target="_blank" rel="noopener noreferrer">
-                                    <img className="h-6" src={'../assets/icons/tiktok.svg'} alt="TikTok" />
+                                    <img className="h-6 mr-4" src={'../assets/icons/tiktok.svg'} alt="TikTok" />
+                                </a>
+                                <a href="https://discord.gg/QuS4fjePK6" target="_blank" rel="noopener noreferrer">
+                                    <img className="h-6" src={'../assets/icons/discord.svg'} alt="Discord" />
                                 </a>
                             </div>
                         </div>
