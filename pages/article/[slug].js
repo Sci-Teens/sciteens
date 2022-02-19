@@ -39,35 +39,6 @@ function Article({ article, recommendations }) {
         }
     }
 
-    const handleSwipe = (e, call) => {
-        if (call == 'start') {
-            setSwipePositon(e.touches[0].clientX)
-        }
-
-        else {
-            const touchDown = swipePosition
-
-            if (touchDown == 0) {
-                return
-            }
-
-            const currentTouch = e.touches[0].clientX
-            const diff = touchDown - currentTouch
-
-            if (diff > 5) {
-                element.scrollTo(0, 0)
-                setScrollIndex(-1)
-            }
-
-            if (diff < -5 && scrollIndex > -1) {
-                element.scrollTo(document.getElementById("i-" + (scrollIndex + 1))?.offsetLeft, 0)
-                setScrollIndex(scrollIndex + 1)
-            }
-
-            setTouchPosition(null)
-        }
-    }
-
     const imageLoader = ({ src, width, height }) => {
         return `${src}?fit=crop&crop=faces&w=${width || 582}&h=${height || 389}`
     }
@@ -124,6 +95,35 @@ function Article({ article, recommendations }) {
                 element.scrollTo(0, 0)
             }
             setScrollIndex(scrollIndex - 1)
+        }
+    }
+    
+    const handleSwipe = (e, call) => {
+        if (call == 'start') {
+            setSwipePositon(e.touches[0].clientX)
+        }
+
+        else {
+            const touchDown = swipePosition
+
+            if (touchDown == 0) {
+                return
+            }
+
+            const currentTouch = e.touches[0].clientX
+            const diff = touchDown - currentTouch
+
+            if (diff > 5) {
+                element.scrollTo(0, 0)
+                setScrollIndex(-1)
+            }
+
+            if (diff < -5 && scrollIndex > -1) {
+                element.scrollTo(document.getElementById("i-" + (scrollIndex + 1))?.offsetLeft, 0)
+                setScrollIndex(scrollIndex + 1)
+            }
+
+            setTouchPosition(null)
         }
     }
 
@@ -267,14 +267,14 @@ function Article({ article, recommendations }) {
                             </article>
                             <h3 className="font-semibold text-2xl md:text-5xl text-center mt-8">{t('article.related')}</h3>
                             <div className="relative">
-                                <div id="readMore" style={{ scrollBehavior: 'smooth' }} className="transition-all flex flex-row px-[12.5vw] md:px-[16.5vw] pb-8 overflow-x-hidden" onTouchMove={e => handleSwipe(e, 'move')} onTouchStart={e => handleSwipe(e, 'start')} >
+                                <div id="readMore" style={{ scrollBehavior: 'smooth' }} className="transition-all flex flex-row px-[12.5vw] md:px-[16.5vw] pb-8 overflow-x-hidden" >
                                     {recommendationsRendered}
                                     <button onClick={e => scroll(e, "right")} className={`absolute h-12 lg:h-16 w-12 lg:w-16 right-6 top-1/2 transform -translate-y-1/2 z-50 bg-white opacity-70 hover:opacity-100 shadow hover:shadow-lg rounded-full
-                                    ${rightVisible ? "hidden md:flex " : "hidden"}`} >
+                                    `} >
                                         <svg className="m-auto h-2/3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M12.95 10.707l.707-.707L8 4.343 6.586 5.757 10.828 10l-4.242 4.243L8 15.657l4.95-4.95z" /></svg>
                                     </button>
                                     <button onClick={e => scroll(e, "left")} className={`absolute h-12 lg:h-16 w-12 lg:w-16 left-6 top-1/2 transform -translate-y-1/2 z-50 bg-white opacity-70 hover:opacity-100 shadow hover:shadow-lg rounded-full
-                                    ${leftVisible ? "hidden md:flex " : "hidden"}`}>
+                                    `}>
                                         <svg className="m-auto h-2/3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M7.05 9.293L6.343 10 12 15.657l1.414-1.414L9.172 10l4.242-4.243L12 4.343z" /></svg>
                                     </button>
                                 </div>
