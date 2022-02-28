@@ -70,7 +70,6 @@ export default function FinishSignUp() {
                 await setDoc(doc(firestore, 'profiles', user.uid), profile)
                 await setDoc(doc(firestore, 'profile-slugs', unique_slug), { slug: unique_slug })
                 await setDoc(doc(firestore, 'emails', user.uid), { email: user.email })
-                await sendEmailVerification(user)
                 await updateProfile(user, { displayName: first_name + " " + last_name })
                 setProfile(profile)
                 router.push('/')

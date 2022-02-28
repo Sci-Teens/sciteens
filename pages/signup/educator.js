@@ -180,7 +180,6 @@ export default function MentorSignUp() {
             await setDoc(doc(firestore, 'profiles', res.user.uid), profile)
             await setDoc(doc(firestore, 'profile-slugs', unique_slug), { slug: unique_slug })
             await setDoc(doc(firestore, 'emails', res.user.uid), { email: res.user.email })
-            await sendEmailVerification(res.user)
             setProfile(profile)
             if (router.query.ref) {
                 let ref = router.query.ref.split("|")

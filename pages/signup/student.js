@@ -157,7 +157,6 @@ export default function StudentSignUp() {
             await setDoc(doc(firestore, 'profiles', res.user.uid), profile)
             await setDoc(doc(firestore, 'profile-slugs', unique_slug), { slug: unique_slug })
             await setDoc(doc(firestore, 'emails', res.user.uid), { email: res.user.email })
-            await sendEmailVerification(res.user)
             await updateProfile(res.user, { displayName: first_name + " " + last_name })
             setProfile(profile)
             if (router.query.ref) {
