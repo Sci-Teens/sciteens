@@ -10,7 +10,7 @@ import { useTranslation } from 'next-i18next';
 import { useFirestore, useAuth } from 'reactfire';
 import { doc, setDoc, updateDoc } from '@firebase/firestore';
 import { updateProfile } from "@firebase/auth";
-import { createUserWithEmailAndPassword, RecaptchaVerifier, sendEmailVerification } from '@firebase/auth'
+import { createUserWithEmailAndPassword, RecaptchaVerifier } from '@firebase/auth'
 
 import isAlpha from 'validator/lib/isAlpha'
 import isEmail from "validator/lib/isEmail";

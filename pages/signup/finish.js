@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from "react"
 import isAlpha from 'validator/lib/isAlpha'
 import { doc, setDoc } from '@firebase/firestore';
-import { updateProfile, sendEmailVerification } from "@firebase/auth";
+import { updateProfile } from "@firebase/auth";
 import { useFirestore, useUser } from 'reactfire';
 import { useRouter } from "next/router";
 import moment from 'moment';
