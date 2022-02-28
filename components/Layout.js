@@ -90,7 +90,7 @@ export default function Layout({ children }) {
                         }
                         <NavBar />
                     </div>
-                    <div className={`${visibleBanner ? "pt-32" : "pt-20"}`}>{children}</div>
+                    <div className={`${visibleBanner ? "pt-52" : "pt-20"}`}>{children}</div>
                     <Footer />
                 </StorageProvider>
             </FirestoreProvider>
