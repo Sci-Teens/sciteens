@@ -10,7 +10,7 @@ import { useIntersectionObserver } from '../context/helpers';
 import { useFirestore, useFirestoreCollectionData } from 'reactfire';
 import firebaseConfig from '../firebaseConfig';
 import { getApp, getApps, initializeApp } from "@firebase/app";
-import { collection, query as firebase_query, orderBy, getDocs, limit, getFirestore, where as firebase_where, startAfter } from '@firebase/firestore';
+import { collection, query as firebase_query, orderBy, getDocs, limit, getFirestore, where as firebase_where, startAfter, documentId } from '@firebase/firestore';
 
 import algoliasearch from "algoliasearch/lite";
 import { useSpring, animated, config } from '@react-spring/web'
@@ -27,6 +27,7 @@ function Projects({ cached_projects }) {
         if (router.asPath !== '/projects') {
             let ps = []
             if (router.query.search) {
+                let ids = []
                 // Fetch data from external API (Algolia)
                 const searchClient = algoliasearch(
                     process.env.NEXT_PUBLIC_AL_APP_ID,
@@ -37,13 +38,16 @@ function Projects({ cached_projects }) {
 
                 if (!router.query?.field || router.query?.field == "All") {
                     let results = await projectIndex
-                        .search(query.search)
+                        .search(router.query.search)
                     results.hits.forEach(p => {
-                        ps.push({
-                            id: p.objectID,
-                            ...p.data
-                        })
+                        ids.push(p.objectID)
+                        // ps.push({
+                        //     id: p.objectID,
+                        //     ...p.data
+                        // })
                     })
+
+
                 }
 
                 else {
@@ -52,12 +56,16 @@ function Projects({ cached_projects }) {
                             filters: 'data.fields:' + query.field
                         })
                     results.hits.forEach(p => {
-                        ps.push({
-                            id: p.objectID,
-                            ...p.data
-                        })
+                        ids.push(p.objectID)
+
+                        // ps.push({
+                        //     id: p.objectID,
+                        //     ...p.data
+                        // })
                     })
                 }
+
+
                 setProjects(ps)
             }
 
