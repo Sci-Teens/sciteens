@@ -46,8 +46,6 @@ function Projects({ cached_projects }) {
                         //     ...p.data
                         // })
                     })
-
-
                 }
 
                 else {
@@ -64,7 +62,15 @@ function Projects({ cached_projects }) {
                         // })
                     })
                 }
-
+                const projectsCollection = collection(firestore, 'projects')
+                projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), firebase_where(documentId(), 'in', ids))
+                const projectsRef = await getDocs(projectsQuery)
+                projectsRef.forEach(p => {
+                    ps.push({
+                        id: p.id,
+                        ...p.data(),
+                    })
+                })
 
                 setProjects(ps)
             }
