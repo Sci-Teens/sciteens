@@ -1,4 +1,4 @@
-import { doc } from "@firebase/firestore";
+import { doc, collection } from "@firebase/firestore";
 import { listAll, ref, getDownloadURL, getMetadata } from "@firebase/storage";
 import { useFirestore, useFirestoreDocData, useStorage, useSigninCheck } from "reactfire";
 import { useRouter } from "next/router";
@@ -17,8 +17,7 @@ import ProfilePhoto from "../../../components/ProfilePhoto";
 function Project({ query }) {
     const router = useRouter();
     const firestore = useFirestore();
-    const storage = useStorage()
-
+    const storage = useStorage();
 
     const projectRef = doc(firestore, 'projects', query.id);
     const { status, data: project } = useFirestoreDocData(projectRef);
@@ -26,9 +25,9 @@ function Project({ query }) {
     const [files, setFiles] = useState([])
     const [project_photo, setProjectPhoto] = useState('')
 
-    const { profile } = useContext(AppContext)
+    // const { profile } = useContext(AppContext)
 
-    const { authStatus, data: signInCheckResult } = useSigninCheck();
+    const { data: signInCheckResult } = useSigninCheck();
 
 
     useEffect(async () => {
@@ -166,8 +165,9 @@ function Project({ query }) {
                     })
                 }
             </div>
-            <Discussion type="projects" item_id={query.id}>
-            </Discussion>
+            {/* {typeof window !== 'undefined' &&
+                <Discussion type="projects" item_id={query.id} />
+            } */}
         </div>
     </>)
 }

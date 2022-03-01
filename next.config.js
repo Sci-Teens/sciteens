@@ -8,6 +8,9 @@ module.exports = {
     eslint: {
         ignoreDuringBuilds: true,
     },
+    experimental: {
+        esmExternals: false
+    },
     async headers() {
         return [
             {
