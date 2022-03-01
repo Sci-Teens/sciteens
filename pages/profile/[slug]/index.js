@@ -178,19 +178,19 @@ function Project({ profile }) {
         </div>
 
         {/* About */}
-        <div className="w-1/2 mx-auto mb-4 mt-12">
+        <div className="w-5/6 md:w-2/3 lg:w-1/2 mx-auto mb-4 mt-12">
             <h2 className="text-lg md:text-2xl font-semibold mb-2">About</h2>
             <p className="text-gray-500">{profile.about == "" ? "This user hasn't written about themselves yet" : profile.about}</p>
         </div>
 
         {/* Projects */}
-        <div className="w-1/2 mx-auto mb-4 mt-12">
+        <div className="w-5/6 md:w-2/3 lg:w-1/2 mx-auto mb-4 mt-12">
             <h2 className="text-lg md:text-2xl font-semibold mb-2">Projects</h2>
             {projects?.length != 0 ? projectsComponent : <p className="text-gray-500">This user hasn't created any projects yet</p>}
         </div>
 
         {/* Files */}
-        <div className="w-1/2 mx-auto mb-4 mt-12">
+        <div className="w-5/6 md:w-2/3 lg:w-1/2 mx-auto mb-4 mt-12">
             {
                 files.length > 0 && <h2 className="text-lg md:text-2xl font-semibold mb-2">
                     Files
