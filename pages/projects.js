@@ -63,7 +63,7 @@ function Projects({ cached_projects }) {
                     })
                 }
                 const projectsCollection = collection(firestore, 'projects')
-                projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), firebase_where(documentId(), 'in', ids))
+                const projectsQuery = firebase_query(projectsCollection, orderBy('date', 'desc'), firebase_where(documentId(), 'in', ids))
                 const projectsRef = await getDocs(projectsQuery)
                 projectsRef.forEach(p => {
                     ps.push({
