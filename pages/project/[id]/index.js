@@ -23,6 +23,7 @@ function Project({ query }) {
     const { status, data: project } = useFirestoreDocData(projectRef);
 
     const [files, setFiles] = useState([])
+    const [loading_files, setLoadingFiles] = useState(true)
     const [project_photo, setProjectPhoto] = useState('')
 
     // const { profile } = useContext(AppContext)
@@ -59,6 +60,8 @@ function Project({ query }) {
         catch (e) {
             console.error(e)
         }
+
+        setLoadingFiles(false)
     }, [""])
 
     useEffect(() => {
@@ -130,8 +133,8 @@ function Project({ query }) {
                             src={project_photo}
                             alt="Project Image"
                             className="w-full mt-0 object-contain" />
-                            :
-                            <div className="w-full my-8 h-64 bg-gray-200 rounded-lg animate-pulse" />
+                            : (loading_files ?
+                                <div className="w-full my-8 h-64 bg-gray-200 rounded-lg animate-pulse" /> : <></>)
                     }
 
 
