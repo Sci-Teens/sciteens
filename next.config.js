@@ -25,10 +25,10 @@ module.exports = {
                         key: 'X-Content-Type-Options',
                         value: 'nosniff'
                     },
-                    {
-                        key: 'Content-Security-Policy',
-                        value: "default-src 'unsafe-inline' sciteens.org prismic.io googleapis.com gstatic.com googleusercontent.com"
-                    },
+                    // {
+                    //     key: 'Content-Security-Policy',
+                    //     value: "default-src 'unsafe-inline' sciteens.org prismic.io googleapis.com gstatic.com googleusercontent.com"
+                    // },
                     {
                         key: 'Referrer-Policy',
                         value: 'origin-when-cross-origin',
