@@ -168,9 +168,9 @@ function Project({ query }) {
                     })
                 }
             </div>
-            {/* {typeof window !== 'undefined' &&
+            {typeof window !== 'undefined' &&
                 <Discussion type="projects" item_id={query.id} />
-            } */}
+            }
         </div>
     </>)
 }
