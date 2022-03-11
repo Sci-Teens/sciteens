@@ -228,7 +228,7 @@ function Projects({ cached_projects }) {
                                 if (index < checkForLongFields(project.fields))
                                     return <p key={index} className="text-xs py-1.5 px-3 bg-gray-100 rounded-full mr-2 mb-2 z-30 shadow whitespace-nowrap">{getTranslatedFieldsDict(t)[field]}</p>
                             })}
-                            {project.fields.length >= 3 &&
+                            {project.fields.length >= 4 &&
                                 <p className="hidden lg:flex text-xs text-gray-600 mt-1.5 whitespace-nowrap">+ {project.fields.length - checkForLongFields(project.fields)} more field{project.fields.length - checkForLongFields(project.fields) == 1 ? "" : "s"}</p>
                             }
                         </div>
