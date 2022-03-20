@@ -61,12 +61,12 @@ export default function About() {
             about:
                 t("about.about_john")
         },
-        // {
-        //     name: "Shang Chen",
-        //     image: "shang.jpg",
-        //     about:
-        //         t("about.about_shang")
-        // },
+        {
+            name: "Haley Gardner",
+            image: "haley.jpg",
+            about:
+                "Haley is a member of five Dungeons & Dragons groups."
+        },
         {
             name: "Akash Patel",
             image: "akash.jpg",
