@@ -803,9 +803,9 @@ exports.updateUserStats = functions.pubsub
                     admin.firestore().collection("statistics").doc("students").update({
                         count: students,
                     }),
-                    axios.post('https://discordapp.com/api/webhooks/937823121803722804/8FNDte3f2S8Hc4_E3hm5Iqz-lNyZFwlKiZsaTw7lJf9oXD_aN5DecAs4GrWSWKh7weHJ',
+                    axios.post('https://hooks.slack.com/services/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',
                         {
-                            "content": `Weekly Update: There are ${students} students and ${mentors} mentors!`
+                            "text": `Weekly Update: There are ${students} students and ${mentors} mentors!`
                         })
                 ]);
             }).then(() => {
@@ -838,9 +838,9 @@ exports.updateUserStats = functions.pubsub
                     }),
                 ]);
             }).then(async () => {
-                await axios.post('https://discordapp.com/api/webhooks/937823121803722804/8FNDte3f2S8Hc4_E3hm5Iqz-lNyZFwlKiZsaTw7lJf9oXD_aN5DecAs4GrWSWKh7weHJ',
+                await axios.post('https://hooks.slack.com/services/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',
                     {
-                        "content": `Weekly Update: Here are the demographic breakdowns.\nEthnicity:${JSON.stringify(counts_ethnicity, null, 2)}\nGender:${JSON.stringify(counts_gender, null, 2)}\nRace:${JSON.stringify(counts_race, null, 2)}`
+                        "text": `Weekly Update: Here are the demographic breakdowns.\nEthnicity:${JSON.stringify(counts_ethnicity, null, 2)}\nGender:${JSON.stringify(counts_gender, null, 2)}\nRace:${JSON.stringify(counts_race, null, 2)}`
                     })
             });
     });
