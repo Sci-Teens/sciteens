@@ -44,12 +44,18 @@ function Course({ course }) {
     }, [])
 
     const lessonComponent = course.data.body.map((slice, index) => {
+        let lessonDate = moment(slice.primary.date).calendar(null, { sameElse: 'MMMM DD, YYYY' });
+        let lessonDateDisplay = <p></p>;
+        if (lessonDate == "Invalid date") {
+            lessonDateDisplay = <td className="p-2">N/A</td>
+        } else {
+            lessonDateDisplay = <td className="p-2">{lessonDate}</td>
+        } 
+
         if (slice.slice_type == "lesson") {
             return (
                 <tr key={index}>
-                    <td className="p-2">
-                        {moment(slice.primary.date).calendar(null, { sameElse: 'MMMM DD, YYYY' })}
-                    </td>
+                    {lessonDateDisplay}
                     <td className="p-2">
                         {RichText.asText(slice.primary.title)}
                     </td>
@@ -66,6 +72,18 @@ function Course({ course }) {
         }
     })
     const router = useRouter()
+    let courseStart = moment(course.data.start).calendar(null, { sameElse: 'MMMM DD, YYYY' });
+    let courseDateDisplay = <p></p>;
+        if (courseStart == "Invalid date") {
+            courseDateDisplay = <p className="font-semibold">Asynchronous course - no start or end dates</p>
+        } else {
+            courseDateDisplay = <p className="font-semibold">
+                                    {t('course.starts')} {courseStart}, Ends {moment(course.data.end).calendar(null, { sameElse: 'MMMM DD, YYYY' })} <br/>
+                                    {t('course.enroll_by')} {moment(course.data.enroll_by).calendar(null, { sameElse: 'MMMM DD, YYYY' })}
+                                </p>
+
+        } 
+        
     return (
         <>
             <Head>
@@ -84,10 +102,7 @@ function Course({ course }) {
                         {RichText.asText(course.data.name)}
 
                     </h1>
-                    <p className="font-semibold">
-                        {t('course.starts')} {moment(course.data.start).calendar(null, { sameElse: 'MMMM DD, YYYY' })}, Ends {moment(course.data.end).calendar(null, { sameElse: 'MMMM DD, YYYY' })} <br />
-                        {t('course.enroll_by')} {moment(course.data.enroll_by).calendar(null, { sameElse: 'MMMM DD, YYYY' })}
-                    </p>
+                    {courseDateDisplay}
                     <i >
                         {RichText.asText(course.data.description)}
                     </i>
