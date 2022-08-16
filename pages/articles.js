@@ -18,7 +18,7 @@ import ReactPaginate from 'react-paginate';
 function Articles({ cached_articles }) {
     const router = useRouter()
     const [articles, setArticles] = useState(cached_articles)
-    const [page, setPage] = useState(1)
+    const [page, setPage] = useState(0)
 
     useEffect(async () => {
         let isSubscribed = true
@@ -87,6 +87,8 @@ function Articles({ cached_articles }) {
     }
 
     async function handlePageChange(e) {
+        setPage(e.selected);
+        console.log(e.selected);
         let q = {}
         if (search) {
             q.search = search
@@ -248,6 +250,7 @@ function Articles({ cached_articles }) {
                             previousLinkClassName="rounded-lg px-3 py-2 bg-white text-black shadow h-full"
                             nextLinkClassName="rounded-lg px-3 py-2 bg-white text-black shadow h-full"
                             activeLinkClassName="text-sciteensGreen-regular"
+                            disableInitialCallback={false}
                         ></ReactPaginate>
                     </div>
                 </div>
