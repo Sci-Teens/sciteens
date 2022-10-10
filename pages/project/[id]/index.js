@@ -88,6 +88,13 @@ function Project({ query }) {
         return <Error statusCode={404} />
     }
 
+    let start_date;
+    if (project.start_date === undefined) {
+        start_date = <p></p>;
+    } else {
+        start_date = <p> Started on {project.start_date}</p>;
+    }
+
     return (<>
         <Head>
             <title>{project.title} | SciTeens</title>
@@ -127,6 +134,9 @@ function Project({ query }) {
                             )
                         })}</p>
                 </div>}
+                <div>   
+                    {start_date}
+                </div>
                 <div>
                     {
                         project_photo ? <img

@@ -215,7 +215,7 @@ function Projects({ cached_projects }) {
                         <img src={project.project_photo ? project.project_photo : ''} className="rounded-lg object-cover flex-shrink-0"></img>
                     </div>
                     <div className="ml-4 w-3/4 lg:w-11/12">
-                        {project.member_arr && <div className="flex flex-row items-center mb-3">
+                        {project.member_arr && <div className="flex flex-row items-center mb-1">
                             <div className="flex -space-x-2 overflow-hidden">
                                 {project.member_arr.map((member, index) => {
                                     return <div key={index} className="inline-block h-6 w-6 lg:h-8 lg:w-8 rounded-full ring-2 ring-white">
@@ -235,6 +235,7 @@ function Projects({ cached_projects }) {
                                 })}
                             </p>
                         </div>}
+                        <div className="text-gray-500 mb-3 ml-10">{project.start_date}</div>
                         <h3 className="font-semibold text-base md:text-xl lg:text-2xl mb-2 line-clamp-2">{project.title}</h3>
                         <p className="hidden md:block mb-4 line-clamp-none md:line-clamp-2 lg:line-clamp-3">{project.abstract}</p>
                         <div className="hidden lg:flex flex-row">
