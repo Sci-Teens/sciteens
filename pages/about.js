@@ -29,31 +29,14 @@ export default function About() {
                 t("about.about_aneesha")
         },
         {
-            name: "Eduard Shkulipa",
-            image: "eduard.jpg",
-            about: t("about.about_eduard")
-        },
-        {
             name: "Angelo Chen",
             image: "angelo.jpg",
             about: t("about.about_angelo")
         },
         {
-            name: "Aya Khalaf",
-            image: "aya.jpg",
-            about:
-                t("about.about_aya")
-        },
-        {
             name: "Sonica Prakash",
             image: "sonica.jpg",
             about: t("about.about_sonica")
-        },
-        {
-            name: "Angelica Castillejos",
-            image: "angelica.jpg",
-            about:
-                t("about.about_angelica")
         },
         {
             name: "John Sutor",
@@ -66,11 +49,6 @@ export default function About() {
             image: "haley.jpg",
             about:
                 "Haley is a member of five Dungeons & Dragons groups."
-        },
-        {
-            name: "Akash Patel",
-            image: "akash.jpg",
-            about: t("about.about_akash")
         },
         {
             name: "Carlos Mercado-Lara",
@@ -100,32 +78,40 @@ export default function About() {
                 t("about.about_iman")
         },
         {
-            name: "Hannah Scaglione",
-            image: "hannah.jpg",
-            about:
-                t("about.about_hannah")
-        },
-        {
             name: "Liane Xu",
             image: "liane.jpg",
             about:
                 t("about.about_liane")
         },
         {
-            name: "Ashley Pelton",
-            image: "ashley.jpg",
-            about:
-                t("about.about_ashley")
+            name: "Alae Belkhadir",
+            image: "alae.jpg",
+            about: t("about.about_alae")
         },
         {
-            name: "Ohm Parikh ",
-            image: "ohm.jpg",
-            about: t("about.about_ohm")
+            name: "Sanjana",
+            image: "sanjana.jpg",
+            about: t("about.about_sanjana")
         },
         {
-            name: "Luke Sutor",
-            image: "luke.jpg",
-            about: t("about.about_luke")
+            name: "Joud",
+            image: "joud.jpg",
+            about: t("about.about_joud")
+        },
+        {
+            name: "Philip",
+            image: "philip.jpg",
+            about: t("about.about_philip")
+        },
+        {
+            name: "Srishti",
+            image: "srishti.jpg",
+            about: t("about.about_srishti")
+        },
+        {
+            name: "Grace Nyakarombo",
+            image: "grace2.jpg",
+            about: t("")
         },
         {
             name: "Tasman Rosenfeld",
