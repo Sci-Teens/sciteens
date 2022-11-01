@@ -41,7 +41,11 @@ steps:
         'NEXT_PUBLIC_GC_GRADE=${_NEXT_PUBLIC_GC_GRADE}',
       ]
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/${_NEXT_PUBLIC_FB_PROJECT_ID}/website']
+    args:
+      [
+        'push',
+        'gcr.io/${_NEXT_PUBLIC_FB_PROJECT_ID}/website',
+      ]
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
@@ -60,18 +64,18 @@ steps:
       ]
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
-    args: [
-      'run',
-      'services',
-      'update-traffic',
-      'website',
-      '--to-latest',
-      '--platform',
-      'managed',
-      '--region',
-      'us-east1'
-    ]
+    args:
+      [
+        'run',
+        'services',
+        'update-traffic',
+        'website',
+        '--to-latest',
+        '--platform',
+        'managed',
+        '--region',
+        'us-east1',
+      ]
 timeout: 1200s
 images:
   - gcr.io/${_NEXT_PUBLIC_FB_PROJECT_ID}/website
-
