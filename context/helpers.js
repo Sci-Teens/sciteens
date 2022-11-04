@@ -72,6 +72,7 @@ export function getTranslatedFieldsDict(t) {
         "Medicine": t("fields.medicine"),
         "Physics": t("fields.physics"),
         "Space Science": t("fields.space_science"),
+        "Fall 2022 Science Fair": t("fields.fall_2022_science_fair"),
     }
 
     return FIELD_NAMES
@@ -156,29 +157,29 @@ export function useIntersectionObserver(ref, options, forward = true) {
 
 function convertToJSON(res) {
     if (!res.ok) {
-      throw `API request failed with response status ${res.status} and text: ${res.statusText}`;
+        throw `API request failed with response status ${res.status} and text: ${res.statusText}`;
     }
-  
+
     return res
-      .clone() // clone so that the original is still readable for debugging
-      .json() // start converting to JSON object
-      .catch((error) => {
-        // throw an error containing the text that couldn't be converted to JSON
-        return res.text().then((text) => {
-          throw `API request's result could not be converted to a JSON object: \n${text}`;
+        .clone() // clone so that the original is still readable for debugging
+        .json() // start converting to JSON object
+        .catch((error) => {
+            // throw an error containing the text that couldn't be converted to JSON
+            return res.text().then((text) => {
+                throw `API request's result could not be converted to a JSON object: \n${text}`;
+            });
         });
-      });
-  }
+}
 
 export function post(endpoint, params = {}) {
     console.log(endpoint)
     return fetch(endpoint, {
-      method: "post",
-      headers: { "Content-type": "application/json" },
-      body: JSON.stringify(params),
+        method: "post",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify(params),
     })
-      .then(convertToJSON) 
-      .catch((error) => {
-        throw `POST request to ${endpoint} failed with error:\n${error}`;
-      });
-  }
+        .then(convertToJSON)
+        .catch((error) => {
+            throw `POST request to ${endpoint} failed with error:\n${error}`;
+        });
+}

@@ -89,35 +89,34 @@ export default function About() {
             about: t("about.about_alae")
         },
         {
-            name: "Sanjana",
+            name: "Sanjana Gade",
             image: "sanjana.jpg",
             about: t("about.about_sanjana")
         },
         {
-            name: "Joud",
+            name: "Joud Abdul Baki",
             image: "joud.jpg",
             about: t("about.about_joud")
         },
         {
-            name: "Philip",
+            name: "Philip Antonopoulos",
             image: "philip.jpg",
             about: t("about.about_philip")
         },
         {
-            name: "Srishti",
+            name: "Srishti Swaminathan",
             image: "srishti.jpg",
             about: t("about.about_srishti")
         },
         {
             name: "Grace Nyakarombo",
             image: "grace2.jpg",
-            about: t("")
+            about: t("about.about_grace2")
         },
         {
             name: "Tasman Rosenfeld",
             image: "tasman.jpg",
-            about:
-                t("about.about_tasman")
+            about: t("about.about_tasman")
         },].sort(() => Math.random() - 0.5))
 
     // Intersection Observer Stuff
@@ -181,7 +180,7 @@ export default function About() {
                                         className="w-20 h-20 lg:w-28 lg:h-28 rounded-full shadow m-auto mb-4" />
                                     <p className="text-base md:text-2xl text-center font-semibold mb-2">{member.name}</p>
                                     <p className={`hidden md:block text-center text-gray-700
-                                    ${member.name === "Angelica Castillejos" ||
+                                            ${member.name === "Angelica Castillejos" ||
                                             member.name === "Tasman Rosenfeld" ? "text-sm" : "text-base"}`}>{member.about}</p>
                                 </div>
                             })

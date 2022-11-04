@@ -183,7 +183,8 @@ function Projects({ cached_projects }) {
     function checkForLongFields(fields) {
         if (fields.slice(0, 3).includes("Mechanical Engineering") ||
             fields.slice(0, 3).includes("Electrical Engineering") ||
-            fields.slice(0, 3).includes("Environmental Science")) {
+            fields.slice(0, 3).includes("Environmental Science") ||
+            fields.slice(0, 3).includes("Fall 2022 Science Fair")) {
             return 2
         } else return 3
     }
