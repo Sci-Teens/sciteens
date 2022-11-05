@@ -6,7 +6,9 @@
     "postbuild": "next-sitemap",
     "start": "next start -p ${PORT:=3000}",
     "deploy": "",
-    "lint": "next lint"
+    "lint": "next lint",
+    "format": "prettier --check --ignore-path .gitignore .",
+    "format:fix": "prettier --write --ignore-path .gitignore ."
   },
   "dependencies": {
     "@prismicio/client": "^5.1.0",
@@ -43,6 +45,7 @@
     "next-sitemap": "^1.6.203",
     "postcss": "^8.3.5",
     "prettier": "^2.4.1",
+    "prettier-plugin-tailwindcss": "^0.1.13",
     "tailwindcss": "^2.2.4"
   },
   "name": "sciteens",
