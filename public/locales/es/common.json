@@ -46,7 +46,9 @@
     "too_large": "Este archivo es demasiado grande",
     "fill_out_about": "Por favor complete su secci\u00f3n Acerca de"
   },
-  "index_profile": { "joined": "Unido" },
+  "index_profile": {
+    "joined": "Unido"
+  },
   "project_create_edit": {
     "could_not_create": "No pudimos crear su proyecto en este momento",
     "file_abort": "La lectura de archivos fue abortada",
@@ -201,6 +203,7 @@
     "about_philip": "Philip es un estudiante de f\u00edsica de primer a\u00f1o con un gran inter\u00e9s en todo lo relacionado con la f\u00edsica, las matem\u00e1ticas y la inform\u00e1tica.",
     "about_joud": "Joud es un estudiante senior liban\u00e9s/canadiense que ama la biolog\u00eda. Le gusta leer, explorar y disfrutar de la vida. Siempre est\u00e1 listo para llenar a todos con positividad.",
     "about_sanjana": "A Sanjana le gusta jugar contra el viol\u00edn, probar nuevas recetas y tomar diversos cursos en l\u00ednea.",
+    "about_grace2": "Soy Grace Nyakarombo, un estudiante de 11\u00ba grado de Zimbabwe. Soy investigador e innovador cient\u00edfico. Me apasiona resolver el SDG 4 y 7 mediante el uso de la tecnolog\u00eda.",
     "about_alae": "Soy Alae y me encanta hacer memes. Ah, y tambi\u00e9n tengo el perro m\u00e1s lindo de todos."
   },
   "articles": {

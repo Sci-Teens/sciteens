@@ -52,14 +52,11 @@ export async function providerSignIn(
     if (addInfo.isNewUser) {
       // Complete profile
       router.push(
-        `/signup/finish${
-          res.user.displayName
-            ? `?first_name=${
-                res.user.displayName.split(' ')[0]
-              }&last_name=${
-                res.user.displayName.split(' ')[1]
-              }`
-            : ''
+        `/signup/finish${res.user.displayName
+          ? `?first_name=${res.user.displayName.split(' ')[0]
+          }&last_name=${res.user.displayName.split(' ')[1]
+          }`
+          : ''
         }`
       )
     } else {
@@ -111,6 +108,7 @@ export function getTranslatedFieldsDict(t) {
     Medicine: t('fields.medicine'),
     Physics: t('fields.physics'),
     'Space Science': t('fields.space_science'),
+    'Fall 2022 Science Fair': t('fields.fall_2022_science_fair'),
   }
 
   return FIELD_NAMES

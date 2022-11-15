@@ -264,8 +264,8 @@ function Projects({ cached_projects }) {
       fields
         .slice(0, 3)
         .includes('Electrical Engineering') ||
-      fields.slice(0, 3).includes('Environmental Science')
-    ) {
+      fields.slice(0, 3).includes('Environmental Science') ||
+      fields.slice(0, 3).includes('Fall 2022 Science Fair')) {
       return 2
     } else return 3
   }
@@ -344,9 +344,8 @@ function Projects({ cached_projects }) {
                     {project.member_arr.map((member) => {
                       return (
                         <Link
-                          href={`/profile/${
-                            member.slug ? member.slug : ''
-                          }`}
+                          href={`/profile/${member.slug ? member.slug : ''
+                            }`}
                         >
                           <a className="font-bold text-sciteensGreen-regular no-underline hover:text-sciteensGreen-dark">
                             {member.display + ' '}
@@ -391,7 +390,7 @@ function Projects({ cached_projects }) {
                     more field
                     {project.fields.length -
                       checkForLongFields(project.fields) ==
-                    1
+                      1
                       ? ''
                       : 's'}
                   </p>
@@ -445,7 +444,7 @@ function Projects({ cached_projects }) {
             </h1>
             <Link href="/project/create">
               {process.browser &&
-              window.innerWidth >= 812 ? (
+                window.innerWidth >= 812 ? (
                 <a className="my-auto rounded-full border-2 border-sciteensLightGreen-regular py-1.5 px-5 text-lg font-semibold text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark">
                   Create Project
                 </a>
@@ -518,11 +517,10 @@ function Projects({ cached_projects }) {
                     key={value}
                     onClick={() => handleFieldSearch(key)}
                     className={`mr-4 mb-4 rounded-full px-3 py-2 text-sm shadow
-                                        ${
-                                          key == field
-                                            ? 'bg-sciteensLightGreen-regular text-white'
-                                            : 'bg-white'
-                                        }`}
+                                        ${key == field
+                        ? 'bg-sciteensLightGreen-regular text-white'
+                        : 'bg-white'
+                      }`}
                   >
                     {value}
                   </button>

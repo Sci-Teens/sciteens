@@ -46,7 +46,9 @@
     "too_large": "This file is too large",
     "fill_out_about": "Please fill out your about section"
   },
-  "index_profile": { "joined": "Joined" },
+  "index_profile": {
+    "joined": "Joined"
+  },
   "project_create_edit": {
     "could_not_create": "We couldn't create your project at this time",
     "file_abort": "File reading was aborted",
@@ -201,6 +203,7 @@
     "about_philip": "Philip is a first-year physics student with a keen interest in all things physics, mathematics and computer science.",
     "about_joud": "Joud is a Lebanese/Canadian senior student who loves biology. He likes to read, explore, and enjoy life. He\u2019s always ready to make everyone full with positivity.",
     "about_sanjana": "Sanjana enjoys playing violin, trying new recipes, and taking diverse courses online.",
+    "about_grace2": "I\u2019m Grace Nyakarombo, an 11th grade student from Zimbabwe. I\u2019m an science researcher and innovator. I\u2019m passionate about solving SDG 4 & 7 through the use of technology.",
     "about_alae": "I\u2019m Alae and I love making memes. Oh and I also have the cutest dog ever."
   },
   "articles": {
