@@ -1,4 +1,5 @@
 const { i18n } = require('./next-i18next.config')
+const CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = {
   i18n,
@@ -54,4 +55,8 @@ module.exports = {
       },
     ]
   },
+  webpack: function (config) {
+    config.plugins.push(new CompressionPlugin());
+    return config;
+  }
 }

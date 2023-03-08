@@ -6,6 +6,7 @@ import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import { useIntersectionObserver } from '../context/helpers'
+import moment from 'moment'
 
 import {
   useFirestore,
@@ -38,10 +39,14 @@ import {
 import ProfilePhoto from '../components/ProfilePhoto'
 import { getTranslatedFieldsDict } from '../context/helpers'
 
+
 function Projects({ cached_projects }) {
   const router = useRouter()
   const firestore = useFirestore()
   const [projects, setProjects] = useState(cached_projects)
+
+  moment.locale(router?.locale ? router.locale : 'en')
+
 
   useEffect(async () => {
     if (router.asPath !== '/projects') {
@@ -356,8 +361,8 @@ function Projects({ cached_projects }) {
                   </p>
                 </div>
               )}
-              <div className="mb-3 ml-10 text-gray-500">
-                {project.start_date}
+              <div className="mb-2 ml-10 text-gray-500">
+                {moment(project.date).format('ll')}
               </div>
               <h3 className="mb-2 text-base font-semibold line-clamp-2 md:text-xl lg:text-2xl">
                 {project.title}

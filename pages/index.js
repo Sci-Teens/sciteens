@@ -300,7 +300,7 @@ export default function Home() {
           </animated.div>
           <div
             id="canvas-container"
-            className="absolute right-10 left-10 top-28 grid h-full grid-cols-1 grid-rows-1 items-center md:right-24 md:left-24 lg:right-16 lg:left-auto lg:top-0 lg:w-[40%]"
+            className="absolute right-10 left-10 top-28 grid h-full grid-cols-1 grid-rows-1 items-center md:right-24 md:left-24 lg:right-16 lg:left-auto lg:top-0 lg:w-[40%] xl:w-[50%]"
           >
             <div
               id="loading-screen"
