@@ -16,6 +16,7 @@
     "@tailwindcss/line-clamp": "^0.2.2",
     "@tailwindcss/typography": "^0.4.1",
     "algoliasearch": "^4.11.0",
+    "compression-webpack-plugin": "^10.0.0",
     "firebase": "^9.6.7",
     "lodash.debounce": "^4.0.8",
     "moment": "^2.29.1",
@@ -36,7 +37,6 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.2.6",
-    "compression-webpack-plugin": "^10.0.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-jsx-a11y": "^6.4.1",
