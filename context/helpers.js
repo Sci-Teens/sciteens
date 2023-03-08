@@ -108,7 +108,6 @@ export function getTranslatedFieldsDict(t) {
     Medicine: t('fields.medicine'),
     Physics: t('fields.physics'),
     'Space Science': t('fields.space_science'),
-    'Fall 2022 Science Fair': t('fields.fall_2022_science_fair'),
   }
 
   return FIELD_NAMES
