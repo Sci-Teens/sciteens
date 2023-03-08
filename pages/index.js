@@ -349,7 +349,7 @@ export default function Home() {
               <animated.img
                 style={missionSpring}
                 id="mission_img"
-                src="assets/device_mockup.png"
+                src="assets/device_mockup.jpg"
                 alt="Computer and phone showing sciteens website"
               />
             </div>
@@ -527,7 +527,7 @@ export default function Home() {
               <div className="flex h-full flex-col md:flex-row lg:flex-col">
                 <div className="relative h-full w-full overflow-hidden md:w-1/2 lg:w-auto">
                   <img
-                    src={'./assets/featured_media/neon.png'}
+                    src={'./assets/featured_media/neon.jpg'}
                     alt="NSF Neon Logo"
                     className="absolute top-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
                   />
