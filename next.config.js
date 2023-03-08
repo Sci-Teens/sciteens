@@ -1,5 +1,6 @@
 const { i18n } = require('./next-i18next.config')
 const CompressionPlugin = require('compression-webpack-plugin');
+const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
 
 module.exports = {
   i18n,
@@ -57,6 +58,26 @@ module.exports = {
   },
   webpack: function (config) {
     config.plugins.push(new CompressionPlugin());
+    config.plugins.push(new ImageMinimizerPlugin(
+      {
+        minimizer: {
+          implementation: ImageMinimizerPlugin.squooshMinify,
+          options: {
+            encodeOptions: {
+              mozjpeg: {
+                quality: 85,
+              },
+              webp: {
+                lossless: 1,
+              },
+              avif: {
+                cqLevel: 0,
+              },
+            },
+          },
+        },
+      }
+    ));
     return config;
   }
 }
