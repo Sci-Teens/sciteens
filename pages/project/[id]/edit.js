@@ -40,7 +40,7 @@ import {
 
 import moment from 'moment'
 import isEmail from 'validator/lib/isEmail'
-import debounce from 'lodash/debounce'
+import debounce from 'lodash.debounce'
 import { useDropzone } from 'react-dropzone'
 import File from '../../../components/File'
 import { getFluidObservers } from '@react-spring/shared'
@@ -481,11 +481,10 @@ export default function UpdateProject({ query }) {
                 value={title}
                 name="title"
                 required
-                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
-                  error_title
+                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${error_title
                     ? 'border-red-700 text-red-800 placeholder-red-700'
                     : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
-                }`}
+                  }`}
                 type="text"
                 aria-label="title"
                 maxLength="100"
@@ -507,18 +506,16 @@ export default function UpdateProject({ query }) {
                 type="date"
                 id="start-date"
                 name="start-date"
-                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
-                  error_start_date
+                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${error_start_date
                     ? 'border-red-700 text-red-800 placeholder-red-700'
                     : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
-                }`}
+                  }`}
               />
               <p
-                className={`mb-4 text-sm ${
-                  error_start_date
+                className={`mb-4 text-sm ${error_start_date
                     ? 'text-red-800'
                     : 'text-gray-700'
-                }`}
+                  }`}
               >
                 {error_start_date}
               </p>
@@ -536,18 +533,16 @@ export default function UpdateProject({ query }) {
                 type="date"
                 id="end-date"
                 name="end-date"
-                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
-                  error_end_date
+                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${error_end_date
                     ? 'border-red-700 text-red-800 placeholder-red-700'
                     : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
-                }`}
+                  }`}
               />
               <p
-                className={`mb-4 text-sm ${
-                  error_end_date
+                className={`mb-4 text-sm ${error_end_date
                     ? 'text-red-800'
                     : 'text-gray-700'
-                }`}
+                  }`}
               >
                 {error_end_date}
               </p>
@@ -563,11 +558,10 @@ export default function UpdateProject({ query }) {
                 value={abstract}
                 name="abstract"
                 required
-                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
-                  error_abstract
+                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${error_abstract
                     ? 'border-red-700 text-red-800 placeholder-red-700'
                     : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
-                }`}
+                  }`}
                 type="textarea"
                 aria-label="summary"
                 maxLength="1000"
@@ -587,11 +581,10 @@ export default function UpdateProject({ query }) {
                 value={member}
                 name="member"
                 required
-                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
-                  error_member
+                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${error_member
                     ? 'border-red-700 text-red-800 placeholder-red-700'
                     : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
-                }`}
+                  }`}
                 type="email"
                 aria-label="title"
                 maxLength="100"
@@ -652,11 +645,10 @@ export default function UpdateProject({ query }) {
               <div className="mb-4"></div>
               <div
                 {...getRootProps()}
-                className={`h-40 w-full border-2 ${
-                  error_file
+                className={`h-40 w-full border-2 ${error_file
                     ? 'bg-red-200 hover:bg-red-300'
                     : 'bg-gray-100 hover:bg-gray-200'
-                }  flex items-center justify-center rounded-lg border-dashed border-gray-600 text-center text-gray-700`}
+                  }  flex items-center justify-center rounded-lg border-dashed border-gray-600 text-center text-gray-700`}
               >
                 <input {...getInputProps()} />
                 {isDragActive ? (
@@ -734,11 +726,10 @@ export default function UpdateProject({ query }) {
                                 onClick={(e) =>
                                   setPhoto(e, id)
                                 }
-                                className={`rounded-lg border-2 border-sciteensLightGreen-regular font-semibold text-sciteensLightGreen-regular transition-all duration-500 hover:border-sciteensLightGreen-dark hover:bg-gray-50 hover:text-sciteensLightGreen-dark ${
-                                  select_photo_mode
+                                className={`rounded-lg border-2 border-sciteensLightGreen-regular font-semibold text-sciteensLightGreen-regular transition-all duration-500 hover:border-sciteensLightGreen-dark hover:bg-gray-50 hover:text-sciteensLightGreen-dark ${select_photo_mode
                                     ? 'mr-4 w-28'
                                     : 'w-0 overflow-hidden border-none'
-                                }`}
+                                  }`}
                               >
                                 Select
                               </button>
