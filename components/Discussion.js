@@ -4,7 +4,7 @@ import {
   addDoc,
   orderBy,
 } from '@firebase/firestore'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import {
   useFirestore,
   useFirestoreCollectionData,
@@ -14,7 +14,7 @@ import { useRouter } from 'next/router'
 import { post } from '../context/helpers.js'
 import ProfilePhoto from './ProfilePhoto'
 
-import debounce from 'lodash/debounce'
+import debounce from 'lodash.debounce'
 import moment from 'moment'
 
 export default function Discussion({ type, item_id }) {
@@ -48,6 +48,7 @@ export default function Discussion({ type, item_id }) {
   const [error_reply, setErrorReply] = useState('')
   const [error_reply_index, setErrorReplyIndex] =
     useState(0)
+  const [model, setModel] = useState({})
 
   const router = useRouter()
 
@@ -77,57 +78,110 @@ export default function Discussion({ type, item_id }) {
         isComment,
         index
       )
-      setLoading(false)
     }
   }
 
   const postLink =
     'https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=' +
     process.env.NEXT_PUBLIC_GM_API_KEY
+
   const getScores = useCallback(
     debounce(async (userComment, isComment, index) => {
       setLoading(true)
       const THRESHOLD = 0.7
-      post(postLink, {
-        comment: { text: userComment },
-        languages: ['en'],
-        requestedAttributes: {
-          TOXICITY: {},
-          PROFANITY: {},
-          INSULT: {},
-        },
-      }).then((res) => {
-        console.log(
-          res.attributeScores.INSULT.summaryScore.value
-        )
-        try {
-          if (
-            res.attributeScores.INSULT.summaryScore.value >
+
+      if (typeof (window) !== 'undefined') {
+        post(window.location.origin + "/api/toxicity", { text: userComment }).then((res) => {
+          console.log(
+            res.attributeScores.INSULT.summaryScore.value
+          )
+          try {
+            if (
+              res.attributeScores.INSULT.summaryScore.value >
               THRESHOLD ||
-            res.attributeScores.PROFANITY.summaryScore
-              .value > THRESHOLD ||
-            res.attributeScores.TOXICITY.summaryScore
-              .value > THRESHOLD
-          ) {
-            if (isComment) {
-              setErrorComment(
-                'Please refrain from submitting inappropriate comments'
-              )
-            } else {
-              setErrorReply(
-                'Please refrain from submitting inappropriate comments'
-              )
-              setErrorReplyIndex(index)
+              res.attributeScores.PROFANITY.summaryScore
+                .value > THRESHOLD ||
+              res.attributeScores.TOXICITY.summaryScore
+                .value > THRESHOLD
+            ) {
+              if (isComment) {
+                setErrorComment(
+                  'Please refrain from submitting inappropriate comments'
+                )
+              } else {
+                setErrorReply(
+                  'Please refrain from submitting inappropriate comments'
+                )
+                setErrorReplyIndex(index)
+              }
+              setLoading(false)
             }
+
+            else {
+              setErrorComment('')
+              setErrorReply('')
+              setErrorReplyIndex(-1)
+              setLoading(false)
+            }
+          } catch (e) {
+            setErrorComment('')
+            setErrorReply('')
+            setErrorReplyIndex(-1)
             setLoading(false)
           }
-        } catch (e) {
-          setErrorComment('')
-          setErrorReply('')
-          setErrorReplyIndex(-1)
-          setLoading(false)
-        }
-      })
+        })
+      }
+
+      else {
+        post(postLink, {
+          comment: { text: userComment },
+          languages: ['en'],
+          requestedAttributes: {
+            TOXICITY: {},
+            PROFANITY: {},
+            INSULT: {},
+          },
+        }).then((res) => {
+          console.log(
+            res.attributeScores.INSULT.summaryScore.value
+          )
+          try {
+            if (
+              res.attributeScores.INSULT.summaryScore.value >
+              THRESHOLD ||
+              res.attributeScores.PROFANITY.summaryScore
+                .value > THRESHOLD ||
+              res.attributeScores.TOXICITY.summaryScore
+                .value > THRESHOLD
+            ) {
+              if (isComment) {
+                setErrorComment(
+                  'Please refrain from submitting inappropriate comments'
+                )
+              } else {
+                setErrorReply(
+                  'Please refrain from submitting inappropriate comments'
+                )
+                setErrorReplyIndex(index)
+              }
+              setLoading(false)
+            }
+
+            else {
+              setErrorComment('')
+              setErrorReply('')
+              setErrorReplyIndex(-1)
+              setLoading(false)
+            }
+          } catch (e) {
+            setErrorComment('')
+            setErrorReply('')
+            setErrorReplyIndex(-1)
+            setLoading(false)
+          }
+        })
+      }
+
     }, 500),
     []
   )
@@ -196,11 +250,10 @@ export default function Discussion({ type, item_id }) {
           id="comment"
           required
           rows="3"
-          className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-white p-2 leading-tight shadow focus:bg-white focus:placeholder-gray-700 focus:shadow-lg ${
-            error_comment
-              ? 'border-red-700 text-red-800 placeholder-red-700'
-              : 'text-gray-700 focus:border-sciteensLightGreen-regular'
-          }`}
+          className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-white p-2 leading-tight shadow focus:bg-white focus:placeholder-gray-700 focus:shadow-lg ${error_comment
+            ? 'border-red-700 text-red-800 placeholder-red-700'
+            : 'text-gray-700 focus:border-sciteensLightGreen-regular'
+            }`}
           type="textarea"
           placeholder={
             discussion?.length
@@ -214,9 +267,8 @@ export default function Discussion({ type, item_id }) {
           {error_comment}
         </p>
         <div
-          className={`mt-2 flex w-full justify-end ${
-            comment === '' ? 'hidden' : ''
-          }`}
+          className={`mt-2 flex w-full justify-end ${comment === '' ? 'hidden' : ''
+            }`}
         >
           <button
             type="reset"
@@ -255,15 +307,13 @@ export default function Discussion({ type, item_id }) {
                 <div
                   id={comment.id}
                   key={comment.date}
-                  className={`relative bg-white p-4 shadow ${
-                    router.isReady &&
+                  className={`relative bg-white p-4 shadow ${router.isReady &&
                     router.basePath.includes(comment.id) &&
                     'bg-gray-200'
-                  } ${
-                    replyingToId === comment.id
+                    } ${replyingToId === comment.id
                       ? 'rounded-t-lg'
                       : 'rounded-lg'
-                  }`}
+                    }`}
                 >
                   <div className="mb-2 flex flex-row items-center">
                     <div className="mr-2 h-10 w-10">
@@ -293,16 +343,14 @@ export default function Discussion({ type, item_id }) {
                   </div>
                 </div>
                 <div
-                  className={`flex flex-row bg-white  ${
-                    error_reply && error_reply_index === key
-                      ? 'border-red-700'
-                      : 'border-sciteensLightGreen-regular'
-                  }
-                            ${
-                              replyingToId === comment.id
-                                ? 'rounded-b-lg border-2'
-                                : 'h-0 overflow-hidden rounded-lg'
-                            }`}
+                  className={`flex flex-row bg-white  ${error_reply && error_reply_index === key
+                    ? 'border-red-700'
+                    : 'border-sciteensLightGreen-regular'
+                    }
+                            ${replyingToId === comment.id
+                      ? 'rounded-b-lg border-2'
+                      : 'h-0 overflow-hidden rounded-lg'
+                    }`}
                 >
                   <textarea
                     onChange={(e) =>
@@ -314,17 +362,15 @@ export default function Discussion({ type, item_id }) {
                     rows="3"
                     resize="none"
                     className={`w-full resize-none appearance-none border-transparent bg-white p-2 leading-tight shadow focus:shadow-lg 
-                                ${
-                                  replyingToId == comment.id
-                                    ? 'rounded-lg'
-                                    : 'rounded-lg border-none'
-                                } focus:outline-none focus:bg-white focus:placeholder-gray-700 
-                                ${
-                                  error_reply &&
-                                  error_reply_index === key
-                                    ? 'text-red-800 placeholder-red-700'
-                                    : 'border-sciteensLightGreen-regular text-gray-700'
-                                }`}
+                                ${replyingToId == comment.id
+                        ? 'rounded-lg'
+                        : 'rounded-lg border-none'
+                      } focus:outline-none focus:bg-white focus:placeholder-gray-700 
+                                ${error_reply &&
+                        error_reply_index === key
+                        ? 'text-red-800 placeholder-red-700'
+                        : 'border-sciteensLightGreen-regular text-gray-700'
+                      }`}
                     type="textarea"
                     placeholder="Reply..."
                     aria-label="reply"
