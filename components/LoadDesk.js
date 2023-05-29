@@ -19,6 +19,7 @@ export default async function render(width, height) {
 
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
+    alpha: true,
   })
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.outputEncoding = THREE.sRGBEncoding
