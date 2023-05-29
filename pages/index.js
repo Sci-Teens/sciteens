@@ -276,7 +276,7 @@ export default function Home() {
         <div className="relative h-screen text-center lg:text-left">
           <animated.div
             style={landing_spring}
-            className="relative z-20 mx-5 mb-12 flex h-full w-auto flex-col pt-24 md:mx-16 lg:ml-24 lg:max-w-xl lg:justify-center xl:max-w-2xl"
+            className="relative z-30 mx-5 mb-12 flex h-full w-auto flex-col pt-24 md:mx-16 lg:ml-24 lg:max-w-xl lg:justify-center xl:max-w-2xl"
           >
             <h1 className="whitespace-nowrap text-3xl font-extrabold md:text-5xl lg:text-6xl">
               🧪
@@ -300,7 +300,7 @@ export default function Home() {
           </animated.div>
           <div
             id="canvas-container"
-            className="absolute right-10 left-10 top-28 grid h-full grid-cols-1 grid-rows-1 items-center md:right-24 md:left-24 lg:right-16 lg:left-auto lg:top-0 lg:w-[40%] xl:w-[50%]"
+            className="absolute right-10 left-10 top-28 grid h-full grid-cols-1 grid-rows-1 items-center md:right-24 md:left-24 lg:right-16 lg:left-auto lg:top-0 lg:w-[35%] xl:w-[45%]"
           >
             <div
               id="loading-screen"
@@ -314,7 +314,7 @@ export default function Home() {
             </div>
             <div
               id="canvas"
-              className="scale-75 transition-all duration-[1300ms]"
+              className="scale-75 z-20 transition-all duration-[1300ms]"
             />
           </div>
         </div>
