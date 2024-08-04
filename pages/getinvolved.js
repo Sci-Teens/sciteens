@@ -44,7 +44,7 @@ export default function GetInvolved() {
           <h1 className="my-4 mb-10 text-center text-3xl font-semibold md:text-5xl">
             {t('get_involved.want_to_get_involved')}
           </h1>
-          <div className="flex flex-col md:grid md:grid-cols-2 md:grid-rows-2">
+          <div className="flex flex-col">
             <animated.div
               style={get_involved_spring}
               className="relative mr-0 mb-10 overflow-hidden rounded-lg bg-white p-12 shadow-md md:mr-8 md:mb-8"
@@ -73,31 +73,6 @@ export default function GetInvolved() {
                 viewBox="0 0 20 20"
               >
                 <path d="M3.33 8L10 12l10-6-10-6L0 6h10v2H3.33zM0 8v8l2-2.22V9.2L0 8zm10 12l-5-3-2-1.2v-6l7 4.2 7-4.2v6L10 20z" />
-              </svg>
-            </animated.div>
-
-            <animated.div
-              style={get_involved_spring}
-              className="relative ml-0 mb-10 overflow-hidden rounded-lg bg-white p-12 shadow-md md:ml-8 md:mb-8"
-            >
-              <h2 className="mb-3 text-2xl font-semibold md:text-3xl">
-                {t('get_involved.mentors')}
-              </h2>
-              <p className="mb-4 text-sm lg:text-base">
-                {t('get_involved.get_involved_mentor')}
-              </p>
-              <Link href="/signup/educator">
-                <a className="rounded-lg bg-sciteensLightGreen-regular p-2 text-center text-white shadow-md hover:bg-sciteensLightGreen-dark">
-                  {t('get_involved.mentor_sign_up')}
-                </a>
-              </Link>
-              <svg
-                className="absolute -top-8 -left-8 h-2/3 -rotate-12 transform opacity-5"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="#4A5568"
-              >
-                <path d="M7 8a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 1c2.15 0 4.2.4 6.1 1.09L12 16h-1.25L10 20H4l-.75-4H2L.9 10.09A17.93 17.93 0 0 1 7 9zm8.31.17c1.32.18 2.59.48 3.8.92L18 16h-1.25L16 20h-3.96l.37-2h1.25l1.65-8.83zM13 0a4 4 0 1 1-1.33 7.76 5.96 5.96 0 0 0 0-7.52C12.1.1 12.53 0 13 0z" />
               </svg>
             </animated.div>
 

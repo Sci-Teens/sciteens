@@ -113,60 +113,6 @@ export default function SignUpIndex() {
                 )}
               </a>
             </Link>
-            <Link
-              href={
-                router.query?.ref
-                  ? {
-                      pathname: '/signup/educator',
-                      query: {
-                        ref: router.query?.ref,
-                      },
-                    }
-                  : '/signup/educator'
-              }
-            >
-              <a className="m-6 h-56 w-56 rounded bg-white shadow hover:shadow-md">
-                {show_mentor_info ? (
-                  <div className="relative pt-8">
-                    <img
-                      src="/assets/zondicons/close-solid.svg"
-                      alt="Close"
-                      className="absolute top-0 right-0 m-2 h-6 w-6"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        setShowMentorInfo(!show_mentor_info)
-                      }}
-                    />
-                    <h2 className="mx-2 text-lg text-sciteensGreen-regular">
-                      {t('auth.educator_info')}
-                    </h2>
-                  </div>
-                ) : (
-                  <div className="relative">
-                    <img
-                      src="/assets/zondicons/question.svg"
-                      alt="Question"
-                      className="absolute top-0 right-0 m-2 h-6 w-6"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        setShowMentorInfo(!show_mentor_info)
-                      }}
-                    />
-                    <img
-                      src="/assets/mentor.svg"
-                      alt="Student Icon"
-                      className="mx-auto h-40 p-4"
-                    />
-                    <h2 className="text-xl text-sciteensGreen-regular">
-                      {t('auth.educator')}
-                    </h2>
-                    <p className="text-sm italic text-gray-700">
-                      {t('auth.and_other_options')}
-                    </p>
-                  </div>
-                )}
-              </a>
-            </Link>
           </div>
           <div className="mb-1/4 mx-auto">
             <p className="text-gray-700">

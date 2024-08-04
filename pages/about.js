@@ -11,13 +11,13 @@ export default function About() {
                 name: 'Sri Kondapalli',
                 image: 'sri.jpg',
                 about: t('about.about_sri'),
-                current: true,
+                current: false,
             },
             {
                 name: 'Rohan Bolle',
                 image: 'rohan.jpg',
                 about: t('about.about_rohan'),
-                current: true,
+                current: false,
             },
             {
                 name: 'Aneesha Acharya',
@@ -48,7 +48,7 @@ export default function About() {
                 image: 'haley.jpg',
                 about:
                     'Haley is a member of five Dungeons & Dragons groups.',
-                current: true,
+                current: false,
             },
             {
                 name: 'Carlos Mercado-Lara',
@@ -60,25 +60,25 @@ export default function About() {
                 name: 'Erin Kang',
                 image: 'erin.jpg',
                 about: t('about.about_erin'),
-                current: true,
+                current: false,
             },
             {
                 name: 'Grace Jiang',
                 image: 'grace.jpg',
                 about: t('about.about_grace'),
-                current: true,
+                current: false,
             },
             {
                 name: 'Aarti Kalamangalam',
                 image: 'aarti.jpg',
                 about: t('about.about_aarti'),
-                current: true,
+                current: false,
             },
             {
                 name: 'Iman Khalid',
                 image: 'iman.jpg',
                 about: t('about.about_iman'),
-                current: true,
+                current: false,
             },
             {
                 name: 'Liane Xu',
@@ -90,37 +90,37 @@ export default function About() {
                 name: 'Alae Belkhadir',
                 image: 'alae.jpg',
                 about: t('about.about_alae'),
-                current: true,
+                current: false,
             },
             {
                 name: 'Sanjana Gade',
                 image: 'sanjana.jpg',
                 about: t('about.about_sanjana'),
-                current: true,
+                current: false,
             },
             {
                 name: 'Joud Abdul Baki',
                 image: 'joud.jpg',
                 about: t('about.about_joud'),
-                current: true,
+                current: false,
             },
             {
                 name: 'Philip Antonopoulos',
                 image: 'philip.jpg',
                 about: t('about.about_philip'),
-                current: true,
+                current: false,
             },
             {
                 name: 'Srishti Swaminathan',
                 image: 'srishti.jpg',
                 about: t('about.about_srishti'),
-                current: true,
+                current: false,
             },
             {
                 name: 'Grace Nyakarombo',
                 image: 'grace2.jpg',
                 about: t('about.about_grace2'),
-                current: true,
+                current: false,
             },
             {
                 name: 'Tasman Rosenfeld',
@@ -242,11 +242,6 @@ export default function About() {
                     <p className="mx-0 mb-12 text-center text-base md:text-xl lg:mx-24">
                         {t('about.we_strive')}
                     </p>
-
-                    {/* Profile Pics */}
-                    <h2 className="mb-6 text-center text-2xl font-bold md:text-3xl">
-                        Current Members
-                    </h2>
                     <div className="mb-8 inline-grid h-full w-full grid-cols-2 place-items-center lg:grid-cols-3">
                         {members.filter(m => m.current == true).map((member) => {
                             return (
