@@ -58,26 +58,6 @@ module.exports = {
   },
   webpack: function (config) {
     config.plugins.push(new CompressionPlugin());
-    config.plugins.push(new ImageMinimizerPlugin(
-      {
-        minimizer: {
-          implementation: ImageMinimizerPlugin.squooshMinify,
-          options: {
-            encodeOptions: {
-              mozjpeg: {
-                quality: 85,
-              },
-              webp: {
-                lossless: 1,
-              },
-              avif: {
-                cqLevel: 0,
-              },
-            },
-          },
-        },
-      }
-    ));
     return config;
   }
 }
