@@ -64,7 +64,7 @@ export default function Footer() {
                   </li>
                   <li>
                     <a
-                      href="mailto:info@sciteens.org"
+                      href="mailto:info@sciteens.com"
                       target="_blank"
                     >
                       {i18n.t('footer.contact')}

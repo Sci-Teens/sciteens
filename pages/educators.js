@@ -65,7 +65,7 @@ export default function Educators() {
             {t('educators.contact_us')}
             <a
               target="_blank"
-              href="mailto:carlos@sciteens.org"
+              href="mailto:carlos@sciteens.com"
               className="font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark"
             >
               Carlos Mercado-Lara
@@ -75,7 +75,7 @@ export default function Educators() {
             &nbsp;
             <a
               target="_blank"
-              href="mailto:aarti@sciteens.org"
+              href="mailto:aarti@sciteens.com"
               className="font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark"
             >
               Aarti Kalamangalam

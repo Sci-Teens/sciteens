@@ -55,11 +55,11 @@ export default function GetInvolved() {
               <p className="mb-4 text-sm lg:text-base">
                 {t('get_involved.get_involved_student')}
                 <a
-                  href="mailto:opportunities@sciteens.org"
+                  href="mailto:opportunities@sciteens.com"
                   target="_blank"
                   className="text-blue-700"
                 >
-                  &nbsp;opportunities@sciteens.org.&nbsp;
+                  &nbsp;opportunities@sciteens.com.&nbsp;
                 </a>
               </p>
               <Link href="/signup/student">
@@ -86,15 +86,15 @@ export default function GetInvolved() {
               <p className="mb-4 text-sm lg:text-base">
                 {t('get_involved.get_involved_outreach')}
                 <a
-                  href="mailto:support@sciteens.org"
+                  href="mailto:support@sciteens.com"
                   target="_blank"
                   className="text-blue-700"
                 >
-                  &nbsp;opportunities@sciteens.org.&nbsp;
+                  &nbsp;opportunities@sciteens.com.&nbsp;
                 </a>
               </p>
               <a
-                href="mailto:support@sciteens.org"
+                href="mailto:support@sciteens.com"
                 target="_blank"
                 className="rounded-lg bg-sciteensLightGreen-regular p-2 text-center text-white shadow-md hover:bg-sciteensLightGreen-dark"
               >
@@ -119,11 +119,11 @@ export default function GetInvolved() {
               <p className="mb-4 text-sm lg:text-base">
                 {t('get_involved.get_involved_funding')}
                 <a
-                  href="mailto:support@sciteens.org"
+                  href="mailto:support@sciteens.com"
                   target="_blank"
                   className="text-blue-700"
                 >
-                  &nbsp;opportunities@sciteens.org.&nbsp;
+                  &nbsp;opportunities@sciteens.com.&nbsp;
                 </a>
                 {t('get_involved.no_student_limited')}
               </p>

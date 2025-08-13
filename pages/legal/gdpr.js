@@ -97,7 +97,7 @@ export default function gdpr() {
               ("Company", "we", "us", and "our") uses
               cookies and similar technologies to recognize
               you when you visit our websites at
-              http://sciteens.org, ("Websites"). It explains
+              http://sciteens.com, ("Websites"). It explains
               what these technologies are and why we use
               them, as well as your rights to control our
               use of them. In some cases we may use cookies
@@ -353,7 +353,7 @@ export default function gdpr() {
               <p className="mb-4 text-gray-700">
                 If you have any questions about our use of
                 cookies or other technologies, please email
-                us at support@sciteens.org or by post to:
+                us at support@sciteens.com or by post to:
               </p>
               <p className="my-4 text-sciteensGreen-regular">
                 SciTeens Inc.

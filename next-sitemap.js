@@ -1,4 +1,4 @@
 module.exports = {
-  siteUrl: 'https://sciteens.org',
+  siteUrl: 'https://sciteens.com',
   generateRobotsTxt: true,
 }

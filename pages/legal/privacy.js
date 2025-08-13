@@ -169,8 +169,8 @@ export default function privacy() {
               have any questions or concerns about our
               policy, or our practices with regards to your
               personal information, please contact us at
-              support@sciteens.org. When you visit our
-              website https://sciteens.org, and use our
+              support@sciteens.com. When you visit our
+              website https://sciteens.com, and use our
               services, you trust us with your personal
               information. We take your privacy very
               seriously. In this privacy policy, we seek to
@@ -183,7 +183,7 @@ export default function privacy() {
               not agree with, please discontinue use of our
               Sites and our services. This privacy policy
               applies to all information collected through
-              our website (such as https://sciteens.org),
+              our website (such as https://sciteens.com),
               and/or any related services, sales, marketing
               or events (we refer to them collectively in
               this privacy policy as the "Services"). Please
@@ -728,7 +728,7 @@ export default function privacy() {
                 http://ec.europa.eu/justice/data-protection/bodies/authorities/index_en.htm.
                 If you have questions or comments about your
                 privacy rights, you may email us at
-                support@sciteens.org.
+                support@sciteens.com.
               </p>
               <p className="mb-2 text-lg">
                 Account Information
@@ -915,7 +915,7 @@ export default function privacy() {
                 some circumstances. To request to review,
                 update, or delete your personal information,
                 please submit a request by emailing
-                support@sciteens.org. We will respond to
+                support@sciteens.com. We will respond to
                 your request within 30 days.
               </p>
             </div>
@@ -929,7 +929,7 @@ export default function privacy() {
                 If you have questions or comments about this
                 policy, you may contact our Data Protection
                 Officer (DPO), John Sutor, by email at
-                john@sciteens.org, or by post to:
+                john@sciteens.com, or by post to:
               </p>
               <p className="my-4 text-sciteensGreen-regular">
                 SciTeens Inc.

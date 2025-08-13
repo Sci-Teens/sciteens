@@ -37,7 +37,7 @@ module.exports = {
           },
           // {
           //     key: 'Content-Security-Policy',
-          //     value: "default-src 'unsafe-inline' sciteens.org prismic.io googleapis.com gstatic.com googleusercontent.com"
+          //     value: "default-src 'unsafe-inline' sciteens.com prismic.io googleapis.com gstatic.com googleusercontent.com"
           // },
           {
             key: 'Referrer-Policy',

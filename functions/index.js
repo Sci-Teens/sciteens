@@ -30,7 +30,7 @@ let slugify
 */
 exports.newProject = functions.firestore
   .document('projects/{projectID}')
-  .onCreate((event) => {})
+  .onCreate((event) => { })
 
 /*
     Function deleteProject()
@@ -153,7 +153,7 @@ exports.newProfile = functions.firestore
     const user = await admin.auth().getUser(id)
     const email = user.email
     const actionCodeSettings = {
-      url: 'https://sciteens.org/',
+      url: 'https://sciteens.com/',
       handleCodeInApp: false,
     }
     const verification_link = await admin
@@ -168,7 +168,7 @@ exports.newProfile = functions.firestore
         Messages: [
           {
             From: {
-              Email: 'noreply@sciteens.org',
+              Email: 'noreply@sciteens.com',
               Name: 'SciTeens',
             },
             To: [
@@ -220,7 +220,7 @@ exports.newProfile = functions.firestore
             Messages: [
               {
                 From: {
-                  Email: 'noreply@sciteens.org',
+                  Email: 'noreply@sciteens.com',
                   Name: 'SciTeens',
                 },
                 To: [
@@ -255,7 +255,7 @@ exports.newProfile = functions.firestore
             Messages: [
               {
                 From: {
-                  Email: 'noreply@sciteens.org',
+                  Email: 'noreply@sciteens.com',
                   Name: 'SciTeens',
                 },
                 To: [
@@ -426,8 +426,7 @@ exports.newDiscussion = functions.firestore
       const originalComment = await admin
         .firestore()
         .doc(
-          `projects/${
-            context.params.projectID
+          `projects/${context.params.projectID
           }/discussion/${event.data().reply_to_id}`
         )
         .get()
@@ -442,7 +441,7 @@ exports.newDiscussion = functions.firestore
           Messages: [
             {
               From: {
-                Email: 'noreply@sciteens.org',
+                Email: 'noreply@sciteens.com',
                 Name: 'SciTeens',
               },
               To: [
@@ -457,10 +456,10 @@ exports.newDiscussion = functions.firestore
               Variables: {
                 studentOrMentor:
                   user.customClaims &&
-                  user.customClaims['mentor']
+                    user.customClaims['mentor']
                     ? 'mentor'
                     : 'student',
-                projectLink: `https://sciteens.org/project/${context.params.projectID}#${event.id}`,
+                projectLink: `https://sciteens.com/project/${context.params.projectID}#${event.id}`,
               },
             },
           ],
@@ -494,7 +493,7 @@ exports.scheduledProgramEmailer = functions.pubsub
           // Send an email to each subscriber
           let subscribers = event.data().subscribers
           let link =
-            'https://sciteens.org/program/' + event.id
+            'https://sciteens.com/program/' + event.id
 
           subscribers.forEach((sub) => {
             // Fetch the user's email
@@ -509,7 +508,7 @@ exports.scheduledProgramEmailer = functions.pubsub
                     Messages: [
                       {
                         From: {
-                          Email: 'noreply@sciteens.org',
+                          Email: 'noreply@sciteens.com',
                           Name: 'SciTeens',
                         },
                         To: [
@@ -611,7 +610,7 @@ exports.fileUpload = functions.storage
             .then(() => {
               console.log(
                 object.name +
-                  ' is now a publicly accessible file'
+                ' is now a publicly accessible file'
               )
               return admin
                 .firestore()
@@ -665,15 +664,15 @@ exports.fileUpload = functions.storage
             .then(() => {
               console.log(
                 'Successfully set project photo for project ' +
-                  project_id
+                project_id
               )
             })
             .catch((err) => {
               console.error(
                 'Unsuccessfully set project photo for project ' +
-                  project_id +
-                  ': ' +
-                  err
+                project_id +
+                ': ' +
+                err
               )
             })
         }
@@ -701,7 +700,7 @@ exports.fileUpload = functions.storage
             .then(() => {
               console.log(
                 object.name +
-                  ' is now a publicly accessible file'
+                ' is now a publicly accessible file'
               )
               return admin
                 .firestore()
@@ -713,7 +712,7 @@ exports.fileUpload = functions.storage
                 .then(() => {
                   console.log(
                     'Set the course photo for course ' +
-                      course_id
+                    course_id
                   )
                 })
                 .catch((err) => {
@@ -805,7 +804,7 @@ exports.newProjectInvite = functions.firestore
           Messages: [
             {
               From: {
-                Email: 'noreply@sciteens.org',
+                Email: 'noreply@sciteens.com',
                 Name: 'SciTeens',
               },
               To: [
@@ -820,7 +819,7 @@ exports.newProjectInvite = functions.firestore
               Variables: {
                 projectName: title,
                 projectLink:
-                  'https://sciteens.org/project/' +
+                  'https://sciteens.com/project/' +
                   event.id,
               },
             },
