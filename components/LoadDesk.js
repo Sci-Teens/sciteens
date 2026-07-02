@@ -1,9 +1,11 @@
 import * as THREE from 'three'
-import { PCFShadowMap, PCFSoftShadowMap } from 'three'
+import { PCFSoftShadowMap } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 export default async function render(width, height) {
   var container = document.getElementById('canvas')
+
+  const isSmallScreen = window.innerWidth < 750
 
   const scene = new THREE.Scene()
   scene.background = new THREE.Color(0xf5fff5)
@@ -18,18 +20,20 @@ export default async function render(width, height) {
   scene.add(camera)
 
   const renderer = new THREE.WebGLRenderer({
-    antialias: true,
+    antialias: !isSmallScreen,
     alpha: true,
+    powerPreference: 'high-performance',
   })
-  renderer.setPixelRatio(window.devicePixelRatio)
+  renderer.setPixelRatio(
+    Math.min(
+      window.devicePixelRatio || 1,
+      isSmallScreen ? 1.25 : 1.5
+    )
+  )
   renderer.outputEncoding = THREE.sRGBEncoding
   renderer.setSize(width, height)
-  renderer.shadowMap.enabled = true
-  // Use soft shadows only on larger devices because they're more computationally costly
-  renderer.shadowMap.type =
-    window.innerWidth < 750
-      ? PCFShadowMap
-      : PCFSoftShadowMap
+  renderer.shadowMap.enabled = !isSmallScreen
+  renderer.shadowMap.type = PCFSoftShadowMap
   container.appendChild(renderer.domElement)
 
   // Light that brightens whole model
@@ -39,9 +43,11 @@ export default async function render(width, height) {
   // Sun-like light that brightens front and casts shadow behind
   const dirLight = new THREE.DirectionalLight(0xffffff, 0.7)
   dirLight.position.set(1, 1, 2)
-  dirLight.castShadow = true
-  dirLight.shadow.mapSize.width = 4096
-  dirLight.shadow.mapSize.height = 4096
+  dirLight.castShadow = !isSmallScreen
+  dirLight.shadow.mapSize.width = isSmallScreen ? 512 : 2048
+  dirLight.shadow.mapSize.height = isSmallScreen
+    ? 512
+    : 2048
   dirLight.shadow.camera.top = 2
   dirLight.shadow.camera.bottom = -2
   dirLight.shadow.camera.left = -2
@@ -77,7 +83,7 @@ export default async function render(width, height) {
   ground.rotateX(-51.5)
   ground.position.z = -0.293
   ground.castShadow = false
-  ground.receiveShadow = true
+  ground.receiveShadow = !isSmallScreen
   scene.add(ground)
 
   // Instantiate a loader
@@ -86,7 +92,7 @@ export default async function render(width, height) {
   // Load a glTF resource
   await loader.load(
     // resource URL
-    'assets/models/desk/desk.gltf',
+    '/assets/models/desk/desk.gltf',
     // called when the resource is loaded
     function (gltf) {
       scene.add(gltf.scene)
@@ -96,13 +102,12 @@ export default async function render(width, height) {
 
       gltf.scene.traverse(function (object) {
         if (object.isMesh) {
-          object.castShadow = true
-          object.receiveShadow = true
+          object.castShadow = !isSmallScreen
+          object.receiveShadow = !isSmallScreen
         }
       })
 
-      let rotation =
-        window.innerWidth < 750 ? 0.005 : 0.0013
+      let rotation = isSmallScreen ? 0.005 : 0.0013
 
       const animate = function () {
         requestAnimationFrame(animate)

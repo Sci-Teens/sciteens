@@ -1,6 +1,5 @@
 import Head from 'next/head'
-import { useState, useEffect } from 'react'
-import render from '../components/LoadDesk.js'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import {
   useSpring,
@@ -12,7 +11,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
 export default function Home() {
-  const [rendered, setRendered] = useState(false)
+  const deskRendered = useRef(false)
   const [animateLanding, setAnimateLanding] =
     useState(false)
   const [animatePartners, setAnimatePartners] =
@@ -23,66 +22,86 @@ export default function Home() {
     useState(false)
   const [animateMedia, setAnimateMedia] = useState(false)
 
-  function renderDesk(canvas) {
-    if (!rendered) {
-      render(canvas.offsetWidth, canvas.offsetWidth)
-      setRendered(true)
+  function loadDeskWhenIdle(canvas) {
+    if (!canvas || deskRendered.current) {
+      return undefined
     }
+
+    deskRendered.current = true
+
+    const loadDesk = () =>
+      import('../components/LoadDesk.js')
+        .then(({ default: render }) => {
+          if (canvas.isConnected) {
+            render(canvas.offsetWidth, canvas.offsetWidth)
+          }
+        })
+        .catch(console.error)
+
+    if ('requestIdleCallback' in window) {
+      const idleId = window.requestIdleCallback(loadDesk, {
+        timeout: 2000,
+      })
+      return () => window.cancelIdleCallback(idleId)
+    }
+
+    const timerId = window.setTimeout(loadDesk, 1200)
+    return () => window.clearTimeout(timerId)
   }
 
   useEffect(() => {
-    let canvas = document.getElementById('canvas')
-    renderDesk(canvas)
+    const cancelDeskLoad = loadDeskWhenIdle(
+      document.getElementById('canvas')
+    )
     setAnimateLanding(true)
 
-    // Intersection Observer Stuff
-    const partners = document.getElementById('partners')
-    const mission = document.getElementById('mission')
-    const testimonials =
-      document.getElementById('testimonials')
-    const media = document.getElementById('media')
+    const observedSections = [
+      ['partners', setAnimatePartners],
+      ['mission', setAnimateMission],
+      ['testimonials', setAnimateTestimonials],
+      ['media', setAnimateMedia],
+    ]
+      .map(([id, animate]) => ({
+        element: document.getElementById(id),
+        animate,
+      }))
+      .filter(({ element }) => Boolean(element))
+
+    if (!('IntersectionObserver' in window)) {
+      observedSections.forEach(({ animate }) =>
+        animate(true)
+      )
+      return cancelDeskLoad
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            switch (entry.target.id) {
-              case 'partners':
-                setAnimatePartners(true)
-                observer.unobserve(partners)
-                break
+            const observedSection = observedSections.find(
+              ({ element }) => element === entry.target
+            )
 
-              case 'mission':
-                setAnimateMission(true)
-                observer.unobserve(mission)
-                break
-
-              case 'testimonials':
-                setAnimateTestimonials(true)
-                observer.unobserve(testimonials)
-                break
-
-              case 'media':
-                setAnimateMedia(true)
-                observer.unobserve(media)
-                break
-
-              default:
-                break
+            if (observedSection) {
+              observedSection.animate(true)
+              observer.unobserve(observedSection.element)
             }
           }
         })
       },
-      {
-        threshold: 1,
-      }
+      { threshold: 1 }
     )
 
-    // Add all elements to observer
-    observer.observe(partners)
-    observer.observe(mission)
-    observer.observe(testimonials)
-    observer.observe(media)
+    observedSections.forEach(({ element }) => {
+      observer.observe(element)
+    })
+
+    return () => {
+      observer.disconnect()
+      if (cancelDeskLoad) {
+        cancelDeskLoad()
+      }
+    }
   }, [])
 
   const { t } = useTranslation('common')
@@ -309,12 +328,15 @@ export default function Home() {
               <img
                 src={'./assets/desktop-preview.png'}
                 alt=""
+                width="759"
+                height="760"
+                decoding="async"
                 className="scale-75"
               />
             </div>
             <div
               id="canvas"
-              className="scale-75 z-20 transition-all duration-[1300ms]"
+              className="z-20 scale-75 transition-all duration-[1300ms]"
             />
           </div>
         </div>
@@ -335,6 +357,8 @@ export default function Home() {
                 <animated.img
                   src={partners_arr[index].src}
                   alt={partners_arr[index].alt}
+                  loading="lazy"
+                  decoding="async"
                   className="m-auto h-8 opacity-50 brightness-0 grayscale transition-all duration-300 group-hover:opacity-100 group-hover:brightness-100 group-hover:grayscale-0 md:h-9 lg:h-14"
                 />
               </animated.a>
@@ -350,6 +374,10 @@ export default function Home() {
                 style={missionSpring}
                 id="mission_img"
                 src="assets/device_mockup.jpg"
+                width="1277"
+                height="782"
+                loading="lazy"
+                decoding="async"
                 alt="Computer and phone showing sciteens website"
               />
             </div>
@@ -400,6 +428,8 @@ export default function Home() {
                   <animated.img
                     src={testimonials_arr[index].image}
                     className="mb-6 h-10"
+                    loading="lazy"
+                    decoding="async"
                     alt=""
                   />
                   <animated.p className="mb-4 text-sm lg:text-base">
@@ -529,6 +559,10 @@ export default function Home() {
                   <img
                     src={'./assets/featured_media/neon.jpg'}
                     alt="NSF Neon Logo"
+                    width="1032"
+                    height="698"
+                    loading="lazy"
+                    decoding="async"
                     className="absolute top-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
                   />
                 </div>
@@ -556,6 +590,10 @@ export default function Home() {
                       './assets/featured_media/ideas.jpg'
                     }
                     alt=""
+                    width="600"
+                    height="400"
+                    loading="lazy"
+                    decoding="async"
                     className="absolute top-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
                   />
                 </div>
@@ -581,6 +619,10 @@ export default function Home() {
                   <img
                     src={'./assets/featured_media/ysp.jpg'}
                     alt=""
+                    width="600"
+                    height="400"
+                    loading="lazy"
+                    decoding="async"
                     className="absolute top-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
                   />
                 </div>

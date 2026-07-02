@@ -1,6 +1,5 @@
 const { i18n } = require('./next-i18next.config')
-const CompressionPlugin = require('compression-webpack-plugin');
-const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
+const CompressionPlugin = require('compression-webpack-plugin')
 
 module.exports = {
   i18n,
@@ -15,6 +14,15 @@ module.exports = {
   },
   async headers() {
     return [
+      {
+        source: '/assets/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
       {
         source: '/:path*',
         headers: [
@@ -57,7 +65,7 @@ module.exports = {
     ]
   },
   webpack: function (config) {
-    config.plugins.push(new CompressionPlugin());
-    return config;
-  }
+    config.plugins.push(new CompressionPlugin())
+    return config
+  },
 }
