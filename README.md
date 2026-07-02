@@ -25,6 +25,6 @@ Before you begin, make sure that you have both [Git](https://git-scm.com/downloa
 
 1. Clone the repository by typing in `git clone https://github.com/Sci-Teens/sciteens.git` into your command line. If you don't have access, you can fork the repository instead.
 2. Type in `cd sciteens` to the command line and hit enter.
-3. Type in `npm install` to the command line and hit enter. This will download all necessary packages
-4. Type in `npm run dev` and visit localhost:3000 in your browser. This will show the development build!
+3. Type in `corepack pnpm install` to the command line and hit enter. This will download all necessary packages.
+4. Type in `corepack pnpm dev` and visit localhost:3000 in your browser. This will show the development build!
 5. If you encounter an error at the step above, it's likely because you don't have access to the API keys. If you'd like to join the team to contribute to the website, [reach out](mailto:info@sciteens.com)!
