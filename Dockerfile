@@ -1,13 +1,15 @@
 # Install dependencies only when needed
-FROM node:16.13-alpine AS deps
+FROM node:16.20-alpine AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
+RUN corepack enable && corepack prepare pnpm@8.15.9 --activate
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY functions/package.json ./functions/package.json
+RUN pnpm install --frozen-lockfile --filter sciteens...
 
 # Rebuild the source code only when needed
-FROM node:16.13-alpine AS builder
+FROM node:16.20-alpine AS builder
 WORKDIR /app
 ARG NODE_ENV
 ARG NEXT_PUBLIC_FB_PROJECT_ID
@@ -34,10 +36,10 @@ ENV NEXT_PUBLIC_GM_API_KEY=${NEXT_PUBLIC_GM_API_KEY}
 ENV NEXT_PUBLIC_GC_GRADE=${NEXT_PUBLIC_GC_GRADE}
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
-RUN npm run build && npm install
+RUN corepack enable && corepack prepare pnpm@8.15.9 --activate && pnpm run build
 
 # Production image, copy all the files and run next
-FROM node:16.13-alpine AS runner
+FROM node:16.20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
