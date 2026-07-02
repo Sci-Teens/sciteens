@@ -12,10 +12,8 @@ import { useState, useEffect } from 'react'
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from '@firebase/firestore'
 import { getStorage } from '@firebase/storage'
-import { getAnalytics } from 'firebase/analytics'
 import {
   AuthProvider,
-  AnalyticsProvider,
   FirestoreProvider,
   StorageProvider,
   useFirebaseApp,
@@ -30,12 +28,6 @@ export default function Layout({ children }) {
   const firestore = getFirestore(app)
   const auth = getAuth(app)
   const storage = getStorage(app)
-  let analytics
-  if (typeof window === 'undefined') {
-    analytics = null
-  } else {
-    analytics = getAnalytics(app)
-  }
 
   const [visibleNav, setVisibleNav] = useState(true)
 
@@ -44,7 +36,8 @@ export default function Layout({ children }) {
   useEffect(() => {
     // Functionality for showing/removing navbar based on scroll behavior
     let previousY = document.documentElement.scrollTop
-    document.addEventListener('scroll', function () {
+
+    function handleScroll() {
       let currentY = document.documentElement.scrollTop
 
       // Navbar checks
@@ -62,6 +55,10 @@ export default function Layout({ children }) {
           previousY = currentY
         }
       }
+    }
+
+    document.addEventListener('scroll', handleScroll, {
+      passive: true,
     })
 
     // Check if the user closed the banner in sessionStorage
@@ -70,7 +67,7 @@ export default function Layout({ children }) {
     }
 
     return () => {
-      document.removeEventListener('scroll', function () {})
+      document.removeEventListener('scroll', handleScroll)
     }
   }, [])
 
@@ -110,12 +107,10 @@ export default function Layout({ children }) {
     </AuthProvider>
   )
 
-  return typeof window === 'undefined' ? (
-    wrapper
-  ) : (
-    <AnalyticsProvider sdk={analytics}>
+  return (
+    <>
       {wrapper}
       <MyPageViewLogger />
-    </AnalyticsProvider>
+    </>
   )
 }
