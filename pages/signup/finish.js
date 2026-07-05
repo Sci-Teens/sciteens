@@ -191,7 +191,7 @@ export default function FinishSignUp() {
             <div className="flex flex-row">
               <div className="mr-1">
                 <label
-                  for="first-name"
+                  htmlFor="first-name"
                   className="uppercase text-gray-600"
                 >
                   {t('auth.first_name')}
@@ -217,7 +217,7 @@ export default function FinishSignUp() {
 
               <div className="ml-2">
                 <label
-                  for="last-name"
+                  htmlFor="last-name"
                   className="mt-4 uppercase text-gray-600"
                 >
                   {t('auth.last_name')}
@@ -243,7 +243,7 @@ export default function FinishSignUp() {
             </div>
 
             <label
-              for="birthday"
+              htmlFor="birthday"
               className="uppercase text-gray-600"
             >
               {t('auth.birthday')}
@@ -274,7 +274,7 @@ export default function FinishSignUp() {
             </p>
 
             <label
-              for="gender"
+              htmlFor="gender"
               className="uppercase text-gray-600"
             >
               {t('auth.gender')}
@@ -301,7 +301,7 @@ export default function FinishSignUp() {
             </select>
 
             <label
-              for="race"
+              htmlFor="race"
               className="uppercase text-gray-600"
             >
               {t('auth.race')}
@@ -354,7 +354,7 @@ export default function FinishSignUp() {
                     className="form-checkbox active:outline-none my-auto mr-2 leading-tight text-sciteensLightGreen-regular"
                   />
                   <label
-                    for="terms"
+                    htmlFor="terms"
                     className="whitespace-nowrap text-sm text-gray-600"
                   >
                     <div className="flex flex-row">
@@ -367,12 +367,11 @@ export default function FinishSignUp() {
                     </div>
                   </label>
                 </div>
-                <p
-                  v-if="e_terms"
-                  className="mb-6 text-sm text-red-800"
-                >
-                  {error_terms}
-                </p>
+                {error_terms && (
+                  <p className="mb-6 text-sm text-red-800">
+                    {error_terms}
+                  </p>
+                )}
               </div>
               <button
                 type="submit"

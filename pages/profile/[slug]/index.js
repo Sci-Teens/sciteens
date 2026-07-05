@@ -1,7 +1,6 @@
 import { useEffect, useState, useContext } from 'react'
 
 import Head from 'next/head'
-import Error from 'next/error'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import ProfilePhoto from '../../../components/ProfilePhoto'
@@ -9,7 +8,6 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
 import {
-  doc,
   getDocs,
   getFirestore,
   query as firebase_query,
@@ -84,7 +82,7 @@ function Project({ profile }) {
         const metadata = await getMetadata(r)
         const xhr = new XMLHttpRequest()
         xhr.responseType = 'blob'
-        xhr.onload = (e) => {
+        xhr.onload = () => {
           const blob = xhr.response
           if (xhr.status == 200) {
             blob.name = metadata.name
@@ -101,7 +99,7 @@ function Project({ profile }) {
 
   useEffect(() => {}, [status])
 
-  const [project_spring, set] = useSpring(() => ({
+  const [project_spring] = useSpring(() => ({
     opacity: 1,
     transform: 'translateX(0)',
     from: {
@@ -125,103 +123,99 @@ function Project({ profile }) {
     } else return 3
   }
 
-  const projectsComponent = projects.map(
-    (project, index) => {
-      return (
-        <Link
-          key={project.id}
-          href={`/project/${project.id}`}
+  const projectsComponent = projects.map((project) => {
+    return (
+      <Link
+        key={project.id}
+        href={`/project/${project.id}`}
+      >
+        <animated.a
+          style={project_spring}
+          className="z-50 mt-6 flex cursor-pointer items-center overflow-hidden rounded-lg bg-white p-4 shadow md:mt-8"
         >
-          <animated.a
-            style={project_spring}
-            className="z-50 mt-6 flex cursor-pointer items-center overflow-hidden rounded-lg bg-white p-4 shadow md:mt-8"
-          >
-            <div className="relative h-full max-h-[100px] max-w-[100px] overflow-hidden rounded-lg md:max-h-[200px] md:max-w-[200px]">
-              <img
-                src={
-                  project.project_photo
-                    ? project.project_photo
-                    : ''
-                }
-                className="rounded-lg object-cover"
-              ></img>
-            </div>
-            <div className="ml-4 w-3/4 lg:w-11/12">
-              {project.member_arr && (
-                <div className="mb-3 flex flex-row items-center">
-                  <div className="flex -space-x-2 overflow-hidden">
-                    {project.member_arr.map(
-                      (member, index) => {
-                        return (
-                          <div
-                            key={index}
-                            className="inline-block h-6 w-6 rounded-full ring-2 ring-white lg:h-8 lg:w-8"
-                          >
-                            <ProfilePhoto
-                              uid={member.uid}
-                            ></ProfilePhoto>
-                          </div>
-                        )
-                      }
-                    )}
-                  </div>
-                  <p className="ml-2">
-                    By{' '}
-                    {project.member_arr.map((member) => {
-                      return member.display + ' '
-                    })}
-                  </p>
+          <div className="relative h-full max-h-[100px] max-w-[100px] overflow-hidden rounded-lg md:max-h-[200px] md:max-w-[200px]">
+            <img
+              src={
+                project.project_photo
+                  ? project.project_photo
+                  : ''
+              }
+              className="rounded-lg object-cover"
+              alt=""
+            ></img>
+          </div>
+          <div className="ml-4 w-3/4 lg:w-11/12">
+            {project.member_arr && (
+              <div className="mb-3 flex flex-row items-center">
+                <div className="flex -space-x-2 overflow-hidden">
+                  {project.member_arr.map(
+                    (member, index) => {
+                      return (
+                        <div
+                          key={index}
+                          className="inline-block h-6 w-6 rounded-full ring-2 ring-white lg:h-8 lg:w-8"
+                        >
+                          <ProfilePhoto
+                            uid={member.uid}
+                          ></ProfilePhoto>
+                        </div>
+                      )
+                    }
+                  )}
                 </div>
-              )}
-              <h3 className="mb-2 text-base font-semibold line-clamp-2 md:text-xl lg:text-2xl">
-                {project.title}
-              </h3>
-              <p className="mb-4 hidden line-clamp-none md:block md:line-clamp-2 lg:line-clamp-3">
-                {project.abstract}
-              </p>
-              <div className="hidden flex-row lg:flex">
-                {project.fields.map((field, index) => {
-                  if (
-                    index <
-                    checkForLongFields(project.fields)
-                  )
-                    return (
-                      <p
-                        key={index}
-                        className="z-30 mr-2 mb-2 whitespace-nowrap rounded-full bg-gray-100 py-1.5 px-3 text-xs shadow"
-                      >
-                        {getTranslatedFieldsDict(t)[field]}
-                      </p>
-                    )
-                })}
-                {project.fields.length >= 3 && (
-                  <p className="mt-1.5 hidden whitespace-nowrap text-xs text-gray-600 lg:flex">
-                    +{' '}
-                    {project.fields.length -
-                      checkForLongFields(
-                        project.fields
-                      )}{' '}
-                    more field
-                    {project.fields.length -
-                      checkForLongFields(project.fields) ==
-                    1
-                      ? ''
-                      : 's'}
-                  </p>
-                )}
+                <p className="ml-2">
+                  By{' '}
+                  {project.member_arr.map((member) => {
+                    return member.display + ' '
+                  })}
+                </p>
               </div>
+            )}
+            <h3 className="mb-2 text-base font-semibold line-clamp-2 md:text-xl lg:text-2xl">
+              {project.title}
+            </h3>
+            <p className="mb-4 hidden line-clamp-none md:block md:line-clamp-2 lg:line-clamp-3">
+              {project.abstract}
+            </p>
+            <div className="hidden flex-row lg:flex">
+              {project.fields.map((field, index) => {
+                if (
+                  index < checkForLongFields(project.fields)
+                )
+                  return (
+                    <p
+                      key={index}
+                      className="z-30 mr-2 mb-2 whitespace-nowrap rounded-full bg-gray-100 py-1.5 px-3 text-xs shadow"
+                    >
+                      {getTranslatedFieldsDict(t)[field]}
+                    </p>
+                  )
+              })}
+              {project.fields.length >= 3 && (
+                <p className="mt-1.5 hidden whitespace-nowrap text-xs text-gray-600 lg:flex">
+                  +{' '}
+                  {project.fields.length -
+                    checkForLongFields(project.fields)}{' '}
+                  more field
+                  {project.fields.length -
+                    checkForLongFields(project.fields) ==
+                  1
+                    ? ''
+                    : 's'}
+                </p>
+              )}
             </div>
-          </animated.a>
-        </Link>
-      )
-    }
-  )
+          </div>
+        </animated.a>
+      </Link>
+    )
+  })
 
   return (
     <>
       <Head>
         <title>
-          {profile.display}'s Profile | SciTeens
+          {profile.display}&apos;s Profile | SciTeens
         </title>
         <link rel="icon" href="/favicon.ico" />
         <meta
@@ -252,7 +246,6 @@ function Project({ profile }) {
       </Head>
       <div className="mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         <div>
-          <h1></h1>
           <div className="m-0 flex flex-row justify-between p-0 leading-none">
             <div className="mb-8 flex flex-row items-center">
               <div className="h-18 w-18 mr-5">
@@ -317,7 +310,7 @@ function Project({ profile }) {
           projectsComponent
         ) : (
           <p className="text-gray-500">
-            This user hasn't created any projects yet
+            This user hasn&apos;t created any projects yet
           </p>
         )}
       </div>

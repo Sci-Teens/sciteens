@@ -1,9 +1,7 @@
 import Head from 'next/head'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import { useTranslation } from 'next-i18next'
 
 export default function privacy() {
-  const { t } = useTranslation('common')
   return (
     <div>
       <Head>
@@ -186,10 +184,11 @@ export default function privacy() {
               our website (such as https://sciteens.com),
               and/or any related services, sales, marketing
               or events (we refer to them collectively in
-              this privacy policy as the "Services"). Please
-              read this privacy policy carefully as it will
-              help you make informed decisions about sharing
-              your personal information with us.
+              this privacy policy as the
+              &quot;Services&quot;). Please read this
+              privacy policy carefully as it will help you
+              make informed decisions about sharing your
+              personal information with us.
             </p>
 
             {/* Privacy 1 */}
@@ -238,11 +237,11 @@ export default function privacy() {
                 like your Facebook, Twitter or other social
                 media account. If you choose to register in
                 this way, we will collect the information
-                described in the section called "HOW DO WE
-                HANDLE YOUR SOCIAL LOGINS" below. All
-                personal information that you provide to us
-                must be true, complete and accurate, and you
-                must notify us of any changes to such
+                described in the section called &quot;HOW DO
+                WE HANDLE YOUR SOCIAL LOGINS&quot; below.
+                All personal information that you provide to
+                us must be true, complete and accurate, and
+                you must notify us of any changes to such
                 personal information.
               </p>
 
@@ -345,14 +344,14 @@ export default function privacy() {
                   facilitate account creation and logon
                   process for the performance of the
                   contract. See the section below headed
-                  "HOW DO WE HANDLE YOUR SOCIAL LOGINS" for
-                  further information.
+                  &quot;HOW DO WE HANDLE YOUR SOCIAL
+                  LOGINS&quot; for further information.
                 </li>
                 <li>
                   To enable user-to-user communications. We
                   may use your information in order to
                   enable user-to-user communications with
-                  each user's consent.
+                  each user&apos;s consent.
                 </li>
                 <li>
                   To enforce our terms, conditions and

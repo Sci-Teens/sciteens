@@ -1,9 +1,7 @@
 import Head from 'next/head'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import { useTranslation } from 'next-i18next'
 
 export default function gdpr() {
-  const { t } = useTranslation('common')
   return (
     <div>
       <Head>
@@ -94,16 +92,17 @@ export default function gdpr() {
             </p>
             <p className="mb-10 text-gray-700">
               This Cookie Policy explains how SciTeens Inc.
-              ("Company", "we", "us", and "our") uses
+              (&quot;Company&quot;, &quot;we&quot;,
+              &quot;us&quot;, and &quot;our&quot;) uses
               cookies and similar technologies to recognize
               you when you visit our websites at
-              http://sciteens.com, ("Websites"). It explains
-              what these technologies are and why we use
-              them, as well as your rights to control our
-              use of them. In some cases we may use cookies
-              to collect personal information, or that
-              becomes personal information if we combine it
-              with other information.
+              http://sciteens.com, (&quot;Websites&quot;).
+              It explains what these technologies are and
+              why we use them, as well as your rights to
+              control our use of them. In some cases we may
+              use cookies to collect personal information,
+              or that becomes personal information if we
+              combine it with other information.
             </p>
 
             {/* Policy 1 */}
@@ -119,18 +118,18 @@ export default function gdpr() {
                 websites work, or to work more efficiently,
                 as well as to provide reporting information.
                 Cookies set by the website owner (in this
-                case, SciTeens Inc.) are called "first party
-                cookies". Cookies set by parties other than
-                the website owner are called "third party
-                cookies". Third party cookies enable third
-                party features or functionality to be
-                provided on or through the website (e.g.
-                like advertising, interactive content and
-                analytics). The parties that set these third
-                party cookies can recognize your computer
-                both when it visits the website in question
-                and also when it visits certain other
-                websites.
+                case, SciTeens Inc.) are called &quot;first
+                party cookies&quot;. Cookies set by parties
+                other than the website owner are called
+                &quot;third party cookies&quot;. Third party
+                cookies enable third party features or
+                functionality to be provided on or through
+                the website (e.g. like advertising,
+                interactive content and analytics). The
+                parties that set these third party cookies
+                can recognize your computer both when it
+                visits the website in question and also when
+                it visits certain other websites.
               </p>
             </div>
 
@@ -144,20 +143,20 @@ export default function gdpr() {
                 several reasons. Some cookies are required
                 for technical reasons in order for our
                 Websites to operate, and we refer to these
-                as "essential" or "strictly necessary"
-                cookies. Other cookies also enable us to
-                track and target the interests of our users
-                to enhance the experience on our Online
-                Properties. Third parties serve cookies
-                through our Websites for advertising,
-                analytics and other purposes. This is
-                described in more detail below. The specific
-                types of first and third party cookies
-                served through our Websites and the purposes
-                they perform are described below (please
-                note that the specific cookies served may
-                vary depending on the specific Online
-                Properties you visit).
+                as &quot;essential&quot; or &quot;strictly
+                necessary&quot; cookies. Other cookies also
+                enable us to track and target the interests
+                of our users to enhance the experience on
+                our Online Properties. Third parties serve
+                cookies through our Websites for
+                advertising, analytics and other purposes.
+                This is described in more detail below. The
+                specific types of first and third party
+                cookies served through our Websites and the
+                purposes they perform are described below
+                (please note that the specific cookies
+                served may vary depending on the specific
+                Online Properties you visit).
               </p>
             </div>
 
@@ -186,8 +185,8 @@ export default function gdpr() {
                 refuse cookies. As the means by which you
                 can refuse cookies through your web browser
                 controls vary from browser-to-browser, you
-                should visit your browser's help menu for
-                more information. In addition, most
+                should visit your browser&apos;s help menu
+                for more information. In addition, most
                 advertising networks offer you a way to opt
                 out of targeted advertising. If you would
                 like to find out more information, please
@@ -238,10 +237,10 @@ export default function gdpr() {
                 track visitors to a website. We may use
                 other, similar technologies from time to
                 time, like web beacons (sometimes called
-                "tracking pixels" or "clear gifs"). These
-                are tiny graphics files that contain a
-                unique identifier that enable us to
-                recognize when someone has visited our
+                &quot;tracking pixels&quot; or &quot;clear
+                gifs&quot;). These are tiny graphics files
+                that contain a unique identifier that enable
+                us to recognize when someone has visited our
                 Websites or opened an e-mail including them.
                 This allows us, for example, to monitor the
                 traffic patterns of users from one page
@@ -266,35 +265,35 @@ export default function gdpr() {
                 OBJECTS?
               </h2>
               <p className="mb-10 text-gray-700">
-                Websites may also use so-called "Flash
-                Cookies" (also known as Local Shared Objects
-                or "LSOs") to, among other things, collect
-                and store information about your use of our
-                services, fraud prevention and for other
-                site operations. If you do not want Flash
-                Cookies stored on your computer, you can
-                adjust the settings of your Flash player to
-                block Flash Cookies storage using the tools
-                contained in the Website Storage Settings
-                Panel. You can also control Flash Cookies by
-                going to the Global Storage Settings Panel
-                and following the instructions (which may
-                include instructions that explain, for
-                example, how to delete existing Flash
-                Cookies (referred to "information" on the
-                Macromedia site), how to prevent Flash LSOs
-                from being placed on your computer without
-                your being asked, and (for Flash Player 8
-                and later) how to block Flash Cookies that
-                are not being delivered by the operator of
-                the page you are on at the time). Please
-                note that setting the Flash Player to
-                restrict or limit acceptance of Flash
-                Cookies may reduce or impede the
-                functionality of some Flash applications,
-                including, potentially, Flash applications
-                used in connection with our services or
-                online content.
+                Websites may also use so-called &quot;Flash
+                Cookies&quot; (also known as Local Shared
+                Objects or &quot;LSOs&quot;) to, among other
+                things, collect and store information about
+                your use of our services, fraud prevention
+                and for other site operations. If you do not
+                want Flash Cookies stored on your computer,
+                you can adjust the settings of your Flash
+                player to block Flash Cookies storage using
+                the tools contained in the Website Storage
+                Settings Panel. You can also control Flash
+                Cookies by going to the Global Storage
+                Settings Panel and following the
+                instructions (which may include instructions
+                that explain, for example, how to delete
+                existing Flash Cookies (referred to
+                &quot;information&quot; on the Macromedia
+                site), how to prevent Flash LSOs from being
+                placed on your computer without your being
+                asked, and (for Flash Player 8 and later)
+                how to block Flash Cookies that are not
+                being delivered by the operator of the page
+                you are on at the time). Please note that
+                setting the Flash Player to restrict or
+                limit acceptance of Flash Cookies may reduce
+                or impede the functionality of some Flash
+                applications, including, potentially, Flash
+                applications used in connection with our
+                services or online content.
               </p>
             </div>
 

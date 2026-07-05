@@ -1,9 +1,7 @@
 import Link from 'next/link'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import { useTranslation } from 'next-i18next'
 
 export default function FourOhFour() {
-  const { t } = useTranslation('common')
   return (
     <>
       <div className="mx-auto mt-20 min-h-screen w-full text-center">

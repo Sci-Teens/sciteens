@@ -31,7 +31,7 @@ export default function MentorSignIn() {
   const [error_password, setErrorPassword] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [, setLoading] = useState(false)
   const firestore = useFirestore()
   const auth = useAuth()
   const router = useRouter()
@@ -130,7 +130,7 @@ export default function MentorSignIn() {
           </p>
           <form onSubmit={emailSignIn}>
             <label
-              for="email"
+              htmlFor="email"
               className="uppercase text-gray-600"
             >
               {t('auth.email')}
@@ -153,7 +153,7 @@ export default function MentorSignIn() {
             </p>
 
             <label
-              for="password"
+              htmlFor="password"
               className="uppercase text-gray-600"
             >
               {t('auth.password')}

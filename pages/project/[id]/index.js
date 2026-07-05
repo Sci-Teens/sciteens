@@ -1,4 +1,4 @@
-import { doc, collection } from '@firebase/firestore'
+import { doc } from '@firebase/firestore'
 import {
   listAll,
   ref,
@@ -13,12 +13,10 @@ import {
 } from 'reactfire'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
-import Image from 'next/image'
 import Error from 'next/error'
 import Link from 'next/link'
 import File from '../../../components/File'
-import { useEffect, useState, useContext } from 'react'
-import { AppContext } from '../../../context/context'
+import { useEffect, useState } from 'react'
 import Discussion from '../../../components/Discussion'
 import ProfilePhoto from '../../../components/ProfilePhoto'
 
@@ -51,7 +49,7 @@ function Project({ query }) {
         const metadata = await getMetadata(r)
         const xhr = new XMLHttpRequest()
         xhr.responseType = 'blob'
-        xhr.onload = (e) => {
+        xhr.onload = () => {
           const blob = xhr.response
           if (xhr.status == 200) {
             blob.name = metadata.name
@@ -150,7 +148,10 @@ function Project({ query }) {
               <div className="flex -space-x-2 overflow-hidden">
                 {project.member_arr.map((member) => {
                   return (
-                    <div className="prose inline-block h-6 w-6 rounded-full ring-2 ring-white lg:h-8 lg:w-8">
+                    <div
+                      key={member.uid}
+                      className="prose inline-block h-6 w-6 rounded-full ring-2 ring-white lg:h-8 lg:w-8"
+                    >
                       <ProfilePhoto
                         uid={member.uid}
                       ></ProfilePhoto>
@@ -163,6 +164,7 @@ function Project({ query }) {
                 {project.member_arr.map((member) => {
                   return (
                     <Link
+                      key={member.uid}
                       href={`/profile/${
                         member.slug ? member.slug : ''
                       }`}
@@ -181,7 +183,7 @@ function Project({ query }) {
             {project_photo ? (
               <img
                 src={project_photo}
-                alt="Project Image"
+                alt="Project"
                 className="mt-0 w-full object-contain"
               />
             ) : loading_files ? (
@@ -195,6 +197,7 @@ function Project({ query }) {
             {project.fields.map((tag) => {
               return (
                 <Link
+                  key={tag}
                   href={{
                     pathname: '/projects',
                     query: { field: tag },

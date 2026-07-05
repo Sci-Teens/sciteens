@@ -1,9 +1,7 @@
 import Head from 'next/head'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import { useTranslation } from 'next-i18next'
 
 export default function terms() {
-  const { t } = useTranslation('common')
   return (
     <div>
       <Head>
@@ -238,43 +236,44 @@ export default function terms() {
                 binding agreement made between you, whether
                 personally or on behalf of an entity (“you”)
                 and SciTeens Inc., doing business as
-                SciTeens ("SciTeens", “we”, “us”, or “our”),
-                concerning your access to and use of the
-                http://sciteens.com website as well as any
-                other media form, media channel, mobile
-                website or mobile application related,
-                linked, or otherwise connected thereto
-                (collectively, the “Site”). You agree that
-                by accessing the Site, you have read,
-                understood, and agreed to be bound by all of
-                these Terms of Use. IF YOU DO NOT AGREE WITH
-                ALL OF THESE TERMS OF USE, THEN YOU ARE
-                EXPRESSLY PROHIBITED FROM USING THE SITE AND
-                YOU MUST DISCONTINUE USE IMMEDIATELY.
-                Supplemental terms and conditions or
-                documents that may be posted on the Site
-                from time to time are hereby expressly
-                incorporated herein by reference. We reserve
-                the right, in our sole discretion, to make
-                changes or modifications to these Terms of
-                Use at any time and for any reason. We will
-                alert you about any changes by updating the
-                “Last updated” date of these Terms of Use,
-                and you waive any right to receive specific
-                notice of each such change. It is your
-                responsibility to periodically review these
-                Terms of Use to stay informed of updates.
-                You will be subject to, and will be deemed
-                to have been made aware of and to have
-                accepted, the changes in any revised Terms
-                of Use by your continued use of the Site
-                after the date such revised Terms of Use are
-                posted. The information provided on the Site
-                is not intended for distribution to or use
-                by any person or entity in any jurisdiction
-                or country where such distribution or use
-                would be contrary to law or regulation or
-                which would subject us to any registration
+                SciTeens (&quot;SciTeens&quot;, “we”, “us”,
+                or “our”), concerning your access to and use
+                of the http://sciteens.com website as well
+                as any other media form, media channel,
+                mobile website or mobile application
+                related, linked, or otherwise connected
+                thereto (collectively, the “Site”). You
+                agree that by accessing the Site, you have
+                read, understood, and agreed to be bound by
+                all of these Terms of Use. IF YOU DO NOT
+                AGREE WITH ALL OF THESE TERMS OF USE, THEN
+                YOU ARE EXPRESSLY PROHIBITED FROM USING THE
+                SITE AND YOU MUST DISCONTINUE USE
+                IMMEDIATELY. Supplemental terms and
+                conditions or documents that may be posted
+                on the Site from time to time are hereby
+                expressly incorporated herein by reference.
+                We reserve the right, in our sole
+                discretion, to make changes or modifications
+                to these Terms of Use at any time and for
+                any reason. We will alert you about any
+                changes by updating the “Last updated” date
+                of these Terms of Use, and you waive any
+                right to receive specific notice of each
+                such change. It is your responsibility to
+                periodically review these Terms of Use to
+                stay informed of updates. You will be
+                subject to, and will be deemed to have been
+                made aware of and to have accepted, the
+                changes in any revised Terms of Use by your
+                continued use of the Site after the date
+                such revised Terms of Use are posted. The
+                information provided on the Site is not
+                intended for distribution to or use by any
+                person or entity in any jurisdiction or
+                country where such distribution or use would
+                be contrary to law or regulation or which
+                would subject us to any registration
                 requirement within such jurisdiction or
                 country. Accordingly, those persons who
                 choose to access the Site from other
@@ -595,14 +594,14 @@ export default function terms() {
                 video, audio, photographs, graphics,
                 comments, suggestions, or personal
                 information or other material (collectively,
-                "Contributions"). Contributions may be
-                viewable by other users of the Site and
-                through third-party websites. As such, any
-                Contributions you transmit may be treated as
-                non-confidential and non-proprietary. When
-                you create or make available any
-                Contributions, you thereby represent and
-                warrant that:
+                &quot;Contributions&quot;). Contributions
+                may be viewable by other users of the Site
+                and through third-party websites. As such,
+                any Contributions you transmit may be
+                treated as non-confidential and
+                non-proprietary. When you create or make
+                available any Contributions, you thereby
+                represent and warrant that:
               </p>
               <ul className="mb-4 ml-4 list-inside list-decimal text-gray-700">
                 <li>
@@ -780,13 +779,13 @@ export default function terms() {
                 You acknowledge and agree that any
                 questions, comments, suggestions, ideas,
                 feedback, or other information regarding the
-                Site ("Submissions") provided by you to us
-                are non-confidential and shall become our
-                sole property. We shall own exclusive
-                rights, including all intellectual property
-                rights, and shall be entitled to the
-                unrestricted use and dissemination of these
-                Submissions for any lawful purpose,
+                Site (&quot;Submissions&quot;) provided by
+                you to us are non-confidential and shall
+                become our sole property. We shall own
+                exclusive rights, including all intellectual
+                property rights, and shall be entitled to
+                the unrestricted use and dissemination of
+                these Submissions for any lawful purpose,
                 commercial or otherwise, without
                 acknowledgment or compensation to you. You
                 hereby waive all moral rights to any such
@@ -808,55 +807,55 @@ export default function terms() {
               <p className="mb-10 text-gray-700">
                 The Site may contain (or you may be sent via
                 the Site) links to other websites
-                ("Third-Party Websites") as well as
-                articles, photographs, text, graphics,
+                (&quot;Third-Party Websites&quot;) as well
+                as articles, photographs, text, graphics,
                 pictures, designs, music, sound, video,
                 information, applications, software, and
                 other content or items belonging to or
-                originating from third parties ("Third-Party
-                Content"). Such Third-Party Websites and
-                Third-Party Content are not investigated,
-                monitored, or checked for accuracy,
-                appropriateness, or completeness by us, and
-                we are not responsible for any Third-Party
-                Websites accessed through the Site or any
-                Third-Party Content posted on, available
-                through, or installed from the Site,
-                including the content, accuracy,
-                offensiveness, opinions, reliability,
-                privacy practices, or other policies of or
-                contained in the Third-Party Websites or the
-                Third-Party Content. Inclusion of, linking
-                to, or permitting the use or installation of
-                any Third-Party Websites or any Third-Party
-                Content does not imply approval or
-                endorsement thereof by us. If you decide to
-                leave the Site and access the Third-Party
-                Websites or to use or install any
-                Third-Party Content, you do so at your own
-                risk, and you should be aware these Terms of
-                Use no longer govern. You should review the
-                applicable terms and policies, including
-                privacy and data gathering practices, of any
-                website to which you navigate from the Site
-                or relating to any applications you use or
-                install from the Site. Any purchases you
-                make through Third-Party Websites will be
-                through other websites and from other
-                companies, and we take no responsibility
-                whatsoever in relation to such purchases
-                which are exclusively between you and the
-                applicable third party. You agree and
-                acknowledge that we do not endorse the
-                products or services offered on Third-Party
-                Websites and you shall hold us harmless from
-                any harm caused by your purchase of such
-                products or services. Additionally, you
-                shall hold us harmless from any losses
-                sustained by you or harm caused to you
-                relating to or resulting in any way from any
-                Third-Party Content or any contact with
-                Third-Party Websites.
+                originating from third parties
+                (&quot;Third-Party Content&quot;). Such
+                Third-Party Websites and Third-Party Content
+                are not investigated, monitored, or checked
+                for accuracy, appropriateness, or
+                completeness by us, and we are not
+                responsible for any Third-Party Websites
+                accessed through the Site or any Third-Party
+                Content posted on, available through, or
+                installed from the Site, including the
+                content, accuracy, offensiveness, opinions,
+                reliability, privacy practices, or other
+                policies of or contained in the Third-Party
+                Websites or the Third-Party Content.
+                Inclusion of, linking to, or permitting the
+                use or installation of any Third-Party
+                Websites or any Third-Party Content does not
+                imply approval or endorsement thereof by us.
+                If you decide to leave the Site and access
+                the Third-Party Websites or to use or
+                install any Third-Party Content, you do so
+                at your own risk, and you should be aware
+                these Terms of Use no longer govern. You
+                should review the applicable terms and
+                policies, including privacy and data
+                gathering practices, of any website to which
+                you navigate from the Site or relating to
+                any applications you use or install from the
+                Site. Any purchases you make through
+                Third-Party Websites will be through other
+                websites and from other companies, and we
+                take no responsibility whatsoever in
+                relation to such purchases which are
+                exclusively between you and the applicable
+                third party. You agree and acknowledge that
+                we do not endorse the products or services
+                offered on Third-Party Websites and you
+                shall hold us harmless from any harm caused
+                by your purchase of such products or
+                services. Additionally, you shall hold us
+                harmless from any losses sustained by you or
+                harm caused to you relating to or resulting
+                in any way from any Third-Party Content or
+                any contact with Third-Party Websites.
               </p>
             </div>
 
@@ -1070,16 +1069,16 @@ export default function terms() {
                 To expedite resolution and control the cost
                 of any dispute, controversy, or claim
                 related to these Terms of Use (each a
-                "Dispute" and collectively, the “Disputes”)
-                brought by either you or us (individually, a
-                “Party” and collectively, the “Parties”),
-                the Parties agree to first attempt to
-                negotiate any Dispute (except those Disputes
-                expressly provided below) informally for at
-                least thirty (30) days before initiating
-                arbitration. Such informal negotiations
-                commence upon written notice from one Party
-                to the other Party.
+                &quot;Dispute&quot; and collectively, the
+                “Disputes”) brought by either you or us
+                (individually, a “Party” and collectively,
+                the “Parties”), the Parties agree to first
+                attempt to negotiate any Dispute (except
+                those Disputes expressly provided below)
+                informally for at least thirty (30) days
+                before initiating arbitration. Such informal
+                negotiations commence upon written notice
+                from one Party to the other Party.
               </p>
               <p className="mb-2 text-lg">
                 Binding Arbitration
@@ -1095,42 +1094,43 @@ export default function terms() {
                 SUE IN COURT AND HAVE A JURY TRIAL. The
                 arbitration shall be commenced and conducted
                 under the Commercial Arbitration Rules of
-                the American Arbitration Association ("AAA")
-                and, where appropriate, the AAA’s
-                Supplementary Procedures for Consumer
-                Related Disputes ("AAA Consumer Rules"),
-                both of which are available at the AAA
-                website: www.adr.org. Your arbitration fees
-                and your share of arbitrator compensation
-                shall be governed by the AAA Consumer Rules
-                and, where appropriate, limited by the AAA
-                Consumer Rules. The arbitration may be
-                conducted in person, through the submission
-                of documents, by phone, or online. The
-                arbitrator will make a decision in writing,
-                but need not provide a statement of reasons
-                unless requested by either Party. The
-                arbitrator must follow applicable law, and
-                any award may be challenged if the
-                arbitrator fails to do so. Except where
-                otherwise required by the applicable AAA
-                rules or applicable law, the arbitration
-                will take place in Leon, Florida. Except as
-                otherwise provided herein, the Parties may
-                litigate in court to compel arbitration,
-                stay proceedings pending arbitration, or to
-                confirm, modify, vacate, or enter judgment
-                on the award entered by the arbitrator. If
-                for any reason, a Dispute proceeds in court
-                rather than arbitration, the Dispute shall
-                be commenced or prosecuted in the state and
-                federal courts located in Leon, Florida, and
-                the Parties hereby consent to, and waive all
-                defenses of lack of personal jurisdiction,
-                and forum non conveniens with respect to
-                venue and jurisdiction in such state and
-                federal courts. Application of the United
-                Nations Convention on Contracts for the
+                the American Arbitration Association
+                (&quot;AAA&quot;) and, where appropriate,
+                the AAA’s Supplementary Procedures for
+                Consumer Related Disputes (&quot;AAA
+                Consumer Rules&quot;), both of which are
+                available at the AAA website: www.adr.org.
+                Your arbitration fees and your share of
+                arbitrator compensation shall be governed by
+                the AAA Consumer Rules and, where
+                appropriate, limited by the AAA Consumer
+                Rules. The arbitration may be conducted in
+                person, through the submission of documents,
+                by phone, or online. The arbitrator will
+                make a decision in writing, but need not
+                provide a statement of reasons unless
+                requested by either Party. The arbitrator
+                must follow applicable law, and any award
+                may be challenged if the arbitrator fails to
+                do so. Except where otherwise required by
+                the applicable AAA rules or applicable law,
+                the arbitration will take place in Leon,
+                Florida. Except as otherwise provided
+                herein, the Parties may litigate in court to
+                compel arbitration, stay proceedings pending
+                arbitration, or to confirm, modify, vacate,
+                or enter judgment on the award entered by
+                the arbitrator. If for any reason, a Dispute
+                proceeds in court rather than arbitration,
+                the Dispute shall be commenced or prosecuted
+                in the state and federal courts located in
+                Leon, Florida, and the Parties hereby
+                consent to, and waive all defenses of lack
+                of personal jurisdiction, and forum non
+                conveniens with respect to venue and
+                jurisdiction in such state and federal
+                courts. Application of the United Nations
+                Convention on Contracts for the
                 International Sale of Goods and the the
                 Uniform Computer Information Transaction Act
                 (UCITA) is excluded from these Terms of Use.

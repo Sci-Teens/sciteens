@@ -1,10 +1,7 @@
-import { useEffect, useState } from 'react'
-
 export default function RenderFile({
   file,
   id,
   removeFile,
-  setPhoto,
 }) {
   switch (file?.type) {
     case 'application/vnd.openxmlformats-officedocument.presentationml.presentation':
@@ -13,6 +10,7 @@ export default function RenderFile({
           className="flex w-full justify-between rounded-lg bg-white shadow"
           href={URL.createObjectURL(file)}
           target="_blank"
+          rel="noreferrer"
         >
           <img
             src="/assets/files/file-document-powerpoint-presentation-report-44515.svg"
@@ -41,13 +39,13 @@ export default function RenderFile({
           )}
         </a>
       )
-      break
     case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
       return (
         <a
           className="flex w-full justify-between rounded-lg bg-white shadow"
           href={URL.createObjectURL(file)}
           target="_blank"
+          rel="noreferrer"
         >
           <img
             src="/assets/files/file-document-docx-text-type-word-writing-44508.svg"
@@ -77,13 +75,13 @@ export default function RenderFile({
           )}
         </a>
       )
-      break
     case 'application/pdf':
       return (
         <a
           className="flex w-full justify-between rounded-lg bg-white shadow"
           href={URL.createObjectURL(file)}
           target="_blank"
+          rel="noreferrer"
         >
           <img
             src="/assets/files/file-pdf-acrobat-document-adobe-pdf-icon-reader-44504.svg"
@@ -112,7 +110,6 @@ export default function RenderFile({
           )}
         </a>
       )
-      break
     case 'image/jpeg':
     case 'image/png':
     case 'image/jpg':
@@ -121,10 +118,11 @@ export default function RenderFile({
           className="flex w-full justify-between rounded-lg bg-white shadow transition-all duration-500"
           href={URL.createObjectURL(file)}
           target="_blank"
+          rel="noreferrer"
         >
           <img
             src={URL.createObjectURL(file)}
-            alt="Project Image"
+            alt="Project"
             className="h-16 w-[10%] rounded-l-lg object-cover object-center"
           />
           <div className="ml-2 flex-1 p-2 text-left line-clamp-1">
@@ -147,12 +145,10 @@ export default function RenderFile({
           )}
         </a>
       )
-      break
     default:
       return (
         <a className="flex w-full justify-between rounded-lg bg-white shadow">
           <img
-            v-else
             src="/assets/files/file-doc-document-filetypes-text-word-xls-44511.svg"
             alt="File Icon"
             className="m-1 h-11 w-11"
@@ -181,6 +177,5 @@ export default function RenderFile({
           </div>
         </a>
       )
-      break
   }
 }

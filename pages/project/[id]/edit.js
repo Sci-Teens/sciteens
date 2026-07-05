@@ -2,10 +2,8 @@ import React, {
   useState,
   useCallback,
   useEffect,
-  useReducer,
 } from 'react'
 
-import Head from 'next/head'
 import Error from 'next/error'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
@@ -24,6 +22,7 @@ import {
   orderBy,
   limit,
   getDoc,
+  getDocs,
   doc,
   updateDoc,
   setDoc,
@@ -43,7 +42,6 @@ import isEmail from 'validator/lib/isEmail'
 import debounce from 'lodash.debounce'
 import { useDropzone } from 'react-dropzone'
 import File from '../../../components/File'
-import { getFluidObservers } from '@react-spring/shared'
 import {
   getTranslatedFieldsDict,
   sanitizeFileName,
@@ -314,12 +312,8 @@ export default function UpdateProject({ query }) {
     }
   })
 
-  const {
-    acceptedFiles,
-    getRootProps,
-    getInputProps,
-    isDragActive,
-  } = useDropzone({ onDrop })
+  const { getRootProps, getInputProps, isDragActive } =
+    useDropzone({ onDrop })
 
   async function onChange(e, target) {
     switch (target) {
@@ -379,7 +373,7 @@ export default function UpdateProject({ query }) {
         }
         break
 
-      case 'fields':
+      case 'fields': {
         const id = e.target.id
         const index = Object.keys(
           getTranslatedFieldsDict(t)
@@ -387,6 +381,7 @@ export default function UpdateProject({ query }) {
         let temp = [...field_values]
         temp[index] = !temp[index]
         setFieldValues([...temp])
+      }
     }
   }
 
@@ -605,7 +600,7 @@ export default function UpdateProject({ query }) {
                 {error_member}
               </p>
               {members.map((m, index) => (
-                <p className="p-2">
+                <p className="p-2" key={index}>
                   <button
                     name={index}
                     className="mr-2 h-3 w-3 fill-current hover:text-red-900"
@@ -633,7 +628,7 @@ export default function UpdateProject({ query }) {
                 getTranslatedFieldsDict(t)
               ).map(([key, value], index) => {
                 return (
-                  <div>
+                  <div key={key}>
                     <input
                       id={key}
                       className="form-checkbox active:outline-none mr-2 text-sciteensLightGreen-regular"
@@ -645,7 +640,7 @@ export default function UpdateProject({ query }) {
                       }
                     />
                     <label
-                      for={key}
+                      htmlFor={key}
                       className="text-gray-700"
                     >
                       {value}
@@ -691,9 +686,20 @@ export default function UpdateProject({ query }) {
                         'project_create_edit.multiple_photos'
                       )}
                       <span
+                        role="button"
+                        tabIndex={0}
                         onClick={() =>
                           setMode(!select_photo_mode)
                         }
+                        onKeyDown={(e) => {
+                          if (
+                            e.key === 'Enter' ||
+                            e.key === ' '
+                          ) {
+                            e.preventDefault()
+                            setMode(!select_photo_mode)
+                          }
+                        }}
                         className="cursor-pointer font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark"
                       >
                         {t(

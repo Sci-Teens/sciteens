@@ -27,7 +27,7 @@ export default function ProfilePhoto({ uid }) {
       {img_src ? (
         <img
           src={img_src}
-          alt="Profile Photo"
+          alt="Profile"
           className="h-full w-full rounded-full object-fill"
         ></img>
       ) : (
