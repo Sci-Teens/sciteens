@@ -58,6 +58,7 @@ export default function GetInvolved() {
                   href="mailto:opportunities@sciteens.com"
                   target="_blank"
                   className="text-blue-700"
+                  rel="noreferrer"
                 >
                   &nbsp;opportunities@sciteens.com.&nbsp;
                 </a>
@@ -89,6 +90,7 @@ export default function GetInvolved() {
                   href="mailto:support@sciteens.com"
                   target="_blank"
                   className="text-blue-700"
+                  rel="noreferrer"
                 >
                   &nbsp;opportunities@sciteens.com.&nbsp;
                 </a>
@@ -97,6 +99,7 @@ export default function GetInvolved() {
                 href="mailto:support@sciteens.com"
                 target="_blank"
                 className="rounded-lg bg-sciteensLightGreen-regular p-2 text-center text-white shadow-md hover:bg-sciteensLightGreen-dark"
+                rel="noreferrer"
               >
                 {t('get_involved.contact_us')}
               </a>
@@ -122,6 +125,7 @@ export default function GetInvolved() {
                   href="mailto:support@sciteens.com"
                   target="_blank"
                   className="text-blue-700"
+                  rel="noreferrer"
                 >
                   &nbsp;opportunities@sciteens.com.&nbsp;
                 </a>
@@ -131,6 +135,7 @@ export default function GetInvolved() {
                 href="https://www.paypal.com/donate?hosted_button_id=7B8QACYV83ACA"
                 target="_blank"
                 className="mr-2 rounded-lg bg-blue-500 p-2 text-white shadow-md hover:bg-blue-600"
+                rel="noreferrer"
               >
                 {t('get_involved.donate_now')}
               </a>

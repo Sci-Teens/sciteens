@@ -34,6 +34,7 @@ export default function Donate() {
               href="https://www.paypal.com/donate?hosted_button_id=7B8QACYV83ACA"
               target="_blank"
               className="mr-2 rounded-lg bg-blue-500 p-2 text-white shadow-md hover:bg-blue-600"
+              rel="noreferrer"
             >
               {t('donate.donate_now')}
             </a>

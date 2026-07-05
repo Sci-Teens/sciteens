@@ -22,7 +22,7 @@ import ReactPaginate from 'react-paginate'
 function Articles({ cached_articles }) {
   const router = useRouter()
   const [articles, setArticles] = useState(cached_articles)
-  const [page, setPage] = useState(0)
+  const [, setPage] = useState(0)
 
   useEffect(async () => {
     let isSubscribed = true
@@ -186,7 +186,7 @@ function Articles({ cached_articles }) {
   const articlesComponent = articles.results.map(
     (article, index) => {
       const author_image = article.data.body.map(
-        (slice, ix) => {
+        (slice) => {
           if (slice.slice_type == 'about_the_author') {
             return (
               <div

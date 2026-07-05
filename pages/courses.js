@@ -138,60 +138,51 @@ function Courses({ cached_courses }) {
     config: config.slow,
   }))
 
-  const coursesComponent = courses.results.map(
-    (course, index) => {
-      let courseStart = moment(course.data.start).format(
-        'll'
+  const coursesComponent = courses.results.map((course) => {
+    let courseStart = moment(course.data.start).format('ll')
+    let dateDisplay = <p></p>
+    if (courseStart == 'Invalid date') {
+      dateDisplay = (
+        <p className="flex text-xs">Asynchronous Course</p>
       )
-      let dateDisplay = <p></p>
-      if (courseStart == 'Invalid date') {
-        dateDisplay = (
-          <p className="flex text-xs">
-            Asynchronous Course
-          </p>
-        )
-      } else {
-        dateDisplay = (
-          <p className="flex text-xs">
-            {courseStart +
-              ' - ' +
-              moment(course.data.end).format('ll')}
-          </p>
-        )
-      }
-
-      return (
-        <Link
-          key={course.uid}
-          href={`/course/${course.uid}`}
-        >
-          <animated.div
-            style={courses_spring}
-            className="z-50 mt-6 flex cursor-pointer items-center rounded-lg bg-white p-4 shadow md:mt-8"
-          >
-            <div className="relative h-full max-w-[100px] md:max-w-[200px]">
-              <Image
-                className="flex-shrink-0 rounded-lg object-cover"
-                loader={imageLoader}
-                src={course.data.image_main.url}
-                width={256}
-                height={256}
-              />
-            </div>
-            <div className="ml-4 w-3/4 lg:w-11/12">
-              <h3 className="mb-2 text-base font-semibold line-clamp-2 md:text-xl lg:text-2xl">
-                {RichText.asText(course.data.name)}
-              </h3>
-              <p className="mb-2 hidden line-clamp-none md:block md:line-clamp-2 lg:line-clamp-3">
-                {RichText.asText(course.data.description)}
-              </p>
-              {dateDisplay}
-            </div>
-          </animated.div>
-        </Link>
+    } else {
+      dateDisplay = (
+        <p className="flex text-xs">
+          {courseStart +
+            ' - ' +
+            moment(course.data.end).format('ll')}
+        </p>
       )
     }
-  )
+
+    return (
+      <Link key={course.uid} href={`/course/${course.uid}`}>
+        <animated.div
+          style={courses_spring}
+          className="z-50 mt-6 flex cursor-pointer items-center rounded-lg bg-white p-4 shadow md:mt-8"
+        >
+          <div className="relative h-full max-w-[100px] md:max-w-[200px]">
+            <Image
+              className="flex-shrink-0 rounded-lg object-cover"
+              loader={imageLoader}
+              src={course.data.image_main.url}
+              width={256}
+              height={256}
+            />
+          </div>
+          <div className="ml-4 w-3/4 lg:w-11/12">
+            <h3 className="mb-2 text-base font-semibold line-clamp-2 md:text-xl lg:text-2xl">
+              {RichText.asText(course.data.name)}
+            </h3>
+            <p className="mb-2 hidden line-clamp-none md:block md:line-clamp-2 lg:line-clamp-3">
+              {RichText.asText(course.data.description)}
+            </p>
+            {dateDisplay}
+          </div>
+        </animated.div>
+      </Link>
+    )
+  })
   return (
     <>
       <Head>

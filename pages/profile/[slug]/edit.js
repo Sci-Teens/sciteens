@@ -48,8 +48,7 @@ export default function UpdateProfilePage({
   const { t } = useTranslation('common')
   const [loading, setLoading] = useState(false)
   const [about, setAbout] = useState('')
-  const [member, setMember] = useState('')
-  const [members, setMembers] = useState([])
+  const [members] = useState([])
   const [file_extensions] = useState([
     'text/html',
     'image/png',
@@ -71,7 +70,6 @@ export default function UpdateProfilePage({
   const [profile_photo, setProfilePhoto] = useState(null)
 
   const [error_about, setErrorAbout] = useState('')
-  const [error_member, setErrorMember] = useState('')
   const [error_file, setErrorFile] = useState('')
 
   const { status, data: signInCheckResult } =
@@ -142,9 +140,8 @@ export default function UpdateProfilePage({
   const updateProfile = async (e) => {
     e.preventDefault()
     setLoading(true)
-    let res
     try {
-      res = await updateDoc(
+      await updateDoc(
         doc(firestore, 'profiles', user_profile.id),
         {
           about: about.trim(),
@@ -232,12 +229,8 @@ export default function UpdateProfilePage({
     }
   })
 
-  const {
-    acceptedFiles,
-    getRootProps,
-    getInputProps,
-    isDragActive,
-  } = useDropzone({ onDrop })
+  const { getRootProps, getInputProps, isDragActive } =
+    useDropzone({ onDrop })
 
   async function onChange(e, target) {
     switch (target) {
@@ -256,7 +249,7 @@ export default function UpdateProfilePage({
     e.preventDefault()
     let temp_files = [...files]
     let temp_metadata = [...metadata_arr]
-    const removed_file = temp_files.splice(id, 1)
+    temp_files.splice(id, 1)
     const removed_metadata = temp_metadata.splice(id, 1)
     setFiles([...temp_files])
     setMetadata([...temp_metadata])
@@ -284,7 +277,7 @@ export default function UpdateProfilePage({
           </p>
           <form onSubmit={(e) => updateProfile(e)}>
             <label
-              for="about"
+              htmlFor="about"
               className="uppercase text-gray-600"
             >
               {t('edit_profile.about')}
@@ -310,20 +303,7 @@ export default function UpdateProfilePage({
             </p>
 
             {members.map((m, index) => (
-              <p className="p-2">
-                <button
-                  name={index}
-                  className="mr-2 h-3 w-3 fill-current hover:text-red-900"
-                  onClick={(e) => removeMember(e)}
-                >
-                  <svg
-                    name={index}
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M10 8.586L2.929 1.515 1.515 2.929 8.586 10l-7.071 7.071 1.414 1.414L10 11.414l7.071 7.071 1.414-1.414L11.414 10l7.071-7.071-1.414-1.414L10 8.586z" />
-                  </svg>
-                </button>
+              <p key={index} className="p-2">
                 {m}
               </p>
             ))}
@@ -362,7 +342,7 @@ export default function UpdateProfilePage({
             </div>
             {profile_photo && (
               <label
-                for="project_photo"
+                htmlFor="project_photo"
                 className="mt-2 uppercase text-gray-600"
               >
                 {t('edit_profile.profile_photo')}

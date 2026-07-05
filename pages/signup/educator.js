@@ -8,8 +8,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
 import { useFirestore, useAuth } from 'reactfire'
-import { doc, setDoc, updateDoc } from '@firebase/firestore'
-import { updateProfile } from '@firebase/auth'
+import { doc, setDoc } from '@firebase/firestore'
 import {
   createUserWithEmailAndPassword,
   RecaptchaVerifier,
@@ -45,7 +44,6 @@ export default function MentorSignUp() {
   const [password, setPassword] = useState('')
   const [institution, setInstitution] = useState('')
   const [position, setPosition] = useState('')
-  const [ethnicity, setEthnicity] = useState('Cuban')
   const [race, setRace] = useState(
     'American Indian or Alaska Native'
   )
@@ -60,7 +58,7 @@ export default function MentorSignUp() {
   const [error_password, setErrorPassword] = useState('')
   const [error_institution, setErrorInstitution] =
     useState('')
-  const [error_terms, setErrorTerms] = useState('')
+  const [error_terms] = useState('')
 
   const firestore = useFirestore()
   const auth = useAuth()
@@ -78,7 +76,7 @@ export default function MentorSignUp() {
         'recaptcha-container',
         {
           size: 'normal',
-          callback: (response) => {
+          callback: () => {
             setRecaptchaSolved(true)
           },
           'expired-callback': () => {
@@ -87,39 +85,13 @@ export default function MentorSignUp() {
         },
         auth
       )
-      const recaptchaId = await recaptchaVerifier.render()
+      await recaptchaVerifier.render()
       const verified = await recaptchaVerifier.verify()
       if (verified.length) {
         setRecaptchaSolved(true)
       }
     }
   })
-
-  async function finishSignUp() {
-    if (!terms) {
-      setErrorTerms(t('auth.error_terms'))
-    } else {
-      try {
-        setLoading(true)
-        await updateDoc(
-          doc(firestore, 'profiles', user.uid),
-          {
-            display: first_name + ' ' + last_name,
-            birthday: moment(birthday).toISOString(),
-            race: race,
-            ethnicity: ethnicity,
-          }
-        )
-        await updateProfile(user, {
-          displayName: first_name + ' ' + last_name,
-        })
-        router.push('/dashboard')
-      } catch {
-        setLoading(false)
-        setErrorName(t('auth.unable_to_create'))
-      }
-    }
-  }
 
   async function onChange(e, target) {
     switch (target) {
@@ -269,7 +241,7 @@ export default function MentorSignUp() {
             {t('auth.educate_on_sciteens')}
           </h1>
           <b className="text-red-700">
-            We currently aren't accepting new educator
+            We currently aren&apos;t accepting new educator
             signups.
           </b>
           <p className="mb-6 text-center text-gray-700">
@@ -567,12 +539,11 @@ export default function MentorSignUp() {
                   </div>
                 </label>
               </div>
-              <p
-                v-if="e_terms"
-                className="mb-6 text-sm text-red-800"
-              >
-                {error_terms}
-              </p>
+              {error_terms && (
+                <p className="mb-6 text-sm text-red-800">
+                  {error_terms}
+                </p>
+              )}
             </div>
             <button
               type="submit"

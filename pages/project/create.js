@@ -40,7 +40,6 @@ import isEmail from 'validator/lib/isEmail'
 import debounce from 'lodash.debounce'
 import moment from 'moment'
 import { useDropzone } from 'react-dropzone'
-import { useTransition, animated } from '@react-spring/web'
 import {
   getTranslatedFieldsDict,
   sanitizeFileName,
@@ -213,12 +212,8 @@ export default function CreateProject() {
     }
   })
 
-  const {
-    acceptedFiles,
-    getRootProps,
-    getInputProps,
-    isDragActive,
-  } = useDropzone({ onDrop })
+  const { getRootProps, getInputProps, isDragActive } =
+    useDropzone({ onDrop })
 
   async function onChange(e, target) {
     switch (target) {
@@ -286,7 +281,7 @@ export default function CreateProject() {
         }
         break
 
-      case 'fields':
+      case 'fields': {
         const id = e.target.id
         const index = Object.keys(
           getTranslatedFieldsDict(t)
@@ -294,6 +289,7 @@ export default function CreateProject() {
         let temp = [...field_values]
         temp[index] = !temp[index]
         setFieldValues([...temp])
+      }
     }
   }
 
@@ -372,7 +368,7 @@ export default function CreateProject() {
             </p>
             <form onSubmit={(e) => createProject(e)}>
               <label
-                for="title"
+                htmlFor="title"
                 className="uppercase text-gray-600"
               >
                 {t('project_create_edit.title')}
@@ -396,7 +392,7 @@ export default function CreateProject() {
               </p>
 
               <label
-                for="start-date"
+                htmlFor="start-date"
                 className="uppercase text-gray-600"
               >
                 {t('project_create_edit.start_date')}
@@ -426,7 +422,7 @@ export default function CreateProject() {
               </p>
 
               <label
-                for="end-date"
+                htmlFor="end-date"
                 className="uppercase text-gray-600"
               >
                 {t('project_create_edit.end_date')}
@@ -456,7 +452,7 @@ export default function CreateProject() {
               </p>
 
               <label
-                for="abstract"
+                htmlFor="abstract"
                 className="uppercase text-gray-600"
               >
                 {t('project_create_edit.summary')}
@@ -480,7 +476,7 @@ export default function CreateProject() {
               </p>
 
               <label
-                for="member"
+                htmlFor="member"
                 className="uppercase text-gray-600"
               >
                 {t('project_create_edit.add_members')}
@@ -503,7 +499,7 @@ export default function CreateProject() {
                 {error_member}
               </p>
               {members.map((m, index) => (
-                <p className="p-2">
+                <p key={index} className="p-2">
                   <button
                     name={index}
                     className="mr-2 h-3 w-3 fill-current hover:text-red-900"
@@ -522,7 +518,7 @@ export default function CreateProject() {
               ))}
 
               <label
-                for="fields"
+                htmlFor="fields"
                 className="uppercase text-gray-600"
               >
                 {t('project_create_edit.fields')}
@@ -532,7 +528,7 @@ export default function CreateProject() {
                 getTranslatedFieldsDict(t)
               ).map(([key, value], index) => {
                 return (
-                  <div>
+                  <div key={key}>
                     <input
                       id={key}
                       className="form-checkbox active:outline-none mr-2 text-sciteensLightGreen-regular"
@@ -544,7 +540,7 @@ export default function CreateProject() {
                       }
                     />
                     <label
-                      for={key}
+                      htmlFor={key}
                       className="text-gray-700"
                     >
                       {value}
@@ -589,6 +585,17 @@ export default function CreateProject() {
                         'project_create_edit.multiple_photos'
                       )}{' '}
                       <span
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (
+                            e.key === 'Enter' ||
+                            e.key === ' '
+                          ) {
+                            e.preventDefault()
+                            setMode(!select_photo_mode)
+                          }
+                        }}
                         onClick={() =>
                           setMode(!select_photo_mode)
                         }
@@ -632,7 +639,10 @@ export default function CreateProject() {
                         id > 0
                       )
                         return (
-                          <div className="flex w-full flex-row">
+                          <div
+                            key={f.id}
+                            className="flex w-full flex-row"
+                          >
                             <button
                               onClick={(e) =>
                                 setPhoto(e, id)

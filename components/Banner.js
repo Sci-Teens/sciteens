@@ -1,13 +1,10 @@
 import { useEffect, useState } from 'react'
 
-import { useRouter } from 'next/router'
-
 import { RichText } from 'prismic-reactjs'
 var Prismic = require('@prismicio/client')
 
 function Banner({ closeBanner }) {
   const [banner, setBanner] = useState(null)
-  const router = useRouter()
   useEffect(async () => {
     const apiEndpoint =
       'https://sciteens.cdn.prismic.io/api/v2'

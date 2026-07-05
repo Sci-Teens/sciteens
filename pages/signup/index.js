@@ -7,8 +7,6 @@ import { useTranslation } from 'next-i18next'
 
 export default function SignUpIndex() {
   const { t } = useTranslation('common')
-  const [show_mentor_info, setShowMentorInfo] =
-    useState(false)
   const [show_student_info, setShowStudentInfo] =
     useState(false)
 
@@ -73,9 +71,8 @@ export default function SignUpIndex() {
               <a className="m-6 h-56 w-56 rounded bg-white shadow hover:shadow-md">
                 {show_student_info ? (
                   <div className="relative pt-8">
-                    <img
-                      src="/assets/zondicons/close-solid.svg"
-                      alt="Close"
+                    <button
+                      type="button"
                       className="absolute top-0 right-0 m-2 h-6 w-6"
                       onClick={(e) => {
                         e.preventDefault()
@@ -83,16 +80,21 @@ export default function SignUpIndex() {
                           !show_student_info
                         )
                       }}
-                    />
+                    >
+                      <img
+                        src="/assets/zondicons/close-solid.svg"
+                        alt="Close"
+                        className="h-6 w-6"
+                      />
+                    </button>
                     <h2 className="mx-2 text-xl text-sciteensGreen-regular">
                       {t('auth.student_info')}
                     </h2>
                   </div>
                 ) : (
                   <div className="relative">
-                    <img
-                      src="/assets/zondicons/question.svg"
-                      alt="Question"
+                    <button
+                      type="button"
                       className="absolute top-0 right-0 m-2 h-6 w-6"
                       onClick={(e) => {
                         e.preventDefault()
@@ -100,7 +102,13 @@ export default function SignUpIndex() {
                           !show_student_info
                         )
                       }}
-                    />
+                    >
+                      <img
+                        src="/assets/zondicons/question.svg"
+                        alt="Question"
+                        className="h-6 w-6"
+                      />
+                    </button>
                     <img
                       src="/assets/student.svg"
                       alt="Student Icon"

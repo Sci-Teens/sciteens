@@ -8,7 +8,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
 import { useFirestore, useAuth } from 'reactfire'
-import { doc, getDoc, setDoc } from '@firebase/firestore'
+import { doc, setDoc } from '@firebase/firestore'
 import {
   updateProfile,
   createUserWithEmailAndPassword,
@@ -58,7 +58,7 @@ export default function StudentSignUp() {
   const [error_email, setErrorEmail] = useState('')
   const [error_password, setErrorPassword] = useState('')
   const [error_birthday, setErrorBirthday] = useState('')
-  const [error_terms, setErrorTerms] = useState('')
+  const [error_terms] = useState('')
 
   const firestore = useFirestore()
   const auth = useAuth()
@@ -76,7 +76,7 @@ export default function StudentSignUp() {
         'recaptcha-container',
         {
           size: 'normal',
-          callback: (response) => {
+          callback: () => {
             setRecaptchaSolved(true)
           },
           'expired-callback': () => {
@@ -85,7 +85,7 @@ export default function StudentSignUp() {
         },
         auth
       )
-      const recaptchaId = await recaptchaVerifier.render()
+      await recaptchaVerifier.render()
       const verified = await recaptchaVerifier.verify()
       if (verified.length) {
         setRecaptchaSolved(true)
@@ -257,7 +257,7 @@ export default function StudentSignUp() {
             <div className="flex flex-row">
               <div className="mr-1">
                 <label
-                  for="first-name"
+                  htmlFor="first-name"
                   className="uppercase text-gray-600"
                 >
                   {t('auth.first_name')}
@@ -283,7 +283,7 @@ export default function StudentSignUp() {
 
               <div className="ml-1">
                 <label
-                  for="last-name"
+                  htmlFor="last-name"
                   className="mt-4 uppercase text-gray-600"
                 >
                   {t('auth.last_name')}
@@ -309,7 +309,7 @@ export default function StudentSignUp() {
             </div>
 
             <label
-              for="email"
+              htmlFor="email"
               className="uppercase text-gray-600"
             >
               {t('auth.email')}
@@ -332,7 +332,7 @@ export default function StudentSignUp() {
             </p>
 
             <label
-              for="password"
+              htmlFor="password"
               className="uppercase text-gray-600"
             >
               {t('auth.password')}
@@ -355,7 +355,7 @@ export default function StudentSignUp() {
             </p>
 
             <label
-              for="birthday"
+              htmlFor="birthday"
               className="uppercase text-gray-600"
             >
               {t('auth.birthday')}
@@ -386,7 +386,7 @@ export default function StudentSignUp() {
             </p>
 
             <label
-              for="gender"
+              htmlFor="gender"
               className="uppercase text-gray-600"
             >
               {t('auth.gender')}
@@ -424,7 +424,7 @@ export default function StudentSignUp() {
             </div>
 
             <label
-              for="race"
+              htmlFor="race"
               className="uppercase text-gray-600"
             >
               {t('auth.race')}
@@ -490,7 +490,7 @@ export default function StudentSignUp() {
                   className="form-checkbox active:outline-none my-auto mr-2 leading-tight text-sciteensLightGreen-regular"
                 />
                 <label
-                  for="terms"
+                  htmlFor="terms"
                   className="whitespace-nowrap text-sm text-gray-600"
                 >
                   <div className="flex flex-row">
@@ -503,12 +503,11 @@ export default function StudentSignUp() {
                   </div>
                 </label>
               </div>
-              <p
-                v-if="e_terms"
-                className="mb-6 text-sm text-red-800"
-              >
-                {error_terms}
-              </p>
+              {error_terms && (
+                <p className="mb-6 text-sm text-red-800">
+                  {error_terms}
+                </p>
+              )}
             </div>
             <button
               type="submit"

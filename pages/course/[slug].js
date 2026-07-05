@@ -1,6 +1,5 @@
 import { RichText } from 'prismic-reactjs'
 var Prismic = require('@prismicio/client')
-import Link from 'next/link'
 import moment from 'moment'
 import Image from 'next/image'
 import Head from 'next/head'
@@ -28,7 +27,7 @@ function Course({ course }) {
         const url = r.file.url
         const xhr = new XMLHttpRequest()
         xhr.responseType = 'blob'
-        xhr.onload = (e) => {
+        xhr.onload = () => {
           const blob = xhr.response
           if (xhr.status == 200) {
             console.log(blob)
@@ -70,6 +69,7 @@ function Course({ course }) {
               <a
                 href={slice.primary.lesson_link.url}
                 target="_blank"
+                rel="noreferrer"
               >
                 View
               </a>

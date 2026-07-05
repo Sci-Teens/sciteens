@@ -8,10 +8,7 @@ import { useTranslation } from 'next-i18next'
 import { useIntersectionObserver } from '../context/helpers'
 import moment from 'moment'
 
-import {
-  useFirestore,
-  useFirestoreCollectionData,
-} from 'reactfire'
+import { useFirestore } from 'reactfire'
 import firebaseConfig from '../firebaseConfig'
 import {
   getApp,
@@ -113,7 +110,11 @@ function Projects({ cached_projects }) {
         )
         const projectsQuery = firebase_query(
           projectsCollection,
-          firebase_where(documentId(), 'in', ids.slice(0, 10))
+          firebase_where(
+            documentId(),
+            'in',
+            ids.slice(0, 10)
+          )
         )
         const projectsRef = await getDocs(projectsQuery)
         projectsRef.forEach((p) => {
@@ -171,10 +172,6 @@ function Projects({ cached_projects }) {
 
   const [search, setSearch] = useState('')
   const [field, setField] = useState('All')
-
-  const imageLoader = ({ src, width, height }) => {
-    return `${src}/${width || 256}x${height || 256}`
-  }
 
   useEffect(() => {
     if (router?.isReady) {
@@ -325,110 +322,107 @@ function Projects({ cached_projects }) {
   }))
   const { t } = useTranslation('common')
 
-  const projectsComponent = projects.map(
-    (project, index) => {
-      return (
-        <Link
-          key={project.id}
-          href={`/project/${project.id}`}
+  const projectsComponent = projects.map((project) => {
+    return (
+      <Link
+        key={project.id}
+        href={`/project/${project.id}`}
+      >
+        <animated.a
+          style={project_spring}
+          className="z-50 mt-6 flex cursor-pointer items-center overflow-hidden rounded-lg bg-white p-4 shadow md:mt-8"
         >
-          <animated.a
-            style={project_spring}
-            className="z-50 mt-6 flex cursor-pointer items-center overflow-hidden rounded-lg bg-white p-4 shadow md:mt-8"
-          >
-            <div className="relative h-full max-h-[100px] max-w-[100px] overflow-hidden rounded-lg md:max-h-[200px] md:max-w-[200px]">
-              <img
-                src={
-                  project.project_photo
-                    ? project.project_photo
-                    : ''
-                }
-                className="flex-shrink-0 rounded-lg object-cover"
-              ></img>
-            </div>
-            <div className="ml-4 w-3/4 lg:w-11/12">
-              {project.member_arr && (
-                <div className="mb-1 flex flex-row items-center">
-                  <div className="flex -space-x-2 overflow-hidden">
-                    {project.member_arr.map(
-                      (member, index) => {
-                        return (
-                          <div
-                            key={index}
-                            className="inline-block h-6 w-6 rounded-full ring-2 ring-white lg:h-8 lg:w-8"
-                          >
-                            <ProfilePhoto
-                              uid={member.uid}
-                            ></ProfilePhoto>
-                          </div>
-                        )
-                      }
-                    )}
-                  </div>
-                  <p className="ml-2">
-                    By&nbsp;
-                    {project.member_arr.map((member) => {
+          <div className="relative h-full max-h-[100px] max-w-[100px] overflow-hidden rounded-lg md:max-h-[200px] md:max-w-[200px]">
+            <img
+              src={
+                project.project_photo
+                  ? project.project_photo
+                  : ''
+              }
+              alt=""
+              className="flex-shrink-0 rounded-lg object-cover"
+            ></img>
+          </div>
+          <div className="ml-4 w-3/4 lg:w-11/12">
+            {project.member_arr && (
+              <div className="mb-1 flex flex-row items-center">
+                <div className="flex -space-x-2 overflow-hidden">
+                  {project.member_arr.map(
+                    (member, index) => {
                       return (
-                        <Link
-                          href={`/profile/${
-                            member.slug ? member.slug : ''
-                          }`}
+                        <div
+                          key={index}
+                          className="inline-block h-6 w-6 rounded-full ring-2 ring-white lg:h-8 lg:w-8"
                         >
-                          <a className="font-bold text-sciteensGreen-regular no-underline hover:text-sciteensGreen-dark">
-                            {member.display + ' '}
-                          </a>
-                        </Link>
+                          <ProfilePhoto
+                            uid={member.uid}
+                          ></ProfilePhoto>
+                        </div>
                       )
-                    })}
-                  </p>
+                    }
+                  )}
                 </div>
-              )}
-              <div className="mb-2 ml-10 text-gray-500">
-                {moment(project.date).format('ll')}
-              </div>
-              <h3 className="mb-2 text-base font-semibold line-clamp-2 md:text-xl lg:text-2xl">
-                {project.title}
-              </h3>
-              <p className="mb-4 hidden line-clamp-none md:block md:line-clamp-2 lg:line-clamp-3">
-                {project.abstract}
-              </p>
-              <div className="hidden flex-row lg:flex">
-                {project.fields.map((field, index) => {
-                  if (
-                    index <
-                    checkForLongFields(project.fields)
-                  )
+                <p className="ml-2">
+                  By&nbsp;
+                  {project.member_arr.map((member) => {
                     return (
-                      <p
-                        key={index}
-                        className="z-30 mr-2 mb-2 whitespace-nowrap rounded-full bg-gray-100 py-1.5 px-3 text-xs shadow"
+                      <Link
+                        key={member.uid}
+                        href={`/profile/${
+                          member.slug ? member.slug : ''
+                        }`}
                       >
-                        {getTranslatedFieldsDict(t)[field]}
-                      </p>
+                        <a className="font-bold text-sciteensGreen-regular no-underline hover:text-sciteensGreen-dark">
+                          {member.display + ' '}
+                        </a>
+                      </Link>
                     )
-                })}
-                {project.fields.length >= 3 && (
-                  <p className="mt-1.5 hidden whitespace-nowrap text-xs text-gray-600 lg:flex">
-                    +{' '}
-                    {project.fields.length -
-                      checkForLongFields(
-                        project.fields
-                      )}{' '}
-                    more field
-                    {project.fields.length -
-                      checkForLongFields(project.fields) ==
-                    1
-                      ? ''
-                      : 's'}
-                  </p>
-                )}
+                  })}
+                </p>
               </div>
+            )}
+            <div className="mb-2 ml-10 text-gray-500">
+              {moment(project.date).format('ll')}
             </div>
-          </animated.a>
-        </Link>
-      )
-    }
-  )
+            <h3 className="mb-2 text-base font-semibold line-clamp-2 md:text-xl lg:text-2xl">
+              {project.title}
+            </h3>
+            <p className="mb-4 hidden line-clamp-none md:block md:line-clamp-2 lg:line-clamp-3">
+              {project.abstract}
+            </p>
+            <div className="hidden flex-row lg:flex">
+              {project.fields.map((field, index) => {
+                if (
+                  index < checkForLongFields(project.fields)
+                )
+                  return (
+                    <p
+                      key={index}
+                      className="z-30 mr-2 mb-2 whitespace-nowrap rounded-full bg-gray-100 py-1.5 px-3 text-xs shadow"
+                    >
+                      {getTranslatedFieldsDict(t)[field]}
+                    </p>
+                  )
+              })}
+              {project.fields.length >= 3 && (
+                <p className="mt-1.5 hidden whitespace-nowrap text-xs text-gray-600 lg:flex">
+                  +{' '}
+                  {project.fields.length -
+                    checkForLongFields(project.fields)}{' '}
+                  more field
+                  {project.fields.length -
+                    checkForLongFields(project.fields) ==
+                  1
+                    ? ''
+                    : 's'}
+                </p>
+              )}
+            </div>
+          </div>
+        </animated.a>
+      </Link>
+    )
+  })
 
   const loadingComponent = new Array(10)
     .fill(1)

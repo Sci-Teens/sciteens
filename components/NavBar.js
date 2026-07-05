@@ -48,7 +48,7 @@ export default function NavBar() {
     setShowMobileNav(false)
   }
 
-  const { t } = useTranslation('common')
+  useTranslation('common')
 
   useEffect(() => {
     if (router.isReady && i18n?.isInitialized)
@@ -201,6 +201,17 @@ export default function NavBar() {
                     onClick={() =>
                       setShowProfileMenu(!showProfileMenu)
                     }
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (
+                        e.key === 'Enter' ||
+                        e.key === ' '
+                      ) {
+                        e.preventDefault()
+                        setShowProfileMenu(!showProfileMenu)
+                      }
+                    }}
                   >
                     <button className="relative h-10 w-10 rounded-full border-4 border-white hover:border-gray-100 hover:shadow-inner">
                       {signInCheckResult?.user?.photoURL ? (
@@ -210,6 +221,7 @@ export default function NavBar() {
                             signInCheckResult.user.photoURL
                           }
                           className="rounded-full object-contain"
+                          alt=""
                         />
                       ) : (
                         <svg
@@ -228,6 +240,17 @@ export default function NavBar() {
                       onClick={() =>
                         setShowProfileMenu(false)
                       }
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (
+                          e.key === 'Enter' ||
+                          e.key === ' '
+                        ) {
+                          e.preventDefault()
+                          setShowProfileMenu(false)
+                        }
+                      }}
                       className={`absolute top-14 right-4 z-50 w-32 rounded-lg border border-gray-200 bg-white p-4 shadow-lg ${
                         showProfileMenu ? '' : 'hidden'
                       }`}
@@ -272,6 +295,17 @@ export default function NavBar() {
               <Link href="/">
                 <div
                   onClick={() => setShowMobileNav(false)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === 'Enter' ||
+                      e.key === ' '
+                    ) {
+                      e.preventDefault()
+                      setShowMobileNav(false)
+                    }
+                  }}
                   className={`mb-4 flex flex-row rounded-lg py-3 px-6
                         ${
                           router.pathname == '/'
@@ -293,6 +327,17 @@ export default function NavBar() {
               <Link href="/about">
                 <div
                   onClick={() => setShowMobileNav(false)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === 'Enter' ||
+                      e.key === ' '
+                    ) {
+                      e.preventDefault()
+                      setShowMobileNav(false)
+                    }
+                  }}
                   className={`mb-4 flex flex-row rounded-lg py-3 px-6
                         ${
                           router.pathname.includes('about')
@@ -316,6 +361,17 @@ export default function NavBar() {
               <Link href="/articles">
                 <div
                   onClick={() => setShowMobileNav(false)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === 'Enter' ||
+                      e.key === ' '
+                    ) {
+                      e.preventDefault()
+                      setShowMobileNav(false)
+                    }
+                  }}
                   className={`mb-4 flex flex-row rounded-lg py-3 px-6
                         ${
                           router.pathname.includes(
@@ -339,6 +395,17 @@ export default function NavBar() {
               <Link href="/projects">
                 <div
                   onClick={() => setShowMobileNav(false)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === 'Enter' ||
+                      e.key === ' '
+                    ) {
+                      e.preventDefault()
+                      setShowMobileNav(false)
+                    }
+                  }}
                   className={`mb-4 flex flex-row rounded-lg py-3 px-6
                         ${
                           router.pathname.includes(
@@ -362,6 +429,17 @@ export default function NavBar() {
               <Link href="/courses">
                 <div
                   onClick={() => setShowMobileNav(false)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === 'Enter' ||
+                      e.key === ' '
+                    ) {
+                      e.preventDefault()
+                      setShowMobileNav(false)
+                    }
+                  }}
                   className={`mb-4 flex flex-row rounded-lg py-3 px-6
                         ${
                           router.pathname.includes(
@@ -385,6 +463,17 @@ export default function NavBar() {
               <Link href="/getinvolved">
                 <div
                   onClick={() => setShowMobileNav(false)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === 'Enter' ||
+                      e.key === ' '
+                    ) {
+                      e.preventDefault()
+                      setShowMobileNav(false)
+                    }
+                  }}
                   className={`mb-4 flex flex-row rounded-lg py-3 px-6
                         ${
                           router.pathname.includes(
@@ -410,6 +499,17 @@ export default function NavBar() {
               <Link href="/donate">
                 <div
                   onClick={() => setShowMobileNav(false)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === 'Enter' ||
+                      e.key === ' '
+                    ) {
+                      e.preventDefault()
+                      setShowMobileNav(false)
+                    }
+                  }}
                   className={`mb-4 flex flex-row rounded-lg py-3 px-6
                         ${
                           router.pathname.includes('donate')
@@ -432,6 +532,17 @@ export default function NavBar() {
                 <Link href="/signup">
                   <div
                     onClick={() => setShowMobileNav(false)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (
+                        e.key === 'Enter' ||
+                        e.key === ' '
+                      ) {
+                        e.preventDefault()
+                        setShowMobileNav(false)
+                      }
+                    }}
                     className={`mb-4 flex flex-row rounded-lg py-3 px-6
                             ${
                               router.pathname.includes(
@@ -469,6 +580,7 @@ export default function NavBar() {
                             signInCheckResult.user.photoURL
                           }
                           className="mr-6 h-10 rounded-full"
+                          alt=""
                         />
                       ) : (
                         <svg
@@ -504,13 +616,14 @@ export default function NavBar() {
                                             : 'bg-gray-400'
                                         }`}
                           />
-                          <p
+                          <button
+                            type="button"
                             onClick={() =>
                               setShowMobileNav(false)
                             }
                           >
                             {i18n.t('navigation.profile')}
-                          </p>
+                          </button>
                         </div>
                       </Link>
                       <div className="h-2 w-0.5 bg-gray-400" />

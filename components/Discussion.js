@@ -4,7 +4,7 @@ import {
   addDoc,
   orderBy,
 } from '@firebase/firestore'
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import {
   useFirestore,
   useFirestoreCollectionData,
@@ -18,8 +18,7 @@ import debounce from 'lodash.debounce'
 import moment from 'moment'
 
 export default function Discussion({ type, item_id }) {
-  const { authStatus, data: signInCheckResult } =
-    useSigninCheck()
+  const { data: signInCheckResult } = useSigninCheck()
   const firestore = useFirestore()
 
   let discussionCollection = collection(
@@ -48,7 +47,6 @@ export default function Discussion({ type, item_id }) {
   const [error_reply, setErrorReply] = useState('')
   const [error_reply_index, setErrorReplyIndex] =
     useState(0)
-  const [model, setModel] = useState({})
 
   const router = useRouter()
 
@@ -164,7 +162,7 @@ export default function Discussion({ type, item_id }) {
         .checkValidity()
     }
     e.preventDefault()
-    let commentDoc = await addDoc(
+    await addDoc(
       collection(firestore, type, item_id, 'discussion'),
       {
         date: new Date().toISOString(),
@@ -236,7 +234,7 @@ export default function Discussion({ type, item_id }) {
         >
           <button
             type="reset"
-            onClick={(e) => {
+            onClick={() => {
               setReplyingToName('')
               setReplyingToId('')
               setComment('')
@@ -267,7 +265,7 @@ export default function Discussion({ type, item_id }) {
         discussion.map((comment, key) => {
           if (comment.reply_to_id == '')
             return (
-              <div>
+              <div key={comment.id}>
                 <div
                   id={comment.id}
                   key={comment.date}
@@ -300,7 +298,7 @@ export default function Discussion({ type, item_id }) {
                   <div className="flex justify-end">
                     <button
                       className="text-gray-700 hover:text-black"
-                      onClick={(e) =>
+                      onClick={() =>
                         handleReplyTo(comment, key)
                       }
                     >
@@ -328,7 +326,6 @@ export default function Discussion({ type, item_id }) {
                     id={'reply' + key}
                     required
                     rows="3"
-                    resize="none"
                     className={`w-full resize-none appearance-none border-transparent bg-white p-2 leading-tight shadow focus:shadow-lg 
                                 ${
                                   replyingToId == comment.id
@@ -349,7 +346,7 @@ export default function Discussion({ type, item_id }) {
                   <div className="flex w-min flex-col">
                     <button
                       type="reset"
-                      onClick={(e) => {
+                      onClick={() => {
                         setReplyingToName('')
                         setReplyingToId('')
                         setComment('')
@@ -392,7 +389,10 @@ export default function Discussion({ type, item_id }) {
                   {discussion.map((reply) => {
                     if (comment.id === reply.reply_to_id)
                       return (
-                        <div className="flex w-full flex-row">
+                        <div
+                          key={reply.id}
+                          className="flex w-full flex-row"
+                        >
                           <div className="ml-5 mr-5 w-[2px] bg-gray-200 md:ml-8 md:mr-8" />
                           <div className="w-full">
                             <div

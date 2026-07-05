@@ -63,7 +63,7 @@ export default function Reset() {
               {t('auth.why_reset_password')}
             </p>
             <label
-              for="email"
+              htmlFor="email"
               className="uppercase text-gray-600"
             >
               {t('auth.email')}

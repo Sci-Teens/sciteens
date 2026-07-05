@@ -1,11 +1,10 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
-import { i18n, useTranslation } from 'next-i18next'
+import { i18n } from 'next-i18next'
 
 export default function Footer() {
   const router = useRouter()
-  const { t } = useTranslation('common')
 
   useEffect(() => {
     if (router.isReady && i18n?.isInitialized) {
@@ -66,6 +65,7 @@ export default function Footer() {
                     <a
                       href="mailto:info@sciteens.com"
                       target="_blank"
+                      rel="noreferrer"
                     >
                       {i18n.t('footer.contact')}
                     </a>
@@ -79,6 +79,7 @@ export default function Footer() {
                     <a
                       href="https://docs.google.com/forms/d/e/1FAIpQLScbDPaXgLflGrV3NSXpOTSFYoU2dIcEFy-xT2Kz9-6dMUYotQ/viewform?usp=sf_link"
                       target="_blank"
+                      rel="noreferrer"
                     >
                       {i18n.t('footer.feedback')}
                     </a>

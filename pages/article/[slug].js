@@ -13,10 +13,9 @@ import { useTranslation } from 'next-i18next'
 import { logEvent, getAnalytics } from 'firebase/analytics'
 
 function Article({ article, recommendations }) {
-  const [leftVisible, setLeftVisible] = useState(false)
-  const [rightVisible, setRightVisible] = useState(true)
+  const [, setLeftVisible] = useState(false)
+  const [, setRightVisible] = useState(true)
   const [scrollIndex, setScrollIndex] = useState(-1)
-  const [swipePosition, setSwipePositon] = useState(0)
   const [vote, setVote] = useState(null)
   const isAmp = false
   const { t } = useTranslation('common')
@@ -122,37 +121,6 @@ function Article({ article, recommendations }) {
     }
   }
 
-  const handleSwipe = (e, call) => {
-    if (call == 'start') {
-      setSwipePositon(e.touches[0].clientX)
-    } else {
-      const touchDown = swipePosition
-
-      if (touchDown == 0) {
-        return
-      }
-
-      const currentTouch = e.touches[0].clientX
-      const diff = touchDown - currentTouch
-
-      if (diff > 5) {
-        element.scrollTo(0, 0)
-        setScrollIndex(-1)
-      }
-
-      if (diff < -5 && scrollIndex > -1) {
-        element.scrollTo(
-          document.getElementById('i-' + (scrollIndex + 1))
-            ?.offsetLeft,
-          0
-        )
-        setScrollIndex(scrollIndex + 1)
-      }
-
-      setTouchPosition(null)
-    }
-  }
-
   const about_the_author = article.data.body.map(
     (slice, index) => {
       if (slice.slice_type == 'about_the_author') {
@@ -179,64 +147,59 @@ function Article({ article, recommendations }) {
     }
   )
 
-  const interviews = article.data.body.map(
-    (slice, index) => {
-      if (slice.slice_type == 'interview') {
-        return (
-          <>
-            <h3>{t('article.interview')}</h3>
-            {slice.items.map((interview, ix) => {
-              return (
-                <div key={ix} className="inline-block">
-                  <div className="flex flex-col items-center lg:flex-row">
-                    <Image
-                      className="h-20 w-20 rounded-full"
-                      height="64"
-                      width="64"
-                      loader={imageLoader}
-                      src={interview.headshot.url}
-                    />
-                    <h4
-                      className="ml-4"
-                      style={{
-                        marginTop: 0,
-                        marginBottom: 0,
-                      }}
-                    >
-                      {RichText.asText(
-                        interview.information
-                      )}
-                    </h4>
-                  </div>
-                  {RichText.render(interview.interview)}
+  const interviews = article.data.body.map((slice) => {
+    if (slice.slice_type == 'interview') {
+      return (
+        <>
+          <h3>{t('article.interview')}</h3>
+          {slice.items.map((interview, ix) => {
+            return (
+              <div key={ix} className="inline-block">
+                <div className="flex flex-col items-center lg:flex-row">
+                  <Image
+                    className="h-20 w-20 rounded-full"
+                    height="64"
+                    width="64"
+                    loader={imageLoader}
+                    src={interview.headshot.url}
+                  />
+                  <h4
+                    className="ml-4"
+                    style={{
+                      marginTop: 0,
+                      marginBottom: 0,
+                    }}
+                  >
+                    {RichText.asText(interview.information)}
+                  </h4>
                 </div>
-              )
-            })}
-          </>
-        )
-      } else {
-        return null
-      }
+                {RichText.render(interview.interview)}
+              </div>
+            )
+          })}
+        </>
+      )
+    } else {
+      return null
     }
-  )
+  })
 
-  const author_image = article.data.body.map(
-    (slice, index) => {
-      if (slice.slice_type == 'about_the_author') {
-        return (
-          <Image
-            className="rounded-full"
-            height="48"
-            width="48"
-            loader={imageLoader}
-            src={slice.primary.headshot.url}
-          />
-        )
-      } else {
-        return null
-      }
+  const author_image = article.data.body.map((slice) => {
+    if (slice.slice_type == 'about_the_author') {
+      return (
+        <Image
+          key={slice.primary.headshot.url}
+          className="rounded-full"
+          height="48"
+          width="48"
+          loader={imageLoader}
+          src={slice.primary.headshot.url}
+        />
+      )
+    } else {
+      return null
     }
-  )
+  })
 
   const recommendationsRendered = recommendations.map(
     (a, index) => {
@@ -336,6 +299,7 @@ function Article({ article, recommendations }) {
                   {article.tags.map((tag) => {
                     return (
                       <Link
+                        key={tag}
                         href={{
                           pathname: '/articles',
                           query: { field: tag },
@@ -380,9 +344,7 @@ function Article({ article, recommendations }) {
                           ? 'border-green-500 text-green-500'
                           : 'border-gray-600 text-gray-600'
                       }`}
-                      onClick={(e) =>
-                        handleRate('positive')
-                      }
+                      onClick={() => handleRate('positive')}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -398,9 +360,7 @@ function Article({ article, recommendations }) {
                           ? 'border-red-500 text-red-500'
                           : 'border-gray-600 text-gray-600'
                       }`}
-                      onClick={(e) =>
-                        handleRate('negative')
-                      }
+                      onClick={() => handleRate('negative')}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -465,6 +425,7 @@ function Article({ article, recommendations }) {
               {new Array(5).fill(1).map((data, i) => {
                 return (
                   <button
+                    key={i}
                     onClick={(e) => scroll(e, null, i)}
                     className={`h-[10px] w-[10px] rounded-full border border-black ${
                       scrollIndex == i - 1
