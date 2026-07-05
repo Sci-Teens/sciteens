@@ -39,7 +39,6 @@ import {
 import ProfilePhoto from '../components/ProfilePhoto'
 import { getTranslatedFieldsDict } from '../context/helpers'
 
-
 function Projects({ cached_projects }) {
   const router = useRouter()
   const firestore = useFirestore()
@@ -47,112 +46,103 @@ function Projects({ cached_projects }) {
 
   moment.locale(router?.locale ? router.locale : 'en')
 
-
   useEffect(async () => {
-    if (router.asPath !== '/projects') {
-      let ps = []
-      if (router.query.search) {
-        let ids = []
-        // Fetch data from external API (Algolia)
-        const searchClient = algoliasearch(
-          process.env.NEXT_PUBLIC_AL_APP_ID,
-          process.env.NEXT_PUBLIC_AL_SEARCH_KEY
+    const hasSearch = !!router.query.search
+    const hasField =
+      !!router.query.field && router.query.field !== 'All'
+    // On the bare /projects route (or when the field filter is
+    // cleared back to "All"), rely on the statically cached projects
+    // fetched at build time in getStaticProps — but always re-sync
+    // state so a stale filtered/searched result set is reset. Only
+    // fall back to a client-side Firestore query when the cache is
+    // empty, so a failed/stale build doesn't leave the page blank.
+    if (!hasSearch && !hasField) {
+      if (cached_projects.length > 0) {
+        setProjects(cached_projects)
+        return
+      }
+    }
+    let ps = []
+    // Search path: resolve IDs via Algolia, then hydrate from Firestore.
+    if (hasSearch) {
+      let ids = []
+      const searchClient = algoliasearch(
+        process.env.NEXT_PUBLIC_AL_APP_ID,
+        process.env.NEXT_PUBLIC_AL_SEARCH_KEY
+      )
+      const projectIndex =
+        searchClient.initIndex('prod_PROJECTS')
+      let results
+      if (hasField) {
+        results = await projectIndex.search(
+          router.query.search,
+          {
+            filters: 'data.fields:' + router.query.field,
+          }
         )
-
-        const projectIndex =
-          searchClient.initIndex('prod_PROJECTS')
-
-        if (
-          !router.query?.field ||
-          router.query?.field == 'All'
-        ) {
-          let results = await projectIndex.search(
-            router.query.search
-          )
-          results.hits.forEach((p) => {
-            ids.push(p.objectID)
-            // ps.push({
-            //     id: p.objectID,
-            //     ...p.data
-            // })
-          })
-        } else {
-          let results = await projectIndex.search(
-            query.search,
-            {
-              filters: 'data.fields:' + query.field,
-            }
-          )
-          results.hits.forEach((p) => {
-            ids.push(p.objectID)
-
-            // ps.push({
-            //     id: p.objectID,
-            //     ...p.data
-            // })
-          })
-        }
-        const projectsCollection = collection(
-          firestore,
-          'projects'
+      } else {
+        results = await projectIndex.search(
+          router.query.search
         )
-        const projectsQuery = firebase_query(
+      }
+      results.hits.forEach((p) => {
+        ids.push(p.objectID)
+      })
+      // Firebase's `in` filter rejects an empty list, so short-circuit.
+      if (ids.length === 0) {
+        setProjects([])
+        return
+      }
+      const projectsCollection = collection(
+        firestore,
+        'projects'
+      )
+      const projectsQuery = firebase_query(
+        projectsCollection,
+        firebase_where(documentId(), 'in', ids.slice(0, 10))
+      )
+      const projectsRef = await getDocs(projectsQuery)
+      projectsRef.forEach((p) => {
+        ps.push({
+          id: p.id,
+          ...p.data(),
+        })
+      })
+      setProjects(ps)
+    }
+    // Firebase path: field filter, or bare route with empty cache.
+    else {
+      const projectsCollection = collection(
+        firestore,
+        'projects'
+      )
+      let projectsQuery
+      if (hasField) {
+        projectsQuery = firebase_query(
           projectsCollection,
           firebase_where(
-            documentId(),
-            'in',
-            ids.slice(0, 10)
-          )
+            'fields',
+            'array-contains',
+            router.query.field
+          ),
+          orderBy('date', 'desc'),
+          limit(10)
         )
-        const projectsRef = await getDocs(projectsQuery)
-        projectsRef.forEach((p) => {
-          ps.push({
-            id: p.id,
-            ...p.data(),
-          })
-        })
-
-        setProjects(ps)
-      }
-
-      // Firebase
-      else {
-        const projectsCollection = collection(
-          firestore,
-          'projects'
+      } else {
+        projectsQuery = firebase_query(
+          projectsCollection,
+          orderBy('date', 'desc'),
+          limit(10)
         )
-        let projectsQuery
-        if (
-          !router.query?.field ||
-          router.query?.field == 'All'
-        ) {
-          console.log('Firebase regular')
-          projectsQuery = firebase_query(
-            projectsCollection,
-            orderBy('date', 'desc'),
-            limit(10)
-          )
-        } else {
-          projectsQuery = firebase_query(
-            projectsCollection,
-            firebase_where(
-              'fields',
-              'array-contains',
-              router.query.field
-            ),
-            orderBy('date', 'desc'),
-            limit(10)
-          )
-        }
-        const projectsRef = await getDocs(projectsQuery)
-        projectsRef.forEach((p) => {
-          ps.push({
-            id: p.id,
-            ...p.data(),
-          })
-        })
-        setProjects(ps)
       }
+      const projectsRef = await getDocs(projectsQuery)
+      projectsRef.forEach((p) => {
+        ps.push({
+          id: p.id,
+          ...p.data(),
+        })
+      })
+      setProjects(ps)
     }
   }, [router])
 
@@ -269,8 +259,11 @@ function Projects({ cached_projects }) {
       fields
         .slice(0, 3)
         .includes('Electrical Engineering') ||
-      fields.slice(0, 3).includes('Environmental Science') ||
-      fields.slice(0, 3).includes('Fall 2022 Science Fair')) {
+      fields
+        .slice(0, 3)
+        .includes('Environmental Science') ||
+      fields.slice(0, 3).includes('Fall 2022 Science Fair')
+    ) {
       return 2
     } else return 3
   }
@@ -349,8 +342,9 @@ function Projects({ cached_projects }) {
                     {project.member_arr.map((member) => {
                       return (
                         <Link
-                          href={`/profile/${member.slug ? member.slug : ''
-                            }`}
+                          href={`/profile/${
+                            member.slug ? member.slug : ''
+                          }`}
                         >
                           <a className="font-bold text-sciteensGreen-regular no-underline hover:text-sciteensGreen-dark">
                             {member.display + ' '}
@@ -395,7 +389,7 @@ function Projects({ cached_projects }) {
                     more field
                     {project.fields.length -
                       checkForLongFields(project.fields) ==
-                      1
+                    1
                       ? ''
                       : 's'}
                   </p>
@@ -449,7 +443,7 @@ function Projects({ cached_projects }) {
             </h1>
             <Link href="/project/create">
               {process.browser &&
-                window.innerWidth >= 812 ? (
+              window.innerWidth >= 812 ? (
                 <a className="my-auto rounded-full border-2 border-sciteensLightGreen-regular py-1.5 px-5 text-lg font-semibold text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark">
                   Create Project
                 </a>
@@ -465,13 +459,19 @@ function Projects({ cached_projects }) {
           {projects?.length != 0
             ? projectsComponent
             : loadingComponent}
-          {projects.length == 0 && (
-            <div className="mx-auto mt-20 text-center">
-              <i className="text-xl font-semibold">
-                {t('projects.sorry')} {router?.query.search}
-              </i>
-            </div>
-          )}
+          {projects.length == 0 &&
+            (router?.query?.search ||
+              router?.query?.field) && (
+              <div className="mx-auto mt-20 text-center">
+                <i className="text-xl font-semibold">
+                  {router?.query?.search
+                    ? `${t('projects.sorry')} ${
+                        router.query.search
+                      }`
+                    : t('projects.sorry')}
+                </i>
+              </div>
+            )}
           <div
             ref={ref}
             style={{ width: '100%', height: '20px' }}
@@ -522,10 +522,11 @@ function Projects({ cached_projects }) {
                     key={value}
                     onClick={() => handleFieldSearch(key)}
                     className={`mr-4 mb-4 rounded-full px-3 py-2 text-sm shadow
-                                        ${key == field
-                        ? 'bg-sciteensLightGreen-regular text-white'
-                        : 'bg-white'
-                      }`}
+                                        ${
+                                          key == field
+                                            ? 'bg-sciteensLightGreen-regular text-white'
+                                            : 'bg-white'
+                                        }`}
                   >
                     {value}
                   </button>
