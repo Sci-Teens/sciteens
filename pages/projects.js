@@ -43,6 +43,14 @@ function Projects({ cached_projects }) {
   const router = useRouter()
   const firestore = useFirestore()
   const [projects, setProjects] = useState(cached_projects)
+  // `loading` is only true while an initial fetch is in flight AND we
+  // have nothing to show yet. It gates the skeleton so the page never
+  // gets pinned to the loading state when the build-time cache is empty
+  // (the production /projects page ships with cached_projects === [])
+  // or when the client-side Firestore fallback fails.
+  const [loading, setLoading] = useState(
+    cached_projects.length === 0
+  )
 
   moment.locale(router?.locale ? router.locale : 'en')
 
@@ -59,90 +67,105 @@ function Projects({ cached_projects }) {
     if (!hasSearch && !hasField) {
       if (cached_projects.length > 0) {
         setProjects(cached_projects)
+        setLoading(false)
         return
       }
     }
+    // Show the skeleton only when we have nothing to display yet; once
+    // projects are loaded, keep the previous result set visible while
+    // a follow-up search/field query is in flight (no flashing).
+    if (projects.length === 0) setLoading(true)
     let ps = []
-    // Search path: resolve IDs via Algolia, then hydrate from Firestore.
-    if (hasSearch) {
-      let ids = []
-      const searchClient = algoliasearch(
-        process.env.NEXT_PUBLIC_AL_APP_ID,
-        process.env.NEXT_PUBLIC_AL_SEARCH_KEY
-      )
-      const projectIndex =
-        searchClient.initIndex('prod_PROJECTS')
-      let results
-      if (hasField) {
-        results = await projectIndex.search(
-          router.query.search,
-          {
-            filters: 'data.fields:' + router.query.field,
-          }
+    try {
+      // Search path: resolve IDs via Algolia, then hydrate from Firestore.
+      if (hasSearch) {
+        let ids = []
+        const searchClient = algoliasearch(
+          process.env.NEXT_PUBLIC_AL_APP_ID,
+          process.env.NEXT_PUBLIC_AL_SEARCH_KEY
         )
-      } else {
-        results = await projectIndex.search(
-          router.query.search
-        )
-      }
-      results.hits.forEach((p) => {
-        ids.push(p.objectID)
-      })
-      // Firebase's `in` filter rejects an empty list, so short-circuit.
-      if (ids.length === 0) {
-        setProjects([])
-        return
-      }
-      const projectsCollection = collection(
-        firestore,
-        'projects'
-      )
-      const projectsQuery = firebase_query(
-        projectsCollection,
-        firebase_where(documentId(), 'in', ids.slice(0, 10))
-      )
-      const projectsRef = await getDocs(projectsQuery)
-      projectsRef.forEach((p) => {
-        ps.push({
-          id: p.id,
-          ...p.data(),
+        const projectIndex =
+          searchClient.initIndex('prod_PROJECTS')
+        let results
+        if (hasField) {
+          results = await projectIndex.search(
+            router.query.search,
+            {
+              filters: 'data.fields:' + router.query.field,
+            }
+          )
+        } else {
+          results = await projectIndex.search(
+            router.query.search
+          )
+        }
+        results.hits.forEach((p) => {
+          ids.push(p.objectID)
         })
-      })
-      setProjects(ps)
-    }
-    // Firebase path: field filter, or bare route with empty cache.
-    else {
-      const projectsCollection = collection(
-        firestore,
-        'projects'
-      )
-      let projectsQuery
-      if (hasField) {
-        projectsQuery = firebase_query(
-          projectsCollection,
-          firebase_where(
-            'fields',
-            'array-contains',
-            router.query.field
-          ),
-          orderBy('date', 'desc'),
-          limit(10)
+        // Firebase's `in` filter rejects an empty list, so short-circuit.
+        if (ids.length === 0) {
+          setProjects([])
+          return
+        }
+        const projectsCollection = collection(
+          firestore,
+          'projects'
         )
-      } else {
-        projectsQuery = firebase_query(
+        const projectsQuery = firebase_query(
           projectsCollection,
-          orderBy('date', 'desc'),
-          limit(10)
+          firebase_where(documentId(), 'in', ids.slice(0, 10))
         )
-      }
-      const projectsRef = await getDocs(projectsQuery)
-      projectsRef.forEach((p) => {
-        ps.push({
-          id: p.id,
-          ...p.data(),
+        const projectsRef = await getDocs(projectsQuery)
+        projectsRef.forEach((p) => {
+          ps.push({
+            id: p.id,
+            ...p.data(),
+          })
         })
-      })
-      setProjects(ps)
+        setProjects(ps)
+      }
+      // Firebase path: field filter, or bare route with empty cache.
+      else {
+        const projectsCollection = collection(
+          firestore,
+          'projects'
+        )
+        let projectsQuery
+        if (hasField) {
+          projectsQuery = firebase_query(
+            projectsCollection,
+            firebase_where(
+              'fields',
+              'array-contains',
+              router.query.field
+            ),
+            orderBy('date', 'desc'),
+            limit(10)
+          )
+        } else {
+          projectsQuery = firebase_query(
+            projectsCollection,
+            orderBy('date', 'desc'),
+            limit(10)
+          )
+        }
+        const projectsRef = await getDocs(projectsQuery)
+        projectsRef.forEach((p) => {
+          ps.push({
+            id: p.id,
+            ...p.data(),
+          })
+        })
+        setProjects(ps)
+      }
+    } catch (err) {
+      // A failed client fetch must not leave the page pinned to the
+      // loading skeleton forever — clear loading and let the empty
+      // state render instead.
+      console.error('Failed to load projects:', err)
+      setProjects([])
+    } finally {
+      setLoading(false)
     }
   }, [router])
 
@@ -172,7 +195,12 @@ function Projects({ cached_projects }) {
   )
 
   async function load_more_projects() {
+    // Never paginate before the first page has arrived (projects is
+    // empty) or while a fetch is in flight — startAfter would otherwise
+    // read projects[-1].date and throw.
+    if (loading) return
     if (!router?.query?.search) {
+      if (projects.length === 0) return
       let ps = []
       const projectsCollection = collection(
         firestore,
@@ -456,10 +484,11 @@ function Projects({ cached_projects }) {
               )}
             </Link>
           </div>
-          {projects?.length != 0
-            ? projectsComponent
-            : loadingComponent}
-          {projects.length == 0 &&
+          {loading && projects.length === 0
+            ? loadingComponent
+            : projectsComponent}
+          {!loading &&
+            projects.length === 0 &&
             (router?.query?.search ||
               router?.query?.field) && (
               <div className="mx-auto mt-20 text-center">
