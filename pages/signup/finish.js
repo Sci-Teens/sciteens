@@ -80,6 +80,7 @@ export default function FinishSignUp() {
         subs_e: [],
         mentor: false,
       }
+      profile.uid = user.uid
 
       try {
         await setDoc(

@@ -7,7 +7,9 @@ module.exports = {
     domains: ['images.prismic.io', 'source.unsplash.com'],
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    // Lint errors should fail the build — security-relevant rules
+    // (no-eval, react-hooks) must not silently regress.
+    ignoreDuringBuilds: false,
   },
   experimental: {
     esmExternals: false,
@@ -36,17 +38,22 @@ module.exports = {
             value: 'SAMEORIGIN',
           },
           {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
-          },
-          {
             key: 'X-Content-Type-Options',
             value: 'nosniff',
           },
-          // {
-          //     key: 'Content-Security-Policy',
-          //     value: "default-src 'unsafe-inline' sciteens.com prismic.io googleapis.com gstatic.com googleusercontent.com"
-          // },
+          {
+            key: 'Content-Security-Policy',
+            value:
+              "default-src 'self'; " +
+              "script-src 'self' 'unsafe-inline' https://images.prismic.io; " +
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+              "img-src 'self' data: https://images.prismic.io https://source.unsplash.com https://lh3.googleusercontent.com https://firebasestorage.googleapis.com https://storage.googleapis.com https://lh3.googleusercontent.com; " +
+              "font-src 'self' https://fonts.gstatic.com; " +
+              "connect-src 'self' https://firestore.googleapis.com https://www.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebaseinstallations.googleapis.com https://firebasestorage.googleapis.com https://commentanalyzer.googleapis.com https://sciteens.cdn.prismic.io https://*.algolia.net https://*.algolianet.com; " +
+              "frame-ancestors 'self'; " +
+              "base-uri 'self'; " +
+              "form-action 'self'",
+          },
           {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',

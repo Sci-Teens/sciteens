@@ -25,6 +25,9 @@ export default function NavBar() {
 
   async function handleSignOut() {
     setProfile({})
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem('profile')
+    }
     signOut(auth)
   }
 

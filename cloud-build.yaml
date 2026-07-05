@@ -32,11 +32,11 @@ steps:
         '--build-arg',
         'NEXT_PUBLIC_AL_APP_ID=${_NEXT_PUBLIC_AL_APP_ID}',
         '--build-arg',
-        'NEXT_PUBLIC_AL_ADMIN_KEY=${_NEXT_PUBLIC_AL_ADMIN_KEY}',
+        'AL_ADMIN_KEY=${_AL_ADMIN_KEY}',
         '--build-arg',
         'NEXT_PUBLIC_AL_SEARCH_KEY=${_NEXT_PUBLIC_AL_SEARCH_KEY}',
         '--build-arg',
-        'NEXT_PUBLIC_GM_API_KEY=${_NEXT_PUBLIC_GM_API_KEY}',
+        'GM_API_KEY=${_GM_API_KEY}',
         '--build-arg',
         'NEXT_PUBLIC_GC_GRADE=${_NEXT_PUBLIC_GC_GRADE}',
       ]
@@ -61,6 +61,10 @@ steps:
         'managed',
         '--port',
         '3000',
+        '--set-env-vars',
+        'GM_API_KEY=${_GM_API_KEY}',
+        '--set-env-vars',
+        'AL_ADMIN_KEY=${_AL_ADMIN_KEY}',
       ]
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud

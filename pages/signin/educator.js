@@ -5,7 +5,10 @@ import Head from 'next/head'
 import { signInWithEmailAndPassword } from '@firebase/auth'
 import { useContext, useState } from 'react'
 import { AppContext } from '../../context/context'
-import { validatePassword } from '../../context/helpers'
+import {
+  validatePassword,
+  resolveRefPath,
+} from '../../context/helpers'
 import isEmail from 'validator/lib/isEmail'
 import { doc, getDoc } from '@firebase/firestore'
 import { useFirestore, useAuth } from 'reactfire'
@@ -48,17 +51,8 @@ export default function MentorSignIn() {
         doc(firestore, 'profiles', res.user.uid)
       )
       setProfile(prof.data())
-      if (router.query.ref) {
-        let ref = router.query.ref.split('|')
-        let section = ref[0]
-        let id = ref[1]
-        if (section == 'projects') {
-          section = 'project'
-        }
-        router.push(`/${section}/${id}`)
-      } else {
-        router.push('/')
-      }
+      const dest = resolveRefPath(router.query.ref)
+      router.push(dest || '/')
     } catch (e) {
       console.log(e.code)
       f_signin_errors[e.code]

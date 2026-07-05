@@ -52,11 +52,14 @@ export async function providerSignIn(
     if (addInfo.isNewUser) {
       // Complete profile
       router.push(
-        `/signup/finish${res.user.displayName
-          ? `?first_name=${res.user.displayName.split(' ')[0]
-          }&last_name=${res.user.displayName.split(' ')[1]
-          }`
-          : ''
+        `/signup/finish${
+          res.user.displayName
+            ? `?first_name=${
+                res.user.displayName.split(' ')[0]
+              }&last_name=${
+                res.user.displayName.split(' ')[1]
+              }`
+            : ''
         }`
       )
     } else {
@@ -64,21 +67,14 @@ export async function providerSignIn(
         doc(firestore, 'profiles', res.user.uid)
       )
       setProfile(prof.data())
-      if (router.query.ref) {
-        let ref = router.query.ref.split('|')
-        let section = ref[0]
-        let id = ref[1]
-        if (section == 'projects') {
-          section = 'project'
-        }
-        router.push(`/${section}/${id}`)
-      } else {
-        router.push(
-          prof.data().slug
-            ? `/profile/${prof.data().slug}`
-            : '/'
-        )
-      }
+      const dest = resolveRefPath(router.query.ref)
+      router.push(
+        dest
+          ? dest
+          : prof.data()?.slug
+          ? `/profile/${prof.data().slug}`
+          : '/'
+      )
     }
   } catch (e) {
     console.error(e)
@@ -215,4 +211,52 @@ export function post(endpoint, params = {}) {
     .catch((error) => {
       throw `POST request to ${endpoint} failed with error:\n${error}`
     })
+}
+
+// Strip any path separators / traversal segments from a user-supplied
+// filename so it can never escape its intended storage prefix.
+// Returns "<safe-base>.<ext>" or a random id if the name is unusable.
+export function sanitizeFileName(name) {
+  if (
+    typeof window !== 'undefined' &&
+    window.crypto?.randomUUID
+  ) {
+    const fallback = window.crypto.randomUUID()
+    const ext = (name || '').split('.').pop()
+    return ext && ext !== name
+      ? `${fallback}.${ext}`
+      : fallback
+  }
+  // SSR / no crypto: best-effort basename + timestamp
+  const base = (name || '')
+    .split('/')
+    .pop()
+    .split('\\')
+    .pop()
+  return `${Date.now()}-${base.replace(/\.\./g, '')}`
+}
+
+// Resolve a post-login `?ref=section|id` query into an internal path,
+// allowing only known section prefixes. Returns null if the ref is
+// missing or references an unknown section.
+export function resolveRefPath(ref) {
+  if (!ref || typeof ref !== 'string') return null
+  const parts = ref.split('|')
+  if (parts.length < 2 || !parts[0] || !parts[1])
+    return null
+  let section = parts[0]
+  if (section === 'projects') section = 'project'
+  const allowed = [
+    'project',
+    'profile',
+    'article',
+    'course',
+  ]
+  if (!allowed.includes(section)) return null
+  // Reject IDs containing path separators, dot-segments, or any
+  // character outside the safe set. Never mutate/strip — that can
+  // silently redirect to a different resource.
+  const id = parts[1]
+  if (!/^[A-Za-z0-9_-]+$/.test(id)) return null
+  return `/${section}/${id}`
 }

@@ -1,0 +1,53 @@
+rules_version = '2';
+
+// SciTeens Cloud Storage Security Rules
+//
+// Upload paths (client):
+//   profiles/{uid}/<filename>            — profile files + profile photo
+//   projects/{projectId}/<filename>      — project files + project photo
+// Upload paths (server / legacy):
+//   profilephoto/{uid}.<ext>             — legacy profile photo
+//   courses/{slug}/<filename>            — course assets (Prismic webhook)
+//
+// All reads are public (profile/project images are displayed publicly via
+// getDownloadURL). Writes are restricted to the resource owner.
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // ---- Profile files --------------------------------------------------
+    // Only the profile owner may upload to their prefix.
+    match /profiles/{uid}/{fileName=**} {
+      allow read: if true;
+      allow write, delete: if request.auth.uid == uid;
+    }
+
+    // ---- Legacy profile photo prefix ------------------------------------
+    match /profilephoto/{uid}/{fileName=**} {
+      allow read: if true;
+      allow write, delete: if request.auth.uid == uid;
+    }
+
+    // ---- Project files --------------------------------------------------
+    // Only project members (per Firestore projects/{projectId}.member_uids)
+    // may upload to a project's prefix.
+    match /projects/{projectId}/{fileName=**} {
+      allow read: if true;
+      allow write, delete: if request.auth != null
+        && request.auth.uid in
+            firestore.get(/databases/(default)/documents/projects/$(projectId))
+              .data.member_uids;
+    }
+
+    // ---- Course assets ---------------------------------------------------
+    // Server-managed (Prismic webhook / fileUpload function).
+    match /courses/{slug}/{fileName=**} {
+      allow read: if true;
+      allow write, delete: if false;
+    }
+
+    // ---- Catch-all ------------------------------------------------------
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
