@@ -17,6 +17,29 @@ const Prismic = require('@prismicio/client')
 const { firestore } = require('firebase-admin')
 
 const axios = require('axios').default
+// Post to the SciTeens Slack webhook. The webhook URL is stored in
+// `functions.config().slack.webhook` (set via
+// `firebase functions:config:set slack.webhook="..."`). Never hardcode
+// the webhook — the repo is public.
+async function slackPost(text) {
+  try {
+    const webhook =
+      functions.config().slack &&
+      functions.config().slack.webhook
+    if (!webhook) {
+      console.warn(
+        'Slack webhook not configured; skipping post'
+      )
+      return
+    }
+    await axios.post(webhook, { text })
+  } catch (err) {
+    console.error(
+      'Slack post failed:',
+      (err && err.statusCode) || err
+    )
+  }
+}
 
 // Slugify
 let slugify
@@ -30,7 +53,7 @@ let slugify
 */
 exports.newProject = functions.firestore
   .document('projects/{projectID}')
-  .onCreate((event) => { })
+  .onCreate((event) => {})
 
 /*
     Function deleteProject()
@@ -225,8 +248,10 @@ exports.newProfile = functions.firestore
                 },
                 To: [
                   {
-                    Email: 'passenger1@example.com',
-                    Name: 'passenger 1',
+                    Email: email,
+                    Name: user.displayName
+                      ? user.displayName
+                      : email,
                   },
                 ],
                 TemplateID: 3336350,
@@ -260,8 +285,10 @@ exports.newProfile = functions.firestore
                 },
                 To: [
                   {
-                    Email: 'passenger1@example.com',
-                    Name: 'passenger 1',
+                    Email: email,
+                    Name: user.displayName
+                      ? user.displayName
+                      : email,
                   },
                 ],
                 TemplateID: 3336347,
@@ -426,7 +453,8 @@ exports.newDiscussion = functions.firestore
       const originalComment = await admin
         .firestore()
         .doc(
-          `projects/${context.params.projectID
+          `projects/${
+            context.params.projectID
           }/discussion/${event.data().reply_to_id}`
         )
         .get()
@@ -434,7 +462,11 @@ exports.newDiscussion = functions.firestore
       const originalUser = await admin
         .auth()
         .getUser(originalComment.data().uid)
-      console.log('Sending email to ' + originalUser.email)
+      // PII redacted from logs
+      console.log(
+        'Sending discussion email to user ' +
+          originalComment.data().uid
+      )
       return mailjet
         .post('send', { version: 'v3.1' })
         .request({
@@ -456,7 +488,7 @@ exports.newDiscussion = functions.firestore
               Variables: {
                 studentOrMentor:
                   user.customClaims &&
-                    user.customClaims['mentor']
+                  user.customClaims['mentor']
                     ? 'mentor'
                     : 'student',
                 projectLink: `https://sciteens.com/project/${context.params.projectID}#${event.id}`,
@@ -598,10 +630,7 @@ exports.fileUpload = functions.storage
         // Determine which folder the file belongs to
         if (object.name.startsWith('profilephoto/')) {
           // Belongs to profile photo collection
-          let uid = object.name.substring(
-            object.name.indexOf('/'),
-            object.name.indexOf('.')
-          )
+          let uid = object.name.split('/')[1].split('.')[0]
           return admin
             .storage()
             .bucket(object.bucket)
@@ -610,7 +639,7 @@ exports.fileUpload = functions.storage
             .then(() => {
               console.log(
                 object.name +
-                ' is now a publicly accessible file'
+                  ' is now a publicly accessible file'
               )
               return admin
                 .firestore()
@@ -634,19 +663,8 @@ exports.fileUpload = functions.storage
 
         // Determine if the image belongs to a project
         else if (object.name.startsWith('project/')) {
-          let first_slash_index = object.name.indexOf('/')
-          let second_slash_index = object.name.indexOf(
-            '/',
-            first_slash_index + 1
-          )
-          let project_id = object.name.substring(
-            first_slash_index,
-            second_slash_index
-          )
-
-          console.log(
-            'Setting photo for project ' + project_id
-          )
+          let segments = object.name.split('/')
+          let project_id = segments[1]
           return admin
             .storage()
             .bucket(object.bucket)
@@ -664,30 +682,22 @@ exports.fileUpload = functions.storage
             .then(() => {
               console.log(
                 'Successfully set project photo for project ' +
-                project_id
+                  project_id
               )
             })
             .catch((err) => {
               console.error(
                 'Unsuccessfully set project photo for project ' +
-                project_id +
-                ': ' +
-                err
+                  project_id +
+                  ': ' +
+                  err
               )
             })
         }
 
         // Determine if the image belongs to a course
         if (object.name.startsWith('courses/')) {
-          let first_slash_index = object.name.indexOf('/')
-          let second_slash_index = object.name.indexOf(
-            '/',
-            first_slash_index + 1
-          )
-          let course_id = object.name.substring(
-            first_slash_index,
-            second_slash_index
-          )
+          let course_id = object.name.split('/')[1]
 
           console.log(
             'Setting photo for course ' + course_id
@@ -700,7 +710,7 @@ exports.fileUpload = functions.storage
             .then(() => {
               console.log(
                 object.name +
-                ' is now a publicly accessible file'
+                  ' is now a publicly accessible file'
               )
               return admin
                 .firestore()
@@ -712,7 +722,7 @@ exports.fileUpload = functions.storage
                 .then(() => {
                   console.log(
                     'Set the course photo for course ' +
-                    course_id
+                      course_id
                   )
                 })
                 .catch((err) => {
@@ -779,7 +789,9 @@ exports.newProjectInvite = functions.firestore
                 })
             })
             .then(() => {
-              console.log('Added user: ' + user.displayName)
+              console.log(
+                'Added user to project: ' + user.uid
+              )
               return admin
                 .firestore()
                 .collection('projects')
@@ -860,7 +872,7 @@ exports.updateUserStats = functions.pubsub
       .listUsers()
       .then(async (res) => {
         res.users.forEach(async (user) => {
-          console.log('Checking user ' + user.displayName)
+          console.log('Checking user ' + user.uid)
           // Determine if the user is a mentor
           if (
             user.customClaims &&
@@ -908,11 +920,8 @@ exports.updateUserStats = functions.pubsub
             .update({
               count: students,
             }),
-          axios.post(
-            'https://hooks.slack.com/services/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',
-            {
-              text: `Weekly Update: There are ${students} students and ${mentors} mentors!`,
-            }
+          slackPost(
+            `Weekly Update: There are ${students} students and ${mentors} mentors!`
           ),
         ])
       })
@@ -966,23 +975,16 @@ exports.updateUserStats = functions.pubsub
         ])
       })
       .then(async () => {
-        await axios.post(
-          'https://hooks.slack.com/services/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',
-          {
-            text: `Weekly Update: Here are the demographic breakdowns.\nEthnicity:${JSON.stringify(
-              counts_ethnicity,
-              null,
-              2
-            )}\nGender:${JSON.stringify(
-              counts_gender,
-              null,
-              2
-            )}\nRace:${JSON.stringify(
-              counts_race,
-              null,
-              2
-            )}`,
-          }
+        await slackPost(
+          `Weekly Update: Here are the demographic breakdowns.\nEthnicity:${JSON.stringify(
+            counts_ethnicity,
+            null,
+            2
+          )}\nGender:${JSON.stringify(
+            counts_gender,
+            null,
+            2
+          )}\nRace:${JSON.stringify(counts_race, null, 2)}`
         )
       })
   })
@@ -994,13 +996,47 @@ exports.updateUserStats = functions.pubsub
 */
 exports.newCourse = functions.https.onRequest(
   async (request, response) => {
-    response.set('Access-Control-Allow-Origin', '*')
-    response.set(
-      'Access-Control-Allow-Methods',
-      'GET, POST'
-    )
-    const document_id = request.body.documents[0]
-    console.log(document_id)
+    // Verify the Prismic webhook secret. Prismic includes the configured
+    // secret as the `secret` field in the JSON body (not an HMAC header).
+    // Stored in `functions.config().prismic.secret` (set via
+    // `firebase functions:config:set prismic.secret="..."`).
+    const crypto = require('crypto')
+    const expected =
+      (functions.config().prismic &&
+        functions.config().prismic.secret) ||
+      ''
+    const provided =
+      (request.body && request.body.secret) || ''
+    if (!expected || provided.length !== expected.length) {
+      return response.status(401).send('Unauthorized')
+    }
+    // Constant-time compare to avoid timing attacks
+    try {
+      if (
+        !crypto.timingSafeEqual(
+          Buffer.from(provided),
+          Buffer.from(expected)
+        )
+      ) {
+        return response.status(401).send('Unauthorized')
+      }
+    } catch (err) {
+      return response.status(401).send('Unauthorized')
+    }
+
+    // Validate the document id shape before interpolating into the query
+    const document_id =
+      request.body &&
+      request.body.documents &&
+      request.body.documents[0]
+    if (
+      !document_id ||
+      !/^[A-Za-z0-9_-]{1,128}$/.test(document_id)
+    ) {
+      return response
+        .status(400)
+        .send('Invalid document id')
+    }
     const client = Prismic.client(
       'https://sciteens.cdn.prismic.io/api'
     )
@@ -1053,7 +1089,13 @@ exports.newCourse = functions.https.onRequest(
                       .send('Successful update')
                   })
                   .catch((err) => {
-                    response.status(400).send(err)
+                    console.error(
+                      'newCourse update failed:',
+                      err
+                    )
+                    response
+                      .status(500)
+                      .send('Failed to update course')
                   })
               } else {
                 // Create
@@ -1075,7 +1117,13 @@ exports.newCourse = functions.https.onRequest(
                       .send('Successful course creation')
                   })
                   .catch((err) => {
-                    response.status(400).send(err)
+                    console.error(
+                      'newCourse create failed:',
+                      err
+                    )
+                    response
+                      .status(500)
+                      .send('Failed to create course')
                   })
               }
             })
@@ -1085,8 +1133,12 @@ exports.newCourse = functions.https.onRequest(
             .send('Not a course, ignoring update')
         }
       })
-      .catch(() => {
-        response.status(400).send("Couldn't find it")
+      .catch((err) => {
+        console.error(
+          'newCourse prismic lookup failed:',
+          err
+        )
+        response.status(400).send('Document not found')
       })
   }
 )

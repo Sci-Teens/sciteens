@@ -1,0 +1,124 @@
+rules_version = '2';
+
+// SciTeens Firestore Security Rules
+//
+// Enforcement model: the client performs only owner-scoped writes. Every
+// mutation is gated on the authenticated user's uid and, where relevant,
+// on documented ownership (member_uids for projects). Collections that
+// are only written by Cloud Functions (newProgram, newCourse,
+// updateUserStats) are denied to clients entirely.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- Profiles -------------------------------------------------------
+    // Public-readable (shown on /profile/[slug]); writable only by owner.
+    // create must include uid == auth.uid; update only requires ownership
+    // (uid field already present from create).
+    match /profiles/{uid} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.uid == uid;
+      allow update: if request.auth.uid == uid;
+      allow delete: if request.auth.uid == uid;
+    }
+
+    // ---- Profile slugs --------------------------------------------------
+    // { slug: <slug> }. Used by client to claim a unique slug during
+    // signup. Authenticated users may create; no updates/deletes from
+    // client (slug changes go through a Cloud Function or admin).
+    match /profile-slugs/{slug} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if false;
+    }
+
+    // ---- Emails ---------------------------------------------------------
+    // uid -> email mapping. Owner may create their own row at signup
+    // (the newUser Cloud Function also writes this, so the create is
+    // idempotent). Never client-readable: leaks every user's email.
+    match /emails/{uid} {
+      allow read: if false;
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.email is string;
+      allow update, delete: if false;
+    }
+
+    // ---- Profile pictures ----------------------------------------------
+    // { picture: <url> }. Public-readable; owner or server writes.
+    match /profile-pictures/{uid} {
+      allow read: if true;
+      allow create, update, delete: if request.auth.uid == uid;
+    }
+
+    // ---- Projects -------------------------------------------------------
+    // Public-readable. Any authenticated user may create one (they become
+    // a member). Only existing members may update/delete. Mass-assignment
+    // is constrained: client writes may not touch member_uids/subscribers
+    // except to add the creator on create.
+    match /projects/{projectId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.member_uids.size() >= 1
+        && request.resource.data.member_uids[0] == request.auth.uid;
+      allow update: if request.auth.uid in resource.data.member_uids
+        && !request.resource.data.diff(resource.data)
+            .affectedKeys().hasAny(['member_uids', 'subscribers']);
+      allow delete: if request.auth.uid in resource.data.member_uids;
+
+      // ---- Project discussion ------------------------------------------
+      match /discussion/{feedbackId} {
+        allow read: if true;
+        allow create: if request.auth != null
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.keys().hasAll(['date', 'uid', 'display', 'comment']);
+        allow update, delete: if request.auth.uid == resource.data.uid;
+      }
+    }
+
+    // ---- Project invites -----------------------------------------------
+    // Written by the project owner (client) to trigger the newProjectInvite
+    // function. Only members of the project with the same id may write.
+    match /project-invites/{projectId} {
+      allow read: if false;
+      allow create, update, delete: if request.auth != null
+        && exists(/databases/$(database)/documents/projects/$(projectId))
+        && request.auth.uid in
+            get(/databases/$(database)/documents/projects/$(projectId))
+              .data.member_uids;
+    }
+
+    // ---- Programs -------------------------------------------------------
+    // Server-managed (newProgram / updateProgram / deleteProgram).
+    match /programs/{programId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /programs-minified/{programId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ---- Courses --------------------------------------------------------
+    // Server-managed (newCourse webhook from Prismic).
+    match /courses/{slug} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ---- Statistics -----------------------------------------------------
+    // Server-managed (updateUserStats).
+    match /statistics/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ---- Catch-all ------------------------------------------------------
+    // Deny everything not explicitly allowed above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

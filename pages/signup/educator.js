@@ -23,6 +23,7 @@ import { AppContext } from '../../context/context'
 import {
   validatePassword,
   createUniqueSlug,
+  resolveRefPath,
 } from '../../context/helpers'
 
 export default function MentorSignUp() {
@@ -218,6 +219,7 @@ export default function MentorSignUp() {
         subs_e: [],
         mentor: true,
       }
+      profile.uid = res.user.uid
       await setDoc(
         doc(firestore, 'profiles', res.user.uid),
         profile
@@ -230,17 +232,8 @@ export default function MentorSignUp() {
         email: res.user.email,
       })
       setProfile(profile)
-      if (router.query.ref) {
-        let ref = router.query.ref.split('|')
-        let section = ref[0]
-        let id = ref[1]
-        if (section == 'projects') {
-          section = 'project'
-        }
-        router.push(`/${section}/${id}`)
-      } else {
-        router.push('/')
-      }
+      const dest = resolveRefPath(router.query.ref)
+      router.push(dest || '/')
     } catch (e) {
       console.log(e.code)
       f_signup_errors[e.code]
@@ -275,8 +268,9 @@ export default function MentorSignUp() {
           <h1 className="mb-2 text-center text-3xl font-semibold">
             {t('auth.educate_on_sciteens')}
           </h1>
-          <b className='text-red-700'>
-            We currently aren't accepting new educator signups.
+          <b className="text-red-700">
+            We currently aren't accepting new educator
+            signups.
           </b>
           <p className="mb-6 text-center text-gray-700">
             {t('auth.why_educate_on_sciteens')}
@@ -319,7 +313,7 @@ export default function MentorSignUp() {
                   {t('auth.last_name')}
                 </label>
                 <input
-                disabled
+                  disabled
                   onChange={(e) => onChange(e, 'last_name')}
                   value={last_name}
                   name="last-name"
@@ -346,7 +340,7 @@ export default function MentorSignUp() {
               {t('auth.email')}
             </label>
             <input
-            disabled
+              disabled
               value={email}
               onChange={(e) => onChange(e, 'email')}
               name="email"
@@ -370,7 +364,7 @@ export default function MentorSignUp() {
               {t('auth.password')}
             </label>
             <input
-            disabled
+              disabled
               value={password}
               onChange={(e) => onChange(e, 'password')}
               name="password"
@@ -394,7 +388,7 @@ export default function MentorSignUp() {
               {t('auth.institution')}
             </label>
             <input
-            disabled
+              disabled
               onChange={(e) => onChange(e, 'institution')}
               value={institution}
               name="institution"
@@ -420,7 +414,7 @@ export default function MentorSignUp() {
             </label>
             <div className="relative w-full">
               <select
-              disabled
+                disabled
                 name="position"
                 id="position"
                 onChange={(e) =>
@@ -461,7 +455,7 @@ export default function MentorSignUp() {
             </label>
             <div className="relative w-full">
               <select
-              disabled
+                disabled
                 onChange={(e) => setGender(e.target.value)}
                 name="gender"
                 id="gender"
@@ -500,7 +494,7 @@ export default function MentorSignUp() {
             </label>
             <div className="relative w-full">
               <select
-              disabled
+                disabled
                 onChange={(e) => setRace(e.target.value)}
                 name="race"
                 id="race"

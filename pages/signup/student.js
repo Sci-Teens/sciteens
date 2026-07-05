@@ -24,6 +24,7 @@ import {
   validatePassword,
   createUniqueSlug,
   providerSignIn,
+  resolveRefPath,
 } from '../../context/helpers'
 
 export default function StudentSignUp() {
@@ -196,6 +197,7 @@ export default function StudentSignUp() {
         email,
         password
       )
+      profile.uid = res.user.uid
       await setDoc(
         doc(firestore, 'profiles', res.user.uid),
         profile
@@ -211,17 +213,8 @@ export default function StudentSignUp() {
         displayName: first_name + ' ' + last_name,
       })
       setProfile(profile)
-      if (router.query.ref) {
-        let ref = router.query.ref.split('|')
-        let section = ref[0]
-        let id = ref[1]
-        if (section == 'projects') {
-          section = 'project'
-        }
-        router.push(`/${section}/${id}`)
-      } else {
-        router.push('/')
-      }
+      const dest = resolveRefPath(router.query.ref)
+      router.push(dest || '/')
     } catch (e) {
       console.log(e)
       f_signup_errors[e.code]

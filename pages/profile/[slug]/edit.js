@@ -40,6 +40,7 @@ import { updateProfile as updateFirebaseProfile } from '@firebase/auth'
 import { useDropzone } from 'react-dropzone'
 import File from '../../../components/File'
 import { AppContext } from '../../../context/context'
+import { sanitizeFileName } from '../../../context/helpers'
 
 export default function UpdateProfilePage({
   user_profile,
@@ -159,13 +160,16 @@ export default function UpdateProfilePage({
 
     try {
       for (const f of files) {
+        const isProfilePhoto = f.name == profile_photo
+        const ext = (
+          f.name.split('.').pop() || ''
+        ).toLowerCase()
+        const safeName = isProfilePhoto
+          ? `profile_photo.${ext || 'img'}`
+          : sanitizeFileName(f.name)
         const fileRef = ref(
           storage,
-          f.name == profile_photo
-            ? `profiles/${
-                user_profile.id
-              }/${`profile_photo.${f.type.split('/')[1]}`}`
-            : `profiles/${user_profile.id}/${f.name}`
+          `profiles/${user_profile.id}/${safeName}`
         )
         await uploadBytes(fileRef, f)
 
