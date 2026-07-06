@@ -15,7 +15,7 @@ export default function terms() {
               <h2 className="mb-1 text-xl font-semibold">
                 Table of Contents
               </h2>
-              <ul className="ml-2 text-sm text-sciteensGreen-dark">
+              <ul className="text-sciteensGreen-dark ml-2 text-sm">
                 <li>
                   <a
                     href="#term1"
@@ -1468,7 +1468,7 @@ export default function terms() {
                 regarding use of the Site, please contact us
                 at:
               </p>
-              <p className="my-4 text-sciteensGreen-regular">
+              <p className="text-sciteensGreen-regular my-4">
                 SciTeens Inc.
                 <br />
                 John Sutor

@@ -215,11 +215,11 @@ function Articles({ cached_articles }) {
         >
           <animated.a
             style={article_spring}
-            className="z-50 mt-6 flex cursor-pointer flex-row items-center rounded-lg bg-white p-4 shadow md:mt-8"
+            className="z-50 mt-6 flex cursor-pointer flex-row items-center rounded-lg bg-white p-4 shadow-sm md:mt-8"
           >
             <div className="relative h-full max-w-[100px] md:max-w-[200px]">
               <Image
-                className="flex-shrink-0 rounded-lg object-cover"
+                className="shrink-0 rounded-lg object-cover"
                 loader={imageLoader}
                 src={article.data.image.url}
                 width={256}
@@ -233,10 +233,10 @@ function Articles({ cached_articles }) {
                   {article.data.author}
                 </p>
               </div>
-              <h3 className="mb-2 line-clamp-2 text-base font-semibold md:text-xl lg:text-2xl">
+              <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">
                 {RichText.asText(article.data.title)}
               </h3>
-              <p className="mb-2 line-clamp-none hidden text-sm md:line-clamp-2 md:flex lg:text-base">
+              <p className="line-clamp-none md:line-clamp-2 mb-2 hidden text-sm md:flex lg:text-base">
                 {article.data.description}
               </p>
               <p className="flex text-xs">
@@ -284,7 +284,7 @@ function Articles({ cached_articles }) {
           >
             <button
               type="submit"
-              className="w-auto rounded-l-lg bg-sciteensLightGreen-regular px-3 font-semibold text-white shadow outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+              className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark w-auto rounded-l-lg px-3 font-semibold text-white shadow-sm disabled:opacity-50"
               onClick={(e) => handleSearch(e)}
             >
               <img
@@ -299,7 +299,7 @@ function Articles({ cached_articles }) {
               name="search"
               placeholder="Search..."
               required
-              className={`w-full appearance-none border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700 focus:outline-none`}
+              className={`focus:border-sciteensLightGreen-regular w-full appearance-none border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow-sm focus:bg-white focus:placeholder-gray-700`}
               type="text"
               aria-label="search"
               maxLength="100"
@@ -311,7 +311,7 @@ function Articles({ cached_articles }) {
               name="field"
               id="field"
               value={field}
-              className="w-1/2 appearance-none rounded-r-lg border-2 border-transparent bg-white p-2 leading-tight text-gray-700 placeholder-sciteensGreen-regular shadow focus:border-sciteensGreen-regular focus:bg-white focus:placeholder-gray-700 focus:outline-none"
+              className="placeholder-sciteensGreen-regular focus:border-sciteensGreen-regular w-1/2 appearance-none rounded-r-lg border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow-sm focus:bg-white focus:placeholder-gray-700"
             >
               {Object.entries(
                 getTranslatedFieldsDict(t)
@@ -345,9 +345,9 @@ function Articles({ cached_articles }) {
               previousLabel="<"
               renderOnZeroPageCount={false}
               className="mx-auto mt-2 flex h-full flex-row items-center gap-2 font-bold"
-              pageClassName="rounded-lg px-3 py-2 bg-white text-black shadow h-full"
-              previousLinkClassName="rounded-lg px-3 py-2 bg-white text-black shadow h-full"
-              nextLinkClassName="rounded-lg px-3 py-2 bg-white text-black shadow h-full"
+              pageClassName="rounded-lg px-3 py-2 bg-white text-black shadow-sm h-full"
+              previousLinkClassName="rounded-lg px-3 py-2 bg-white text-black shadow-sm h-full"
+              nextLinkClassName="rounded-lg px-3 py-2 bg-white text-black shadow-sm h-full"
               activeLinkClassName="text-sciteensGreen-regular"
               disableInitialCallback={false}
             ></ReactPaginate>
@@ -369,14 +369,14 @@ function Articles({ cached_articles }) {
                 value={search}
                 name="search"
                 required
-                className={`mr-3 w-full appearance-none rounded border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700 focus:outline-none`}
+                className={`focus:border-sciteensLightGreen-regular mr-3 w-full appearance-none rounded-sm border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow-sm focus:bg-white focus:placeholder-gray-700`}
                 type="text"
                 aria-label="search"
                 maxLength="100"
               />
               <button
                 type="submit"
-                className="rounded-lg bg-sciteensLightGreen-regular px-4 py-2 font-semibold text-white shadow outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+                className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark rounded-lg px-4 py-2 font-semibold text-white shadow-sm disabled:opacity-50"
                 onClick={(e) => handleSearch(e)}
               >
                 {t('articles.search')}

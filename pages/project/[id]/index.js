@@ -81,7 +81,7 @@ function Project({ query }) {
 
   if (status === 'loading') {
     return (
-      <div className="prose-sm mx-auto mb-24 mt-4 animate-pulse lg:prose">
+      <div className="prose-sm lg:prose mx-auto mb-24 mt-4 animate-pulse">
         <div className="h-12 w-full rounded-lg bg-gray-200" />
         <div className="mt-8 h-8 w-full rounded-lg bg-gray-200" />
         <div className="mt-8 h-8 w-full rounded-lg bg-gray-200" />
@@ -123,7 +123,7 @@ function Project({ query }) {
           content="/assets/sciteens_initials.jpg"
         />
       </Head>
-      <article className="prose-sm mx-auto mt-8 px-4 lg:prose lg:px-0">
+      <article className="prose-sm lg:prose mx-auto mt-8 px-4 lg:px-0">
         <div>
           <div className="m-0 flex flex-row justify-between p-0 leading-none">
             <h1>{project.title}</h1>
@@ -134,7 +134,7 @@ function Project({ query }) {
                 href={`/project/${router?.query?.id}/edit`}
                 legacyBehavior
               >
-                <div className="h-1/3 cursor-pointer rounded-full border-2 border-sciteensLightGreen-regular px-6 py-1.5 text-center text-xl font-semibold text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark">
+                <div className="border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark h-1/3 cursor-pointer rounded-full border-2 px-6 py-1.5 text-center text-xl font-semibold">
                   Edit
                 </div>
               </Link>
@@ -165,7 +165,7 @@ function Project({ query }) {
                       href={`/profile/${
                         member.slug ? member.slug : ''
                       }`}
-                      className="font-bold text-sciteensGreen-regular no-underline hover:text-sciteensGreen-dark"
+                      className="text-sciteensGreen-regular hover:text-sciteensGreen-dark font-bold no-underline"
                     >
                       {member.display + ' '}
                     </Link>
@@ -200,7 +200,7 @@ function Project({ query }) {
                   }}
                   legacyBehavior
                 >
-                  <span className="my-1 mr-4 cursor-pointer rounded-full bg-white px-5 py-1.5 text-base shadow hover:shadow-md">
+                  <span className="my-1 mr-4 cursor-pointer rounded-full bg-white px-5 py-1.5 text-base shadow-sm hover:shadow-md">
                     {tag}
                   </span>
                 </Link>

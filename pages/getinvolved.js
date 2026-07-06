@@ -65,7 +65,7 @@ export default function GetInvolved() {
               </p>
               <Link
                 href="/signup/student"
-                className="mb-4 rounded-lg bg-sciteensLightGreen-regular p-2 text-center text-white shadow-md hover:bg-sciteensLightGreen-dark"
+                className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark mb-4 rounded-lg p-2 text-center text-white shadow-md"
               >
                 {t('get_involved.student_sign_up')}
               </Link>
@@ -99,7 +99,7 @@ export default function GetInvolved() {
               <a
                 href="mailto:support@sciteens.com"
                 target="_blank"
-                className="rounded-lg bg-sciteensLightGreen-regular p-2 text-center text-white shadow-md hover:bg-sciteensLightGreen-dark"
+                className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark rounded-lg p-2 text-center text-white shadow-md"
                 rel="noreferrer"
               >
                 {t('get_involved.contact_us')}

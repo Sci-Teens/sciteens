@@ -55,7 +55,7 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <div
-      className={`${nunito.variable} h-full w-full bg-backgroundGreen font-sciteens`}
+      className={`${nunito.variable} bg-backgroundGreen font-sciteens h-full w-full`}
     >
       <Head>
         <title>Welcome to SciTeens</title>

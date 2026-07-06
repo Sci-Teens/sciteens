@@ -307,7 +307,7 @@ export default function Home() {
             <div>
               <Link
                 href="/signup"
-                className="mr-2 rounded-lg bg-sciteensLightGreen-regular p-3 text-base text-white shadow-md hover:bg-sciteensLightGreen-dark md:p-4 md:text-xl"
+                className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark mr-2 rounded-lg p-3 text-base text-white shadow-md md:p-4 md:text-xl"
               >
                 {t('index.get_started')}
               </Link>
@@ -325,7 +325,7 @@ export default function Home() {
           >
             <div
               id="loading-screen"
-              className="absolute z-10 bg-backgroundGreen transition-all duration-300"
+              className="bg-backgroundGreen absolute z-10 transition-all duration-300"
             >
               <img
                 src={'./assets/desktop-preview.png'}
@@ -338,7 +338,7 @@ export default function Home() {
             </div>
             <div
               id="canvas"
-              className="z-20 scale-75 transition-all duration-[1300ms]"
+              className="duration-1300 z-20 scale-75 transition-all"
             />
           </div>
         </div>
@@ -425,7 +425,7 @@ export default function Home() {
                 <animated.div
                   key={index}
                   style={styles}
-                  className="w-auto rounded-lg bg-white p-5 shadow first-of-type:mb-5 last-of-type:hidden md:w-[45%] md:first-of-type:mb-0 lg:w-[30%] lg:first-of-type:mb-8 lg:last-of-type:mb-8 lg:last-of-type:block"
+                  className="w-auto rounded-lg bg-white p-5 shadow-sm first-of-type:mb-5 last-of-type:hidden md:w-[45%] md:first-of-type:mb-0 lg:w-[30%] lg:first-of-type:mb-8 lg:last-of-type:mb-8 lg:last-of-type:block"
                 >
                   <animated.img
                     src={testimonials_arr[index].image}
@@ -552,7 +552,7 @@ export default function Home() {
             <animated.a
               style={mediaSpring1}
               href="https://www.neonscience.org/impact/observatory-blog/sciteens-data-science-and-ecology-gen-z"
-              className="group col-span-1 row-span-1 mb-4 mr-0 overflow-hidden rounded-lg bg-white shadow lg:row-span-2 lg:mb-0 lg:mr-4"
+              className="group col-span-1 row-span-1 mb-4 mr-0 overflow-hidden rounded-lg bg-white shadow-sm lg:row-span-2 lg:mb-0 lg:mr-4"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -581,7 +581,7 @@ export default function Home() {
             <animated.a
               style={mediaSpring2}
               href="https://news.mit.edu/2019/ideas-challenge-social-ventures-0430"
-              className="group  col-span-1 row-span-1 mb-4 ml-0 mt-4 overflow-hidden rounded-lg bg-white shadow lg:ml-4 lg:mt-0"
+              className="group  col-span-1 row-span-1 mb-4 ml-0 mt-4 overflow-hidden rounded-lg bg-white shadow-sm lg:ml-4 lg:mt-0"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -612,7 +612,7 @@ export default function Home() {
             <animated.a
               style={mediaSpring3}
               href="https://news.fsu.edu/multimedia/radio/2020/08/03/young-scholars-online-program-turns-students-into-scientists/"
-              className="group col-span-1 row-span-1 ml-0 mt-4 h-72 overflow-hidden rounded-lg bg-white shadow md:h-auto lg:ml-4"
+              className="group col-span-1 row-span-1 ml-0 mt-4 h-72 overflow-hidden rounded-lg bg-white shadow-sm md:h-auto lg:ml-4"
               target="_blank"
               rel="noopener noreferrer"
             >

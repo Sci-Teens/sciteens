@@ -163,11 +163,11 @@ function Courses({ cached_courses }) {
       >
         <animated.div
           style={courses_spring}
-          className="z-50 mt-6 flex cursor-pointer items-center rounded-lg bg-white p-4 shadow md:mt-8"
+          className="z-50 mt-6 flex cursor-pointer items-center rounded-lg bg-white p-4 shadow-sm md:mt-8"
         >
           <div className="relative h-full max-w-[100px] md:max-w-[200px]">
             <Image
-              className="flex-shrink-0 rounded-lg object-cover"
+              className="shrink-0 rounded-lg object-cover"
               loader={imageLoader}
               src={course.data.image_main.url}
               width={256}
@@ -175,10 +175,10 @@ function Courses({ cached_courses }) {
             />
           </div>
           <div className="ml-4 w-3/4 lg:w-11/12">
-            <h3 className="mb-2 line-clamp-2 text-base font-semibold md:text-xl lg:text-2xl">
+            <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">
               {RichText.asText(course.data.name)}
             </h3>
-            <p className="mb-2 line-clamp-none hidden md:line-clamp-2 md:block lg:line-clamp-3">
+            <p className="line-clamp-none md:line-clamp-2 lg:line-clamp-3 mb-2 hidden md:block">
               {RichText.asText(course.data.description)}
             </p>
             {dateDisplay}
@@ -243,14 +243,14 @@ function Courses({ cached_courses }) {
                 value={search}
                 name="search"
                 required
-                className={`mr-3 w-full appearance-none rounded border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700 focus:outline-none`}
+                className={`focus:border-sciteensLightGreen-regular mr-3 w-full appearance-none rounded-sm border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow-sm focus:bg-white focus:placeholder-gray-700`}
                 type="text"
                 aria-label="search"
                 maxLength="100"
               />
               <button
                 type="submit"
-                className="rounded-lg bg-sciteensLightGreen-regular px-4 py-2 font-semibold text-white shadow outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+                className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark rounded-lg px-4 py-2 font-semibold text-white shadow-sm disabled:opacity-50"
                 onClick={(e) => handleSearch(e)}
               >
                 {t('courses.search')}

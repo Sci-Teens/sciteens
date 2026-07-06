@@ -89,7 +89,7 @@ export default function NavBar() {
       {i18n?.isInitialized && (
         <>
           <div
-            className={`z-50 mx-4 mt-3 flex h-16 items-center justify-between rounded-lg bg-white shadow`}
+            className={`z-50 mx-4 mt-3 flex h-16 items-center justify-between rounded-lg bg-white shadow-sm`}
           >
             <div className="inline-block md:w-1/2">
               <Link href="/">
@@ -277,7 +277,7 @@ export default function NavBar() {
                   <div>
                     <Link href="/signup">
                       <a
-                        className={`mr-2 hidden whitespace-nowrap rounded-lg bg-sciteensLightGreen-regular p-2 text-white shadow hover:bg-sciteensLightGreen-dark lg:block`}
+                        className={`bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark mr-2 hidden whitespace-nowrap rounded-lg p-2 text-white shadow-sm lg:block`}
                       >
                         {i18n.t('navigation.sign_up')}
                       </a>

@@ -266,7 +266,7 @@ export default function UpdateProfilePage({
   if (status == 'success' && signInCheckResult.signedIn) {
     return (
       <>
-        <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
+        <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow-sm md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
           <h1 className="mb-2 text-center text-3xl font-semibold">
             {t('edit_profile.update_your_profile')}
           </h1>
@@ -286,10 +286,10 @@ export default function UpdateProfilePage({
               name="about"
               rows="7"
               required
-              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
+              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
                 error_about
                   ? 'border-red-700 text-red-800 placeholder-red-700'
-                  : 'text-gray-700 focus:border-sciteensLightGreen-regular focus:bg-white'
+                  : 'focus:border-sciteensLightGreen-regular text-gray-700 focus:bg-white'
               }`}
               type="textarea"
               placeholder={t('edit_profile.tell_us_about')}
@@ -368,7 +368,7 @@ export default function UpdateProfilePage({
                 disabled={
                   loading || error_about || error_file
                 }
-                className="mr-2 mt-4 w-full rounded-lg bg-sciteensLightGreen-regular p-2 text-lg font-semibold text-white shadow outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+                className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark mr-2 mt-4 w-full rounded-lg p-2 text-lg font-semibold text-white shadow-sm disabled:opacity-50"
                 onClick={(e) => updateProfile(e)}
               >
                 {t('edit_profile.update')}
@@ -382,7 +382,7 @@ export default function UpdateProfilePage({
               </button>
               <Link
                 href={`/profile/${user_profile.slug}`}
-                className="ml-2 mt-4 w-full rounded-lg border-2 border-gray-200 bg-gray-100 p-2 text-center text-lg font-semibold text-black shadow outline-none hover:border-gray-300 hover:bg-gray-200 disabled:opacity-50"
+                className="ml-2 mt-4 w-full rounded-lg border-2 border-gray-200 bg-gray-100 p-2 text-center text-lg font-semibold text-black shadow-sm hover:border-gray-300 hover:bg-gray-200 disabled:opacity-50"
               >
                 {t('edit_profile.cancel')}
               </Link>

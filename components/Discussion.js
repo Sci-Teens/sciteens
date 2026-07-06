@@ -204,10 +204,10 @@ export default function Discussion({ type, item_id }) {
           id="comment"
           required
           rows="3"
-          className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-white p-2 leading-tight shadow focus:bg-white focus:placeholder-gray-700 focus:shadow-lg focus:outline-none ${
+          className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-white p-2 leading-tight shadow focus:bg-white focus:placeholder-gray-700 focus:shadow-lg ${
             error_comment
               ? 'border-red-700 text-red-800 placeholder-red-700'
-              : 'text-gray-700 focus:border-sciteensLightGreen-regular'
+              : 'focus:border-sciteensLightGreen-regular text-gray-700'
           }`}
           type="textarea"
           placeholder={
@@ -233,14 +233,14 @@ export default function Discussion({ type, item_id }) {
               setReplyingToId('')
               setComment('')
             }}
-            className="mr-2 rounded-lg border-2 border-gray-500 bg-gray-200 p-2 opacity-50 shadow outline-none hover:bg-opacity-100 disabled:opacity-50"
+            className="mr-2 rounded-lg border-2 border-gray-500 bg-gray-200 p-2 opacity-50 shadow-sm hover:bg-opacity-100 disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading || error_comment}
-            className="rounded-lg bg-sciteensLightGreen-regular p-2 text-white shadow outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+            className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark rounded-lg p-2 text-white shadow-sm disabled:opacity-50"
             onClick={(e) => postComment(e)}
           >
             Post
@@ -325,7 +325,7 @@ export default function Discussion({ type, item_id }) {
                                   replyingToId == comment.id
                                     ? 'rounded-lg'
                                     : 'rounded-lg border-none'
-                                } focus:bg-white focus:placeholder-gray-700 focus:outline-none 
+                                } focus:bg-white focus:placeholder-gray-700 
                                 ${
                                   error_reply &&
                                   error_reply_index === key
@@ -345,7 +345,7 @@ export default function Discussion({ type, item_id }) {
                         setReplyingToId('')
                         setComment('')
                       }}
-                      className="mr-2 h-full w-full bg-gray-200 px-2 py-2 outline-none hover:bg-gray-300 disabled:opacity-50 md:px-4"
+                      className="mr-2 h-full w-full bg-gray-200 px-2 py-2 hover:bg-gray-300 disabled:opacity-50 md:px-4"
                     >
                       Cancel
                     </button>
@@ -356,7 +356,7 @@ export default function Discussion({ type, item_id }) {
                         error_reply ||
                         !signInCheckResult?.signedIn
                       }
-                      className="h-full rounded-br-lg bg-sciteensLightGreen-regular p-2 text-white outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+                      className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark h-full rounded-br-lg p-2 text-white disabled:opacity-50"
                       onClick={(e) => postComment(e)}
                     >
                       Post
@@ -392,7 +392,7 @@ export default function Discussion({ type, item_id }) {
                             <div
                               id={reply.id}
                               key={reply.date}
-                              className={`relative mb-2 ml-auto rounded-lg bg-white p-4  shadow`}
+                              className={`relative mb-2 ml-auto rounded-lg bg-white p-4  shadow-sm`}
                             >
                               <div className="mb-2 flex flex-row items-center">
                                 <div className="mr-2 h-10 w-10">

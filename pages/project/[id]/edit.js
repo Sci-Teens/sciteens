@@ -458,7 +458,7 @@ export default function UpdateProject({ query }) {
     return (
       <>
         <main>
-          <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
+          <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow-sm md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
             <h1 className="mb-2 text-center text-3xl font-semibold">
               {t('project_create_edit.update_project')}
             </h1>
@@ -478,10 +478,10 @@ export default function UpdateProject({ query }) {
                 value={title}
                 name="title"
                 required
-                className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
+                className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
                   error_title
                     ? 'border-red-700 text-red-800 placeholder-red-700'
-                    : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
+                    : 'placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular text-gray-700 focus:bg-white'
                 }`}
                 type="text"
                 aria-label="title"
@@ -504,10 +504,10 @@ export default function UpdateProject({ query }) {
                 type="date"
                 id="start-date"
                 name="start-date"
-                className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
+                className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
                   error_start_date
                     ? 'border-red-700 text-red-800 placeholder-red-700'
-                    : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
+                    : 'placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular text-gray-700 focus:bg-white'
                 }`}
               />
               <p
@@ -533,10 +533,10 @@ export default function UpdateProject({ query }) {
                 type="date"
                 id="end-date"
                 name="end-date"
-                className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
+                className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
                   error_end_date
                     ? 'border-red-700 text-red-800 placeholder-red-700'
-                    : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
+                    : 'placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular text-gray-700 focus:bg-white'
                 }`}
               />
               <p
@@ -560,10 +560,10 @@ export default function UpdateProject({ query }) {
                 value={abstract}
                 name="abstract"
                 required
-                className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
+                className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
                   error_abstract
                     ? 'border-red-700 text-red-800 placeholder-red-700'
-                    : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
+                    : 'placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular text-gray-700 focus:bg-white'
                 }`}
                 type="textarea"
                 aria-label="summary"
@@ -584,10 +584,10 @@ export default function UpdateProject({ query }) {
                 value={member}
                 name="member"
                 required
-                className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
+                className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
                   error_member
                     ? 'border-red-700 text-red-800 placeholder-red-700'
-                    : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
+                    : 'placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular text-gray-700 focus:bg-white'
                 }`}
                 type="email"
                 aria-label="title"
@@ -628,7 +628,7 @@ export default function UpdateProject({ query }) {
                   <div key={key}>
                     <input
                       id={key}
-                      className="form-checkbox mr-2 text-sciteensLightGreen-regular active:outline-none"
+                      className="form-checkbox text-sciteensLightGreen-regular mr-2"
                       type="checkbox"
                       value={field_values[index]}
                       checked={field_values[index]}
@@ -697,7 +697,7 @@ export default function UpdateProject({ query }) {
                             setMode(!select_photo_mode)
                           }
                         }}
-                        className="cursor-pointer font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark"
+                        className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark cursor-pointer font-semibold"
                       >
                         {t(
                           'project_create_edit.set_display_photo'
@@ -742,7 +742,7 @@ export default function UpdateProject({ query }) {
                                 onClick={(e) =>
                                   setPhoto(e, id)
                                 }
-                                className={`rounded-lg border-2 border-sciteensLightGreen-regular font-semibold text-sciteensLightGreen-regular transition-all duration-500 hover:border-sciteensLightGreen-dark hover:bg-gray-50 hover:text-sciteensLightGreen-dark ${
+                                className={`border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark rounded-lg border-2 font-semibold transition-all duration-500 hover:bg-gray-50 ${
                                   select_photo_mode
                                     ? 'mr-4 w-28'
                                     : 'w-0 overflow-hidden border-none'
@@ -775,7 +775,7 @@ export default function UpdateProject({ query }) {
                     error_file ||
                     error_title
                   }
-                  className="mr-2 mt-4 w-full rounded-lg bg-sciteensLightGreen-regular p-2 text-lg font-semibold text-white shadow outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+                  className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark mr-2 mt-4 w-full rounded-lg p-2 text-lg font-semibold text-white shadow-sm disabled:opacity-50"
                   onClick={(e) => updateProject(e)}
                 >
                   {t('project_create_edit.update')}
@@ -789,7 +789,7 @@ export default function UpdateProject({ query }) {
                 </button>
                 <Link
                   href={`/project/${query.id}`}
-                  className="ml-2 mt-4 w-full rounded-lg border-2 border-gray-200 bg-gray-100 p-2 text-center text-lg font-semibold text-black shadow outline-none hover:border-gray-300 hover:bg-gray-200 disabled:opacity-50"
+                  className="ml-2 mt-4 w-full rounded-lg border-2 border-gray-200 bg-gray-100 p-2 text-center text-lg font-semibold text-black shadow-sm hover:border-gray-300 hover:bg-gray-200 disabled:opacity-50"
                 >
                   {t('project_create_edit.cancel')}
                 </Link>

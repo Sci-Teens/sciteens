@@ -15,7 +15,7 @@ export default function privacy() {
               <h2 className="mb-1 text-xl font-semibold">
                 Table of Contents
               </h2>
-              <ul className="ml-2 text-sm text-sciteensGreen-dark">
+              <ul className="text-sciteensGreen-dark ml-2 text-sm">
                 <li>
                   <a
                     href="#privacy1"
@@ -930,7 +930,7 @@ export default function privacy() {
                 Officer (DPO), John Sutor, by email at
                 john@sciteens.com, or by post to:
               </p>
-              <p className="my-4 text-sciteensGreen-regular">
+              <p className="text-sciteensGreen-regular my-4">
                 SciTeens Inc.
                 <br />
                 John Sutor

@@ -242,13 +242,13 @@ export default function About() {
                 return (
                   <div
                     key={member.name}
-                    className="member relative mb-6 h-[90%] w-11/12 scale-0 rounded-lg bg-white p-4 shadow transition-all duration-500 md:p-8"
+                    className="member relative mb-6 h-[90%] w-11/12 scale-0 rounded-lg bg-white p-4 shadow-sm transition-all duration-500 md:p-8"
                   >
                     <img
                       loading="lazy"
                       src={`assets/headshots/${member.image}`}
                       alt={member.name}
-                      className="m-auto mb-4 h-20 w-20 rounded-full shadow lg:h-28 lg:w-28"
+                      className="m-auto mb-4 h-20 w-20 rounded-full shadow-sm lg:h-28 lg:w-28"
                     />
                     <p className="mb-2 text-center text-base font-semibold md:text-2xl">
                       {member.name}
@@ -281,13 +281,13 @@ export default function About() {
                 return (
                   <div
                     key={member.name}
-                    className="member relative mb-6 h-[90%] w-11/12 scale-0 rounded-lg bg-white p-4 shadow transition-all duration-500 md:p-8"
+                    className="member relative mb-6 h-[90%] w-11/12 scale-0 rounded-lg bg-white p-4 shadow-sm transition-all duration-500 md:p-8"
                   >
                     <img
                       loading="lazy"
                       src={`assets/headshots/${member.image}`}
                       alt={member.name}
-                      className="m-auto mb-4 h-20 w-20 rounded-full shadow lg:h-28 lg:w-28"
+                      className="m-auto mb-4 h-20 w-20 rounded-full shadow-sm lg:h-28 lg:w-28"
                     />
                     <p className="mb-2 text-center text-base font-semibold md:text-2xl">
                       {member.name}

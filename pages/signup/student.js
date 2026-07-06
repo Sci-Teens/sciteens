@@ -243,7 +243,7 @@ export default function StudentSignUp() {
         />
       </Head>
       <main>
-        <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
+        <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow-sm md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
           <h1 className="mb-2 text-center text-3xl font-semibold">
             {t('auth.student_sign_up')}
           </h1>
@@ -267,10 +267,10 @@ export default function StudentSignUp() {
                   value={first_name}
                   name="first-name"
                   required
-                  className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
+                  className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
                     error_name
                       ? 'border-red-700 text-red-800 placeholder-red-700'
-                      : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
+                      : 'placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular text-gray-700 focus:bg-white'
                   }`}
                   type="text"
                   aria-label="name"
@@ -291,10 +291,10 @@ export default function StudentSignUp() {
                   value={last_name}
                   name="last-name"
                   required
-                  className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
+                  className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
                     error_name
                       ? 'border-red-700 text-red-800 placeholder-red-700'
-                      : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
+                      : 'placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular text-gray-700 focus:bg-white'
                   }`}
                   type="text"
                   aria-label="name"
@@ -317,10 +317,10 @@ export default function StudentSignUp() {
               onChange={(e) => onChange(e, 'email')}
               name="email"
               required
-              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
+              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
                 error_email
                   ? 'border-red-700 text-red-800 placeholder-red-700'
-                  : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
+                  : 'placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular text-gray-700 focus:bg-white'
               }`}
               type="email"
               aria-label="email"
@@ -340,10 +340,10 @@ export default function StudentSignUp() {
               onChange={(e) => onChange(e, 'password')}
               name="password"
               required
-              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
+              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
                 error_password
                   ? 'border-red-700 text-red-800 placeholder-red-700'
-                  : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
+                  : 'placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular text-gray-700 focus:bg-white'
               }`}
               type="password"
               aria-label="password"
@@ -365,10 +365,10 @@ export default function StudentSignUp() {
               type="date"
               id="birthday"
               name="birthday"
-              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
+              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
                 error_birthday
                   ? 'border-red-700 text-red-800 placeholder-red-700'
-                  : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
+                  : 'placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular text-gray-700 focus:bg-white'
               }`}
             />
             <p
@@ -395,7 +395,7 @@ export default function StudentSignUp() {
                 name="gender"
                 id="gender"
                 value={gender}
-                className="mb-4 mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700 focus:outline-none"
+                className="placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular mb-4 mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight text-gray-700 focus:bg-white focus:placeholder-gray-700"
               >
                 <option selected value="Male">
                   {t('auth.male')}
@@ -433,7 +433,7 @@ export default function StudentSignUp() {
                 name="race"
                 id="race"
                 value={race}
-                className="mb-4 mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700 focus:outline-none"
+                className="placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular mb-4 mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight text-gray-700 focus:bg-white focus:placeholder-gray-700"
               >
                 <option
                   selected
@@ -485,7 +485,7 @@ export default function StudentSignUp() {
                   value={terms}
                   type="checkbox"
                   name="terms"
-                  className="form-checkbox my-auto mr-2 leading-tight text-sciteensLightGreen-regular active:outline-none"
+                  className="form-checkbox text-sciteensLightGreen-regular my-auto mr-2 leading-tight"
                 />
                 <label
                   htmlFor="terms"
@@ -495,7 +495,7 @@ export default function StudentSignUp() {
                     {t('auth.terms')}&nbsp;
                     <Link
                       href="/legal/terms"
-                      className="font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark"
+                      className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold"
                     >
                       {t('auth.terms_link')}
                     </Link>
@@ -518,7 +518,7 @@ export default function StudentSignUp() {
                 error_password ||
                 !recaptchaSolved
               }
-              className="w-full rounded-lg bg-sciteensLightGreen-regular p-2 text-lg font-semibold text-white shadow outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+              className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark w-full rounded-lg p-2 text-lg font-semibold text-white shadow-sm disabled:opacity-50"
               onClick={emailSignUp}
             >
               {t('auth.create_account')}
@@ -537,7 +537,7 @@ export default function StudentSignUp() {
             </span>
           </div>
           <button
-            className="mb-2 flex w-full items-center justify-center rounded-lg bg-white p-3 shadow hover:shadow-md"
+            className="mb-2 flex w-full items-center justify-center rounded-lg bg-white p-3 shadow-sm hover:shadow-md"
             onClick={() =>
               providerSignIn(
                 auth,

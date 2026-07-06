@@ -34,7 +34,7 @@ export default function ResetSent() {
         </p>
         <Link
           href="/"
-          className="rounded-lg bg-sciteensLightGreen-regular p-2 text-white shadow outline-none hover:bg-sciteensLightGreen-dark"
+          className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark rounded-lg p-2 text-white shadow-sm"
         >
           {t('auth.go_home')}
         </Link>

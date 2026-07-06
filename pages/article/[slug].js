@@ -129,7 +129,7 @@ function Article({ article, recommendations }) {
             <h3>{t('article.about_the_author')}</h3>
             <div className="flex flex-col items-center lg:flex-row">
               <Image
-                className="h-20 w-20 flex-grow-0 rounded-full"
+                className="h-20 w-20 grow-0 rounded-full"
                 height="256"
                 width="256"
                 loader={imageLoader}
@@ -208,11 +208,11 @@ function Article({ article, recommendations }) {
           key={index}
           href={`/article/${a.uid}`}
           id={'i-' + index}
-          className="mr-[5vw] mt-6 w-[75vw] flex-shrink-0 cursor-pointer rounded-lg bg-white p-4 shadow hover:shadow-md  md:mr-[2.9vw] md:mt-8 md:w-[31vw]"
+          className="mr-[5vw] mt-6 w-[75vw] shrink-0 cursor-pointer rounded-lg bg-white p-4 shadow-sm hover:shadow-md  md:mr-[2.9vw] md:mt-8 md:w-[31vw]"
         >
           <div className="relative">
             <Image
-              className="flex-shrink-0 rounded-lg object-cover"
+              className="shrink-0 rounded-lg object-cover"
               loader={imageLoader}
               src={a.data.image.url}
               width={1280}
@@ -223,10 +223,10 @@ function Article({ article, recommendations }) {
             <h3 className="line-clamp-1 text-lg font-semibold">
               {RichText.asText(a.data.title)}
             </h3>
-            <p className="mb-auto line-clamp-3 text-sm">
+            <p className="line-clamp-3 mb-auto text-sm">
               {a.data.description}
             </p>
-            <p className="mt-2 line-clamp-1 hidden text-sm lg:flex">
+            <p className="line-clamp-1 mt-2 hidden text-sm lg:flex">
               By{' '}
               {a.data.author +
                 ' · ' +
@@ -278,7 +278,7 @@ function Article({ article, recommendations }) {
             />
           </Head>
           <main>
-            <article className="prose prose-sm mx-auto mt-8 overflow-hidden break-words px-4 lg:prose-lg">
+            <article className="prose prose-sm wrap-break-word lg:prose-lg mx-auto mt-8 overflow-hidden px-4">
               <h1>{RichText.asText(article.data.title)}</h1>
               <div>
                 <div className="mb-4 flex items-center">
@@ -306,7 +306,7 @@ function Article({ article, recommendations }) {
                         }}
                         legacyBehavior
                       >
-                        <p className="my-1 mr-4 cursor-pointer rounded-full bg-white px-5 py-1.5 text-base shadow hover:shadow-md">
+                        <p className="my-1 mr-4 cursor-pointer rounded-full bg-white px-5 py-1.5 text-base shadow-sm hover:shadow-md">
                           {tag}
                         </p>
                       </Link>
@@ -334,7 +334,7 @@ function Article({ article, recommendations }) {
                 {interviews}
 
                 {/* Thumbs Up / Thumbs Down Element */}
-                <div className="flex flex-col place-items-center justify-between rounded-lg bg-white shadow md:flex-row md:rounded-full">
+                <div className="flex flex-col place-items-center justify-between rounded-lg bg-white shadow-sm md:flex-row md:rounded-full">
                   <p className="ml-0 text-sm font-semibold text-black md:ml-14 md:text-lg lg:text-xl">
                     {t('article.rate')}
                   </p>

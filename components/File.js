@@ -7,7 +7,7 @@ export default function RenderFile({
     case 'application/vnd.openxmlformats-officedocument.presentationml.presentation':
       return (
         <a
-          className="flex w-full justify-between rounded-lg bg-white shadow"
+          className="flex w-full justify-between rounded-lg bg-white shadow-sm"
           href={URL.createObjectURL(file)}
           target="_blank"
           rel="noreferrer"
@@ -17,7 +17,7 @@ export default function RenderFile({
             alt="Powerpoint Icon"
             className="m-1 h-11 w-11"
           />
-          <div className="ml-2 line-clamp-1 flex-1 text-left">
+          <div className="line-clamp-1 ml-2 flex-1 text-left">
             <p className="line-clamp-1">{file?.name}</p>
             <p className="text-sm text-gray-700">
               application/powerpoint
@@ -42,7 +42,7 @@ export default function RenderFile({
     case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
       return (
         <a
-          className="flex w-full justify-between rounded-lg bg-white shadow"
+          className="flex w-full justify-between rounded-lg bg-white shadow-sm"
           href={URL.createObjectURL(file)}
           target="_blank"
           rel="noreferrer"
@@ -52,7 +52,7 @@ export default function RenderFile({
             alt="Word Icon"
             className="m-1 h-11 w-11"
           />
-          <div className="ml-2 line-clamp-1 flex-1 text-left">
+          <div className="line-clamp-1 ml-2 flex-1 text-left">
             <p>{file?.name}</p>
             <p className="text-sm text-gray-700">
               application/word
@@ -78,7 +78,7 @@ export default function RenderFile({
     case 'application/pdf':
       return (
         <a
-          className="flex w-full justify-between rounded-lg bg-white shadow"
+          className="flex w-full justify-between rounded-lg bg-white shadow-sm"
           href={URL.createObjectURL(file)}
           target="_blank"
           rel="noreferrer"
@@ -88,7 +88,7 @@ export default function RenderFile({
             alt="PDF Icon"
             className="m-1 h-11 w-11"
           />
-          <div className="ml-2 line-clamp-1 flex-1 text-left">
+          <div className="line-clamp-1 ml-2 flex-1 text-left">
             <p>{file?.name}</p>
             <p className="text-sm text-gray-700">
               application/pdf
@@ -115,7 +115,7 @@ export default function RenderFile({
     case 'image/jpg':
       return (
         <a
-          className="flex w-full justify-between rounded-lg bg-white shadow transition-all duration-500"
+          className="flex w-full justify-between rounded-lg bg-white shadow-sm transition-all duration-500"
           href={URL.createObjectURL(file)}
           target="_blank"
           rel="noreferrer"
@@ -125,7 +125,7 @@ export default function RenderFile({
             alt="Project"
             className="h-16 w-[10%] rounded-l-lg object-cover object-center"
           />
-          <div className="ml-2 line-clamp-1 flex-1 p-2 text-left">
+          <div className="line-clamp-1 ml-2 flex-1 p-2 text-left">
             <p>{file?.name}</p>
             <p className="text-sm text-gray-700">image</p>
           </div>
@@ -147,13 +147,13 @@ export default function RenderFile({
       )
     default:
       return (
-        <a className="flex w-full justify-between rounded-lg bg-white shadow">
+        <a className="flex w-full justify-between rounded-lg bg-white shadow-sm">
           <img
             src="/assets/files/file-doc-document-filetypes-text-word-xls-44511.svg"
             alt="File Icon"
             className="m-1 h-11 w-11"
           />
-          <div className="ml-2 line-clamp-1 flex-1 text-left">
+          <div className="line-clamp-1 ml-2 flex-1 text-left">
             <p>{file?.name}</p>
             <p className="line-clamp-1 text-sm text-gray-700">
               {file?.type}

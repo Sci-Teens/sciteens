@@ -13,7 +13,7 @@ function Banner({ closeBanner }) {
     setBanner(banner)
   }, [])
   return banner?.data.show_banner ? (
-    <div className="textl-lg relative mx-auto flex h-32 w-full flex-row items-center justify-center bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-center text-white lg:h-12">
+    <div className="textl-lg bg-linear-to-r relative mx-auto flex h-32 w-full flex-row items-center justify-center from-indigo-500 via-purple-500 to-pink-500 text-center text-white lg:h-12">
       <div className="m-1 w-11/12 overflow-auto">
         {RichText.render(banner.data.message)}
       </div>

@@ -64,7 +64,7 @@ export default function SignUpIndex() {
                     }
                   : '/signup/student'
               }
-              className="m-6 h-56 w-56 rounded bg-white shadow hover:shadow-md"
+              className="m-6 h-56 w-56 rounded-sm bg-white shadow-sm hover:shadow-md"
             >
               {show_student_info ? (
                 <div className="relative pt-8">
@@ -82,7 +82,7 @@ export default function SignUpIndex() {
                       className="h-6 w-6"
                     />
                   </button>
-                  <h2 className="mx-2 text-xl text-sciteensGreen-regular">
+                  <h2 className="text-sciteensGreen-regular mx-2 text-xl">
                     {t('auth.student_info')}
                   </h2>
                 </div>
@@ -107,7 +107,7 @@ export default function SignUpIndex() {
                     alt="Student Icon"
                     className="mx-auto h-40 p-4"
                   />
-                  <h2 className="text-xl text-sciteensGreen-regular">
+                  <h2 className="text-sciteensGreen-regular text-xl">
                     {t('auth.student')}
                   </h2>
                 </div>

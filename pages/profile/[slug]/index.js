@@ -133,7 +133,7 @@ function Project({ profile }) {
       >
         <animated.a
           style={project_spring}
-          className="z-50 mt-6 flex cursor-pointer items-center overflow-hidden rounded-lg bg-white p-4 shadow md:mt-8"
+          className="z-50 mt-6 flex cursor-pointer items-center overflow-hidden rounded-lg bg-white p-4 shadow-sm md:mt-8"
         >
           <div className="relative h-full max-h-[100px] max-w-[100px] overflow-hidden rounded-lg md:max-h-[200px] md:max-w-[200px]">
             <img
@@ -173,10 +173,10 @@ function Project({ profile }) {
                 </p>
               </div>
             )}
-            <h3 className="mb-2 line-clamp-2 text-base font-semibold md:text-xl lg:text-2xl">
+            <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">
               {project.title}
             </h3>
-            <p className="mb-4 line-clamp-none hidden md:line-clamp-2 md:block lg:line-clamp-3">
+            <p className="line-clamp-none md:line-clamp-2 lg:line-clamp-3 mb-4 hidden md:block">
               {project.abstract}
             </p>
             <div className="hidden flex-row lg:flex">
@@ -187,7 +187,7 @@ function Project({ profile }) {
                   return (
                     <p
                       key={index}
-                      className="z-30 mb-2 mr-2 whitespace-nowrap rounded-full bg-gray-100 px-3 py-1.5 text-xs shadow"
+                      className="z-30 mb-2 mr-2 whitespace-nowrap rounded-full bg-gray-100 px-3 py-1.5 text-xs shadow-sm"
                     >
                       {getTranslatedFieldsDict(t)[field]}
                     </p>
@@ -272,7 +272,7 @@ function Project({ profile }) {
                   href={`/profile/${router?.query?.slug}/edit`}
                   legacyBehavior
                 >
-                  <div className="h-1/3 cursor-pointer rounded-full border-2 border-sciteensLightGreen-regular px-6 py-1.5 text-center text-xl font-semibold text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark">
+                  <div className="border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark h-1/3 cursor-pointer rounded-full border-2 px-6 py-1.5 text-center text-xl font-semibold">
                     Edit
                   </div>
                 </Link>

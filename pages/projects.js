@@ -329,7 +329,7 @@ function Projects({ cached_projects }) {
       >
         <animated.a
           style={project_spring}
-          className="z-50 mt-6 flex cursor-pointer items-center overflow-hidden rounded-lg bg-white p-4 shadow md:mt-8"
+          className="z-50 mt-6 flex cursor-pointer items-center overflow-hidden rounded-lg bg-white p-4 shadow-sm md:mt-8"
         >
           <div className="relative h-full max-h-[100px] max-w-[100px] overflow-hidden rounded-lg md:max-h-[200px] md:max-w-[200px]">
             <img
@@ -339,7 +339,7 @@ function Projects({ cached_projects }) {
                   : ''
               }
               alt=""
-              className="flex-shrink-0 rounded-lg object-cover"
+              className="shrink-0 rounded-lg object-cover"
             ></img>
           </div>
           <div className="ml-4 w-3/4 lg:w-11/12">
@@ -370,7 +370,7 @@ function Projects({ cached_projects }) {
                         href={`/profile/${
                           member.slug ? member.slug : ''
                         }`}
-                        className="font-bold text-sciteensGreen-regular no-underline hover:text-sciteensGreen-dark"
+                        className="text-sciteensGreen-regular hover:text-sciteensGreen-dark font-bold no-underline"
                       >
                         {member.display + ' '}
                       </Link>
@@ -382,10 +382,10 @@ function Projects({ cached_projects }) {
             <div className="mb-2 ml-10 text-gray-500">
               {moment(project.date).format('ll')}
             </div>
-            <h3 className="mb-2 line-clamp-2 text-base font-semibold md:text-xl lg:text-2xl">
+            <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">
               {project.title}
             </h3>
-            <p className="mb-4 line-clamp-none hidden md:line-clamp-2 md:block lg:line-clamp-3">
+            <p className="line-clamp-none md:line-clamp-2 lg:line-clamp-3 mb-4 hidden md:block">
               {project.abstract}
             </p>
             <div className="hidden flex-row lg:flex">
@@ -396,7 +396,7 @@ function Projects({ cached_projects }) {
                   return (
                     <p
                       key={index}
-                      className="z-30 mb-2 mr-2 whitespace-nowrap rounded-full bg-gray-100 px-3 py-1.5 text-xs shadow"
+                      className="z-30 mb-2 mr-2 whitespace-nowrap rounded-full bg-gray-100 px-3 py-1.5 text-xs shadow-sm"
                     >
                       {getTranslatedFieldsDict(t)[field]}
                     </p>
@@ -428,7 +428,7 @@ function Projects({ cached_projects }) {
       return (
         <div
           key={index}
-          className="z-50 mt-4 h-16 rounded-lg bg-gray-100 p-4 shadow"
+          className="z-50 mt-4 h-16 rounded-lg bg-gray-100 p-4 shadow-sm"
         ></div>
       )
     })
@@ -464,7 +464,7 @@ function Projects({ cached_projects }) {
             <Link href="/project/create" legacyBehavior>
               {typeof window !== 'undefined' &&
               window.innerWidth >= 812 ? (
-                <a className="my-auto rounded-full border-2 border-sciteensLightGreen-regular px-5 py-1.5 text-lg font-semibold text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark">
+                <a className="border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark my-auto rounded-full border-2 px-5 py-1.5 text-lg font-semibold">
                   Create Project
                 </a>
               ) : (
@@ -515,14 +515,14 @@ function Projects({ cached_projects }) {
                 value={search}
                 name="search"
                 required
-                className={`mr-3 w-full appearance-none rounded border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700 focus:outline-none`}
+                className={`focus:border-sciteensLightGreen-regular mr-3 w-full appearance-none rounded-sm border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow-sm focus:bg-white focus:placeholder-gray-700`}
                 type="text"
                 aria-label="search"
                 maxLength="100"
               />
               <button
                 type="submit"
-                className="rounded-lg bg-sciteensLightGreen-regular px-4 py-2 font-semibold text-white shadow outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+                className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark rounded-lg px-4 py-2 font-semibold text-white shadow-sm disabled:opacity-50"
                 onClick={(e) => handleSearch(e)}
               >
                 {t('projects.search')}

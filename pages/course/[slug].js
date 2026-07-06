@@ -137,7 +137,7 @@ function Course({ course }) {
           content={course.data.description}
         />
       </Head>
-      <article className="prose-sm mx-auto mt-8 overflow-hidden break-words px-4 lg:prose">
+      <article className="prose-sm wrap-break-word lg:prose mx-auto mt-8 overflow-hidden px-4">
         <div>
           <h1>{RichText.asText(course.data.name)}</h1>
           {courseDateDisplay}
@@ -172,7 +172,7 @@ function Course({ course }) {
         <h2 className="mb-2 text-lg font-semibold">
           {t('course.lessons')}
         </h2>
-        <table className="mb-4 w-full table-auto rounded shadow">
+        <table className="mb-4 w-full table-auto rounded-sm shadow-sm">
           <tr className="rounded-t-md border-b border-gray-400 bg-gray-200 text-center">
             <th className="p-2">{t('course.date')}</th>
             <th className="p-2">{t('course.lesson')}</th>

@@ -107,7 +107,7 @@ export default function StudentSignIn() {
         <meta property="og:type" content="website" />
       </Head>
       <main>
-        <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
+        <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow-sm md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
           <h1 className="mb-2 text-center text-3xl font-semibold">
             {t('auth.student_sign_in')}
           </h1>
@@ -141,10 +141,10 @@ export default function StudentSignIn() {
               onChange={(e) => onChange(e, 'email')}
               name="email"
               required
-              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
+              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
                 error_email
                   ? 'border-red-700 text-red-800 placeholder-red-700'
-                  : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
+                  : 'placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular text-gray-700 focus:bg-white'
               }`}
               type="email"
               aria-label="email"
@@ -164,10 +164,10 @@ export default function StudentSignIn() {
               onChange={(e) => onChange(e, 'password')}
               name="password"
               required
-              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
+              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
                 error_password
                   ? 'border-red-700 text-red-800 placeholder-red-700'
-                  : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
+                  : 'placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular text-gray-700 focus:bg-white'
               }`}
               type="password"
               aria-label="password"
@@ -179,14 +179,14 @@ export default function StudentSignIn() {
             <div className="my-2 flex flex-col justify-between">
               <Link
                 href="/signin/reset"
-                className="mb-2 mr-1 flex-1 rounded py-2 text-sm text-gray-600"
+                className="mb-2 mr-1 flex-1 rounded-sm py-2 text-sm text-gray-600"
               >
                 {t('auth.reset_password')}
               </Link>
 
               <button
                 type="submit"
-                className="w-full rounded-lg bg-sciteensLightGreen-regular p-2 text-lg font-semibold text-white shadow outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+                className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark w-full rounded-lg p-2 text-lg font-semibold text-white shadow-sm disabled:opacity-50"
                 onClick={emailSignIn}
                 disabled={
                   error_email ||
@@ -205,7 +205,7 @@ export default function StudentSignIn() {
             </span>
           </div>
           <button
-            className="mb-2 flex w-full items-center justify-center rounded bg-white p-2 shadow hover:shadow-md"
+            className="mb-2 flex w-full items-center justify-center rounded-sm bg-white p-2 shadow-sm hover:shadow-md"
             onClick={() =>
               providerSignIn(
                 auth,

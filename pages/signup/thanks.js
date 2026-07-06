@@ -25,14 +25,14 @@ export default function SignUpThanks() {
         &nbsp;
         {t('auth.for_inspiration')}
       </p>
-      <div className="flex flex-row rounded-lg bg-sciteensGreen-regular p-2">
+      <div className="bg-sciteensGreen-regular flex flex-row rounded-lg p-2">
         <a
           href="https://www.facebook.com/SciTeensinfo"
           target="_blank"
           rel="noopener noreferrer"
         >
           <img
-            className="mr-4 h-6 fill-current text-sciteensGreen-regular"
+            className="text-sciteensGreen-regular mr-4 h-6 fill-current"
             src={'../assets/icons/facebook-flat.svg'}
             alt="Facebook"
           />
