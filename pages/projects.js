@@ -35,6 +35,8 @@ import {
 } from '@react-spring/web'
 import ProfilePhoto from '../components/ProfilePhoto'
 import { getTranslatedFieldsDict } from '../context/helpers'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 function Projects({ cached_projects }) {
   const router = useRouter()
@@ -508,25 +510,24 @@ function Projects({ cached_projects }) {
               onSubmit={(e) => handleSearch(e)}
               className="flex flex-row"
             >
-              <input
+              <Input
                 onChange={(e) =>
                   handleChange(e, 'searchbar')
                 }
                 value={search}
                 name="search"
                 required
-                className={`focus:border-sciteensLightGreen-regular mr-3 w-full appearance-none rounded-sm border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow-sm focus:bg-white focus:placeholder-gray-700`}
+                className="mr-3"
                 type="text"
                 aria-label="search"
                 maxLength="100"
               />
-              <button
+              <Button
                 type="submit"
-                className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark rounded-lg px-4 py-2 font-semibold text-white shadow-sm disabled:opacity-50"
                 onClick={(e) => handleSearch(e)}
               >
                 {t('projects.search')}
-              </button>
+              </Button>
             </form>
 
             <hr className="my-8 bg-gray-300" />

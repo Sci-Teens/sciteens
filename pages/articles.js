@@ -18,6 +18,15 @@ import {
 } from '@react-spring/web'
 import { getTranslatedFieldsDict } from '../context/helpers'
 import ReactPaginate from 'react-paginate'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 function Articles({ cached_articles }) {
   const router = useRouter()
@@ -282,9 +291,9 @@ function Articles({ cached_articles }) {
             onSubmit={(e) => handleSearch(e)}
             className="flex flex-row lg:hidden"
           >
-            <button
+            <Button
               type="submit"
-              className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark w-auto rounded-l-lg px-3 font-semibold text-white shadow-sm disabled:opacity-50"
+              size="icon"
               onClick={(e) => handleSearch(e)}
             >
               <img
@@ -292,37 +301,39 @@ function Articles({ cached_articles }) {
                 alt="Search"
                 className="h-10"
               />
-            </button>
-            <input
+            </Button>
+            <Input
               onChange={(e) => handleChange(e, 'searchbar')}
               value={search}
               name="search"
               placeholder="Search..."
               required
-              className={`focus:border-sciteensLightGreen-regular w-full appearance-none border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow-sm focus:bg-white focus:placeholder-gray-700`}
               type="text"
               aria-label="search"
               maxLength="100"
             />
-            <select
-              onChange={(e) =>
-                handleFieldSearch(e.target.value)
-              }
+            <Select
               name="field"
-              id="field"
               value={field}
-              className="placeholder-sciteensGreen-regular focus:border-sciteensGreen-regular w-1/2 appearance-none rounded-r-lg border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow-sm focus:bg-white focus:placeholder-gray-700"
+              onValueChange={(value) =>
+                handleFieldSearch(value)
+              }
             >
-              {Object.entries(
-                getTranslatedFieldsDict(t)
-              ).map(([key, value]) => {
-                return (
-                  <option key={key} value={key}>
-                    {value}
-                  </option>
-                )
-              })}
-            </select>
+              <SelectTrigger id="field" className="w-1/2">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(
+                  getTranslatedFieldsDict(t)
+                ).map(([key, value]) => {
+                  return (
+                    <SelectItem key={key} value={key}>
+                      {value}
+                    </SelectItem>
+                  )
+                })}
+              </SelectContent>
+            </Select>
           </form>
           {articlesComponent}
           {articles.results.length === 0 && (
@@ -362,25 +373,24 @@ function Articles({ cached_articles }) {
               onSubmit={(e) => handleSearch(e)}
               className="flex flex-row"
             >
-              <input
+              <Input
                 onChange={(e) =>
                   handleChange(e, 'searchbar')
                 }
                 value={search}
                 name="search"
                 required
-                className={`focus:border-sciteensLightGreen-regular mr-3 w-full appearance-none rounded-sm border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow-sm focus:bg-white focus:placeholder-gray-700`}
+                className="mr-3"
                 type="text"
                 aria-label="search"
                 maxLength="100"
               />
-              <button
+              <Button
                 type="submit"
-                className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark rounded-lg px-4 py-2 font-semibold text-white shadow-sm disabled:opacity-50"
                 onClick={(e) => handleSearch(e)}
               >
                 {t('articles.search')}
-              </button>
+              </Button>
             </form>
 
             <hr className="my-8 bg-gray-300" />

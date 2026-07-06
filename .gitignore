@@ -46,3 +46,7 @@ pnpm-debug.log*
 
 # Local migration tracking
 MIGRATION-PHASES.md
+
+# next-sitemap build output
+public/robots.txt
+public/sitemap.xml

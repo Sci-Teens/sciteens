@@ -42,12 +42,24 @@ import File from '../../../components/File'
 import { AppContext } from '../../../context/context'
 import { sanitizeFileName } from '../../../context/helpers'
 
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field'
+
 export default function UpdateProfilePage({
   user_profile,
 }) {
   const { t } = useTranslation('common')
   const [loading, setLoading] = useState(false)
-  const [about, setAbout] = useState('')
   const [members] = useState([])
   const [file_extensions] = useState([
     'text/html',
@@ -69,7 +81,6 @@ export default function UpdateProfilePage({
   const [metadata_arr, setMetadata] = useState([])
   const [profile_photo, setProfilePhoto] = useState(null)
 
-  const [error_about, setErrorAbout] = useState('')
   const [error_file, setErrorFile] = useState('')
 
   const { status, data: signInCheckResult } =
@@ -77,6 +88,18 @@ export default function UpdateProfilePage({
 
   const router = useRouter()
   const { profile } = useContext(AppContext)
+
+  const schema = z.object({
+    about: z.string().refine((v) => v.trim() !== '', {
+      message: t('fill_out_about'),
+    }),
+  })
+
+  const form = useForm({
+    resolver: zodResolver(schema),
+    mode: 'onChange',
+    defaultValues: { about: user_profile.about || '' },
+  })
 
   useEffect(() => {
     if (
@@ -102,7 +125,6 @@ export default function UpdateProfilePage({
       storage,
       `profiles/${user_profile.id}`
     )
-    setAbout(user_profile.about)
 
     // Find all the prefixes and items.
     try {
@@ -135,22 +157,22 @@ export default function UpdateProfilePage({
     }
   }, [])
 
-  const updateProfile = async (e) => {
-    e.preventDefault()
+  const updateProfile = async (values) => {
     setLoading(true)
     try {
       await updateDoc(
         doc(firestore, 'profiles', user_profile.id),
         {
-          about: about.trim(),
+          about: values.about.trim(),
           links: [],
         }
       )
     } catch (e) {
       console.error(e)
-      setErrorAbout(
-        t('edit_profile.couldnt_update_profile')
-      )
+      form.setError('about', {
+        type: 'server',
+        message: t('edit_profile.couldnt_update_profile'),
+      })
     }
 
     try {
@@ -188,9 +210,10 @@ export default function UpdateProfilePage({
       router.push(`/profile/${user_profile.slug}`)
       setLoading(false)
     } catch (error) {
-      setErrorAbout(
-        t('edit_profile.couldnt_update_profile')
-      )
+      form.setError('about', {
+        type: 'server',
+        message: t('edit_profile.couldnt_update_profile'),
+      })
       console.error(error)
       setLoading(false)
     }
@@ -230,19 +253,6 @@ export default function UpdateProfilePage({
   const { getRootProps, getInputProps, isDragActive } =
     useDropzone({ onDrop })
 
-  async function onChange(e, target) {
-    switch (target) {
-      case 'about':
-        setAbout(e.target.value)
-        if (e.target.value.trim() == '') {
-          setErrorAbout(t('fill_out_about'))
-        } else {
-          setErrorAbout('')
-        }
-        break
-    }
-  }
-
   const removeFile = async (e, id) => {
     e.preventDefault()
     let temp_files = [...files]
@@ -273,32 +283,35 @@ export default function UpdateProfilePage({
           <p className="mb-6 text-center text-gray-700">
             {t('edit_profile.why_update_your_profile')}
           </p>
-          <form onSubmit={(e) => updateProfile(e)}>
-            <label
-              htmlFor="about"
-              className="uppercase text-gray-600"
-            >
-              {t('edit_profile.about')}
-            </label>
-            <textarea
-              onChange={(e) => onChange(e, 'about')}
-              value={about}
-              name="about"
-              rows="7"
-              required
-              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
-                error_about
-                  ? 'border-red-700 text-red-800 placeholder-red-700'
-                  : 'focus:border-sciteensLightGreen-regular text-gray-700 focus:bg-white'
-              }`}
-              type="textarea"
-              placeholder={t('edit_profile.tell_us_about')}
-              aria-label="about"
-              maxLength="1000"
-            />
-            <p className="mb-4 text-sm text-red-800">
-              {error_about}
-            </p>
+          <form onSubmit={form.handleSubmit(updateProfile)}>
+            <FieldGroup>
+              <Controller
+                name="about"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="about">
+                      {t('edit_profile.about')}
+                    </FieldLabel>
+                    <Textarea
+                      {...field}
+                      id="about"
+                      rows={7}
+                      maxLength={1000}
+                      placeholder={t(
+                        'edit_profile.tell_us_about'
+                      )}
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError
+                        errors={[fieldState.error]}
+                      />
+                    )}
+                  </Field>
+                )}
+              />
+            </FieldGroup>
 
             {members.map((m, index) => (
               <p key={index} className="p-2">
@@ -363,13 +376,16 @@ export default function UpdateProfilePage({
             </div>
 
             <div className="flex w-full justify-end">
-              <button
+              <Button
                 type="submit"
+                size="lg"
                 disabled={
-                  loading || error_about || error_file
+                  !form.formState.isValid ||
+                  form.formState.isSubmitting ||
+                  loading ||
+                  error_file
                 }
-                className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark mr-2 mt-4 w-full rounded-lg p-2 text-lg font-semibold text-white shadow-sm disabled:opacity-50"
-                onClick={(e) => updateProfile(e)}
+                className="mr-2 mt-4 w-full"
               >
                 {t('edit_profile.update')}
                 {loading && (
@@ -379,7 +395,7 @@ export default function UpdateProfilePage({
                     className="inline-block h-5 w-5"
                   />
                 )}
-              </button>
+              </Button>
               <Link
                 href={`/profile/${user_profile.slug}`}
                 className="ml-2 mt-4 w-full rounded-lg border-2 border-gray-200 bg-gray-100 p-2 text-center text-lg font-semibold text-black shadow-sm hover:border-gray-300 hover:bg-gray-200 disabled:opacity-50"

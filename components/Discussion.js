@@ -11,7 +11,9 @@ import { db } from '../lib/firebase'
 import { useRouter } from 'next/router'
 import { post } from '../context/helpers.js'
 import ProfilePhoto from './ProfilePhoto'
-
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import { FieldLabel } from '@/components/ui/field'
 import debounce from 'lodash.debounce'
 import moment from 'moment'
 
@@ -191,33 +193,32 @@ export default function Discussion({ type, item_id }) {
         <h2 className="mb-4 text-3xl font-bold text-black">
           Discussion
         </h2>
-        <label
+        <FieldLabel
           htmlFor="comment"
           className="uppercase text-gray-600"
         >
           Comment
-        </label>
-        <textarea
+        </FieldLabel>
+        <Textarea
           onChange={(e) => onChange(e, true, -1)}
           value={comment}
           name="comment"
           id="comment"
           required
-          rows="3"
+          rows={3}
           className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-white p-2 leading-tight shadow focus:bg-white focus:placeholder-gray-700 focus:shadow-lg ${
             error_comment
               ? 'border-red-700 text-red-800 placeholder-red-700'
               : 'focus:border-sciteensLightGreen-regular text-gray-700'
           }`}
-          type="textarea"
           placeholder={
             discussion?.length
               ? ''
               : 'Start the conversation...'
           }
           aria-label="comment"
-          maxLength="1000"
-        ></textarea>
+          maxLength={1000}
+        />
         <p className="text-sm text-red-800">
           {error_comment}
         </p>
@@ -226,7 +227,7 @@ export default function Discussion({ type, item_id }) {
             comment === '' ? 'hidden' : ''
           }`}
         >
-          <button
+          <Button
             type="reset"
             onClick={() => {
               setReplyingToName('')
@@ -236,8 +237,8 @@ export default function Discussion({ type, item_id }) {
             className="mr-2 rounded-lg border-2 border-gray-500 bg-gray-200 p-2 opacity-50 shadow-sm hover:bg-opacity-100 disabled:opacity-50"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
             disabled={loading || error_comment}
             className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark rounded-lg p-2 text-white shadow-sm disabled:opacity-50"
@@ -251,7 +252,7 @@ export default function Discussion({ type, item_id }) {
                 className="inline-block h-5 w-5"
               />
             )}
-          </button>
+          </Button>
         </div>
       </form>
       {router.isReady && router.basePath}
@@ -290,14 +291,15 @@ export default function Discussion({ type, item_id }) {
                   </p>
                   <p>{comment.comment}</p>
                   <div className="flex justify-end">
-                    <button
+                    <Button
+                      variant="ghost"
                       className="text-gray-700 hover:text-black"
                       onClick={() =>
                         handleReplyTo(comment, key)
                       }
                     >
                       Reply
-                    </button>
+                    </Button>
                   </div>
                 </div>
                 <div
@@ -312,15 +314,22 @@ export default function Discussion({ type, item_id }) {
                                 : 'h-0 overflow-hidden rounded-lg'
                             }`}
                 >
-                  <textarea
-                    onChange={(e) =>
-                      onChange(e, false, key)
-                    }
-                    name="reply"
-                    id={'reply' + key}
-                    required
-                    rows="3"
-                    className={`w-full resize-none appearance-none border-transparent bg-white p-2 leading-tight shadow focus:shadow-lg 
+                  <div className="flex w-full flex-col">
+                    <FieldLabel
+                      htmlFor={`reply${key}`}
+                      className="sr-only"
+                    >
+                      Reply
+                    </FieldLabel>
+                    <Textarea
+                      onChange={(e) =>
+                        onChange(e, false, key)
+                      }
+                      name="reply"
+                      id={`reply${key}`}
+                      required
+                      rows={3}
+                      className={`w-full resize-none appearance-none border-transparent bg-white p-2 leading-tight shadow focus:shadow-lg 
                                 ${
                                   replyingToId == comment.id
                                     ? 'rounded-lg'
@@ -332,13 +341,13 @@ export default function Discussion({ type, item_id }) {
                                     ? 'text-red-800 placeholder-red-700'
                                     : 'border-sciteensLightGreen-regular text-gray-700'
                                 }`}
-                    type="textarea"
-                    placeholder="Reply..."
-                    aria-label="reply"
-                    maxLength="1000"
-                  ></textarea>
+                      placeholder="Reply..."
+                      aria-label="reply"
+                      maxLength={1000}
+                    />
+                  </div>
                   <div className="flex w-min flex-col">
-                    <button
+                    <Button
                       type="reset"
                       onClick={() => {
                         setReplyingToName('')
@@ -348,8 +357,8 @@ export default function Discussion({ type, item_id }) {
                       className="mr-2 h-full w-full bg-gray-200 px-2 py-2 hover:bg-gray-300 disabled:opacity-50 md:px-4"
                     >
                       Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="submit"
                       disabled={
                         loading ||
@@ -367,7 +376,7 @@ export default function Discussion({ type, item_id }) {
                           className="inline-block h-5 w-5"
                         />
                       )}
-                    </button>
+                    </Button>
                   </div>
                 </div>
                 <div className="mb-7">

@@ -3,17 +3,11 @@ import Layout from '../components/Layout'
 import { AppContext } from '../context/context'
 import { AuthProvider } from '../context/AuthContext'
 import { useState, useEffect } from 'react'
-import { Nunito } from 'next/font/google'
+import { nunito } from '../lib/fonts'
 import Head from 'next/head'
 import '../styles/nprogress.css'
 import dynamic from 'next/dynamic'
 import { appWithTranslation } from 'next-i18next'
-
-const nunito = Nunito({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-sciteens',
-})
 
 const TopProgressBar = dynamic(
   () => {

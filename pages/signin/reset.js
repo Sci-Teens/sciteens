@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { auth } from '../../lib/firebase'
 import { useRouter } from 'next/router'
 import { sendPasswordResetEmail } from '@firebase/auth'
@@ -7,32 +6,48 @@ import Head from 'next/head'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field'
+
 export default function Reset() {
   const { t } = useTranslation('common')
-
-  const [email, setEmail] = useState('')
-  const [error_email, setErrorEmail] = useState('')
   const router = useRouter()
 
-  async function submitForgotPassword(e) {
-    e.preventDefault()
+  const schema = z.object({
+    email: z.string().refine((v) => isEmail(v), {
+      message: t('auth.valid_email'),
+    }),
+  })
+
+  const form = useForm({
+    resolver: zodResolver(schema),
+    mode: 'onChange',
+    defaultValues: { email: '' },
+  })
+
+  async function submitForgotPassword({ email }) {
     try {
       await sendPasswordResetEmail(auth, email)
       router.push('/signin/resetsent')
     } catch (e) {
-      setErrorEmail(e)
-      setEmail('')
+      form.setValue('email', '')
+      form.setError('email', {
+        type: 'server',
+        message: e?.message,
+      })
     }
   }
 
-  const onChange = (e) => {
-    setEmail(e.target.value)
-    if (e.target.value == '' || !isEmail(e.target.value)) {
-      setErrorEmail(t('auth.valid_email'))
-    } else {
-      setErrorEmail('')
-    }
-  }
   return (
     <div>
       <Head>
@@ -54,45 +69,55 @@ export default function Reset() {
       </Head>
       <main className="flex h-screen items-center justify-center">
         <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow-sm md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
-          <form onSubmit={submitForgotPassword}>
+          <form
+            onSubmit={form.handleSubmit(
+              submitForgotPassword
+            )}
+          >
             <h1 className="mb-2 text-center text-3xl font-semibold">
               {t('auth.reset_password')}
             </h1>
             <p className="mb-6 text-center text-gray-700">
               {t('auth.why_reset_password')}
             </p>
-            <label
-              htmlFor="email"
-              className="uppercase text-gray-600"
-            >
-              {t('auth.email')}
-            </label>
-            <input
-              value={email}
-              onChange={(e) => onChange(e, 'email')}
-              name="email"
-              required
-              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
-                error_email
-                  ? 'border-red-700 text-red-800 placeholder-red-700'
-                  : 'placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular text-gray-700 focus:bg-white'
-              }`}
-              type="email"
-              aria-label="email"
-            />
-            <p className="mb-6 text-sm text-red-800">
-              {error_email}
-            </p>
-            <div className="mb-10 mt-2 flex content-end justify-end">
-              <button
-                type="submit"
-                className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark w-full rounded-lg p-2 text-lg font-semibold text-white shadow-sm disabled:opacity-50"
-                onClick={submitForgotPassword}
-                disabled={error_email}
-              >
-                {t('auth.reset_password')}
-              </button>
-            </div>
+            <FieldGroup>
+              <Controller
+                name="email"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="email">
+                      {t('auth.email')}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="email"
+                      type="email"
+                      autoComplete="email"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError
+                        errors={[fieldState.error]}
+                      />
+                    )}
+                  </Field>
+                )}
+              />
+              <div className="mb-10 mt-2 flex content-end justify-end">
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="w-full"
+                  disabled={
+                    !form.formState.isValid ||
+                    form.formState.isSubmitting
+                  }
+                >
+                  {t('auth.reset_password')}
+                </Button>
+              </div>
+            </FieldGroup>
           </form>
         </div>
       </main>

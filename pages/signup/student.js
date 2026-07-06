@@ -7,6 +7,10 @@ import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+
 import { auth, db as firestore } from '../../lib/firebase'
 import { doc, setDoc } from '@firebase/firestore'
 import {
@@ -27,6 +31,24 @@ import {
   resolveRefPath,
 } from '../../context/helpers'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field'
+
 export default function StudentSignUp() {
   const { t } = useTranslation('common')
   const f_signup_errors = {
@@ -40,28 +62,85 @@ export default function StudentSignUp() {
     ),
   }
 
-  const [first_name, setFirstName] = useState('')
-  const [last_name, setLastName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [birthday, setBirthday] = useState('')
-  const [gender, setGender] = useState('Male')
-  const [race, setRace] = useState(
-    'American Indian or Alaska Native'
-  )
-  const [terms, setTerms] = useState(false)
   const [loading, setLoading] = useState(false)
   const [recaptchaSolved, setRecaptchaSolved] =
     useState(false)
 
-  const [error_name, setErrorName] = useState('')
-  const [error_email, setErrorEmail] = useState('')
-  const [error_password, setErrorPassword] = useState('')
-  const [error_birthday, setErrorBirthday] = useState('')
-  const [error_terms] = useState('')
-
   const router = useRouter()
   const { setProfile } = useContext(AppContext)
+
+  const schema = z.object({
+    first_name: z.string().superRefine((val, ctx) => {
+      const trimmed = val.trim()
+      if (!isAlpha(trimmed) || trimmed.length < 1) {
+        ctx.addIssue({
+          code: 'custom',
+          message: t('auth.error_name'),
+        })
+      } else if (trimmed.split(' ').length > 1) {
+        ctx.addIssue({
+          code: 'custom',
+          message: t('auth.error_first_name'),
+        })
+      }
+    }),
+    last_name: z.string().superRefine((val, ctx) => {
+      const trimmed = val.trim()
+      if (!isAlpha(trimmed) || trimmed.length < 1) {
+        ctx.addIssue({
+          code: 'custom',
+          message: t('auth.error_name'),
+        })
+      } else if (trimmed.split(' ').length > 1) {
+        ctx.addIssue({
+          code: 'custom',
+          message: t('auth.error_last_name'),
+        })
+      }
+    }),
+    email: z.string().refine((v) => isEmail(v), {
+      message: t('auth.valid_email'),
+    }),
+    password: z.string().superRefine((val, ctx) => {
+      const message = validatePassword(val, t)
+      if (message) {
+        ctx.addIssue({ code: 'custom', message })
+      }
+    }),
+    birthday: z.string().superRefine((val, ctx) => {
+      if (
+        moment(val).isAfter(
+          moment().subtract(13, 'years')
+        ) ||
+        val.length < 1
+      ) {
+        ctx.addIssue({
+          code: 'custom',
+          message: t('auth.error_birthday'),
+        })
+      }
+    }),
+    gender: z.string(),
+    race: z.string(),
+    terms: z.literal(true, {
+      message: t('auth.error_terms'),
+    }),
+  })
+
+  const form = useForm({
+    resolver: zodResolver(schema),
+    mode: 'onChange',
+    defaultValues: {
+      first_name: '',
+      last_name: '',
+      email: '',
+      password: '',
+      birthday: '',
+      gender: 'Male',
+      race: 'American Indian or Alaska Native',
+      terms: false,
+    },
+  })
 
   useEffect(async () => {
     if (
@@ -91,76 +170,10 @@ export default function StudentSignUp() {
     }
   })
 
-  async function onChange(e, target) {
-    switch (target) {
-      case 'first_name':
-        setFirstName(e.target.value.trim())
-
-        if (
-          !isAlpha(e.target.value.trim()) ||
-          e.target.value.trim().length < 1
-        ) {
-          setErrorName(t('auth.error_name'))
-        } else if (
-          e.target.value.trim().split(' ').length > 1
-        ) {
-          setErrorName(t('auth.error_first_name'))
-        } else {
-          setErrorName('')
-        }
-        break
-      case 'last_name':
-        setLastName(e.target.value.trim())
-
-        if (
-          !isAlpha(e.target.value.trim()) ||
-          e.target.value.trim().length < 1
-        ) {
-          setErrorName(t('auth.error_name'))
-        } else if (
-          e.target.value.trim().split(' ').length > 1
-        ) {
-          setErrorName(t('auth.error_last_name'))
-        } else {
-          setErrorName('')
-        }
-        break
-      case 'birthday':
-        setBirthday(e.target.value)
-        if (
-          moment(e.target.value).isAfter(
-            moment().subtract(13, 'years')
-          ) ||
-          e.target.value.length < 1
-        ) {
-          setErrorBirthday(t('auth.error_birthday'))
-        } else {
-          setErrorBirthday('')
-        }
-        break
-      case 'email':
-        setEmail(e.target.value)
-        if (
-          e.target.value == '' ||
-          !isEmail(e.target.value)
-        ) {
-          setErrorEmail(t('auth.valid_email'))
-        } else {
-          setErrorEmail('')
-        }
-        break
-      case 'password':
-        setPassword(e.target.value)
-        setErrorPassword(
-          validatePassword(e.target.value, t)
-        )
-        break
-    }
-  }
-
-  async function emailSignUp(event) {
-    event.preventDefault()
+  async function emailSignUp(values) {
     setLoading(true)
+    const first_name = values.first_name.trim()
+    const last_name = values.last_name.trim()
     let res
     let unique_slug = await createUniqueSlug(
       firestore,
@@ -179,11 +192,11 @@ export default function StudentSignUp() {
       programs: [],
       links: [],
       joined: moment().toISOString(),
-      birthday: moment(birthday).toISOString(),
+      birthday: moment(values.birthday).toISOString(),
       institution: '',
       position: '',
-      race: race,
-      gender: gender,
+      race: values.race,
+      gender: values.gender,
       subs_p: [],
       subs_e: [],
       mentor: false,
@@ -192,8 +205,8 @@ export default function StudentSignUp() {
     try {
       res = await createUserWithEmailAndPassword(
         auth,
-        email,
-        password
+        values.email,
+        values.password
       )
       profile.uid = res.user.uid
       await setDoc(
@@ -215,10 +228,13 @@ export default function StudentSignUp() {
       router.push(dest || '/')
     } catch (e) {
       console.log(e)
-      f_signup_errors[e.code]
-        ? setErrorEmail(f_signup_errors[e.code])
-        : setErrorEmail(t('auth.sign_in_failed'))
-      setEmail('')
+      form.setValue('email', '')
+      form.setError('email', {
+        type: 'server',
+        message:
+          f_signup_errors[e.code] ||
+          t('auth.sign_in_failed'),
+      })
       setLoading(false)
     }
   }
@@ -251,293 +267,286 @@ export default function StudentSignUp() {
             {t('auth.why_student_sign_up')}
           </p>
 
-          <form onSubmit={emailSignUp}>
-            <div className="flex flex-row">
-              <div className="mr-1">
-                <label
-                  htmlFor="first-name"
-                  className="uppercase text-gray-600"
-                >
-                  {t('auth.first_name')}
-                </label>
-                <input
-                  onChange={(e) =>
-                    onChange(e, 'first_name')
-                  }
-                  value={first_name}
-                  name="first-name"
-                  required
-                  className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
-                    error_name
-                      ? 'border-red-700 text-red-800 placeholder-red-700'
-                      : 'placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular text-gray-700 focus:bg-white'
-                  }`}
-                  type="text"
-                  aria-label="name"
-                  maxLength="50"
-                />
-                <div className="mb-4"></div>
-              </div>
-
-              <div className="ml-1">
-                <label
-                  htmlFor="last-name"
-                  className="mt-4 uppercase text-gray-600"
-                >
-                  {t('auth.last_name')}
-                </label>
-                <input
-                  onChange={(e) => onChange(e, 'last_name')}
-                  value={last_name}
-                  name="last-name"
-                  required
-                  className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
-                    error_name
-                      ? 'border-red-700 text-red-800 placeholder-red-700'
-                      : 'placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular text-gray-700 focus:bg-white'
-                  }`}
-                  type="text"
-                  aria-label="name"
-                  maxLength="50"
-                />
-                <p className="mb-4 text-sm text-red-800">
-                  {error_name}
-                </p>
-              </div>
-            </div>
-
-            <label
-              htmlFor="email"
-              className="uppercase text-gray-600"
-            >
-              {t('auth.email')}
-            </label>
-            <input
-              value={email}
-              onChange={(e) => onChange(e, 'email')}
-              name="email"
-              required
-              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
-                error_email
-                  ? 'border-red-700 text-red-800 placeholder-red-700'
-                  : 'placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular text-gray-700 focus:bg-white'
-              }`}
-              type="email"
-              aria-label="email"
-            />
-            <p className="mb-4 text-sm text-red-800">
-              {error_email}
-            </p>
-
-            <label
-              htmlFor="password"
-              className="uppercase text-gray-600"
-            >
-              {t('auth.password')}
-            </label>
-            <input
-              value={password}
-              onChange={(e) => onChange(e, 'password')}
-              name="password"
-              required
-              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
-                error_password
-                  ? 'border-red-700 text-red-800 placeholder-red-700'
-                  : 'placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular text-gray-700 focus:bg-white'
-              }`}
-              type="password"
-              aria-label="password"
-            />
-            <p className="mb-4 text-sm text-red-800">
-              {error_password}
-            </p>
-
-            <label
-              htmlFor="birthday"
-              className="uppercase text-gray-600"
-            >
-              {t('auth.birthday')}
-            </label>
-            <input
-              required
-              onChange={(e) => onChange(e, 'birthday')}
-              value={birthday}
-              type="date"
-              id="birthday"
-              name="birthday"
-              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
-                error_birthday
-                  ? 'border-red-700 text-red-800 placeholder-red-700'
-                  : 'placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular text-gray-700 focus:bg-white'
-              }`}
-            />
-            <p
-              className={`mb-4 text-sm ${
-                error_birthday
-                  ? 'text-red-800'
-                  : 'text-gray-700'
-              }`}
-            >
-              {error_birthday
-                ? error_birthday
-                : t('auth.error_birthday')}
-            </p>
-
-            <label
-              htmlFor="gender"
-              className="uppercase text-gray-600"
-            >
-              {t('auth.gender')}
-            </label>
-            <div className="relative w-full">
-              <select
-                onChange={(e) => setGender(e.target.value)}
-                name="gender"
-                id="gender"
-                value={gender}
-                className="placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular mb-4 mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight text-gray-700 focus:bg-white focus:placeholder-gray-700"
-              >
-                <option selected value="Male">
-                  {t('auth.male')}
-                </option>
-                <option value="Female">
-                  {t('auth.female')}
-                </option>
-                <option value="Other">
-                  {t('auth.other')}
-                </option>
-                <option value="Prefer not to answer">
-                  {t('auth.prefer_not_answer')}
-                </option>
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                <svg
-                  className="h-4 w-4 fill-current"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                </svg>
-              </div>
-            </div>
-
-            <label
-              htmlFor="race"
-              className="uppercase text-gray-600"
-            >
-              {t('auth.race')}
-            </label>
-            <div className="relative w-full">
-              <select
-                onChange={(e) => setRace(e.target.value)}
-                name="race"
-                id="race"
-                value={race}
-                className="placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular mb-4 mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight text-gray-700 focus:bg-white focus:placeholder-gray-700"
-              >
-                <option
-                  selected
-                  value="American Indian or Alaska Native"
-                >
-                  {t('auth.american_indian')}
-                </option>
-                <option value="Asian (including Indian subcontinent and Philippines origin)">
-                  {t('auth.asian')}
-                </option>
-                <option value="Black or African American">
-                  {t('auth.black')}
-                </option>
-                <option value="Hispanic or Latino">
-                  {t('auth.hispanic')}
-                </option>
-                <option value="White (including Middle Eastern origin)">
-                  {t('auth.white')}
-                </option>
-                <option value="Native Hawaiian or Other Pacific Islander">
-                  {t('auth.native_hawaiian')}
-                </option>
-                <option value="Prefer not to answer">
-                  {t('auth.prefer_not_answer')}
-                </option>
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                <svg
-                  className="h-4 w-4 fill-current"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                </svg>
-              </div>
-            </div>
-            <div
-              id="recaptcha-container"
-              className="mb-4 flex w-full justify-center"
-            ></div>
-            <div>
-              <div className="flex flex-row">
-                <input
-                  onChange={() => {
-                    setTerms(!terms)
-                  }}
-                  id="terms"
-                  required
-                  value={terms}
-                  type="checkbox"
-                  name="terms"
-                  className="form-checkbox text-sciteensLightGreen-regular my-auto mr-2 leading-tight"
-                />
-                <label
-                  htmlFor="terms"
-                  className="whitespace-nowrap text-sm text-gray-600"
-                >
-                  <div className="flex flex-row">
-                    {t('auth.terms')}&nbsp;
-                    <Link
-                      href="/legal/terms"
-                      className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold"
+          <form onSubmit={form.handleSubmit(emailSignUp)}>
+            <FieldGroup>
+              <div className="flex flex-row gap-2">
+                <Controller
+                  name="first_name"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field
+                      className="flex-1"
+                      data-invalid={fieldState.invalid}
                     >
-                      {t('auth.terms_link')}
-                    </Link>
-                  </div>
-                </label>
-              </div>
-              {error_terms && (
-                <p className="mb-6 text-sm text-red-800">
-                  {error_terms}
-                </p>
-              )}
-            </div>
-            <button
-              type="submit"
-              disabled={
-                loading ||
-                error_name ||
-                error_birthday ||
-                error_email ||
-                error_password ||
-                !recaptchaSolved
-              }
-              className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark w-full rounded-lg p-2 text-lg font-semibold text-white shadow-sm disabled:opacity-50"
-              onClick={emailSignUp}
-            >
-              {t('auth.create_account')}
-              {loading && (
-                <img
-                  src="/assets/loading.svg"
-                  alt="Loading Spinner"
-                  className="inline-block h-5 w-5"
+                      <FieldLabel htmlFor="first_name">
+                        {t('auth.first_name')}
+                      </FieldLabel>
+                      <Input
+                        {...field}
+                        id="first_name"
+                        type="text"
+                        maxLength={50}
+                        aria-invalid={fieldState.invalid}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError
+                          errors={[fieldState.error]}
+                        />
+                      )}
+                    </Field>
+                  )}
                 />
-              )}
-            </button>
+                <Controller
+                  name="last_name"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field
+                      className="flex-1"
+                      data-invalid={fieldState.invalid}
+                    >
+                      <FieldLabel htmlFor="last_name">
+                        {t('auth.last_name')}
+                      </FieldLabel>
+                      <Input
+                        {...field}
+                        id="last_name"
+                        type="text"
+                        maxLength={50}
+                        aria-invalid={fieldState.invalid}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError
+                          errors={[fieldState.error]}
+                        />
+                      )}
+                    </Field>
+                  )}
+                />
+              </div>
+
+              <Controller
+                name="email"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="email">
+                      {t('auth.email')}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="email"
+                      type="email"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError
+                        errors={[fieldState.error]}
+                      />
+                    )}
+                  </Field>
+                )}
+              />
+
+              <Controller
+                name="password"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="password">
+                      {t('auth.password')}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="password"
+                      type="password"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError
+                        errors={[fieldState.error]}
+                      />
+                    )}
+                  </Field>
+                )}
+              />
+
+              <Controller
+                name="birthday"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="birthday">
+                      {t('auth.birthday')}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="birthday"
+                      type="date"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid ? (
+                      <FieldError
+                        errors={[fieldState.error]}
+                      />
+                    ) : (
+                      <FieldDescription>
+                        {t('auth.error_birthday')}
+                      </FieldDescription>
+                    )}
+                  </Field>
+                )}
+              />
+
+              <Controller
+                name="gender"
+                control={form.control}
+                render={({ field }) => (
+                  <Field>
+                    <FieldLabel htmlFor="gender">
+                      {t('auth.gender')}
+                    </FieldLabel>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger
+                        id="gender"
+                        className="w-full"
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Male">
+                          {t('auth.male')}
+                        </SelectItem>
+                        <SelectItem value="Female">
+                          {t('auth.female')}
+                        </SelectItem>
+                        <SelectItem value="Other">
+                          {t('auth.other')}
+                        </SelectItem>
+                        <SelectItem value="Prefer not to answer">
+                          {t('auth.prefer_not_answer')}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                )}
+              />
+
+              <Controller
+                name="race"
+                control={form.control}
+                render={({ field }) => (
+                  <Field>
+                    <FieldLabel htmlFor="race">
+                      {t('auth.race')}
+                    </FieldLabel>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger
+                        id="race"
+                        className="w-full"
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="American Indian or Alaska Native">
+                          {t('auth.american_indian')}
+                        </SelectItem>
+                        <SelectItem value="Asian (including Indian subcontinent and Philippines origin)">
+                          {t('auth.asian')}
+                        </SelectItem>
+                        <SelectItem value="Black or African American">
+                          {t('auth.black')}
+                        </SelectItem>
+                        <SelectItem value="Hispanic or Latino">
+                          {t('auth.hispanic')}
+                        </SelectItem>
+                        <SelectItem value="White (including Middle Eastern origin)">
+                          {t('auth.white')}
+                        </SelectItem>
+                        <SelectItem value="Native Hawaiian or Other Pacific Islander">
+                          {t('auth.native_hawaiian')}
+                        </SelectItem>
+                        <SelectItem value="Prefer not to answer">
+                          {t('auth.prefer_not_answer')}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                )}
+              />
+
+              <div
+                id="recaptcha-container"
+                className="mb-4 flex w-full justify-center"
+              ></div>
+
+              <Controller
+                name="terms"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field
+                    orientation="horizontal"
+                    data-invalid={fieldState.invalid}
+                  >
+                    <Checkbox
+                      id="terms"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      aria-invalid={fieldState.invalid}
+                    />
+                    <FieldLabel
+                      htmlFor="terms"
+                      className="font-normal"
+                    >
+                      {t('auth.terms')}&nbsp;
+                      <Link
+                        href="/legal/terms"
+                        className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold"
+                      >
+                        {t('auth.terms_link')}
+                      </Link>
+                    </FieldLabel>
+                  </Field>
+                )}
+              />
+
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full"
+                disabled={
+                  !form.formState.isValid ||
+                  form.formState.isSubmitting ||
+                  loading ||
+                  !recaptchaSolved
+                }
+              >
+                {t('auth.create_account')}
+                {loading && (
+                  <img
+                    src="/assets/loading.svg"
+                    alt="Loading Spinner"
+                    className="inline-block h-5 w-5"
+                  />
+                )}
+              </Button>
+            </FieldGroup>
           </form>
           <div className="mb-8 mt-4 h-3 w-full border-b border-gray-300 text-center">
             <span className="bg-white p-2">
               {t('auth.or')}
             </span>
           </div>
-          <button
-            className="mb-2 flex w-full items-center justify-center rounded-lg bg-white p-3 shadow-sm hover:shadow-md"
+          <Button
+            variant="outline"
+            type="button"
+            size="lg"
+            className="mb-2 w-full"
             onClick={() =>
               providerSignIn(
                 auth,
@@ -553,7 +562,7 @@ export default function StudentSignUp() {
               className="mr-2 h-5 w-5"
             />
             {t('auth.google_sign_in')}
-          </button>
+          </Button>
           <div className="mt-4 flex justify-center">
             <p className="text-gray-700">
               {t('auth.have_account')}&nbsp;
