@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useSigninCheck, useAuth } from 'reactfire'
+import { useSigninCheck } from '../context/AuthContext'
+import { auth } from '../lib/firebase'
 import {
   useContext,
   useState,
@@ -18,7 +19,6 @@ export default function NavBar() {
     useState(false)
 
   const router = useRouter()
-  const auth = useAuth()
   const { status, data: signInCheckResult } =
     useSigninCheck()
   const { profile, setProfile } = useContext(AppContext)
@@ -58,12 +58,10 @@ export default function NavBar() {
   useEffect(() => {
     document.addEventListener('mousedown', handleClick)
 
-    // Functionality for showing/removing navbar based on scroll behavior
     let previousY = document.documentElement.scrollTop
-    document.addEventListener('scroll', function () {
+    function handleScroll() {
       let currentY = document.documentElement.scrollTop
 
-      // If you're within 350px from the top of the page, the scrollbar is always visible
       if (currentY <= 350) {
         previousY = currentY
       } else {
@@ -75,11 +73,14 @@ export default function NavBar() {
           previousY = currentY
         }
       }
+    }
+    document.addEventListener('scroll', handleScroll, {
+      passive: true,
     })
 
     return () => {
       document.removeEventListener('mousedown', handleClick)
-      document.removeEventListener('scroll', function () {})
+      document.removeEventListener('scroll', handleScroll)
     }
   }, [])
 

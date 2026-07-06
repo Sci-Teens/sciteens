@@ -7,7 +7,7 @@ import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
-import { useFirestore, useAuth } from 'reactfire'
+import { auth, db as firestore } from '../../lib/firebase'
 import { doc, setDoc } from '@firebase/firestore'
 import {
   createUserWithEmailAndPassword,
@@ -60,14 +60,12 @@ export default function MentorSignUp() {
     useState('')
   const [error_terms] = useState('')
 
-  const firestore = useFirestore()
-  const auth = useAuth()
   const router = useRouter()
   const { setProfile } = useContext(AppContext)
 
   useEffect(async () => {
     if (
-      process.browser &&
+      typeof window !== 'undefined' &&
       !document
         .getElementById('recaptcha-container')
         .hasChildNodes()

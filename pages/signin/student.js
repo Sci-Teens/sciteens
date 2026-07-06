@@ -6,7 +6,7 @@ import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
-import { useFirestore, useAuth } from 'reactfire'
+import { auth, db as firestore } from '../../lib/firebase'
 import { doc, getDoc } from '@firebase/firestore'
 import { signInWithEmailAndPassword } from '@firebase/auth'
 
@@ -36,8 +36,6 @@ export default function StudentSignIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [, setLoading] = useState(false)
-  const firestore = useFirestore()
-  const auth = useAuth()
   const router = useRouter()
 
   const { setProfile } = useContext(AppContext)

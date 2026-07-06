@@ -11,11 +11,8 @@ import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
-import {
-  useFirestore,
-  useSigninCheck,
-  useStorage,
-} from 'reactfire'
+import { db as firestore, storage } from '../../lib/firebase'
+import { useSigninCheck } from '../../context/AuthContext'
 import {
   collection,
   query,
@@ -92,8 +89,6 @@ export default function CreateProject() {
   const { profile } = useContext(AppContext)
   const { status, data: signInCheckResult } =
     useSigninCheck()
-  const firestore = useFirestore()
-  const storage = useStorage()
 
   const router = useRouter()
 
@@ -204,7 +199,6 @@ export default function CreateProject() {
         )
       } else {
         reader.readAsDataURL(f)
-        console.log(f)
         setFiles((oldfiles) => [
           ...new Set([...oldfiles, f]),
         ])
@@ -229,7 +223,6 @@ export default function CreateProject() {
         break
 
       case 'start_date':
-        console.log(e.target.value)
         setStartDate(e.target.value)
         if (e.target.value == '') {
           setErrorStartDate(
@@ -305,7 +298,6 @@ export default function CreateProject() {
           limit(3)
         )
         const res = await getDocs(q)
-        console.log(res)
         if (res.empty) {
           setErrorMember(
             t('project_create_edit.could_not_find_email')

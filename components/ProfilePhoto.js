@@ -1,26 +1,26 @@
 import { useEffect, useState } from 'react'
-import { useFirestore } from 'reactfire'
 import { doc, getDoc } from '@firebase/firestore'
+import { db } from '../lib/firebase'
 
 export default function ProfilePhoto({ uid }) {
-  const firestore = useFirestore()
   const [img_src, setImgSrc] = useState(null)
 
-  useEffect(async () => {
-    const profile_photo_ref = doc(
-      firestore,
-      'profile-pictures',
-      uid
-    )
-    const profile_photo_doc = await getDoc(
-      profile_photo_ref
-    )
-    if (profile_photo_doc.exists()) {
-      setImgSrc(profile_photo_doc.data()?.picture)
+  useEffect(() => {
+    async function loadPhoto() {
+      const profile_photo_ref = doc(
+        db,
+        'profile-pictures',
+        uid
+      )
+      const profile_photo_doc = await getDoc(
+        profile_photo_ref
+      )
+      if (profile_photo_doc.exists()) {
+        setImgSrc(profile_photo_doc.data()?.picture)
+      }
     }
-  }, [''])
-
-  useEffect(() => {}, [img_src])
+    loadPhoto()
+  }, [uid])
 
   return (
     <>

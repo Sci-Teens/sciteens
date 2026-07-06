@@ -2,7 +2,8 @@ import { useState, useContext, useEffect } from 'react'
 import isAlpha from 'validator/lib/isAlpha'
 import { doc, setDoc } from '@firebase/firestore'
 import { updateProfile } from '@firebase/auth'
-import { useFirestore, useUser } from 'reactfire'
+import { db as firestore } from '../../lib/firebase'
+import { useUser } from '../../context/AuthContext'
 import { useRouter } from 'next/router'
 import moment from 'moment'
 import Head from 'next/head'
@@ -28,7 +29,6 @@ export default function FinishSignUp() {
   const [error_birthday, setErrorBirthday] = useState('')
   const [error_terms, setErrorTerms] = useState('')
 
-  const firestore = useFirestore()
   const { data: user } = useUser()
   const router = useRouter()
 
@@ -144,7 +144,6 @@ export default function FinishSignUp() {
       case 'birthday':
         setBirthday(e.target.value)
 
-        console.log(e.target.value)
         if (
           moment(e.target.value).isAfter(
             moment().subtract(13, 'years')

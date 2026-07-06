@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useAuth } from 'reactfire'
+import { auth } from '../../lib/firebase'
 import { useRouter } from 'next/router'
 import { sendPasswordResetEmail } from '@firebase/auth'
 import isEmail from 'validator/lib/isEmail'
@@ -12,7 +12,6 @@ export default function Reset() {
 
   const [email, setEmail] = useState('')
   const [error_email, setErrorEmail] = useState('')
-  const auth = useAuth()
   const router = useRouter()
 
   async function submitForgotPassword(e) {

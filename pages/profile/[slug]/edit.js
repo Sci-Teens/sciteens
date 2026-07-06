@@ -11,11 +11,8 @@ import Link from 'next/link'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
-import {
-  useSigninCheck,
-  useStorage,
-  useFirestore,
-} from 'reactfire'
+import { useSigninCheck } from '../../../context/AuthContext'
+import { db as firestore, storage } from '../../../lib/firebase'
 import {
   collection,
   updateDoc,
@@ -74,8 +71,6 @@ export default function UpdateProfilePage({
 
   const { status, data: signInCheckResult } =
     useSigninCheck()
-  const storage = useStorage()
-  const firestore = useFirestore()
 
   const router = useRouter()
   const { profile } = useContext(AppContext)

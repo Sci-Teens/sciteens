@@ -30,7 +30,6 @@ function Course({ course }) {
         xhr.onload = () => {
           const blob = xhr.response
           if (xhr.status == 200) {
-            console.log(blob)
             blob.name = r.file.name
             setFiles((fs) => [...fs, blob])
           }

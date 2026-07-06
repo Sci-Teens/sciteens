@@ -1,13 +1,19 @@
-import 'tailwindcss/tailwind.css'
+import '../styles/globals.css'
 import Layout from '../components/Layout'
 import { AppContext } from '../context/context'
-import firebaseConfig from '../firebaseConfig'
-import { FirebaseAppProvider } from 'reactfire'
+import { AuthProvider } from '../context/AuthContext'
 import { useState, useEffect } from 'react'
+import { Nunito } from 'next/font/google'
 import Head from 'next/head'
 import '../styles/nprogress.css'
 import dynamic from 'next/dynamic'
 import { appWithTranslation } from 'next-i18next'
+
+const nunito = Nunito({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-sciteens',
+})
 
 const TopProgressBar = dynamic(
   () => {
@@ -21,7 +27,7 @@ function MyApp({ Component, pageProps }) {
 
   function setProfile(p) {
     setUserProfile(p)
-    if (process.browser) {
+    if (typeof window !== 'undefined') {
       window.localStorage.setItem(
         'profile',
         JSON.stringify(p)
@@ -30,7 +36,7 @@ function MyApp({ Component, pageProps }) {
   }
 
   useEffect(() => {
-    if (process.browser) {
+    if (typeof window !== 'undefined') {
       let p
       if (
         window.localStorage.getItem('profile') !=
@@ -48,16 +54,14 @@ function MyApp({ Component, pageProps }) {
   }, [])
 
   return (
-    <div className="h-full w-full bg-backgroundGreen font-sciteens">
+    <div
+      className={`${nunito.variable} h-full w-full bg-backgroundGreen font-sciteens`}
+    >
       <Head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Nunito&display=swap"
-          rel="stylesheet"
-        />
         <title>Welcome to SciTeens</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <FirebaseAppProvider firebaseConfig={firebaseConfig}>
+      <AuthProvider>
         <AppContext.Provider
           value={{ profile, setProfile }}
         >
@@ -66,7 +70,7 @@ function MyApp({ Component, pageProps }) {
             <Component {...pageProps} />
           </Layout>
         </AppContext.Provider>
-      </FirebaseAppProvider>
+      </AuthProvider>
     </div>
   )
 }

@@ -1,9 +1,8 @@
-import { useFirebaseApp } from 'reactfire'
+import { app } from '../lib/firebase'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 
 export default function MyPageViewLogger() {
-  const app = useFirebaseApp()
   const router = useRouter()
 
   // By passing `location.pathname` to the second argument of `useEffect`,

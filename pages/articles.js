@@ -116,7 +116,6 @@ function Articles({ cached_articles }) {
 
   async function handlePageChange(e) {
     setPage(e.selected)
-    console.log(e.selected)
     let q = {}
     if (search) {
       q.search = search

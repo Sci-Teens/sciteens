@@ -1,15 +1,14 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
-  important: true,
-  mode: 'jit',
-  purge: [
+  content: [
     './pages/**/*.{js,ts,jsx,tsx}',
     './components/**/*.{js,ts,jsx,tsx}',
   ],
-  darkMode: false, // or 'media' or 'class'
+  darkMode: 'class',
   theme: {
     fontFamily: {
       sciteens: [
-        'nunito',
+        'var(--font-sciteens)',
         '-apple-system',
         'BlinkMacSystemFont',
         'Segoe UI',
@@ -36,11 +35,5 @@ module.exports = {
       },
     },
   },
-  variants: {
-    extend: {},
-  },
-  plugins: [
-    require('@tailwindcss/typography'),
-    require('@tailwindcss/line-clamp'),
-  ],
+  plugins: [require('@tailwindcss/typography')],
 }

@@ -27,7 +27,7 @@ import {
   getDownloadURL,
   getMetadata,
 } from '@firebase/storage'
-import { useStorage, useFirestore } from 'reactfire'
+import { db as firestore, storage } from '../../../lib/firebase'
 
 import moment from 'moment'
 import {
@@ -35,7 +35,7 @@ import {
   animated,
   config,
 } from '@react-spring/web'
-import { useSigninCheck } from 'reactfire'
+import { useSigninCheck } from '../../../context/AuthContext'
 import { AppContext } from '../../../context/context'
 import File from '../../../components/File'
 import { getTranslatedFieldsDict } from '../../../context/helpers'
@@ -43,8 +43,6 @@ import { getTranslatedFieldsDict } from '../../../context/helpers'
 function Project({ profile }) {
   const { t } = useTranslation('common')
   const router = useRouter()
-  const storage = useStorage()
-  const firestore = useFirestore()
 
   const [files, setFiles] = useState([])
   const [projects, setProjects] = useState([])

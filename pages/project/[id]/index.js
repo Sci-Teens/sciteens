@@ -5,12 +5,9 @@ import {
   getDownloadURL,
   getMetadata,
 } from '@firebase/storage'
-import {
-  useFirestore,
-  useFirestoreDocData,
-  useStorage,
-  useSigninCheck,
-} from 'reactfire'
+import { useFirestoreDocData } from '../../../lib/firestoreData'
+import { useSigninCheck } from '../../../context/AuthContext'
+import { db, storage } from '../../../lib/firebase'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import Error from 'next/error'
@@ -22,10 +19,8 @@ import ProfilePhoto from '../../../components/ProfilePhoto'
 
 function Project({ query }) {
   const router = useRouter()
-  const firestore = useFirestore()
-  const storage = useStorage()
 
-  const projectRef = doc(firestore, 'projects', query.id)
+  const projectRef = doc(db, 'projects', query.id)
   const { status, data: project } =
     useFirestoreDocData(projectRef)
 
@@ -37,40 +32,41 @@ function Project({ query }) {
 
   const { data: signInCheckResult } = useSigninCheck()
 
-  useEffect(async () => {
-    const filesRef = ref(storage, `projects/${query.id}`)
+  useEffect(() => {
+    async function loadFiles() {
+      const filesRef = ref(storage, `projects/${query.id}`)
 
-    // Find all the prefixes and items.
-
-    try {
-      const res = await listAll(filesRef)
-      for (let r of res.items) {
-        const url = await getDownloadURL(r)
-        const metadata = await getMetadata(r)
-        const xhr = new XMLHttpRequest()
-        xhr.responseType = 'blob'
-        xhr.onload = () => {
-          const blob = xhr.response
-          if (xhr.status == 200) {
-            blob.name = metadata.name
-            if (
-              metadata?.customMetadata?.project_photo ==
-              'true'
-            ) {
-              setProjectPhoto(URL.createObjectURL(blob))
+      try {
+        const res = await listAll(filesRef)
+        for (let r of res.items) {
+          const url = await getDownloadURL(r)
+          const metadata = await getMetadata(r)
+          const xhr = new XMLHttpRequest()
+          xhr.responseType = 'blob'
+          xhr.onload = () => {
+            const blob = xhr.response
+            if (xhr.status == 200) {
+              blob.name = metadata.name
+              if (
+                metadata?.customMetadata?.project_photo ==
+                'true'
+              ) {
+                setProjectPhoto(URL.createObjectURL(blob))
+              }
+              setFiles((fs) => [...fs, blob])
             }
-            setFiles((fs) => [...fs, blob])
           }
+          xhr.open('GET', url)
+          xhr.send()
         }
-        xhr.open('GET', url)
-        xhr.send()
+      } catch (e) {
+        console.error(e)
       }
-    } catch (e) {
-      console.error(e)
-    }
 
-    setLoadingFiles(false)
-  }, [''])
+      setLoadingFiles(false)
+    }
+    loadFiles()
+  }, [query.id])
 
   useEffect(() => {
     for (const f of files) {

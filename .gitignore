@@ -43,3 +43,6 @@ pnpm-debug.log*
 # cloud-build.yaml
 # Dockerfile
 # .dockerignore
+
+# Local migration tracking
+MIGRATION-PHASES.md

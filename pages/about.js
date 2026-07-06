@@ -188,7 +188,6 @@ export default function About() {
   useEffect(() => {
     const member_elements =
       document.querySelectorAll('.member')
-    console.log(member_elements)
 
     const observor = new IntersectionObserver(
       (entries) => {

@@ -10,11 +10,8 @@ import Link from 'next/link'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
-import {
-  useFirestore,
-  useSigninCheck,
-  useStorage,
-} from 'reactfire'
+import { db as firestore, storage } from '../../../lib/firebase'
+import { useSigninCheck } from '../../../context/AuthContext'
 import {
   collection,
   startAt,
@@ -93,8 +90,6 @@ export default function UpdateProject({ query }) {
 
   const { status, data: signInCheckResult } =
     useSigninCheck()
-  const firestore = useFirestore()
-  const storage = useStorage()
 
   const router = useRouter()
 
@@ -193,7 +188,6 @@ export default function UpdateProject({ query }) {
         setPhoto(undefined, index)
       }
     })
-    console.log(metadata_arr)
   }, [files, metadata_arr])
 
   const updateProject = async (e) => {

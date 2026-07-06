@@ -8,7 +8,7 @@ import { useTranslation } from 'next-i18next'
 import { useIntersectionObserver } from '../context/helpers'
 import moment from 'moment'
 
-import { useFirestore } from 'reactfire'
+import { db as firestore } from '../lib/firebase'
 import firebaseConfig from '../firebaseConfig'
 import {
   getApp,
@@ -38,7 +38,6 @@ import { getTranslatedFieldsDict } from '../context/helpers'
 
 function Projects({ cached_projects }) {
   const router = useRouter()
-  const firestore = useFirestore()
   const [projects, setProjects] = useState(cached_projects)
   // `loading` is only true while an initial fetch is in flight AND we
   // have nothing to show yet. It gates the skeleton so the page never
@@ -208,7 +207,6 @@ function Projects({ cached_projects }) {
         !router.query?.field ||
         router.query?.field == 'All'
       ) {
-        console.log('Firebase regular')
         projectsQuery = firebase_query(
           projectsCollection,
           orderBy('date', 'desc'),
@@ -464,7 +462,7 @@ function Projects({ cached_projects }) {
               {t('projects.projects')} 🔬
             </h1>
             <Link href="/project/create">
-              {process.browser &&
+              {typeof window !== 'undefined' &&
               window.innerWidth >= 812 ? (
                 <a className="my-auto rounded-full border-2 border-sciteensLightGreen-regular py-1.5 px-5 text-lg font-semibold text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark">
                   Create Project

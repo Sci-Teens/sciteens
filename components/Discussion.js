@@ -4,12 +4,10 @@ import {
   addDoc,
   orderBy,
 } from '@firebase/firestore'
-import { useState, useCallback } from 'react'
-import {
-  useFirestore,
-  useFirestoreCollectionData,
-  useSigninCheck,
-} from 'reactfire'
+import { useState, useCallback, useMemo } from 'react'
+import { useFirestoreCollectionData } from '../lib/firestoreData'
+import { useSigninCheck } from '../context/AuthContext'
+import { db } from '../lib/firebase'
 import { useRouter } from 'next/router'
 import { post } from '../context/helpers.js'
 import ProfilePhoto from './ProfilePhoto'
@@ -19,17 +17,14 @@ import moment from 'moment'
 
 export default function Discussion({ type, item_id }) {
   const { data: signInCheckResult } = useSigninCheck()
-  const firestore = useFirestore()
 
-  let discussionCollection = collection(
-    firestore,
-    type,
-    item_id,
-    'discussion'
-  )
-  const discussionQuery = query(
-    discussionCollection,
-    orderBy('date', 'asc')
+  const discussionQuery = useMemo(
+    () =>
+      query(
+        collection(db, type, item_id, 'discussion'),
+        orderBy('date', 'asc')
+      ),
+    [type, item_id]
   )
   const { data: discussion } = useFirestoreCollectionData(
     discussionQuery,
@@ -155,15 +150,14 @@ export default function Discussion({ type, item_id }) {
       })
       return
     }
-    // console.log(e)
-    if (process.client) {
+    if (typeof window !== 'undefined') {
       document
         .getElementById('discussion-form')
         .checkValidity()
     }
     e.preventDefault()
     await addDoc(
-      collection(firestore, type, item_id, 'discussion'),
+      collection(db, type, item_id, 'discussion'),
       {
         date: new Date().toISOString(),
         uid: signInCheckResult.user.uid,

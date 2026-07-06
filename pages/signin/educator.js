@@ -11,7 +11,7 @@ import {
 } from '../../context/helpers'
 import isEmail from 'validator/lib/isEmail'
 import { doc, getDoc } from '@firebase/firestore'
-import { useFirestore, useAuth } from 'reactfire'
+import { auth, db as firestore } from '../../lib/firebase'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
@@ -32,8 +32,6 @@ export default function MentorSignIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [, setLoading] = useState(false)
-  const firestore = useFirestore()
-  const auth = useAuth()
   const router = useRouter()
 
   const { setProfile } = useContext(AppContext)

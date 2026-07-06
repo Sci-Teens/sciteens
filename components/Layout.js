@@ -1,3 +1,8 @@
+import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
+import Banner from '../components/Banner'
+import MyPageViewLogger from './Analytics'
+
 const NavBar = dynamic(() => import('./NavBar'), {
   ssr: false,
 })
@@ -6,42 +11,16 @@ const Footer = dynamic(() => import('./Footer'), {
   ssr: false,
 })
 
-// import NavBar from "./NavBar";
-// import Footer from "./Footer";
-import { useState, useEffect } from 'react'
-import { getAuth } from 'firebase/auth'
-import { getFirestore } from '@firebase/firestore'
-import { getStorage } from '@firebase/storage'
-import {
-  AuthProvider,
-  FirestoreProvider,
-  StorageProvider,
-  useFirebaseApp,
-} from 'reactfire'
-
-import Banner from '../components/Banner'
-import MyPageViewLogger from './Analytics'
-import dynamic from 'next/dynamic'
-
 export default function Layout({ children }) {
-  const app = useFirebaseApp()
-  const firestore = getFirestore(app)
-  const auth = getAuth(app)
-  const storage = getStorage(app)
-
   const [visibleNav, setVisibleNav] = useState(true)
-
   const [visibleBanner, setVisibleBanner] = useState(true)
 
   useEffect(() => {
-    // Functionality for showing/removing navbar based on scroll behavior
     let previousY = document.documentElement.scrollTop
 
     function handleScroll() {
       let currentY = document.documentElement.scrollTop
 
-      // Navbar checks
-      // If you're within 350px from the top of the page, the scrollbar is always visible
       if (currentY <= 350) {
         setVisibleNav(true)
         previousY = currentY
@@ -61,7 +40,6 @@ export default function Layout({ children }) {
       passive: true,
     })
 
-    // Check if the user closed the banner in sessionStorage
     if (sessionStorage.getItem('visibleBanner')) {
       setVisibleBanner(false)
     }
@@ -78,38 +56,20 @@ export default function Layout({ children }) {
     setVisibleBanner(false)
   }
 
-  let wrapper = (
-    <AuthProvider sdk={auth}>
-      <FirestoreProvider sdk={firestore}>
-        <StorageProvider sdk={storage}>
-          <div
-            className={`fixed z-50 w-full transform transition-all duration-300 ${
-              visibleNav
-                ? 'translate-y-0'
-                : '-translate-y-32'
-            }`}
-          >
-            {visibleBanner && (
-              <Banner closeBanner={closeBanner} />
-            )}
-            <NavBar />
-          </div>
-          <div
-            className={`${
-              visibleBanner ? 'pt-52' : 'pt-20'
-            }`}
-          >
-            {children}
-          </div>
-          <Footer />
-        </StorageProvider>
-      </FirestoreProvider>
-    </AuthProvider>
-  )
-
   return (
     <>
-      {wrapper}
+      <div
+        className={`fixed z-50 w-full transform transition-all duration-300 ${
+          visibleNav ? 'translate-y-0' : '-translate-y-32'
+        }`}
+      >
+        {visibleBanner && <Banner closeBanner={closeBanner} />}
+        <NavBar />
+      </div>
+      <div className={`${visibleBanner ? 'pt-52' : 'pt-20'}`}>
+        {children}
+      </div>
+      <Footer />
       <MyPageViewLogger />
     </>
   )

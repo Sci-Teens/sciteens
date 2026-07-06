@@ -12,7 +12,6 @@ export default function SignUpIndex() {
 
   const router = useRouter()
 
-  console.log(router)
 
   return (
     <div>

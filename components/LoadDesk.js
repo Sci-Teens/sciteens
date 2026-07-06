@@ -117,12 +117,7 @@ export default async function render(width, height) {
 
       animate()
     },
-    // called while loading is progressing
-    function (xhr) {
-      if (xhr.loaded === 173632) {
-        console.log('Model loaded')
-      }
-    },
+    undefined,
     function (error) {
       console.log(error)
     }

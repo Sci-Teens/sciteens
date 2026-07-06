@@ -8,7 +8,6 @@ export default function Footer() {
 
   useEffect(() => {
     if (router.isReady && i18n?.isInitialized) {
-      console.log('loaded i18n')
       i18n.addResourceBundle(router.locale, 'common')
     }
   }, [router, i18n])
