@@ -234,7 +234,7 @@ export default function MentorSignUp() {
         />
       </Head>
       <main>
-        <div className="relative z-30 mx-auto mt-8 mb-24 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
+        <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
           <h1 className="mb-2 text-center text-3xl font-semibold">
             {t('auth.educate_on_sciteens')}
           </h1>
@@ -263,7 +263,7 @@ export default function MentorSignUp() {
                   value={first_name}
                   name="first-name"
                   required
-                  className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+                  className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                     error_name
                       ? 'border-red-700 text-red-800 placeholder-red-700'
                       : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -288,7 +288,7 @@ export default function MentorSignUp() {
                   value={last_name}
                   name="last-name"
                   required
-                  className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+                  className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                     error_name
                       ? 'border-red-700 text-red-800 placeholder-red-700'
                       : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -315,7 +315,7 @@ export default function MentorSignUp() {
               onChange={(e) => onChange(e, 'email')}
               name="email"
               required
-              className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                 error_email
                   ? 'border-red-700 text-red-800 placeholder-red-700'
                   : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -339,7 +339,7 @@ export default function MentorSignUp() {
               onChange={(e) => onChange(e, 'password')}
               name="password"
               required
-              className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                 error_password
                   ? 'border-red-700 text-red-800 placeholder-red-700'
                   : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -363,7 +363,7 @@ export default function MentorSignUp() {
               value={institution}
               name="institution"
               required
-              className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                 error_institution
                   ? 'border-red-700 text-red-800 placeholder-red-700'
                   : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -391,7 +391,7 @@ export default function MentorSignUp() {
                   setPosition(e.target.value)
                 }
                 value={position}
-                className="focus:outline-none mb-4 mr-3 block w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700"
+                className="mb-4 mr-3 block w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700 focus:outline-none"
               >
                 <option selected value="Educator">
                   {t('auth.educator')}
@@ -430,7 +430,7 @@ export default function MentorSignUp() {
                 name="gender"
                 id="gender"
                 value={gender}
-                className="focus:outline-none mb-4 mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700"
+                className="mb-4 mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700 focus:outline-none"
               >
                 <option selected value="Male">
                   {t('auth.male')}
@@ -469,7 +469,7 @@ export default function MentorSignUp() {
                 name="race"
                 id="race"
                 value={race}
-                className="focus:outline-none mb-4 mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700"
+                className="mb-4 mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700 focus:outline-none"
               >
                 <option
                   selected
@@ -521,7 +521,7 @@ export default function MentorSignUp() {
                   value={terms}
                   type="checkbox"
                   name="terms"
-                  className="form-checkbox active:outline-none my-auto mr-2 leading-tight text-sciteensLightGreen-regular"
+                  className="form-checkbox my-auto mr-2 leading-tight text-sciteensLightGreen-regular active:outline-none"
                 />
                 <label
                   htmlFor="terms"
@@ -529,10 +529,11 @@ export default function MentorSignUp() {
                 >
                   <div className="flex flex-row">
                     {t('auth.terms')}&nbsp;
-                    <Link href="/legal/terms">
-                      <a className="font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark">
-                        {t('auth.terms_link')}
-                      </a>
+                    <Link
+                      href="/legal/terms"
+                      className="font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark"
+                    >
+                      {t('auth.terms_link')}
                     </Link>
                   </div>
                 </label>
@@ -559,7 +560,7 @@ export default function MentorSignUp() {
                 !password ||
                 !recaptchaSolved
               }
-              className="outline-none w-full rounded-lg bg-sciteensLightGreen-regular p-2 text-lg font-semibold text-white shadow hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+              className="w-full rounded-lg bg-sciteensLightGreen-regular p-2 text-lg font-semibold text-white shadow outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
               onClick={emailSignUp}
             >
               {t('auth.create_account')}
@@ -588,9 +589,7 @@ export default function MentorSignUp() {
                 }
                 className="font-bold"
               >
-                <a className="font-bold">
-                  {t('auth.sign_in_link')}
-                </a>
+                {t('auth.sign_in_link')}
               </Link>
             </p>
           </div>

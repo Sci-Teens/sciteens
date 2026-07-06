@@ -301,25 +301,27 @@ export default function Home() {
               🧪
               {t('index.science_simplified')}
             </h1>
-            <p className="mt-4 mb-8 text-sm md:text-2xl">
+            <p className="mb-8 mt-4 text-sm md:text-2xl">
               {t('index.share_work')}
             </p>
             <div>
-              <Link href="/signup">
-                <a className="mr-2 rounded-lg bg-sciteensLightGreen-regular p-3 text-base text-white shadow-md hover:bg-sciteensLightGreen-dark md:p-4 md:text-xl">
-                  {t('index.get_started')}
-                </a>
+              <Link
+                href="/signup"
+                className="mr-2 rounded-lg bg-sciteensLightGreen-regular p-3 text-base text-white shadow-md hover:bg-sciteensLightGreen-dark md:p-4 md:text-xl"
+              >
+                {t('index.get_started')}
               </Link>
-              <Link href="/about">
-                <a className="ml-2 p-4 text-base text-gray-700 hover:underline active:bg-green-700 md:text-xl">
-                  About
-                </a>
+              <Link
+                href="/about"
+                className="ml-2 p-4 text-base text-gray-700 hover:underline active:bg-green-700 md:text-xl"
+              >
+                About
               </Link>
             </div>
           </animated.div>
           <div
             id="canvas-container"
-            className="absolute right-10 left-10 top-28 grid h-full grid-cols-1 grid-rows-1 items-center md:right-24 md:left-24 lg:right-16 lg:left-auto lg:top-0 lg:w-[35%] xl:w-[45%]"
+            className="absolute left-10 right-10 top-28 grid h-full grid-cols-1 grid-rows-1 items-center md:left-24 md:right-24 lg:left-auto lg:right-16 lg:top-0 lg:w-[35%] xl:w-[45%]"
           >
             <div
               id="loading-screen"
@@ -381,7 +383,7 @@ export default function Home() {
                 alt="Computer and phone showing sciteens website"
               />
             </div>
-            <div className="my-auto mx-auto w-5/6 lg:w-2/5">
+            <div className="mx-auto my-auto w-5/6 lg:w-2/5">
               {missionTrail.map((styles, index) => {
                 return index == 0 ? (
                   <animated.h2
@@ -474,7 +476,7 @@ export default function Home() {
               fill="#2d8a5b"
             />
           </svg>
-          <div className="bg-sciteensGreen-regular px-0 pt-32 pb-10 text-center text-white md:px-24">
+          <div className="bg-sciteensGreen-regular px-0 pb-10 pt-32 text-center text-white md:px-24">
             <animated.div
               style={testimonialsStatsSpring}
               className="flex flex-row justify-evenly md:justify-between "
@@ -550,7 +552,7 @@ export default function Home() {
             <animated.a
               style={mediaSpring1}
               href="https://www.neonscience.org/impact/observatory-blog/sciteens-data-science-and-ecology-gen-z"
-              className="group col-span-1 row-span-1 mr-0 mb-4 overflow-hidden rounded-lg bg-white shadow lg:row-span-2 lg:mr-4 lg:mb-0"
+              className="group col-span-1 row-span-1 mb-4 mr-0 overflow-hidden rounded-lg bg-white shadow lg:row-span-2 lg:mb-0 lg:mr-4"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -579,7 +581,7 @@ export default function Home() {
             <animated.a
               style={mediaSpring2}
               href="https://news.mit.edu/2019/ideas-challenge-social-ventures-0430"
-              className="group  col-span-1 row-span-1 ml-0 mb-4 mt-4 overflow-hidden rounded-lg bg-white shadow lg:ml-4 lg:mt-0"
+              className="group  col-span-1 row-span-1 mb-4 ml-0 mt-4 overflow-hidden rounded-lg bg-white shadow lg:ml-4 lg:mt-0"
               target="_blank"
               rel="noopener noreferrer"
             >

@@ -32,10 +32,11 @@ export default function ResetSent() {
         <p className="mb-4 text-center text-lg">
           {t('auth.reset_message')}
         </p>
-        <Link href="/">
-          <a className="outline-none rounded-lg bg-sciteensLightGreen-regular p-2 text-white shadow hover:bg-sciteensLightGreen-dark">
-            {t('auth.go_home')}
-          </a>
+        <Link
+          href="/"
+          className="rounded-lg bg-sciteensLightGreen-regular p-2 text-white shadow outline-none hover:bg-sciteensLightGreen-dark"
+        >
+          {t('auth.go_home')}
         </Link>
       </main>
     </div>

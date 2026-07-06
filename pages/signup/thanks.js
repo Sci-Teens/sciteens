@@ -15,12 +15,12 @@ export default function SignUpThanks() {
       </h1>
       <p className="text-lg">
         {t('auth.send_confirmation')}&nbsp;
-        <Link href="/articles">
-          <a className="underline">{t('auth.articles')}</a>
+        <Link href="/articles" className="underline">
+          {t('auth.articles')}
         </Link>
         &nbsp;{t('auth.or')}&nbsp;
-        <Link href="/projects">
-          <a className="underline">{t('auth.projects')}</a>
+        <Link href="/projects" className="underline">
+          {t('auth.projects')}
         </Link>
         &nbsp;
         {t('auth.for_inspiration')}

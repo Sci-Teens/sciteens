@@ -252,7 +252,7 @@ export default function NavBar() {
                           setShowProfileMenu(false)
                         }
                       }}
-                      className={`absolute top-14 right-4 z-50 w-32 rounded-lg border border-gray-200 bg-white p-4 shadow-lg ${
+                      className={`absolute right-4 top-14 z-50 w-32 rounded-lg border border-gray-200 bg-white p-4 shadow-lg ${
                         showProfileMenu ? '' : 'hidden'
                       }`}
                     >
@@ -307,7 +307,7 @@ export default function NavBar() {
                       setShowMobileNav(false)
                     }
                   }}
-                  className={`mb-4 flex flex-row rounded-lg py-3 px-6
+                  className={`mb-4 flex flex-row rounded-lg px-6 py-3
                         ${
                           router.pathname == '/'
                             ? 'bg-gray-100 underline'
@@ -339,7 +339,7 @@ export default function NavBar() {
                       setShowMobileNav(false)
                     }
                   }}
-                  className={`mb-4 flex flex-row rounded-lg py-3 px-6
+                  className={`mb-4 flex flex-row rounded-lg px-6 py-3
                         ${
                           router.pathname.includes('about')
                             ? 'bg-gray-100 underline'
@@ -373,7 +373,7 @@ export default function NavBar() {
                       setShowMobileNav(false)
                     }
                   }}
-                  className={`mb-4 flex flex-row rounded-lg py-3 px-6
+                  className={`mb-4 flex flex-row rounded-lg px-6 py-3
                         ${
                           router.pathname.includes(
                             'articles'
@@ -407,7 +407,7 @@ export default function NavBar() {
                       setShowMobileNav(false)
                     }
                   }}
-                  className={`mb-4 flex flex-row rounded-lg py-3 px-6
+                  className={`mb-4 flex flex-row rounded-lg px-6 py-3
                         ${
                           router.pathname.includes(
                             'projects'
@@ -441,7 +441,7 @@ export default function NavBar() {
                       setShowMobileNav(false)
                     }
                   }}
-                  className={`mb-4 flex flex-row rounded-lg py-3 px-6
+                  className={`mb-4 flex flex-row rounded-lg px-6 py-3
                         ${
                           router.pathname.includes(
                             'courses'
@@ -475,7 +475,7 @@ export default function NavBar() {
                       setShowMobileNav(false)
                     }
                   }}
-                  className={`mb-4 flex flex-row rounded-lg py-3 px-6
+                  className={`mb-4 flex flex-row rounded-lg px-6 py-3
                         ${
                           router.pathname.includes(
                             'getinvolved'
@@ -511,7 +511,7 @@ export default function NavBar() {
                       setShowMobileNav(false)
                     }
                   }}
-                  className={`mb-4 flex flex-row rounded-lg py-3 px-6
+                  className={`mb-4 flex flex-row rounded-lg px-6 py-3
                         ${
                           router.pathname.includes('donate')
                             ? 'bg-gray-100 underline'
@@ -544,7 +544,7 @@ export default function NavBar() {
                         setShowMobileNav(false)
                       }
                     }}
-                    className={`mb-4 flex flex-row rounded-lg py-3 px-6
+                    className={`mb-4 flex flex-row rounded-lg px-6 py-3
                             ${
                               router.pathname.includes(
                                 'signup'
@@ -573,7 +573,7 @@ export default function NavBar() {
                 <>
                   <hr className="mx-auto w-[80%] bg-black" />
                   <div className="mx-8">
-                    <div className="mx-auto mt-6 mb-2 flex flex-row">
+                    <div className="mx-auto mb-2 mt-6 flex flex-row">
                       {signInCheckResult?.user?.photoURL ? (
                         <img
                           id="profile_photo"
@@ -642,7 +642,7 @@ export default function NavBar() {
               )}
             <button
               onClick={() => setShowMobileNav(false)}
-              className="absolute top-6 right-6 z-30"
+              className="absolute right-6 top-6 z-30"
             >
               <svg
                 className="h-8"

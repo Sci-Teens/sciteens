@@ -156,7 +156,11 @@ function Courses({ cached_courses }) {
     }
 
     return (
-      <Link key={course.uid} href={`/course/${course.uid}`}>
+      <Link
+        key={course.uid}
+        href={`/course/${course.uid}`}
+        legacyBehavior
+      >
         <animated.div
           style={courses_spring}
           className="z-50 mt-6 flex cursor-pointer items-center rounded-lg bg-white p-4 shadow md:mt-8"
@@ -171,10 +175,10 @@ function Courses({ cached_courses }) {
             />
           </div>
           <div className="ml-4 w-3/4 lg:w-11/12">
-            <h3 className="mb-2 text-base font-semibold line-clamp-2 md:text-xl lg:text-2xl">
+            <h3 className="mb-2 line-clamp-2 text-base font-semibold md:text-xl lg:text-2xl">
               {RichText.asText(course.data.name)}
             </h3>
-            <p className="mb-2 hidden line-clamp-none md:block md:line-clamp-2 lg:line-clamp-3">
+            <p className="mb-2 line-clamp-none hidden md:line-clamp-2 md:block lg:line-clamp-3">
               {RichText.asText(course.data.description)}
             </p>
             {dateDisplay}
@@ -205,7 +209,7 @@ function Courses({ cached_courses }) {
           content="/assets/sciteens_initials.jpg"
         />
       </Head>
-      <div className="mx-auto mt-8 mb-24 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
+      <div className="mx-auto mb-24 mt-8 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
         <div className="mx-auto w-11/12 md:w-[85%] lg:mx-0 lg:w-[60%]">
           <h1 className="ml-4 py-4 text-left text-4xl font-semibold">
             {t('courses.courses')} 📖
@@ -239,14 +243,14 @@ function Courses({ cached_courses }) {
                 value={search}
                 name="search"
                 required
-                className={`focus:outline-none mr-3 w-full appearance-none rounded border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700`}
+                className={`mr-3 w-full appearance-none rounded border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700 focus:outline-none`}
                 type="text"
                 aria-label="search"
                 maxLength="100"
               />
               <button
                 type="submit"
-                className="outline-none rounded-lg bg-sciteensLightGreen-regular px-4 py-2 font-semibold text-white shadow hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+                className="rounded-lg bg-sciteensLightGreen-regular px-4 py-2 font-semibold text-white shadow outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
                 onClick={(e) => handleSearch(e)}
               >
                 {t('courses.search')}
@@ -266,7 +270,7 @@ function Courses({ cached_courses }) {
                   <button
                     key={value}
                     onClick={() => handleFieldSearch(key)}
-                    className={`mr-4 mb-4 rounded-full px-3 py-2 text-sm shadow
+                    className={`mb-4 mr-4 rounded-full px-3 py-2 text-sm shadow
                                         ${
                                           key == field
                                             ? 'bg-sciteensLightGreen-regular text-white'

@@ -27,7 +27,10 @@ import {
   getDownloadURL,
   getMetadata,
 } from '@firebase/storage'
-import { db as firestore, storage } from '../../../lib/firebase'
+import {
+  db as firestore,
+  storage,
+} from '../../../lib/firebase'
 
 import moment from 'moment'
 import {
@@ -126,6 +129,7 @@ function Project({ profile }) {
       <Link
         key={project.id}
         href={`/project/${project.id}`}
+        legacyBehavior
       >
         <animated.a
           style={project_spring}
@@ -169,10 +173,10 @@ function Project({ profile }) {
                 </p>
               </div>
             )}
-            <h3 className="mb-2 text-base font-semibold line-clamp-2 md:text-xl lg:text-2xl">
+            <h3 className="mb-2 line-clamp-2 text-base font-semibold md:text-xl lg:text-2xl">
               {project.title}
             </h3>
-            <p className="mb-4 hidden line-clamp-none md:block md:line-clamp-2 lg:line-clamp-3">
+            <p className="mb-4 line-clamp-none hidden md:line-clamp-2 md:block lg:line-clamp-3">
               {project.abstract}
             </p>
             <div className="hidden flex-row lg:flex">
@@ -183,7 +187,7 @@ function Project({ profile }) {
                   return (
                     <p
                       key={index}
-                      className="z-30 mr-2 mb-2 whitespace-nowrap rounded-full bg-gray-100 py-1.5 px-3 text-xs shadow"
+                      className="z-30 mb-2 mr-2 whitespace-nowrap rounded-full bg-gray-100 px-3 py-1.5 text-xs shadow"
                     >
                       {getTranslatedFieldsDict(t)[field]}
                     </p>
@@ -266,8 +270,9 @@ function Project({ profile }) {
                 router.query?.slug && (
                 <Link
                   href={`/profile/${router?.query?.slug}/edit`}
+                  legacyBehavior
                 >
-                  <div className="h-1/3 cursor-pointer rounded-full border-2 border-sciteensLightGreen-regular py-1.5 px-6 text-center text-xl font-semibold text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark">
+                  <div className="h-1/3 cursor-pointer rounded-full border-2 border-sciteensLightGreen-regular px-6 py-1.5 text-center text-xl font-semibold text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark">
                     Edit
                   </div>
                 </Link>
@@ -283,8 +288,8 @@ function Project({ profile }) {
           <hr className="py-1" />
         </div>
         {/* <div>
-                <img src={profile.image ? profile.image : 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fgetwallpapers.com%2Fwallpaper%2Ffull%2F3%2F7%2F2%2F538871.jpg&f=1&nofb=1'} className="w-full mt-0 object-contain" />
-            </div> */}
+              <img src={profile.image ? profile.image : 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fgetwallpapers.com%2Fwallpaper%2Ffull%2F3%2F7%2F2%2F538871.jpg&f=1&nofb=1'} className="w-full mt-0 object-contain" />
+          </div> */}
       </div>
 
       {/* About */}

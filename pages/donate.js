@@ -29,7 +29,7 @@ export default function Donate() {
           <h1 className="text-4xl">
             {t('donate.annual_donation_appeal')}
           </h1>
-          <div className="mt-4 mb-8 flex w-full flex-row">
+          <div className="mb-8 mt-4 flex w-full flex-row">
             <a
               href="https://www.paypal.com/donate?hosted_button_id=7B8QACYV83ACA"
               target="_blank"
@@ -38,10 +38,11 @@ export default function Donate() {
             >
               {t('donate.donate_now')}
             </a>
-            <Link href="/about">
-              <a className="ml-2 p-2 text-gray-700 hover:underline">
-                {t('donate.read_our_mission')}
-              </a>
+            <Link
+              href="/about"
+              className="ml-2 p-2 text-gray-700 hover:underline"
+            >
+              {t('donate.read_our_mission')}
             </Link>
           </div>
           <p>{t('donate.dear_supporter')}</p>

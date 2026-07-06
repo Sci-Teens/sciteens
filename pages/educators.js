@@ -39,10 +39,10 @@ export default function Educators() {
           content="/assets/sciteens_initials.jpg"
         />
       </Head>
-      <div className="mx-5 mt-16 mb-24 flex flex-col text-center md:mx-16 lg:mx-24 lg:grid lg:grid-cols-2 lg:grid-rows-2 xl:grid-cols-3 xl:grid-rows-1">
+      <div className="mx-5 mb-24 mt-16 flex flex-col text-center md:mx-16 lg:mx-24 lg:grid lg:grid-cols-2 lg:grid-rows-2 xl:grid-cols-3 xl:grid-rows-1">
         <animated.div
           style={get_involved_spring}
-          className="mr-0 mb-8 space-y-2 rounded-lg bg-white p-8 text-sm shadow lg:mr-8 lg:mb-0 xl:mb-32"
+          className="mb-8 mr-0 space-y-2 rounded-lg bg-white p-8 text-sm shadow lg:mb-0 lg:mr-8 xl:mb-32"
         >
           <h1 className="mb-3 text-2xl font-semibold capitalize">
             {t('educators.resources')}
@@ -88,7 +88,7 @@ export default function Educators() {
 
         <animated.div
           style={get_involved_spring}
-          className="mr-0 mt-8 space-y-2 rounded-lg bg-white p-8 text-sm shadow lg:mr-8 xl:mb-32 xl:mr-0 xl:ml-8 xl:mt-0"
+          className="mr-0 mt-8 space-y-2 rounded-lg bg-white p-8 text-sm shadow lg:mr-8 xl:mb-32 xl:ml-8 xl:mr-0 xl:mt-0"
         >
           <h1 className="mb-3 text-2xl font-semibold capitalize">
             {t('educators.projects')}

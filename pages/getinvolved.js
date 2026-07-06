@@ -47,7 +47,7 @@ export default function GetInvolved() {
           <div className="flex flex-col">
             <animated.div
               style={get_involved_spring}
-              className="relative mr-0 mb-10 overflow-hidden rounded-lg bg-white p-12 shadow-md md:mr-8 md:mb-8"
+              className="relative mb-10 mr-0 overflow-hidden rounded-lg bg-white p-12 shadow-md md:mb-8 md:mr-8"
             >
               <h2 className="mb-3 text-2xl font-semibold md:text-3xl">
                 {t('get_involved.students')}
@@ -63,13 +63,14 @@ export default function GetInvolved() {
                   &nbsp;opportunities@sciteens.com.&nbsp;
                 </a>
               </p>
-              <Link href="/signup/student">
-                <a className="mb-4 rounded-lg bg-sciteensLightGreen-regular p-2 text-center text-white shadow-md hover:bg-sciteensLightGreen-dark">
-                  {t('get_involved.student_sign_up')}
-                </a>
+              <Link
+                href="/signup/student"
+                className="mb-4 rounded-lg bg-sciteensLightGreen-regular p-2 text-center text-white shadow-md hover:bg-sciteensLightGreen-dark"
+              >
+                {t('get_involved.student_sign_up')}
               </Link>
               <svg
-                className="absolute -top-8 -left-8 h-2/3 -rotate-12 transform opacity-5"
+                className="absolute -left-8 -top-8 h-2/3 -rotate-12 transform opacity-5"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
               >
@@ -79,7 +80,7 @@ export default function GetInvolved() {
 
             <animated.div
               style={get_involved_spring}
-              className="relative mr-0 mb-10 overflow-hidden rounded-lg bg-white p-12 shadow-md md:mr-8 md:mt-8"
+              className="relative mb-10 mr-0 overflow-hidden rounded-lg bg-white p-12 shadow-md md:mr-8 md:mt-8"
             >
               <h2 className="mb-3 mr-6 text-2xl font-semibold md:text-3xl">
                 {t('get_involved.outreach')}
@@ -104,7 +105,7 @@ export default function GetInvolved() {
                 {t('get_involved.contact_us')}
               </a>
               <svg
-                className="absolute -top-8 -left-8 h-2/3 -rotate-12 transform opacity-5"
+                className="absolute -left-8 -top-8 h-2/3 -rotate-12 transform opacity-5"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
               >
@@ -114,7 +115,7 @@ export default function GetInvolved() {
 
             <animated.div
               style={get_involved_spring}
-              className="relative ml-0 mb-10 overflow-hidden rounded-lg bg-white p-12 shadow-md md:ml-8 md:mt-8"
+              className="relative mb-10 ml-0 overflow-hidden rounded-lg bg-white p-12 shadow-md md:ml-8 md:mt-8"
             >
               <h2 className="mb-3 text-2xl font-semibold md:text-3xl">
                 {t('get_involved.funding')}
@@ -140,7 +141,7 @@ export default function GetInvolved() {
                 {t('get_involved.donate_now')}
               </a>
               <svg
-                className="absolute -top-8 -left-8 h-2/3 -rotate-12 transform opacity-5"
+                className="absolute -left-8 -top-8 h-2/3 -rotate-12 transform opacity-5"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
               >

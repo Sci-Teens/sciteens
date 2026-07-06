@@ -17,7 +17,7 @@ export default function RenderFile({
             alt="Powerpoint Icon"
             className="m-1 h-11 w-11"
           />
-          <div className="ml-2 flex-1 text-left line-clamp-1">
+          <div className="ml-2 line-clamp-1 flex-1 text-left">
             <p className="line-clamp-1">{file?.name}</p>
             <p className="text-sm text-gray-700">
               application/powerpoint
@@ -52,7 +52,7 @@ export default function RenderFile({
             alt="Word Icon"
             className="m-1 h-11 w-11"
           />
-          <div className="ml-2 flex-1 text-left line-clamp-1">
+          <div className="ml-2 line-clamp-1 flex-1 text-left">
             <p>{file?.name}</p>
             <p className="text-sm text-gray-700">
               application/word
@@ -88,7 +88,7 @@ export default function RenderFile({
             alt="PDF Icon"
             className="m-1 h-11 w-11"
           />
-          <div className="ml-2 flex-1 text-left line-clamp-1">
+          <div className="ml-2 line-clamp-1 flex-1 text-left">
             <p>{file?.name}</p>
             <p className="text-sm text-gray-700">
               application/pdf
@@ -125,7 +125,7 @@ export default function RenderFile({
             alt="Project"
             className="h-16 w-[10%] rounded-l-lg object-cover object-center"
           />
-          <div className="ml-2 flex-1 p-2 text-left line-clamp-1">
+          <div className="ml-2 line-clamp-1 flex-1 p-2 text-left">
             <p>{file?.name}</p>
             <p className="text-sm text-gray-700">image</p>
           </div>
@@ -153,9 +153,9 @@ export default function RenderFile({
             alt="File Icon"
             className="m-1 h-11 w-11"
           />
-          <div className="ml-2 flex-1 text-left line-clamp-1">
+          <div className="ml-2 line-clamp-1 flex-1 text-left">
             <p>{file?.name}</p>
-            <p className="text-sm text-gray-700 line-clamp-1">
+            <p className="line-clamp-1 text-sm text-gray-700">
               {file?.type}
             </p>
           </div>

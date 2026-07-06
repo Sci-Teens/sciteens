@@ -178,7 +178,7 @@ export default function FinishSignUp() {
         />
       </Head>
       <main>
-        <div className="relative z-30 mx-auto mt-8 mb-24 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
+        <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
           <h1 className="mb-2 text-center text-3xl font-semibold">
             {t('auth.finish_signup')}
           </h1>
@@ -202,7 +202,7 @@ export default function FinishSignUp() {
                   value={first_name}
                   name="first-name"
                   required
-                  className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+                  className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                     error_name
                       ? 'border-red-700 text-red-800 placeholder-red-700'
                       : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -226,7 +226,7 @@ export default function FinishSignUp() {
                   value={last_name}
                   name="last-name"
                   required
-                  className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+                  className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                     error_name
                       ? 'border-red-700 text-red-800 placeholder-red-700'
                       : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -254,7 +254,7 @@ export default function FinishSignUp() {
               type="date"
               id="birthday"
               name="birthday"
-              className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                 error_birthday
                   ? 'border-red-700 text-red-800 placeholder-red-700'
                   : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -283,7 +283,7 @@ export default function FinishSignUp() {
               name="gender"
               id="gender"
               value={gender}
-              className="focus:outline-none mb-4 mr-3 w-full appearance-none rounded border-2 border-transparent bg-gray-100 p-2 leading-tight text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700"
+              className="mb-4 mr-3 w-full appearance-none rounded border-2 border-transparent bg-gray-100 p-2 leading-tight text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700 focus:outline-none"
             >
               <option selected value="Male">
                 {t('auth.male')}
@@ -310,7 +310,7 @@ export default function FinishSignUp() {
               name="race"
               id="race"
               value={race}
-              className="focus:outline-none mb-4 mr-3 w-full appearance-none rounded border-2 border-transparent bg-gray-100 p-2 leading-tight text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700"
+              className="mb-4 mr-3 w-full appearance-none rounded border-2 border-transparent bg-gray-100 p-2 leading-tight text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700 focus:outline-none"
             >
               <option
                 selected
@@ -350,7 +350,7 @@ export default function FinishSignUp() {
                     value={terms}
                     type="checkbox"
                     name="terms"
-                    className="form-checkbox active:outline-none my-auto mr-2 leading-tight text-sciteensLightGreen-regular"
+                    className="form-checkbox my-auto mr-2 leading-tight text-sciteensLightGreen-regular active:outline-none"
                   />
                   <label
                     htmlFor="terms"
@@ -358,10 +358,11 @@ export default function FinishSignUp() {
                   >
                     <div className="flex flex-row">
                       {t('auth.terms')}&nbsp;
-                      <Link href="/legal/terms">
-                        <a className="font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark">
-                          {t('auth.terms_link')}
-                        </a>
+                      <Link
+                        href="/legal/terms"
+                        className="font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark"
+                      >
+                        {t('auth.terms_link')}
                       </Link>
                     </div>
                   </label>
@@ -377,7 +378,7 @@ export default function FinishSignUp() {
                 disabled={
                   loading || error_name || error_birthday
                 }
-                className="outline-none w-full rounded-lg bg-sciteensLightGreen-regular p-2 text-lg font-semibold text-white shadow hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+                className="w-full rounded-lg bg-sciteensLightGreen-regular p-2 text-lg font-semibold text-white shadow outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
                 onClick={finishSignUp}
               >
                 {t('auth.create_account')}

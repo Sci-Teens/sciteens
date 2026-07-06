@@ -204,37 +204,37 @@ function Article({ article, recommendations }) {
   const recommendationsRendered = recommendations.map(
     (a, index) => {
       return (
-        <Link key={index} href={`/article/${a.uid}`}>
-          <a
-            id={'i-' + index}
-            className="mr-[5vw] mt-6 w-[75vw] flex-shrink-0 cursor-pointer rounded-lg bg-white p-4 shadow hover:shadow-md  md:mr-[2.9vw] md:mt-8 md:w-[31vw]"
-          >
-            <div className="relative">
-              <Image
-                className="flex-shrink-0 rounded-lg object-cover"
-                loader={imageLoader}
-                src={a.data.image.url}
-                width={1280}
-                height={720}
-              />
-            </div>
-            <div className="">
-              <h3 className="text-lg font-semibold line-clamp-1">
-                {RichText.asText(a.data.title)}
-              </h3>
-              <p className="mb-auto text-sm line-clamp-3">
-                {a.data.description}
-              </p>
-              <p className="mt-2 hidden text-sm line-clamp-1 lg:flex">
-                By{' '}
-                {a.data.author +
-                  ' · ' +
-                  moment(a.data.date).format('ll') +
-                  ' · ' +
-                  readingTime(a.data.text)}
-              </p>
-            </div>
-          </a>
+        <Link
+          key={index}
+          href={`/article/${a.uid}`}
+          id={'i-' + index}
+          className="mr-[5vw] mt-6 w-[75vw] flex-shrink-0 cursor-pointer rounded-lg bg-white p-4 shadow hover:shadow-md  md:mr-[2.9vw] md:mt-8 md:w-[31vw]"
+        >
+          <div className="relative">
+            <Image
+              className="flex-shrink-0 rounded-lg object-cover"
+              loader={imageLoader}
+              src={a.data.image.url}
+              width={1280}
+              height={720}
+            />
+          </div>
+          <div className="">
+            <h3 className="line-clamp-1 text-lg font-semibold">
+              {RichText.asText(a.data.title)}
+            </h3>
+            <p className="mb-auto line-clamp-3 text-sm">
+              {a.data.description}
+            </p>
+            <p className="mt-2 line-clamp-1 hidden text-sm lg:flex">
+              By{' '}
+              {a.data.author +
+                ' · ' +
+                moment(a.data.date).format('ll') +
+                ' · ' +
+                readingTime(a.data.text)}
+            </p>
+          </div>
         </Link>
       )
     }
@@ -304,6 +304,7 @@ function Article({ article, recommendations }) {
                           pathname: '/articles',
                           query: { field: tag },
                         }}
+                        legacyBehavior
                       >
                         <p className="my-1 mr-4 cursor-pointer rounded-full bg-white px-5 py-1.5 text-base shadow hover:shadow-md">
                           {tag}
@@ -396,7 +397,7 @@ function Article({ article, recommendations }) {
                 <button
                   onClick={(e) => scroll(e, 'right')}
                   className={`absolute right-6 top-1/2 z-50 h-12 w-12 -translate-y-1/2 transform rounded-full bg-white opacity-70 shadow hover:opacity-100 hover:shadow-lg lg:h-16 lg:w-16
-                                    `}
+                                  `}
                 >
                   <svg
                     className="m-auto h-2/3"
@@ -409,7 +410,7 @@ function Article({ article, recommendations }) {
                 <button
                   onClick={(e) => scroll(e, 'left')}
                   className={`absolute left-6 top-1/2 z-50 h-12 w-12 -translate-y-1/2 transform rounded-full bg-white opacity-70 shadow hover:opacity-100 hover:shadow-lg lg:h-16 lg:w-16
-                                    `}
+                                  `}
                 >
                   <svg
                     className="m-auto h-2/3"

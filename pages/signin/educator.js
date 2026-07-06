@@ -103,7 +103,7 @@ export default function MentorSignIn() {
         <meta property="og:type" content="website" />
       </Head>
       <main>
-        <div className="relative z-30 mx-auto mt-8 mb-24 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
+        <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
           <h1 className="mb-2 text-center text-3xl font-semibold">
             {t('auth.educator_sign_in')}
           </h1>
@@ -120,10 +120,9 @@ export default function MentorSignIn() {
                     }
                   : '/signin/student'
               }
+              className="cursor-pointer font-bold"
             >
-              <a className="cursor-pointer font-bold">
-                {t('auth.sign_in_here')}
-              </a>
+              {t('auth.sign_in_here')}
             </Link>
           </p>
           <form onSubmit={emailSignIn}>
@@ -138,7 +137,7 @@ export default function MentorSignIn() {
               onChange={(e) => onChange(e, 'email')}
               name="email"
               required
-              className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                 error_email
                   ? 'border-red-700 text-red-800 placeholder-red-700'
                   : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -161,7 +160,7 @@ export default function MentorSignIn() {
               onChange={(e) => onChange(e, 'password')}
               name="password"
               required
-              className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                 error_password
                   ? 'border-red-700 text-red-800 placeholder-red-700'
                   : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -174,15 +173,16 @@ export default function MentorSignIn() {
             </p>
 
             <div className="my-2 flex flex-col justify-between">
-              <Link href="/signin/reset">
-                <a className="mr-1 mb-2 flex-1 rounded py-2 text-sm text-gray-600">
-                  {t('auth.reset_password')}
-                </a>
+              <Link
+                href="/signin/reset"
+                className="mb-2 mr-1 flex-1 rounded py-2 text-sm text-gray-600"
+              >
+                {t('auth.reset_password')}
               </Link>
 
               <button
                 type="submit"
-                className="outline-none w-full rounded-lg bg-sciteensLightGreen-regular p-2 text-lg font-semibold text-white shadow hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+                className="w-full rounded-lg bg-sciteensLightGreen-regular p-2 text-lg font-semibold text-white shadow outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
                 onClick={emailSignIn}
                 disabled={
                   error_email ||
@@ -209,10 +209,9 @@ export default function MentorSignIn() {
                       }
                     : '/signup/educator'
                 }
+                className="font-bold"
               >
-                <a className="font-bold">
-                  {t('auth.sign_up')}
-                </a>
+                {t('auth.sign_up')}
               </Link>
             </p>
           </div>

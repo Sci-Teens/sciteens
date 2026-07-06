@@ -63,10 +63,14 @@ export default function Layout({ children }) {
           visibleNav ? 'translate-y-0' : '-translate-y-32'
         }`}
       >
-        {visibleBanner && <Banner closeBanner={closeBanner} />}
+        {visibleBanner && (
+          <Banner closeBanner={closeBanner} />
+        )}
         <NavBar />
       </div>
-      <div className={`${visibleBanner ? 'pt-52' : 'pt-20'}`}>
+      <div
+        className={`${visibleBanner ? 'pt-52' : 'pt-20'}`}
+      >
         {children}
       </div>
       <Footer />

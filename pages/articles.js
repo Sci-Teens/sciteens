@@ -208,7 +208,11 @@ function Articles({ cached_articles }) {
       )
 
       return (
-        <Link key={index} href={`/article/${article.uid}`}>
+        <Link
+          key={index}
+          href={`/article/${article.uid}`}
+          legacyBehavior
+        >
           <animated.a
             style={article_spring}
             className="z-50 mt-6 flex cursor-pointer flex-row items-center rounded-lg bg-white p-4 shadow md:mt-8"
@@ -229,10 +233,10 @@ function Articles({ cached_articles }) {
                   {article.data.author}
                 </p>
               </div>
-              <h3 className="mb-2 text-base font-semibold line-clamp-2 md:text-xl lg:text-2xl">
+              <h3 className="mb-2 line-clamp-2 text-base font-semibold md:text-xl lg:text-2xl">
                 {RichText.asText(article.data.title)}
               </h3>
-              <p className="mb-2 hidden text-sm line-clamp-none md:flex md:line-clamp-2 lg:text-base">
+              <p className="mb-2 line-clamp-none hidden text-sm md:line-clamp-2 md:flex lg:text-base">
                 {article.data.description}
               </p>
               <p className="flex text-xs">
@@ -269,7 +273,7 @@ function Articles({ cached_articles }) {
           content="/assets/sciteens_initials.jpg"
         />
       </Head>
-      <div className="mx-auto mt-8 mb-24 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
+      <div className="mx-auto mb-24 mt-8 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
         <div className="mx-auto w-11/12 md:w-[85%] lg:mx-0 lg:w-[60%]">
           <h1 className="ml-4 py-4 text-left text-4xl font-semibold">
             {t('articles.articles')} 📰
@@ -280,7 +284,7 @@ function Articles({ cached_articles }) {
           >
             <button
               type="submit"
-              className="outline-none w-auto rounded-l-lg bg-sciteensLightGreen-regular px-3 font-semibold text-white shadow hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+              className="w-auto rounded-l-lg bg-sciteensLightGreen-regular px-3 font-semibold text-white shadow outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
               onClick={(e) => handleSearch(e)}
             >
               <img
@@ -295,7 +299,7 @@ function Articles({ cached_articles }) {
               name="search"
               placeholder="Search..."
               required
-              className={`focus:outline-none w-full appearance-none border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700`}
+              className={`w-full appearance-none border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700 focus:outline-none`}
               type="text"
               aria-label="search"
               maxLength="100"
@@ -307,7 +311,7 @@ function Articles({ cached_articles }) {
               name="field"
               id="field"
               value={field}
-              className="focus:outline-none w-1/2 appearance-none rounded-r-lg border-2 border-transparent bg-white p-2 leading-tight text-gray-700 placeholder-sciteensGreen-regular shadow focus:border-sciteensGreen-regular focus:bg-white focus:placeholder-gray-700"
+              className="w-1/2 appearance-none rounded-r-lg border-2 border-transparent bg-white p-2 leading-tight text-gray-700 placeholder-sciteensGreen-regular shadow focus:border-sciteensGreen-regular focus:bg-white focus:placeholder-gray-700 focus:outline-none"
             >
               {Object.entries(
                 getTranslatedFieldsDict(t)
@@ -365,14 +369,14 @@ function Articles({ cached_articles }) {
                 value={search}
                 name="search"
                 required
-                className={`focus:outline-none mr-3 w-full appearance-none rounded border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700`}
+                className={`mr-3 w-full appearance-none rounded border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700 focus:outline-none`}
                 type="text"
                 aria-label="search"
                 maxLength="100"
               />
               <button
                 type="submit"
-                className="outline-none rounded-lg bg-sciteensLightGreen-regular px-4 py-2 font-semibold text-white shadow hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+                className="rounded-lg bg-sciteensLightGreen-regular px-4 py-2 font-semibold text-white shadow outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
                 onClick={(e) => handleSearch(e)}
               >
                 {t('articles.search')}
@@ -392,7 +396,7 @@ function Articles({ cached_articles }) {
                   <button
                     key={value}
                     onClick={() => handleFieldSearch(key)}
-                    className={`mr-4 mb-4 rounded-full px-3 py-2 text-sm shadow
+                    className={`mb-4 mr-4 rounded-full px-3 py-2 text-sm shadow
                                         ${
                                           key == field
                                             ? 'bg-sciteensLightGreen-regular text-white'

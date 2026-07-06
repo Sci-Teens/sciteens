@@ -43,7 +43,7 @@ export default function Footer() {
               fill="#2d8a5b"
             />
           </svg>
-          <div className="bg-sciteensGreen-regular px-10 pt-4 pb-8 text-gray-100 md:px-24">
+          <div className="bg-sciteensGreen-regular px-10 pb-8 pt-4 text-gray-100 md:px-24">
             <div className="mr-0 flex flex-col justify-between md:flex-row lg:mr-12">
               <div className="w-1/8 mb-8 md:mb-0">
                 <p className="mb-1 font-semibold text-white md:mb-2">

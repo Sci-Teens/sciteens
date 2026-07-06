@@ -11,7 +11,10 @@ import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
-import { db as firestore, storage } from '../../lib/firebase'
+import {
+  db as firestore,
+  storage,
+} from '../../lib/firebase'
 import { useSigninCheck } from '../../context/AuthContext'
 import {
   collection,
@@ -351,7 +354,7 @@ export default function CreateProject() {
       <>
         <Head></Head>
         <main>
-          <div className="relative z-30 mx-auto mt-8 mb-24 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
+          <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
             <h1 className="mb-2 text-center text-3xl font-semibold">
               {t('project_create_edit.create_project')}
             </h1>
@@ -370,7 +373,7 @@ export default function CreateProject() {
                 value={title}
                 name="title"
                 required
-                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+                className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                   error_title
                     ? 'border-red-700 text-red-800 placeholder-red-700'
                     : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -397,7 +400,7 @@ export default function CreateProject() {
                 id="start-date"
                 name="start-date"
                 placeholder="Not Required..."
-                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+                className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                   error_start_date
                     ? 'border-red-700 text-red-800 placeholder-red-700'
                     : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -427,7 +430,7 @@ export default function CreateProject() {
                 id="end-date"
                 name="end-date"
                 placeholder="Not Required..."
-                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+                className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                   error_end_date
                     ? 'border-red-700 text-red-800 placeholder-red-700'
                     : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -454,7 +457,7 @@ export default function CreateProject() {
                 value={abstract}
                 name="abstract"
                 required
-                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+                className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                   error_abstract
                     ? 'border-red-700 text-red-800 placeholder-red-700'
                     : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -478,7 +481,7 @@ export default function CreateProject() {
                 value={member}
                 name="member"
                 required
-                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+                className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                   error_member
                     ? 'border-red-700 text-red-800 placeholder-red-700'
                     : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -523,7 +526,7 @@ export default function CreateProject() {
                   <div key={key}>
                     <input
                       id={key}
-                      className="form-checkbox active:outline-none mr-2 text-sciteensLightGreen-regular"
+                      className="form-checkbox mr-2 text-sciteensLightGreen-regular active:outline-none"
                       type="checkbox"
                       value={field_values[index]}
                       checked={field_values[index]}
@@ -619,7 +622,7 @@ export default function CreateProject() {
                   <>
                     <label
                       htmlFor="other_photos"
-                      className="mt-2 -mb-3 text-left uppercase text-gray-600"
+                      className="-mb-3 mt-2 text-left uppercase text-gray-600"
                     >
                       Other Photo
                       {files.length > 1 ? 's' : ''}
@@ -672,7 +675,7 @@ export default function CreateProject() {
                   error_title ||
                   !title
                 }
-                className="outline-none mt-4 w-full rounded-lg bg-sciteensLightGreen-regular p-2 text-lg font-semibold text-white shadow hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+                className="mt-4 w-full rounded-lg bg-sciteensLightGreen-regular p-2 text-lg font-semibold text-white shadow outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
                 onClick={(e) => createProject(e)}
               >
                 {t('project_create_edit.create')}

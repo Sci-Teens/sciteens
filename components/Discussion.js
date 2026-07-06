@@ -204,7 +204,7 @@ export default function Discussion({ type, item_id }) {
           id="comment"
           required
           rows="3"
-          className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-white p-2 leading-tight shadow focus:bg-white focus:placeholder-gray-700 focus:shadow-lg ${
+          className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-white p-2 leading-tight shadow focus:bg-white focus:placeholder-gray-700 focus:shadow-lg focus:outline-none ${
             error_comment
               ? 'border-red-700 text-red-800 placeholder-red-700'
               : 'text-gray-700 focus:border-sciteensLightGreen-regular'
@@ -233,14 +233,14 @@ export default function Discussion({ type, item_id }) {
               setReplyingToId('')
               setComment('')
             }}
-            className="outline-none mr-2 rounded-lg border-2 border-gray-500 bg-gray-200 p-2 opacity-50 shadow hover:bg-opacity-100 disabled:opacity-50"
+            className="mr-2 rounded-lg border-2 border-gray-500 bg-gray-200 p-2 opacity-50 shadow outline-none hover:bg-opacity-100 disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading || error_comment}
-            className="outline-none rounded-lg bg-sciteensLightGreen-regular p-2 text-white shadow hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+            className="rounded-lg bg-sciteensLightGreen-regular p-2 text-white shadow outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
             onClick={(e) => postComment(e)}
           >
             Post
@@ -283,7 +283,7 @@ export default function Discussion({ type, item_id }) {
                       {comment.display}
                     </p>
                   </div>
-                  <p className="absolute top-4 right-4 text-xs text-gray-700">
+                  <p className="absolute right-4 top-4 text-xs text-gray-700">
                     {moment(comment.date).calendar(null, {
                       sameElse: 'MMMM DD, YYYY',
                     })}
@@ -325,7 +325,7 @@ export default function Discussion({ type, item_id }) {
                                   replyingToId == comment.id
                                     ? 'rounded-lg'
                                     : 'rounded-lg border-none'
-                                } focus:outline-none focus:bg-white focus:placeholder-gray-700 
+                                } focus:bg-white focus:placeholder-gray-700 focus:outline-none 
                                 ${
                                   error_reply &&
                                   error_reply_index === key
@@ -345,7 +345,7 @@ export default function Discussion({ type, item_id }) {
                         setReplyingToId('')
                         setComment('')
                       }}
-                      className="outline-none mr-2 h-full w-full bg-gray-200 py-2 px-2 hover:bg-gray-300 disabled:opacity-50 md:px-4"
+                      className="mr-2 h-full w-full bg-gray-200 px-2 py-2 outline-none hover:bg-gray-300 disabled:opacity-50 md:px-4"
                     >
                       Cancel
                     </button>
@@ -356,7 +356,7 @@ export default function Discussion({ type, item_id }) {
                         error_reply ||
                         !signInCheckResult?.signedIn
                       }
-                      className="outline-none h-full rounded-br-lg bg-sciteensLightGreen-regular p-2 text-white hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+                      className="h-full rounded-br-lg bg-sciteensLightGreen-regular p-2 text-white outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
                       onClick={(e) => postComment(e)}
                     >
                       Post
@@ -405,7 +405,7 @@ export default function Discussion({ type, item_id }) {
                                 </p>
                               </div>
                               <p>{reply.comment}</p>
-                              <p className="absolute top-4 right-4 text-xs text-gray-700">
+                              <p className="absolute right-4 top-4 text-xs text-gray-700">
                                 {moment(
                                   reply.date
                                 ).calendar(null, {

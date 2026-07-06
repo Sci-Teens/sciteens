@@ -16,21 +16,22 @@ export default function FourOhFour() {
         <p className="mb-6 text-xl">
           This page may not exist or may have been deleted.
         </p>
-        <Link href="/">
-          <a className="rounded-lg bg-sciteensLightGreen-regular px-4 py-2 text-xl text-white shadow hover:bg-sciteensLightGreen-dark">
-            Return Home
-          </a>
+        <Link
+          href="/"
+          className="rounded-lg bg-sciteensLightGreen-regular px-4 py-2 text-xl text-white shadow hover:bg-sciteensLightGreen-dark"
+        >
+          Return Home
         </Link>
         {/* <iframe
-                width="500"
-                height="300"
-                src="https://www.youtube.com/embed/wiDpO99BT3w"
-                title="YouTube video player"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="mx-auto overflow-hidden max-w-full">
-            </iframe> */}
+              width="500"
+              height="300"
+              src="https://www.youtube.com/embed/wiDpO99BT3w"
+              title="YouTube video player"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="mx-auto overflow-hidden max-w-full">
+          </iframe> */}
       </div>
     </>
   )

@@ -10,7 +10,10 @@ import Link from 'next/link'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
-import { db as firestore, storage } from '../../../lib/firebase'
+import {
+  db as firestore,
+  storage,
+} from '../../../lib/firebase'
 import { useSigninCheck } from '../../../context/AuthContext'
 import {
   collection,
@@ -455,7 +458,7 @@ export default function UpdateProject({ query }) {
     return (
       <>
         <main>
-          <div className="relative z-30 mx-auto mt-8 mb-24 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
+          <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
             <h1 className="mb-2 text-center text-3xl font-semibold">
               {t('project_create_edit.update_project')}
             </h1>
@@ -475,7 +478,7 @@ export default function UpdateProject({ query }) {
                 value={title}
                 name="title"
                 required
-                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+                className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                   error_title
                     ? 'border-red-700 text-red-800 placeholder-red-700'
                     : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -501,7 +504,7 @@ export default function UpdateProject({ query }) {
                 type="date"
                 id="start-date"
                 name="start-date"
-                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+                className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                   error_start_date
                     ? 'border-red-700 text-red-800 placeholder-red-700'
                     : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -530,7 +533,7 @@ export default function UpdateProject({ query }) {
                 type="date"
                 id="end-date"
                 name="end-date"
-                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+                className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                   error_end_date
                     ? 'border-red-700 text-red-800 placeholder-red-700'
                     : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -557,7 +560,7 @@ export default function UpdateProject({ query }) {
                 value={abstract}
                 name="abstract"
                 required
-                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+                className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                   error_abstract
                     ? 'border-red-700 text-red-800 placeholder-red-700'
                     : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -581,7 +584,7 @@ export default function UpdateProject({ query }) {
                 value={member}
                 name="member"
                 required
-                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+                className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                   error_member
                     ? 'border-red-700 text-red-800 placeholder-red-700'
                     : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -625,7 +628,7 @@ export default function UpdateProject({ query }) {
                   <div key={key}>
                     <input
                       id={key}
-                      className="form-checkbox active:outline-none mr-2 text-sciteensLightGreen-regular"
+                      className="form-checkbox mr-2 text-sciteensLightGreen-regular active:outline-none"
                       type="checkbox"
                       value={field_values[index]}
                       checked={field_values[index]}
@@ -722,7 +725,7 @@ export default function UpdateProject({ query }) {
                   <>
                     <label
                       htmlFor="other_photos"
-                      className="mt-2 -mb-3 text-left uppercase text-gray-600"
+                      className="-mb-3 mt-2 text-left uppercase text-gray-600"
                     >
                       {t('project_create_edit.other_photo')}
                     </label>
@@ -772,7 +775,7 @@ export default function UpdateProject({ query }) {
                     error_file ||
                     error_title
                   }
-                  className="outline-none mr-2 mt-4 w-full rounded-lg bg-sciteensLightGreen-regular p-2 text-lg font-semibold text-white shadow hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+                  className="mr-2 mt-4 w-full rounded-lg bg-sciteensLightGreen-regular p-2 text-lg font-semibold text-white shadow outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
                   onClick={(e) => updateProject(e)}
                 >
                   {t('project_create_edit.update')}
@@ -784,10 +787,11 @@ export default function UpdateProject({ query }) {
                     />
                   )}
                 </button>
-                <Link href={`/project/${query.id}`}>
-                  <a className="outline-none ml-2 mt-4 w-full rounded-lg border-2 border-gray-200 bg-gray-100 p-2 text-center text-lg font-semibold text-black shadow hover:border-gray-300 hover:bg-gray-200 disabled:opacity-50">
-                    {t('project_create_edit.cancel')}
-                  </a>
+                <Link
+                  href={`/project/${query.id}`}
+                  className="ml-2 mt-4 w-full rounded-lg border-2 border-gray-200 bg-gray-100 p-2 text-center text-lg font-semibold text-black shadow outline-none hover:border-gray-300 hover:bg-gray-200 disabled:opacity-50"
+                >
+                  {t('project_create_edit.cancel')}
                 </Link>
               </div>
             </form>

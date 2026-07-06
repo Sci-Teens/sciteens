@@ -325,6 +325,7 @@ function Projects({ cached_projects }) {
       <Link
         key={project.id}
         href={`/project/${project.id}`}
+        legacyBehavior
       >
         <animated.a
           style={project_spring}
@@ -369,10 +370,9 @@ function Projects({ cached_projects }) {
                         href={`/profile/${
                           member.slug ? member.slug : ''
                         }`}
+                        className="font-bold text-sciteensGreen-regular no-underline hover:text-sciteensGreen-dark"
                       >
-                        <a className="font-bold text-sciteensGreen-regular no-underline hover:text-sciteensGreen-dark">
-                          {member.display + ' '}
-                        </a>
+                        {member.display + ' '}
                       </Link>
                     )
                   })}
@@ -382,10 +382,10 @@ function Projects({ cached_projects }) {
             <div className="mb-2 ml-10 text-gray-500">
               {moment(project.date).format('ll')}
             </div>
-            <h3 className="mb-2 text-base font-semibold line-clamp-2 md:text-xl lg:text-2xl">
+            <h3 className="mb-2 line-clamp-2 text-base font-semibold md:text-xl lg:text-2xl">
               {project.title}
             </h3>
-            <p className="mb-4 hidden line-clamp-none md:block md:line-clamp-2 lg:line-clamp-3">
+            <p className="mb-4 line-clamp-none hidden md:line-clamp-2 md:block lg:line-clamp-3">
               {project.abstract}
             </p>
             <div className="hidden flex-row lg:flex">
@@ -396,7 +396,7 @@ function Projects({ cached_projects }) {
                   return (
                     <p
                       key={index}
-                      className="z-30 mr-2 mb-2 whitespace-nowrap rounded-full bg-gray-100 py-1.5 px-3 text-xs shadow"
+                      className="z-30 mb-2 mr-2 whitespace-nowrap rounded-full bg-gray-100 px-3 py-1.5 text-xs shadow"
                     >
                       {getTranslatedFieldsDict(t)[field]}
                     </p>
@@ -455,16 +455,16 @@ function Projects({ cached_projects }) {
           content="/assets/sciteens_initials.jpg"
         />
       </Head>
-      <div className="mx-auto mt-8 mb-24 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
+      <div className="mx-auto mb-24 mt-8 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
         <div className="mx-auto w-11/12 md:w-[85%] lg:mx-0 lg:w-[60%]">
           <div className="flex flex-row justify-between">
             <h1 className="ml-0 py-4 text-left text-3xl font-semibold md:ml-4 md:text-4xl">
               {t('projects.projects')} 🔬
             </h1>
-            <Link href="/project/create">
+            <Link href="/project/create" legacyBehavior>
               {typeof window !== 'undefined' &&
               window.innerWidth >= 812 ? (
-                <a className="my-auto rounded-full border-2 border-sciteensLightGreen-regular py-1.5 px-5 text-lg font-semibold text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark">
+                <a className="my-auto rounded-full border-2 border-sciteensLightGreen-regular px-5 py-1.5 text-lg font-semibold text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark">
                   Create Project
                 </a>
               ) : (
@@ -515,14 +515,14 @@ function Projects({ cached_projects }) {
                 value={search}
                 name="search"
                 required
-                className={`focus:outline-none mr-3 w-full appearance-none rounded border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700`}
+                className={`mr-3 w-full appearance-none rounded border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700 focus:outline-none`}
                 type="text"
                 aria-label="search"
                 maxLength="100"
               />
               <button
                 type="submit"
-                className="outline-none rounded-lg bg-sciteensLightGreen-regular px-4 py-2 font-semibold text-white shadow hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+                className="rounded-lg bg-sciteensLightGreen-regular px-4 py-2 font-semibold text-white shadow outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
                 onClick={(e) => handleSearch(e)}
               >
                 {t('projects.search')}
@@ -542,12 +542,12 @@ function Projects({ cached_projects }) {
                   <button
                     key={value}
                     onClick={() => handleFieldSearch(key)}
-                    className={`mr-4 mb-4 rounded-full px-3 py-2 text-sm shadow
-                                        ${
-                                          key == field
-                                            ? 'bg-sciteensLightGreen-regular text-white'
-                                            : 'bg-white'
-                                        }`}
+                    className={`mb-4 mr-4 rounded-full px-3 py-2 text-sm shadow
+                                      ${
+                                        key == field
+                                          ? 'bg-sciteensLightGreen-regular text-white'
+                                          : 'bg-white'
+                                      }`}
                   >
                     {value}
                   </button>

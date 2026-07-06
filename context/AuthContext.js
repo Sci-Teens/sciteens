@@ -21,7 +21,8 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(
       auth,
-      (user) => setState({ status: 'success', user: user ?? null }),
+      (user) =>
+        setState({ status: 'success', user: user ?? null }),
       () => setState({ status: 'error', user: null })
     )
     return unsubscribe

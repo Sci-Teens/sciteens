@@ -21,7 +21,9 @@ const firebaseConfig = {
   // /projects build-time cache empty and the client fallback broken.
   // Use the value verbatim when it already looks like a full appId;
   // otherwise construct it from the sender id + suffix.
-  appId: process.env.NEXT_PUBLIC_FB_APP_ID?.includes(':web:')
+  appId: process.env.NEXT_PUBLIC_FB_APP_ID?.includes(
+    ':web:'
+  )
     ? process.env.NEXT_PUBLIC_FB_APP_ID
     : '1:' +
       process.env.NEXT_PUBLIC_FB_MESSAGING_SENDER_ID +

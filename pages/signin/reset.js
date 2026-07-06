@@ -53,7 +53,7 @@ export default function Reset() {
         <meta property="og:type" content="website" />
       </Head>
       <main className="flex h-screen items-center justify-center">
-        <div className="relative z-30 mx-auto mt-8 mb-24 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
+        <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
           <form onSubmit={submitForgotPassword}>
             <h1 className="mb-2 text-center text-3xl font-semibold">
               {t('auth.reset_password')}
@@ -72,7 +72,7 @@ export default function Reset() {
               onChange={(e) => onChange(e, 'email')}
               name="email"
               required
-              className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
+              className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight focus:outline-none ${
                 error_email
                   ? 'border-red-700 text-red-800 placeholder-red-700'
                   : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
@@ -83,10 +83,10 @@ export default function Reset() {
             <p className="mb-6 text-sm text-red-800">
               {error_email}
             </p>
-            <div className="mt-2 mb-10 flex content-end justify-end">
+            <div className="mb-10 mt-2 flex content-end justify-end">
               <button
                 type="submit"
-                className="outline-none w-full rounded-lg bg-sciteensLightGreen-regular p-2 text-lg font-semibold text-white shadow hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+                className="w-full rounded-lg bg-sciteensLightGreen-regular p-2 text-lg font-semibold text-white shadow outline-none hover:bg-sciteensLightGreen-dark disabled:opacity-50"
                 onClick={submitForgotPassword}
                 disabled={error_email}
               >

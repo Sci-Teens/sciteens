@@ -12,7 +12,6 @@ export default function SignUpIndex() {
 
   const router = useRouter()
 
-
   return (
     <div>
       <Head>
@@ -48,10 +47,9 @@ export default function SignUpIndex() {
                     }
                   : '/signin/student'
               }
+              className="font-bold"
             >
-              <a className="font-bold">
-                {t('auth.sign_in_link')}
-              </a>
+              {t('auth.sign_in_link')}
             </Link>
           </div>
           <div className="mx-auto flex flex-wrap justify-center">
@@ -66,68 +64,64 @@ export default function SignUpIndex() {
                     }
                   : '/signup/student'
               }
+              className="m-6 h-56 w-56 rounded bg-white shadow hover:shadow-md"
             >
-              <a className="m-6 h-56 w-56 rounded bg-white shadow hover:shadow-md">
-                {show_student_info ? (
-                  <div className="relative pt-8">
-                    <button
-                      type="button"
-                      className="absolute top-0 right-0 m-2 h-6 w-6"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        setShowStudentInfo(
-                          !show_student_info
-                        )
-                      }}
-                    >
-                      <img
-                        src="/assets/zondicons/close-solid.svg"
-                        alt="Close"
-                        className="h-6 w-6"
-                      />
-                    </button>
-                    <h2 className="mx-2 text-xl text-sciteensGreen-regular">
-                      {t('auth.student_info')}
-                    </h2>
-                  </div>
-                ) : (
-                  <div className="relative">
-                    <button
-                      type="button"
-                      className="absolute top-0 right-0 m-2 h-6 w-6"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        setShowStudentInfo(
-                          !show_student_info
-                        )
-                      }}
-                    >
-                      <img
-                        src="/assets/zondicons/question.svg"
-                        alt="Question"
-                        className="h-6 w-6"
-                      />
-                    </button>
+              {show_student_info ? (
+                <div className="relative pt-8">
+                  <button
+                    type="button"
+                    className="absolute right-0 top-0 m-2 h-6 w-6"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setShowStudentInfo(!show_student_info)
+                    }}
+                  >
                     <img
-                      src="/assets/student.svg"
-                      alt="Student Icon"
-                      className="mx-auto h-40 p-4"
+                      src="/assets/zondicons/close-solid.svg"
+                      alt="Close"
+                      className="h-6 w-6"
                     />
-                    <h2 className="text-xl text-sciteensGreen-regular">
-                      {t('auth.student')}
-                    </h2>
-                  </div>
-                )}
-              </a>
+                  </button>
+                  <h2 className="mx-2 text-xl text-sciteensGreen-regular">
+                    {t('auth.student_info')}
+                  </h2>
+                </div>
+              ) : (
+                <div className="relative">
+                  <button
+                    type="button"
+                    className="absolute right-0 top-0 m-2 h-6 w-6"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setShowStudentInfo(!show_student_info)
+                    }}
+                  >
+                    <img
+                      src="/assets/zondicons/question.svg"
+                      alt="Question"
+                      className="h-6 w-6"
+                    />
+                  </button>
+                  <img
+                    src="/assets/student.svg"
+                    alt="Student Icon"
+                    className="mx-auto h-40 p-4"
+                  />
+                  <h2 className="text-xl text-sciteensGreen-regular">
+                    {t('auth.student')}
+                  </h2>
+                </div>
+              )}
             </Link>
           </div>
           <div className="mb-1/4 mx-auto">
             <p className="text-gray-700">
               {t('auth.neither_of_above')}&nbsp;
-              <Link href="/getinvolved">
-                <a className="font-bold">
-                  {t('auth.involved_link')}
-                </a>
+              <Link
+                href="/getinvolved"
+                className="font-bold"
+              >
+                {t('auth.involved_link')}
               </Link>
             </p>
           </div>
