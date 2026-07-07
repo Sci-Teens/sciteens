@@ -5,7 +5,7 @@ export default function Document() {
   return (
     <Html className={nunito.variable}>
       <Head />
-      <body>
+      <body className="bg-background text-foreground">
         <Main />
         <NextScript />
       </body>

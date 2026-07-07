@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useEffect,
 } from 'react'
+import LoadingSpinner from '../../../components/LoadingSpinner'
 
 import Error from 'next/error'
 import { useRouter } from 'next/router'
@@ -783,13 +784,7 @@ export default function UpdateProject({ query }) {
                     }
                   >
                     {t('project_create_edit.update')}
-                    {loading && (
-                      <img
-                        src="/assets/loading.svg"
-                        alt="Loading Spinner"
-                        className="inline-block h-5 w-5"
-                      />
-                    )}
+                    {loading && <LoadingSpinner />}
                   </Button>
                   <Link
                     href={`/project/${query.id}`}

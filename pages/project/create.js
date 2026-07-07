@@ -4,6 +4,7 @@ import {
   useEffect,
   useContext,
 } from 'react'
+import LoadingSpinner from '../../components/LoadingSpinner'
 
 import Head from 'next/head'
 import Error from 'next/error'
@@ -667,11 +668,7 @@ export default function CreateProject() {
                 >
                   {t('project_create_edit.create')}
                   {loading && (
-                    <img
-                      src="/assets/loading.svg"
-                      alt="Loading Spinner"
-                      className="ml-2 inline-block h-5 w-5"
-                    />
+                    <LoadingSpinner className="ml-2" />
                   )}
                 </Button>
               </FieldGroup>

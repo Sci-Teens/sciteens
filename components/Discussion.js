@@ -3,8 +3,9 @@ import {
   query,
   addDoc,
   orderBy,
-} from '@firebase/firestore'
+} from 'firebase/firestore'
 import { useState, useCallback, useMemo } from 'react'
+import LoadingSpinner from './LoadingSpinner'
 import { useFirestoreCollectionData } from '../lib/firestoreData'
 import { useSigninCheck } from '../context/AuthContext'
 import { db } from '../lib/firebase'
@@ -245,13 +246,7 @@ export default function Discussion({ type, item_id }) {
             onClick={(e) => postComment(e)}
           >
             Post
-            {loading && (
-              <img
-                src="/assets/loading.svg"
-                alt="Loading Spinner"
-                className="inline-block h-5 w-5"
-              />
-            )}
+            {loading && <LoadingSpinner />}
           </Button>
         </div>
       </form>
@@ -369,13 +364,7 @@ export default function Discussion({ type, item_id }) {
                       onClick={(e) => postComment(e)}
                     >
                       Post
-                      {loading && (
-                        <img
-                          src="/assets/loading.svg"
-                          alt="Loading Spinner"
-                          className="inline-block h-5 w-5"
-                        />
-                      )}
+                      {loading && <LoadingSpinner />}
                     </Button>
                   </div>
                 </div>

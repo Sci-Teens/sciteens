@@ -13,7 +13,13 @@ const scriptSrc = [
 module.exports = {
   i18n,
   images: {
-    domains: ['images.prismic.io', 'source.unsplash.com'],
+    domains: [
+      'images.prismic.io',
+      'source.unsplash.com',
+      'lh3.googleusercontent.com',
+      'firebasestorage.googleapis.com',
+      'storage.googleapis.com',
+    ],
   },
   eslint: {
     // Lint errors should fail the build — security-relevant rules

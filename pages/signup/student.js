@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import LoadingSpinner from '../../components/LoadingSpinner'
 import { useContext } from 'react'
 
 import Link from 'next/link'
@@ -527,13 +528,7 @@ export default function StudentSignUp() {
                 }
               >
                 {t('auth.create_account')}
-                {loading && (
-                  <img
-                    src="/assets/loading.svg"
-                    alt="Loading Spinner"
-                    className="inline-block h-5 w-5"
-                  />
-                )}
+                {loading && <LoadingSpinner />}
               </Button>
             </FieldGroup>
           </form>

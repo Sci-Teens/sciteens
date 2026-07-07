@@ -6,6 +6,7 @@ import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import { useIntersectionObserver } from '../context/helpers'
+import { getTranslatedFieldsDict } from '../context/helpers'
 import moment from 'moment'
 
 import { db as firestore } from '../lib/firebase'
@@ -14,7 +15,7 @@ import {
   getApp,
   getApps,
   initializeApp,
-} from '@firebase/app'
+} from 'firebase/app'
 import {
   collection,
   query as firebase_query,
@@ -25,18 +26,14 @@ import {
   where as firebase_where,
   startAfter,
   documentId,
-} from '@firebase/firestore'
+} from 'firebase/firestore'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
 
 import algoliasearch from 'algoliasearch/lite'
-import {
-  useSpring,
-  animated,
-  config,
-} from '@react-spring/web'
-import ProfilePhoto from '../components/ProfilePhoto'
-import { getTranslatedFieldsDict } from '../context/helpers'
+import { PlusCircle } from 'lucide-react'
+import ProjectCard from '../components/ProjectCard'
+import { normalizeProject } from '../lib/projects'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
@@ -45,10 +42,12 @@ const PROJECTS_PAGE_SIZE = 10
 function mapProjectSnapshot(snapshot) {
   const projects = []
   snapshot.forEach((project) => {
-    projects.push({
-      id: project.id,
-      ...project.data(),
-    })
+    projects.push(
+      normalizeProject({
+        id: project.id,
+        ...project.data(),
+      })
+    )
   })
   return projects
 }
@@ -271,49 +270,15 @@ function Projects({ cached_projects }) {
     setField(field)
   }
 
-  function checkForLongFields(fields) {
-    if (
-      fields
-        .slice(0, 3)
-        .includes('Mechanical Engineering') ||
-      fields
-        .slice(0, 3)
-        .includes('Electrical Engineering') ||
-      fields
-        .slice(0, 3)
-        .includes('Environmental Science') ||
-      fields.slice(0, 3).includes('Fall 2022 Science Fair')
-    ) {
-      return 2
-    } else return 3
+  function formatProjectDate(date) {
+    const parsedDate = date?.toDate ? date.toDate() : date
+    const formattedDate = moment(parsedDate).format('ll')
+
+    return formattedDate === 'Invalid date'
+      ? ''
+      : formattedDate
   }
 
-  const [project_spring, set] = useSpring(() => ({
-    opacity: 1,
-    transform: 'translateX(0)',
-    from: {
-      opacity: 0,
-      transform: 'translateX(150px)',
-    },
-    config: config.slow,
-  }))
-
-  useEffect(() => {
-    if (projects.length <= 10) {
-      set({
-        opacity: 0,
-        transform: 'translateX(150px)',
-        config: { tension: 10000, clamp: true },
-      })
-      window.setTimeout(function () {
-        set({
-          opacity: 1,
-          transform: 'translateX(0)',
-          config: config.slow,
-        })
-      }, 10)
-    }
-  }, [projects.length, set])
   const { t } = useTranslation('common')
 
   const projectVirtualizer = useWindowVirtualizer({
@@ -345,119 +310,10 @@ function Projects({ cached_projects }) {
                 transform: `translateY(${virtualRow.start}px)`,
               }}
             >
-              <Link
-                href={`/project/${project.id}`}
-                legacyBehavior
-              >
-                <animated.a
-                  style={project_spring}
-                  className="z-50 flex cursor-pointer items-center overflow-hidden rounded-lg bg-white p-4 shadow-sm"
-                >
-                  <div className="relative h-full max-h-[100px] max-w-[100px] overflow-hidden rounded-lg md:max-h-[200px] md:max-w-[200px]">
-                    <img
-                      src={
-                        project.project_photo
-                          ? project.project_photo
-                          : ''
-                      }
-                      alt=""
-                      className="shrink-0 rounded-lg object-cover"
-                    ></img>
-                  </div>
-                  <div className="ml-4 w-3/4 lg:w-11/12">
-                    {project.member_arr && (
-                      <div className="mb-1 flex flex-row items-center">
-                        <div className="flex -space-x-2 overflow-hidden">
-                          {project.member_arr.map(
-                            (member, index) => {
-                              return (
-                                <div
-                                  key={index}
-                                  className="inline-block h-6 w-6 rounded-full ring-2 ring-white lg:h-8 lg:w-8"
-                                >
-                                  <ProfilePhoto
-                                    uid={member.uid}
-                                  ></ProfilePhoto>
-                                </div>
-                              )
-                            }
-                          )}
-                        </div>
-                        <p className="ml-2">
-                          By&nbsp;
-                          {project.member_arr.map(
-                            (member) => {
-                              return (
-                                <Link
-                                  key={member.uid}
-                                  href={`/profile/${
-                                    member.slug
-                                      ? member.slug
-                                      : ''
-                                  }`}
-                                  className="text-sciteensGreen-regular hover:text-sciteensGreen-dark font-bold no-underline"
-                                >
-                                  {member.display + ' '}
-                                </Link>
-                              )
-                            }
-                          )}
-                        </p>
-                      </div>
-                    )}
-                    <div className="mb-2 ml-10 text-gray-500">
-                      {moment(project.date).format('ll')}
-                    </div>
-                    <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">
-                      {project.title}
-                    </h3>
-                    <p className="line-clamp-none md:line-clamp-2 lg:line-clamp-3 mb-4 hidden md:block">
-                      {project.abstract}
-                    </p>
-                    <div className="hidden flex-row lg:flex">
-                      {project.fields.map(
-                        (field, index) => {
-                          if (
-                            index <
-                            checkForLongFields(
-                              project.fields
-                            )
-                          )
-                            return (
-                              <p
-                                key={index}
-                                className="z-30 mb-2 mr-2 whitespace-nowrap rounded-full bg-gray-100 px-3 py-1.5 text-xs shadow-sm"
-                              >
-                                {
-                                  getTranslatedFieldsDict(
-                                    t
-                                  )[field]
-                                }
-                              </p>
-                            )
-                        }
-                      )}
-                      {project.fields.length >= 3 && (
-                        <p className="mt-1.5 hidden whitespace-nowrap text-xs text-gray-600 lg:flex">
-                          +{' '}
-                          {project.fields.length -
-                            checkForLongFields(
-                              project.fields
-                            )}{' '}
-                          more field
-                          {project.fields.length -
-                            checkForLongFields(
-                              project.fields
-                            ) ==
-                          1
-                            ? ''
-                            : 's'}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </animated.a>
-              </Link>
+              <ProjectCard
+                project={project}
+                date={formatProjectDate(project.date)}
+              />
             </div>
           )
         })}
@@ -470,7 +326,7 @@ function Projects({ cached_projects }) {
       return (
         <div
           key={index}
-          className="z-50 mt-4 h-16 rounded-lg bg-gray-100 p-4 shadow-sm"
+          className="bg-muted z-50 mt-4 h-16 rounded-xl p-4 shadow-sm"
         ></div>
       )
     })
@@ -497,25 +353,21 @@ function Projects({ cached_projects }) {
           content="/assets/sciteens_initials.jpg"
         />
       </Head>
-      <div className="mx-auto mb-24 mt-8 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
+      <div className="text-foreground mx-auto mb-24 mt-8 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
         <div className="mx-auto w-11/12 md:w-[85%] lg:mx-0 lg:w-[60%]">
           <div className="flex flex-row justify-between">
             <h1 className="ml-0 py-4 text-left text-3xl font-semibold md:ml-4 md:text-4xl">
               {t('projects.projects')} 🔬
             </h1>
-            <Link href="/project/create" legacyBehavior>
-              {typeof window !== 'undefined' &&
-              window.innerWidth >= 812 ? (
-                <a className="border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark my-auto rounded-full border-2 px-5 py-1.5 text-lg font-semibold">
-                  Create Project
-                </a>
-              ) : (
-                <img
-                  src={'assets/zondicons/add-outline.svg'}
-                  alt="Share Project"
-                  className="my-auto h-8"
-                />
-              )}
+            <Link
+              href="/project/create"
+              className="border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark my-auto inline-flex items-center rounded-lg border-2 px-3 py-1.5 shadow-sm transition md:px-5 md:text-lg"
+              aria-label="Create Project"
+            >
+              <span className="hidden md:inline">
+                Create Project
+              </span>
+              <PlusCircle className="h-6 w-6 md:hidden" />
             </Link>
           </div>
           {loading && projects.length === 0
@@ -545,7 +397,7 @@ function Projects({ cached_projects }) {
 
         <div className="hidden w-0 lg:ml-32 lg:block lg:w-[30%]">
           <div className="sticky top-1/2 w-full -translate-y-1/2 transform">
-            <h2 className="mb-2 text-xl text-gray-700">
+            <h2 className="text-muted-foreground mb-2 text-xl">
               {t('projects.search_projects')}
             </h2>
             <form
@@ -572,9 +424,9 @@ function Projects({ cached_projects }) {
               </Button>
             </form>
 
-            <hr className="my-8 bg-gray-300" />
+            <hr className="bg-border my-8" />
 
-            <h2 className="mb-2 text-xl text-gray-700">
+            <h2 className="text-muted-foreground mb-2 text-xl">
               {t('projects.topics')}
             </h2>
             <div className="flex flex-row flex-wrap">
@@ -582,18 +434,17 @@ function Projects({ cached_projects }) {
                 getTranslatedFieldsDict(t)
               ).map(([key, value]) => {
                 return (
-                  <button
+                  <Button
                     key={value}
+                    type="button"
+                    variant={
+                      key == field ? 'default' : 'secondary'
+                    }
                     onClick={() => handleFieldSearch(key)}
-                    className={`mb-4 mr-4 rounded-full px-3 py-2 text-sm shadow
-                                      ${
-                                        key == field
-                                          ? 'bg-sciteensLightGreen-regular text-white'
-                                          : 'bg-white'
-                                      }`}
+                    className="mb-4 mr-4 rounded-full"
                   >
                     {value}
-                  </button>
+                  </Button>
                 )
               })}
             </div>
@@ -626,10 +477,12 @@ export async function getStaticProps({ locale }) {
   )
   const projectsRef = await getDocs(projectsQuery)
   projectsRef.forEach((p) => {
-    projects.push({
-      id: p.id,
-      ...p.data(),
-    })
+    projects.push(
+      normalizeProject({
+        id: p.id,
+        ...p.data(),
+      })
+    )
   })
   return {
     props: { cached_projects: projects, ...translations },

@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useSigninCheck } from '../context/AuthContext'
@@ -91,6 +92,11 @@ export default function NavBar() {
   const signedIn =
     status === 'success' &&
     signInCheckResult?.signedIn === true
+  const profileHref = profile?.slug
+    ? `/profile/${profile.slug}`
+    : signInCheckResult?.user?.uid
+    ? `/profile/${signInCheckResult.user.uid}`
+    : '/'
 
   async function handleSignOut() {
     setProfile({})
@@ -140,15 +146,18 @@ export default function NavBar() {
           open={showMobileNav}
           onOpenChange={setShowMobileNav}
         >
-          <div className="z-50 mx-4 mt-3 flex h-16 items-center justify-between rounded-lg bg-white shadow-sm">
+          <div className="border-border/60 bg-card text-card-foreground z-50 mx-4 mt-3 flex h-16 items-center justify-between rounded-xl border shadow-sm">
             <div className="inline-block md:w-1/2">
-              <Link href="/">
-                <img
-                  className="ml-4 h-16"
-                  src={
-                    '../assets/sciteens_logo_initials.svg'
-                  }
-                  alt=""
+              <Link
+                href="/"
+                className="relative ml-4 block h-12 w-12"
+              >
+                <Image
+                  src="/assets/sciteens_logo_initials.svg"
+                  alt="SciTeens"
+                  fill
+                  sizes="48px"
+                  priority
                 />
               </Link>
             </div>
@@ -157,10 +166,10 @@ export default function NavBar() {
                 <Link
                   key={href}
                   href={href}
-                  className={`mr-2 hidden whitespace-nowrap rounded-lg p-2 hover:bg-gray-200 hover:shadow-inner lg:block ${
+                  className={`hover:bg-muted mr-2 hidden whitespace-nowrap rounded-lg p-2 hover:shadow-inner lg:block ${
                     active(router.pathname)
                       ? 'text-sciteensGreen-regular underline'
-                      : 'text-gray-700'
+                      : 'text-muted-foreground'
                   }`}
                 >
                   {i18n.t(`navigation.${label}`)}
@@ -172,11 +181,11 @@ export default function NavBar() {
                     className="mr-4 lg:hidden"
                     aria-label={i18n.t('navigation.menu')}
                   >
-                    <Menu className="h-8 w-8 text-gray-700" />
+                    <Menu className="text-muted-foreground h-8 w-8" />
                   </button>
                 }
               />
-              <div className="hidden lg:flex">
+              <div className="hidden items-center gap-2 lg:flex">
                 {signedIn ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger
@@ -185,21 +194,23 @@ export default function NavBar() {
                           aria-label={i18n.t(
                             'navigation.profile'
                           )}
-                          className="relative h-10 w-10 rounded-full border-4 border-white hover:border-gray-100 hover:shadow-inner"
+                          className="border-background hover:border-muted relative h-10 w-10 overflow-hidden rounded-full border-4 hover:shadow-inner"
                         >
                           {signInCheckResult?.user
                             ?.photoURL ? (
-                            <img
+                            <Image
                               id="profile_photo"
                               src={
                                 signInCheckResult.user
                                   .photoURL
                               }
-                              className="rounded-full object-contain"
                               alt=""
+                              fill
+                              sizes="40px"
+                              className="rounded-full object-cover"
                             />
                           ) : (
-                            <CircleUserRound className="h-full w-full text-gray-700" />
+                            <CircleUserRound className="text-muted-foreground h-full w-full" />
                           )}
                         </button>
                       }
@@ -210,13 +221,7 @@ export default function NavBar() {
                     >
                       <DropdownMenuItem
                         render={
-                          <Link
-                            href={`/profile/${
-                              profile?.slug
-                                ? profile.slug
-                                : ''
-                            }`}
-                          >
+                          <Link href={profileHref}>
                             {i18n.t('navigation.profile')}
                           </Link>
                         }
@@ -241,7 +246,7 @@ export default function NavBar() {
           </div>
           <SheetContent
             side="right"
-            className="px-6 pt-16 text-lg text-gray-700"
+            className="text-foreground px-6 pt-16 text-lg"
           >
             <SheetTitle className="sr-only">
               {i18n.t('navigation.menu')}
@@ -256,11 +261,11 @@ export default function NavBar() {
                         href={href}
                         className={`mb-4 flex flex-row items-center rounded-lg px-6 py-3 ${
                           active(router.pathname)
-                            ? 'bg-gray-100 underline'
+                            ? 'bg-muted underline'
                             : ''
                         }`}
                       >
-                        <Icon className="mr-4 h-6 w-6 text-gray-700" />
+                        <Icon className="text-muted-foreground mr-4 h-6 w-6" />
                         <span className="whitespace-nowrap">
                           {i18n.t(`navigation.${label}`)}
                         </span>
@@ -276,11 +281,11 @@ export default function NavBar() {
                       href="/signup"
                       className={`mb-4 flex flex-row items-center rounded-lg px-6 py-3 ${
                         router.pathname.includes('signup')
-                          ? 'bg-gray-100 underline'
+                          ? 'bg-muted underline'
                           : ''
                       }`}
                     >
-                      <UserPlus className="mr-4 h-6 w-6 text-gray-700" />
+                      <UserPlus className="text-muted-foreground mr-4 h-6 w-6" />
                       <span className="whitespace-nowrap">
                         {i18n.t('navigation.sign_up')}
                       </span>
@@ -291,20 +296,24 @@ export default function NavBar() {
             </div>
             {signedIn && (
               <>
-                <hr className="mx-auto w-[80%] bg-black" />
+                <hr className="bg-border mx-auto w-[80%]" />
                 <div className="mx-8">
                   <div className="mx-auto mb-2 mt-6 flex flex-row items-center">
                     {signInCheckResult?.user?.photoURL ? (
-                      <img
-                        id="profile_photo"
-                        src={
-                          signInCheckResult.user.photoURL
-                        }
-                        className="mr-6 h-10 rounded-full"
-                        alt=""
-                      />
+                      <span className="relative mr-6 block h-10 w-10 overflow-hidden rounded-full">
+                        <Image
+                          id="profile_photo"
+                          src={
+                            signInCheckResult.user.photoURL
+                          }
+                          alt=""
+                          fill
+                          sizes="40px"
+                          className="object-cover"
+                        />
+                      </span>
                     ) : (
-                      <CircleUserRound className="mr-6 h-10 w-10 text-gray-700" />
+                      <CircleUserRound className="text-muted-foreground mr-6 h-10 w-10" />
                     )}
                     <p className="my-auto text-xl">
                       {signInCheckResult.user.displayName}
@@ -314,11 +323,7 @@ export default function NavBar() {
                     <SheetClose
                       render={
                         <Link
-                          href={`/profile/${
-                            profile?.slug
-                              ? profile.slug
-                              : ''
-                          }`}
+                          href={profileHref}
                           className="flex flex-row items-center"
                         >
                           <div
@@ -327,7 +332,7 @@ export default function NavBar() {
                                 'profile'
                               )
                                 ? 'bg-sciteensLightGreen-regular'
-                                : 'bg-gray-400'
+                                : 'bg-muted-foreground/50'
                             }`}
                           />
                           <span>
@@ -336,9 +341,9 @@ export default function NavBar() {
                         </Link>
                       }
                     />
-                    <div className="h-2 w-0.5 bg-gray-400" />
+                    <div className="bg-muted-foreground/50 h-2 w-0.5" />
                     <div className="flex flex-row">
-                      <div className="mr-6 h-auto w-0.5 bg-gray-400" />
+                      <div className="bg-muted-foreground/50 mr-6 h-auto w-0.5" />
                       <SheetClose
                         render={
                           <button onClick={handleSignOut}>

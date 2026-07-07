@@ -1,4 +1,5 @@
 import { useState, useContext, useEffect } from 'react'
+import LoadingSpinner from '../../components/LoadingSpinner'
 import isAlpha from 'validator/lib/isAlpha'
 import { doc, setDoc } from '@firebase/firestore'
 import { updateProfile } from '@firebase/auth'
@@ -422,13 +423,7 @@ export default function FinishSignUp() {
                   }
                 >
                   {t('auth.create_account')}
-                  {loading && (
-                    <img
-                      src="/assets/loading.svg"
-                      alt="Loading Spinner"
-                      className="inline-block h-5 w-5"
-                    />
-                  )}
+                  {loading && <LoadingSpinner />}
                 </Button>
               </div>
             </FieldGroup>

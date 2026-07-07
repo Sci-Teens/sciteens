@@ -12,11 +12,7 @@ var Prismic = require('@prismicio/client')
 import { RichText } from 'prismic-reactjs'
 
 import moment from 'moment'
-import {
-  useSpring,
-  animated,
-  config,
-} from '@react-spring/web'
+import { Search } from 'lucide-react'
 import { getTranslatedFieldsDict } from '../context/helpers'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
@@ -267,31 +263,6 @@ function Articles({ cached_articles }) {
 
   const { t } = useTranslation('common')
 
-  const [article_spring, set] = useSpring(() => ({
-    opacity: 1,
-    transform: 'translateX(0)',
-    from: {
-      opacity: 0,
-      transform: 'translateX(150px)',
-    },
-    config: config.slow,
-  }))
-
-  useEffect(() => {
-    set({
-      opacity: 0,
-      transform: 'translateX(150px)',
-      config: { tension: 10000, clamp: true },
-    })
-    window.setTimeout(function () {
-      set({
-        opacity: 1,
-        transform: 'translateX(0)',
-        config: config.slow,
-      })
-    }, 10)
-  }, [articles.length, set])
-
   const articleVirtualizer = useWindowVirtualizer({
     count: articles.length,
     estimateSize: () => 340,
@@ -347,46 +318,41 @@ function Articles({ cached_articles }) {
             >
               <Link
                 href={`/article/${article.uid}`}
-                legacyBehavior
+                className="animate-in bg-card text-card-foreground ring-border/60 fade-in slide-in-from-right-8 z-50 flex cursor-pointer flex-row items-center rounded-xl p-4 shadow-sm ring-1 transition duration-300 hover:-translate-y-0.5 hover:shadow-md"
               >
-                <animated.a
-                  style={article_spring}
-                  className="z-50 flex cursor-pointer flex-row items-center rounded-lg bg-white p-4 shadow-sm"
-                >
-                  <div className="relative h-full max-w-[100px] md:max-w-[200px]">
-                    <Image
-                      alt={RichText.asText(
-                        article.data.title
-                      )}
-                      className="shrink-0 rounded-lg object-cover"
-                      loader={imageLoader}
-                      src={article.data.image.url}
-                      width={256}
-                      height={256}
-                    />
-                  </div>
-                  <div className="ml-4 w-3/4 lg:w-11/12">
-                    <div className="mb-3 flex flex-row items-center">
-                      {author_image}
-                      <p className="ml-3">
-                        {article.data.author}
-                      </p>
-                    </div>
-                    <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">
-                      {RichText.asText(article.data.title)}
-                    </h3>
-                    <p className="line-clamp-none md:line-clamp-2 mb-2 hidden text-sm md:flex lg:text-base">
-                      {article.data.description}
-                    </p>
-                    <p className="flex text-xs">
-                      {moment(article.data.date).format(
-                        'll'
-                      ) +
-                        ' · ' +
-                        readingTime(article.data.text)}
+                <div className="relative h-full max-w-[100px] md:max-w-[200px]">
+                  <Image
+                    alt={RichText.asText(
+                      article.data.title
+                    )}
+                    className="shrink-0 rounded-lg object-cover"
+                    loader={imageLoader}
+                    src={article.data.image.url}
+                    width={256}
+                    height={256}
+                  />
+                </div>
+                <div className="ml-4 w-3/4 lg:w-11/12">
+                  <div className="mb-3 flex flex-row items-center">
+                    {author_image}
+                    <p className="ml-3">
+                      {article.data.author}
                     </p>
                   </div>
-                </animated.a>
+                  <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">
+                    {RichText.asText(article.data.title)}
+                  </h3>
+                  <p className="line-clamp-none md:line-clamp-2 mb-2 hidden text-sm md:flex lg:text-base">
+                    {article.data.description}
+                  </p>
+                  <p className="flex text-xs">
+                    {moment(article.data.date).format(
+                      'll'
+                    ) +
+                      ' · ' +
+                      readingTime(article.data.text)}
+                  </p>
+                </div>
               </Link>
             </div>
           )
@@ -400,7 +366,7 @@ function Articles({ cached_articles }) {
       return (
         <div
           key={index}
-          className="z-50 mt-4 h-16 rounded-lg bg-gray-100 p-4 shadow-sm"
+          className="bg-muted z-50 mt-4 h-16 rounded-xl p-4 shadow-sm"
         ></div>
       )
     })
@@ -427,7 +393,7 @@ function Articles({ cached_articles }) {
           content="/assets/sciteens_initials.jpg"
         />
       </Head>
-      <div className="mx-auto mb-24 mt-8 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
+      <div className="text-foreground mx-auto mb-24 mt-8 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
         <div className="mx-auto w-11/12 md:w-[85%] lg:mx-0 lg:w-[60%]">
           <h1 className="ml-4 py-4 text-left text-4xl font-semibold">
             {t('articles.articles')} 📰
@@ -441,10 +407,9 @@ function Articles({ cached_articles }) {
               size="icon"
               onClick={(e) => handleSearch(e)}
             >
-              <img
-                src="assets/zondicons/search.svg"
-                alt="Search"
-                className="h-10"
+              <Search
+                aria-hidden="true"
+                className="h-5 w-5"
               />
             </Button>
             <Input
