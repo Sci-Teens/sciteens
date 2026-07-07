@@ -1,9 +1,11 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
+import { X, CircleHelp } from 'lucide-react'
 
 export default function SignUpIndex() {
   const { t } = useTranslation('common')
@@ -70,17 +72,14 @@ export default function SignUpIndex() {
                 <div className="relative pt-8">
                   <button
                     type="button"
+                    aria-label={t('auth.close')}
                     className="absolute right-0 top-0 m-2 h-6 w-6"
                     onClick={(e) => {
                       e.preventDefault()
                       setShowStudentInfo(!show_student_info)
                     }}
                   >
-                    <img
-                      src="/assets/zondicons/close-solid.svg"
-                      alt="Close"
-                      className="h-6 w-6"
-                    />
+                    <X className="h-6 w-6" />
                   </button>
                   <h2 className="text-sciteensGreen-regular mx-2 text-xl">
                     {t('auth.student_info')}
@@ -90,22 +89,22 @@ export default function SignUpIndex() {
                 <div className="relative">
                   <button
                     type="button"
+                    aria-label={t('auth.more_info')}
                     className="absolute right-0 top-0 m-2 h-6 w-6"
                     onClick={(e) => {
                       e.preventDefault()
                       setShowStudentInfo(!show_student_info)
                     }}
                   >
-                    <img
-                      src="/assets/zondicons/question.svg"
-                      alt="Question"
-                      className="h-6 w-6"
-                    />
+                    <CircleHelp className="h-6 w-6" />
                   </button>
-                  <img
+                  <Image
                     src="/assets/student.svg"
                     alt="Student Icon"
-                    className="mx-auto h-40 p-4"
+                    width={148}
+                    height={160}
+                    unoptimized
+                    className="mx-auto h-40 w-auto p-4"
                   />
                   <h2 className="text-sciteensGreen-regular text-xl">
                     {t('auth.student')}

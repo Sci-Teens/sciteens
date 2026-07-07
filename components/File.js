@@ -1,3 +1,11 @@
+import Image from 'next/image'
+import {
+  Presentation,
+  FileText,
+  File as FileIcon,
+  X,
+} from 'lucide-react'
+
 export default function RenderFile({
   file,
   id,
@@ -12,11 +20,7 @@ export default function RenderFile({
           target="_blank"
           rel="noreferrer"
         >
-          <img
-            src="/assets/files/file-document-powerpoint-presentation-report-44515.svg"
-            alt="Powerpoint Icon"
-            className="m-1 h-11 w-11"
-          />
+          <Presentation className="m-1 h-11 w-11 text-orange-600" />
           <div className="line-clamp-1 ml-2 flex-1 text-left">
             <p className="line-clamp-1">{file?.name}</p>
             <p className="text-sm text-gray-700">
@@ -25,16 +29,10 @@ export default function RenderFile({
           </div>
           {removeFile && (
             <button
-              className="m-1 h-4 w-4 fill-current text-red-600"
+              className="m-1 text-red-600"
               onClick={(e) => removeFile(e, id)}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 fill-current"
-                viewBox="0 0 20 20"
-              >
-                <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zM11.4 10l2.83-2.83-1.41-1.41L10 8.59 7.17 5.76 5.76 7.17 8.59 10l-2.83 2.83 1.41 1.41L10 11.41l2.83 2.83 1.41-1.41L11.41 10z" />
-              </svg>
+              <X className="h-4 w-4" />
             </button>
           )}
         </a>
@@ -47,11 +45,7 @@ export default function RenderFile({
           target="_blank"
           rel="noreferrer"
         >
-          <img
-            src="/assets/files/file-document-docx-text-type-word-writing-44508.svg"
-            alt="Word Icon"
-            className="m-1 h-11 w-11"
-          />
+          <FileText className="m-1 h-11 w-11 text-blue-600" />
           <div className="line-clamp-1 ml-2 flex-1 text-left">
             <p>{file?.name}</p>
             <p className="text-sm text-gray-700">
@@ -60,17 +54,10 @@ export default function RenderFile({
           </div>
           {removeFile && (
             <button
-              className="m-1 h-4 w-4 fill-current text-red-600"
+              className="m-1 text-red-600"
               onClick={(e) => removeFile(e, id)}
-              href={URL.createObjectURL(file)}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 fill-current"
-                viewBox="0 0 20 20"
-              >
-                <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zM11.4 10l2.83-2.83-1.41-1.41L10 8.59 7.17 5.76 5.76 7.17 8.59 10l-2.83 2.83 1.41 1.41L10 11.41l2.83 2.83 1.41-1.41L11.41 10z" />
-              </svg>
+              <X className="h-4 w-4" />
             </button>
           )}
         </a>
@@ -83,11 +70,7 @@ export default function RenderFile({
           target="_blank"
           rel="noreferrer"
         >
-          <img
-            src="/assets/files/file-pdf-acrobat-document-adobe-pdf-icon-reader-44504.svg"
-            alt="PDF Icon"
-            className="m-1 h-11 w-11"
-          />
+          <FileText className="m-1 h-11 w-11 text-red-600" />
           <div className="line-clamp-1 ml-2 flex-1 text-left">
             <p>{file?.name}</p>
             <p className="text-sm text-gray-700">
@@ -96,16 +79,10 @@ export default function RenderFile({
           </div>
           {removeFile && (
             <button
-              className="m-1 h-4 w-4 fill-current text-red-600"
+              className="m-1 text-red-600"
               onClick={(e) => removeFile(e, id)}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 fill-current"
-                viewBox="0 0 20 20"
-              >
-                <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zM11.4 10l2.83-2.83-1.41-1.41L10 8.59 7.17 5.76 5.76 7.17 8.59 10l-2.83 2.83 1.41 1.41L10 11.41l2.83 2.83 1.41-1.41L11.41 10z" />
-              </svg>
+              <X className="h-4 w-4" />
             </button>
           )}
         </a>
@@ -120,9 +97,12 @@ export default function RenderFile({
           target="_blank"
           rel="noreferrer"
         >
-          <img
+          <Image
             src={URL.createObjectURL(file)}
             alt="Project"
+            width={256}
+            height={256}
+            unoptimized
             className="h-16 w-[10%] rounded-l-lg object-cover object-center"
           />
           <div className="line-clamp-1 ml-2 flex-1 p-2 text-left">
@@ -148,11 +128,7 @@ export default function RenderFile({
     default:
       return (
         <a className="flex w-full justify-between rounded-lg bg-white shadow-sm">
-          <img
-            src="/assets/files/file-doc-document-filetypes-text-word-xls-44511.svg"
-            alt="File Icon"
-            className="m-1 h-11 w-11"
-          />
+          <FileIcon className="m-1 h-11 w-11 text-gray-500" />
           <div className="line-clamp-1 ml-2 flex-1 text-left">
             <p>{file?.name}</p>
             <p className="line-clamp-1 text-sm text-gray-700">
@@ -162,16 +138,10 @@ export default function RenderFile({
           <div className="flex items-end">
             {removeFile && (
               <button
-                className="m-1 h-4 w-4 fill-current text-red-600"
+                className="m-1 text-red-600"
                 onClick={(e) => removeFile(e, id)}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 fill-current"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zM11.4 10l2.83-2.83-1.41-1.41L10 8.59 7.17 5.76 5.76 7.17 8.59 10l-2.83 2.83 1.41 1.41L10 11.41l2.83 2.83 1.41-1.41L11.41 10z" />
-                </svg>
+                <X className="h-4 w-4" />
               </button>
             )}
           </div>

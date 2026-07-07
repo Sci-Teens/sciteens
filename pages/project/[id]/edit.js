@@ -18,6 +18,7 @@ import {
 import { useSigninCheck } from '../../../context/AuthContext'
 import {
   collection,
+  query as firestoreQuery,
   startAt,
   endAt,
   orderBy,
@@ -379,7 +380,7 @@ export default function UpdateProject({ query }) {
     debounce(async (email) => {
       try {
         const emails = collection(firestore, 'emails')
-        const q = query(
+        const q = firestoreQuery(
           emails,
           orderBy('email'),
           startAt(email),

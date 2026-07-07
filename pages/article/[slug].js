@@ -11,6 +11,7 @@ import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import { logEvent, getAnalytics } from 'firebase/analytics'
+import { createCropImageLoader } from '../../lib/prismicImageLoader'
 
 function Article({ article, recommendations }) {
   const [, setLeftVisible] = useState(false)
@@ -43,11 +44,7 @@ function Article({ article, recommendations }) {
     }
   }
 
-  const imageLoader = ({ src, width, height }) => {
-    return `${src}?fit=crop&crop=faces&w=${
-      width || 582
-    }&h=${height || 389}`
-  }
+  const imageLoader = createCropImageLoader(582, 389)
 
   function readingTime(article) {
     let article_length = 0
@@ -304,7 +301,6 @@ function Article({ article, recommendations }) {
                           pathname: '/articles',
                           query: { field: tag },
                         }}
-                        legacyBehavior
                       >
                         <p className="my-1 mr-4 cursor-pointer rounded-full bg-white px-5 py-1.5 text-base shadow-sm hover:shadow-md">
                           {tag}

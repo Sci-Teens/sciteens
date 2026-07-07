@@ -1,14 +1,17 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 
 export default function FourOhFour() {
   return (
     <>
       <div className="mx-auto mt-20 min-h-screen w-full text-center">
-        <img
+        <Image
           src="/assets/404.png"
           alt="404"
-          className="mx-auto w-1/2"
+          width={1217}
+          height={462}
+          className="mx-auto h-auto w-1/2"
         />
         <h1 className="py-4 text-4xl font-semibold">
           Page not found

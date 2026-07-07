@@ -9,8 +9,8 @@
     "start": "next start -p ${PORT:=3000}",
     "deploy": "",
     "lint": "next lint",
-    "format": "prettier --check --ignore-path .gitignore .",
-    "format:fix": "prettier --write --ignore-path .gitignore ."
+    "format": "prettier --check .",
+    "format:fix": "prettier --write ."
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

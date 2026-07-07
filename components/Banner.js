@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { X } from 'lucide-react'
 
 import { RichText } from 'prismic-reactjs'
 var Prismic = require('@prismicio/client')
@@ -19,13 +20,10 @@ function Banner({ closeBanner }) {
       </div>
       <button
         onClick={() => closeBanner()}
-        className="relative h-full w-1/12"
+        aria-label="Close"
+        className="relative flex h-full w-1/12 items-center justify-center"
       >
-        <img
-          src="/assets/zondicons/close.svg"
-          className="h-full w-5 transform"
-          alt="Close"
-        />
+        <X className="h-5 w-5" />
       </button>
     </div>
   ) : (

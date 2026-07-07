@@ -1,0 +1,23 @@
+# dependencies
+node_modules
+
+# next.js
+.next
+out
+
+# production
+build
+coverage
+
+# vercel / firebase
+.vercel
+
+# lockfile — pnpm's format is not prettier-compatible
+pnpm-lock.yaml
+
+# next-sitemap build output
+public/robots.txt
+public/sitemap.xml
+
+# untracked migration tracker — hand-maintained, not committed
+MIGRATION-PHASES.md

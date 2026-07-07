@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import Head from 'next/head'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
@@ -25,9 +26,12 @@ export default function ResetSent() {
         <meta property="og:type" content="website" />
       </Head>
       <main className="relative z-30 mx-auto -mt-8 mb-4 flex h-screen w-full flex-col justify-center px-4 text-center md:w-96">
-        <img
+        <Image
           src="/assets/sciteens_logo_main.svg"
           alt="SciTeens Logo Main"
+          width={300}
+          height={93}
+          unoptimized
         />
         <p className="mb-4 text-center text-lg">
           {t('auth.reset_message')}

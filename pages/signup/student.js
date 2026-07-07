@@ -3,6 +3,7 @@ import LoadingSpinner from '../../components/LoadingSpinner'
 import { useContext } from 'react'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
@@ -551,9 +552,11 @@ export default function StudentSignUp() {
               )
             }
           >
-            <img
+            <Image
               src="/assets/logos/Google.png"
               alt="Google Logo"
+              width={20}
+              height={20}
               className="mr-2 h-5 w-5"
             />
             {t('auth.google_sign_in')}

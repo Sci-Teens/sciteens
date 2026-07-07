@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { i18n } from 'next-i18next'
@@ -156,12 +157,13 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <img
-                      className="mr-4 h-6"
-                      src={
-                        '../assets/icons/facebook-flat.svg'
-                      }
+                    <Image
+                      className="mr-4 h-6 w-auto"
+                      src="/assets/icons/facebook-flat.svg"
                       alt="Facebook"
+                      width={24}
+                      height={24}
+                      unoptimized
                     />
                   </a>
                   <a
@@ -169,10 +171,13 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <img
-                      className="mr-4 h-6"
-                      src={'../assets/icons/instagram.svg'}
+                    <Image
+                      className="mr-4 h-6 w-auto"
+                      src="/assets/icons/instagram.svg"
                       alt="Instagram"
+                      width={24}
+                      height={24}
+                      unoptimized
                     />
                   </a>
                   <a
@@ -180,12 +185,13 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <img
-                      className="mr-4 h-6"
-                      src={
-                        '../assets/icons/linkedin-flat.svg'
-                      }
+                    <Image
+                      className="mr-4 h-6 w-auto"
+                      src="/assets/icons/linkedin-flat.svg"
                       alt="LinkedIn"
+                      width={26}
+                      height={24}
+                      unoptimized
                     />
                   </a>
                   <a
@@ -193,10 +199,13 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <img
-                      className="mr-4 h-6"
-                      src={'../assets/icons/youtube.svg'}
+                    <Image
+                      className="mr-4 h-6 w-auto"
+                      src="/assets/icons/youtube.svg"
                       alt="YouTube"
+                      width={24}
+                      height={24}
+                      unoptimized
                     />
                   </a>
                   <a
@@ -204,10 +213,13 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <img
-                      className="mr-4 h-6"
-                      src={'../assets/icons/tiktok.svg'}
+                    <Image
+                      className="mr-4 h-6 w-auto"
+                      src="/assets/icons/tiktok.svg"
                       alt="TikTok"
+                      width={24}
+                      height={24}
+                      unoptimized
                     />
                   </a>
                   <a
@@ -215,10 +227,13 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <img
-                      className="h-6"
-                      src={'../assets/icons/discord.svg'}
+                    <Image
+                      className="h-6 w-auto"
+                      src="/assets/icons/discord.svg"
                       alt="Discord"
+                      width={31}
+                      height={24}
+                      unoptimized
                     />
                   </a>
                 </div>

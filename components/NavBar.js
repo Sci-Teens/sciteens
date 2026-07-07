@@ -35,6 +35,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import { Button } from '@/components/ui/button'
 
 const NAV_LINKS = [
   {
@@ -177,12 +178,14 @@ export default function NavBar() {
               ))}
               <SheetTrigger
                 render={
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     className="mr-4 lg:hidden"
                     aria-label={i18n.t('navigation.menu')}
                   >
-                    <Menu className="text-muted-foreground h-8 w-8" />
-                  </button>
+                    <Menu className="h-5 w-5" />
+                  </Button>
                 }
               />
               <div className="hidden items-center gap-2 lg:flex">

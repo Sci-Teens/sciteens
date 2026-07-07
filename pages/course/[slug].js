@@ -10,16 +10,13 @@ import Discussion from '../../components/Discussion'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
+import { createCropImageLoader } from '../../lib/prismicImageLoader'
 
 function Course({ course }) {
   const [files, setFiles] = useState([])
   const { t } = useTranslation('common')
 
-  const imageLoader = ({ src, width, height }) => {
-    return `${src}?fit=crop&crop=faces&w=${
-      width || 582
-    }&h=${height || 386}`
-  }
+  const imageLoader = createCropImageLoader(582, 386)
 
   useEffect(async () => {
     try {
