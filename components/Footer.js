@@ -52,12 +52,12 @@ export default function Footer() {
                 <ul>
                   <li>
                     <Link href="/about">
-                      <a>{i18n.t('footer.about')}</a>
+                      {i18n.t('footer.about')}
                     </Link>
                   </li>
                   <li>
                     <Link href="/get-started">
-                      <a>{i18n.t('footer.get_started')}</a>
+                      {i18n.t('footer.get_started')}
                     </Link>
                   </li>
                   <li>
@@ -71,7 +71,7 @@ export default function Footer() {
                   </li>
                   <li>
                     <Link href="/getinvolved">
-                      <a>{i18n.t('footer.get_involved')}</a>
+                      {i18n.t('footer.get_involved')}
                     </Link>
                   </li>
                   <li>
@@ -92,17 +92,17 @@ export default function Footer() {
                 <ul>
                   <li>
                     <Link href="/legal/privacy">
-                      <a>{i18n.t('footer.privacy')}</a>
+                      {i18n.t('footer.privacy')}
                     </Link>
                   </li>
                   <li>
                     <Link href="/legal/terms">
-                      <a>{i18n.t('footer.terms')}</a>
+                      {i18n.t('footer.terms')}
                     </Link>
                   </li>
                   <li>
                     <Link href="/legal/gdpr">
-                      <a>{i18n.t('footer.cookies')}</a>
+                      {i18n.t('footer.cookies')}
                     </Link>
                   </li>
                 </ul>
@@ -117,7 +117,7 @@ export default function Footer() {
                       href={router.pathname}
                       locale="en"
                     >
-                      <a>English</a>
+                      English
                     </Link>
                   </li>
                   <li>
@@ -125,7 +125,7 @@ export default function Footer() {
                       href={router.pathname}
                       locale="es"
                     >
-                      <a>Español</a>
+                      Español
                     </Link>
                   </li>
                   <li>
@@ -133,7 +133,7 @@ export default function Footer() {
                       href={router.pathname}
                       locale="fr"
                     >
-                      <a>Français</a>
+                      Français
                     </Link>
                   </li>
                   <li>
@@ -141,7 +141,7 @@ export default function Footer() {
                       href={router.pathname}
                       locale="hi"
                     >
-                      <a>नहीं</a>
+                      नहीं
                     </Link>
                   </li>
                 </ul>

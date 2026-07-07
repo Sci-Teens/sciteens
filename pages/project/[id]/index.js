@@ -13,14 +13,17 @@ import Head from 'next/head'
 import Error from 'next/error'
 import Link from 'next/link'
 import File from '../../../components/File'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Discussion from '../../../components/Discussion'
 import ProfilePhoto from '../../../components/ProfilePhoto'
 
 function Project({ query }) {
   const router = useRouter()
 
-  const projectRef = doc(db, 'projects', query.id)
+  const projectRef = useMemo(
+    () => doc(db, 'projects', query.id),
+    [query.id]
+  )
   const { status, data: project } =
     useFirestoreDocData(projectRef)
 

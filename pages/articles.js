@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import Link from 'next/link'
 import Head from 'next/head'
@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
+import { useIntersectionObserver } from '../context/helpers'
 
 var Prismic = require('@prismicio/client')
 import { RichText } from 'prismic-reactjs'
@@ -17,7 +18,8 @@ import {
   config,
 } from '@react-spring/web'
 import { getTranslatedFieldsDict } from '../context/helpers'
-import ReactPaginate from 'react-paginate'
+import { useInfiniteQuery } from '@tanstack/react-query'
+import { useWindowVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -28,65 +30,171 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
+const ARTICLES_PAGE_SIZE = 10
+
+async function fetchArticlesPage({
+  search,
+  field,
+  pageParam,
+}) {
+  const apiEndpoint =
+    'https://sciteens.cdn.prismic.io/api/v2'
+  const client = Prismic.default.client(apiEndpoint)
+  let predicates = []
+
+  if (search) {
+    predicates.push(
+      Prismic.default.Predicates.fulltext(
+        'document',
+        search
+      )
+    )
+  }
+  if (field) {
+    predicates.push(
+      Prismic.default.Predicates.at('document.tags', [
+        field,
+      ])
+    )
+  }
+
+  const articles = await client.query(
+    [
+      Prismic.default.Predicates.at(
+        'document.type',
+        'blog'
+      ),
+      ...predicates,
+    ],
+    {
+      orderings: `[document.first_publication_date desc]`,
+      pageSize: ARTICLES_PAGE_SIZE,
+      page: pageParam,
+    }
+  )
+
+  return {
+    articles: articles.results,
+    nextPage:
+      articles.page < articles.total_pages
+        ? articles.page + 1
+        : null,
+    totalPages: articles.total_pages,
+  }
+}
+
 function Articles({ cached_articles }) {
   const router = useRouter()
-  const [articles, setArticles] = useState(cached_articles)
-  const [, setPage] = useState(0)
-
-  useEffect(async () => {
-    let isSubscribed = true
-    if (isSubscribed) {
-      const apiEndpoint =
-        'https://sciteens.cdn.prismic.io/api/v2'
-      const client = Prismic.default.client(apiEndpoint)
-      let predicates = []
-      if (router.query.search) {
-        predicates.push(
-          Prismic.default.Predicates.fulltext(
-            'document',
-            router.query.search
-          )
-        )
-      }
-      if (
-        router.query.field &&
-        router.query.field != 'All'
-      ) {
-        predicates.push(
-          Prismic.default.Predicates.at('document.tags', [
-            router.query.field,
-          ])
-        )
-      }
-      const as = await client.query(
-        [
-          Prismic.default.Predicates.at(
-            'document.type',
-            'blog'
-          ),
-          ...predicates,
-        ],
-        {
-          orderings: `[document.first_publication_date desc]`,
-          pageSize: 10,
-          page: router.query?.page ? router.query.page : 1,
-        }
-      )
-      setArticles(as)
-      moment.locale(router?.locale ? router.locale : 'en')
-    }
-
-    return () => (isSubscribed = false)
-  }, [router])
-
   const [search, setSearch] = useState('')
   const [field, setField] = useState('All')
 
-  const imageLoader = ({ src, width, height }) => {
-    return `${src}?fit=crop&crop=faces&w=${
-      width || 256
-    }&h=${height || 256}`
-  }
+  const searchParam = router.query?.search || ''
+  const fieldParam =
+    router.query?.field && router.query.field !== 'All'
+      ? router.query.field
+      : ''
+  const queryPage = Number(router.query?.page || 1)
+  const firstPage =
+    Number.isFinite(queryPage) && queryPage > 0
+      ? queryPage
+      : 1
+
+  moment.locale(router?.locale ? router.locale : 'en')
+
+  const initialData = useMemo(() => {
+    if (
+      !router.isReady ||
+      searchParam ||
+      fieldParam ||
+      firstPage !== 1 ||
+      !cached_articles?.results
+    ) {
+      return undefined
+    }
+
+    return {
+      pages: [
+        {
+          articles: cached_articles.results,
+          nextPage:
+            cached_articles.page <
+            cached_articles.total_pages
+              ? cached_articles.page + 1
+              : null,
+          totalPages: cached_articles.total_pages,
+        },
+      ],
+      pageParams: [1],
+    }
+  }, [
+    router.isReady,
+    searchParam,
+    fieldParam,
+    firstPage,
+    cached_articles,
+  ])
+
+  const articlesQuery = useInfiniteQuery({
+    queryKey: [
+      'articles',
+      searchParam,
+      fieldParam,
+      firstPage,
+    ],
+    enabled: router.isReady,
+    initialPageParam: firstPage,
+    initialData,
+    queryFn: ({ pageParam }) =>
+      fetchArticlesPage({
+        search: searchParam,
+        field: fieldParam,
+        pageParam,
+      }),
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+  })
+
+  const articles = useMemo(
+    () =>
+      articlesQuery.data?.pages.flatMap(
+        (page) => page.articles
+      ) || [],
+    [articlesQuery.data]
+  )
+  const loading =
+    articlesQuery.isLoading && articles.length === 0
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } =
+    articlesQuery
+
+  useEffect(() => {
+    if (articlesQuery.isError) {
+      console.error(
+        'Failed to load articles:',
+        articlesQuery.error
+      )
+    }
+  }, [articlesQuery.isError, articlesQuery.error])
+
+  const ref = useRef(null)
+  const isBottomVisible = useIntersectionObserver(
+    ref,
+    { threshold: 0 },
+    false
+  )
+
+  useEffect(() => {
+    if (
+      isBottomVisible &&
+      hasNextPage &&
+      !isFetchingNextPage
+    ) {
+      fetchNextPage()
+    }
+  }, [
+    isBottomVisible,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  ])
 
   useEffect(() => {
     if (router?.isReady) {
@@ -97,7 +205,17 @@ function Articles({ cached_articles }) {
         router.query?.field ? router.query.field : ''
       )
     }
-  }, [router])
+  }, [
+    router.isReady,
+    router.query.search,
+    router.query.field,
+  ])
+
+  const imageLoader = ({ src, width, height }) => {
+    return `${src}?fit=crop&crop=faces&w=${
+      width || 256
+    }&h=${height || 256}`
+  }
 
   async function handleChange(e, target) {
     e.preventDefault()
@@ -120,24 +238,8 @@ function Articles({ cached_articles }) {
       pathname: '/articles',
       query: q,
     })
-    // router.push(`/articles?${search.trim() ? 'search=' + search.trim() : ''}${field ? '&field=' + field : ''}`)
   }
 
-  async function handlePageChange(e) {
-    setPage(e.selected)
-    let q = {}
-    if (search) {
-      q.search = search
-    }
-    if (field) {
-      q.field = field
-    }
-    q.page = e.selected + 1
-    router.push({
-      pathname: '/articles',
-      query: q,
-    })
-  }
   async function handleFieldSearch(field) {
     let q = {}
     q.field = field
@@ -165,7 +267,16 @@ function Articles({ cached_articles }) {
 
   const { t } = useTranslation('common')
 
-  // REACT SPRING ANIMATIONS
+  const [article_spring, set] = useSpring(() => ({
+    opacity: 1,
+    transform: 'translateX(0)',
+    from: {
+      opacity: 0,
+      transform: 'translateX(150px)',
+    },
+    config: config.slow,
+  }))
+
   useEffect(() => {
     set({
       opacity: 0,
@@ -179,86 +290,120 @@ function Articles({ cached_articles }) {
         config: config.slow,
       })
     }, 10)
-  }, [articles])
+  }, [articles.length, set])
 
-  const [article_spring, set] = useSpring(() => ({
-    opacity: 1,
-    transform: 'translateX(0)',
-    from: {
-      opacity: 0,
-      transform: 'translateX(150px)',
-    },
-    config: config.slow,
-  }))
+  const articleVirtualizer = useWindowVirtualizer({
+    count: articles.length,
+    estimateSize: () => 340,
+    overscan: 5,
+  })
 
-  const articlesComponent = articles.results.map(
-    (article, index) => {
-      const author_image = article.data.body.map(
-        (slice) => {
-          if (slice.slice_type == 'about_the_author') {
-            return (
-              <div
-                className="relative h-6 w-6 lg:h-8 lg:w-8"
-                key={index}
+  const articlesComponent = (
+    <div
+      className="relative w-full"
+      style={{
+        height: `${articleVirtualizer.getTotalSize()}px`,
+      }}
+    >
+      {articleVirtualizer
+        .getVirtualItems()
+        .map((virtualRow) => {
+          const article = articles[virtualRow.index]
+          if (!article) return null
+
+          const author_image = article.data.body.map(
+            (slice, index) => {
+              if (slice.slice_type == 'about_the_author') {
+                return (
+                  <div
+                    className="relative h-6 w-6 lg:h-8 lg:w-8"
+                    key={index}
+                  >
+                    <Image
+                      alt={`${article.data.author} headshot`}
+                      className="h-6 w-6 rounded-full lg:h-8 lg:w-8"
+                      height={48}
+                      width={48}
+                      loader={imageLoader}
+                      src={slice.primary.headshot.url}
+                    />
+                  </div>
+                )
+              } else {
+                return null
+              }
+            }
+          )
+
+          return (
+            <div
+              key={article.id}
+              ref={articleVirtualizer.measureElement}
+              data-index={virtualRow.index}
+              className="absolute left-0 top-0 w-full pt-6 md:pt-8"
+              style={{
+                transform: `translateY(${virtualRow.start}px)`,
+              }}
+            >
+              <Link
+                href={`/article/${article.uid}`}
+                legacyBehavior
               >
-                <Image
-                  className="h-6 w-6 rounded-full lg:h-8 lg:w-8"
-                  height={48}
-                  width={48}
-                  loader={imageLoader}
-                  src={slice.primary.headshot.url}
-                />
-              </div>
-            )
-          } else {
-            return null
-          }
-        }
-      )
-
-      return (
-        <Link
-          key={index}
-          href={`/article/${article.uid}`}
-          legacyBehavior
-        >
-          <animated.a
-            style={article_spring}
-            className="z-50 mt-6 flex cursor-pointer flex-row items-center rounded-lg bg-white p-4 shadow-sm md:mt-8"
-          >
-            <div className="relative h-full max-w-[100px] md:max-w-[200px]">
-              <Image
-                className="shrink-0 rounded-lg object-cover"
-                loader={imageLoader}
-                src={article.data.image.url}
-                width={256}
-                height={256}
-              />
+                <animated.a
+                  style={article_spring}
+                  className="z-50 flex cursor-pointer flex-row items-center rounded-lg bg-white p-4 shadow-sm"
+                >
+                  <div className="relative h-full max-w-[100px] md:max-w-[200px]">
+                    <Image
+                      alt={RichText.asText(
+                        article.data.title
+                      )}
+                      className="shrink-0 rounded-lg object-cover"
+                      loader={imageLoader}
+                      src={article.data.image.url}
+                      width={256}
+                      height={256}
+                    />
+                  </div>
+                  <div className="ml-4 w-3/4 lg:w-11/12">
+                    <div className="mb-3 flex flex-row items-center">
+                      {author_image}
+                      <p className="ml-3">
+                        {article.data.author}
+                      </p>
+                    </div>
+                    <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">
+                      {RichText.asText(article.data.title)}
+                    </h3>
+                    <p className="line-clamp-none md:line-clamp-2 mb-2 hidden text-sm md:flex lg:text-base">
+                      {article.data.description}
+                    </p>
+                    <p className="flex text-xs">
+                      {moment(article.data.date).format(
+                        'll'
+                      ) +
+                        ' · ' +
+                        readingTime(article.data.text)}
+                    </p>
+                  </div>
+                </animated.a>
+              </Link>
             </div>
-            <div className="ml-4 w-3/4 lg:w-11/12">
-              <div className="mb-3 flex flex-row items-center">
-                {author_image}
-                <p className="ml-3">
-                  {article.data.author}
-                </p>
-              </div>
-              <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">
-                {RichText.asText(article.data.title)}
-              </h3>
-              <p className="line-clamp-none md:line-clamp-2 mb-2 hidden text-sm md:flex lg:text-base">
-                {article.data.description}
-              </p>
-              <p className="flex text-xs">
-                {moment(article.data.date).format('ll') +
-                  ' · ' +
-                  readingTime(article.data.text)}
-              </p>
-            </div>
-          </animated.a>
-        </Link>
-      )
-    }
+          )
+        })}
+    </div>
   )
+
+  const loadingComponent = new Array(10)
+    .fill(1)
+    .map((index) => {
+      return (
+        <div
+          key={index}
+          className="z-50 mt-4 h-16 rounded-lg bg-gray-100 p-4 shadow-sm"
+        ></div>
+      )
+    })
 
   return (
     <>
@@ -335,8 +480,10 @@ function Articles({ cached_articles }) {
               </SelectContent>
             </Select>
           </form>
-          {articlesComponent}
-          {articles.results.length === 0 && (
+          {loading ? loadingComponent : articlesComponent}
+          {articlesQuery.isFetchingNextPage &&
+            loadingComponent.slice(0, 2)}
+          {articles.length === 0 && !loading && (
             <div className="mx-auto mt-20 text-center">
               <i className="text-xl font-semibold">
                 {t('articles.sorry')}{' '}
@@ -346,23 +493,10 @@ function Articles({ cached_articles }) {
               </i>
             </div>
           )}
-          <div className="flex w-full items-center justify-center">
-            <ReactPaginate
-              breakLabel="..."
-              nextLabel=">"
-              onPageChange={(e) => handlePageChange(e)}
-              pageRangeDisplayed={2}
-              pageCount={articles.total_pages}
-              previousLabel="<"
-              renderOnZeroPageCount={false}
-              className="mx-auto mt-2 flex h-full flex-row items-center gap-2 font-bold"
-              pageClassName="rounded-lg px-3 py-2 bg-white text-black shadow-sm h-full"
-              previousLinkClassName="rounded-lg px-3 py-2 bg-white text-black shadow-sm h-full"
-              nextLinkClassName="rounded-lg px-3 py-2 bg-white text-black shadow-sm h-full"
-              activeLinkClassName="text-sciteensGreen-regular"
-              disableInitialCallback={false}
-            ></ReactPaginate>
-          </div>
+          <div
+            ref={ref}
+            style={{ width: '100%', height: '20px' }}
+          ></div>
         </div>
         <div className="hidden w-0 lg:ml-32 lg:block lg:w-[30%]">
           <div className="sticky top-1/2 w-full -translate-y-1/2 transform">
@@ -438,7 +572,7 @@ export async function getStaticProps({ locale }) {
       [Prismic.Predicates.at('document.type', 'blog')],
       {
         orderings: `[document.first_publication_date desc]`,
-        pageSize: 10,
+        pageSize: ARTICLES_PAGE_SIZE,
       }
     )
 

@@ -4,11 +4,12 @@ import { useEffect } from 'react'
 
 export default function MyPageViewLogger() {
   const router = useRouter()
+  const measurementId = app.options?.measurementId
 
   // By passing `location.pathname` to the second argument of `useEffect`,
   // we only log on first render and when the `pathname` changes
   useEffect(() => {
-    if (!router.isReady) {
+    if (!router.isReady || !measurementId) {
       return
     }
 
@@ -19,7 +20,7 @@ export default function MyPageViewLogger() {
         })
       })
       .catch(() => {})
-  }, [app, router.isReady, router.asPath])
+  }, [router.isReady, router.asPath, measurementId])
 
   return null
 }

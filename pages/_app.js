@@ -8,6 +8,10 @@ import Head from 'next/head'
 import '../styles/nprogress.css'
 import dynamic from 'next/dynamic'
 import { appWithTranslation } from 'next-i18next'
+import {
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query'
 
 const TopProgressBar = dynamic(
   () => {
@@ -18,6 +22,16 @@ const TopProgressBar = dynamic(
 
 function MyApp({ Component, pageProps }) {
   const [profile, setUserProfile] = useState({})
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            refetchOnWindowFocus: false,
+          },
+        },
+      })
+  )
 
   function setProfile(p) {
     setUserProfile(p)
@@ -55,16 +69,18 @@ function MyApp({ Component, pageProps }) {
         <title>Welcome to SciTeens</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <AuthProvider>
-        <AppContext.Provider
-          value={{ profile, setProfile }}
-        >
-          <TopProgressBar></TopProgressBar>
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
-        </AppContext.Provider>
-      </AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <AppContext.Provider
+            value={{ profile, setProfile }}
+          >
+            <TopProgressBar></TopProgressBar>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </AppContext.Provider>
+        </AuthProvider>
+      </QueryClientProvider>
     </div>
   )
 }
