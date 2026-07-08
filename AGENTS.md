@@ -79,10 +79,14 @@ args; without them `pnpm dev` errors at runtime, not install.
   is inlined into the client bundle. Keys that must not leak (`GM_API_KEY`,
   `AL_ADMIN_KEY`) are never `NEXT_PUBLIC_` and only read in API routes or
   Cloud Functions. Never hardcode keys or webhooks; the repo is public.
-- **Filename and ref validation.** User filenames go through
-  `sanitizeFileName` (`context/helpers.js`) before joining a storage path;
-  never `join` a raw user filename. Post-login `?ref=` targets are resolved
-  through `resolveRefPath`, which allowlists known section prefixes.
+- **Filename and ref validation.** User uploads never trust `File#name`.
+  `getSafeUploadName` (`context/helpers.js`) derives the stored object
+  name from an owned MIME allowlist (`UPLOAD_MIME_EXTENSIONS`; images and
+  PDFs only, for now) and a freshly-generated id, returning `null` for a
+  disallowed type so the caller can reject the upload; never build a
+  storage path from a raw user filename or extension. Post-login `?ref=`
+  targets are resolved through `resolveRefPath`, which allowlists known
+  section prefixes.
 - For Firestore/Storage rule changes, walk the rule through the enforcement
   model by hand before deploying.
 

@@ -235,27 +235,42 @@ export function post(endpoint, params = {}) {
     })
 }
 
-// Strip any path separators / traversal segments from a user-supplied
-// filename so it can never escape its intended storage prefix.
-// Returns "<safe-base>.<ext>" or a random id if the name is unusable.
-export function sanitizeFileName(name) {
-  if (
-    typeof window !== 'undefined' &&
+// A File's `name` is fully attacker-controlled (a client-side upload can
+// supply any string, including path separators or traversal segments),
+// so the stored object's name is never derived from it. Uploads are
+// limited to images and PDFs for now — the extension is looked up from
+// this owned MIME allowlist and the base is always freshly generated, so
+// the result can never carry injected text; the original name is
+// preserved only as Storage metadata for display. This is also the
+// single source of truth for which types the upload dropzones accept
+// (`ALLOWED_UPLOAD_MIME_TYPES`).
+export const UPLOAD_MIME_EXTENSIONS = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
+  'application/pdf': 'pdf',
+}
+
+export const ALLOWED_UPLOAD_MIME_TYPES = Object.keys(
+  UPLOAD_MIME_EXTENSIONS
+)
+
+function generateUploadId() {
+  return typeof window !== 'undefined' &&
     window.crypto?.randomUUID
-  ) {
-    const fallback = window.crypto.randomUUID()
-    const ext = (name || '').split('.').pop()
-    return ext && ext !== name
-      ? `${fallback}.${ext}`
-      : fallback
-  }
-  // SSR / no crypto: best-effort basename + timestamp
-  const base = (name || '')
-    .split('/')
-    .pop()
-    .split('\\')
-    .pop()
-  return `${Date.now()}-${base.replace(/\.\./g, '')}`
+    ? window.crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+}
+
+// Returns a safe "<id>.<ext>" storage name for `file`, or null when
+// `file.type` isn't in the allowlist above. Callers must skip the
+// upload on a null return — this is the defense-in-depth check behind
+// the dropzones' `accept` prop, for anything that reaches here despite
+// (or without going through) that UI-level filter.
+export function getSafeUploadName(file) {
+  const ext = UPLOAD_MIME_EXTENSIONS[file?.type]
+  if (!ext) return null
+  return `${generateUploadId()}.${ext}`
 }
 
 // Resolve a post-login `?ref=section|id` query into an internal path,
