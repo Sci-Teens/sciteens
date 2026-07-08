@@ -5,11 +5,21 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 const scriptSrc = [
   "'self'",
   "'unsafe-inline'",
+  // Narrowly scoped to WebAssembly compilation (not full eval) — required
+  // for onnxruntime-web to run the client-side toxicity model loaded by
+  // lib/toxicityWorker.js.
+  "'wasm-unsafe-eval'",
   ...(isDevelopment ? ["'unsafe-eval'"] : []),
   'https://images.prismic.io',
   'https://www.googletagmanager.com',
   'https://www.google.com',
   'https://www.gstatic.com',
+  // lib/toxicityWorker.js loads @huggingface/transformers from jsDelivr
+  // at runtime (`import(/* webpackIgnore: true */ …)`) instead of
+  // bundling it — Next's webpack/SWC pipeline cannot parse
+  // onnxruntime-web's pre-minified ESM chunks (`import.meta` outside
+  // module code); see the comment in that file for the full rationale.
+  'https://cdn.jsdelivr.net',
 ].join(' ')
 
 module.exports = {
@@ -67,7 +77,7 @@ module.exports = {
               "img-src 'self' data: https://images.prismic.io https://source.unsplash.com https://lh3.googleusercontent.com https://firebasestorage.googleapis.com https://storage.googleapis.com https://lh3.googleusercontent.com; " +
               "font-src 'self' https://fonts.gstatic.com; " +
               'frame-src https://www.google.com; ' +
-              "connect-src 'self' https://firestore.googleapis.com https://firebase.googleapis.com https://www.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebaseinstallations.googleapis.com https://firebasestorage.googleapis.com https://commentanalyzer.googleapis.com https://sciteens.cdn.prismic.io https://*.algolia.net https://*.algolianet.com https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net; " +
+              "connect-src 'self' https://firestore.googleapis.com https://firebase.googleapis.com https://www.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebaseinstallations.googleapis.com https://firebasestorage.googleapis.com https://huggingface.co https://hf.co https://*.hf.co https://cdn.jsdelivr.net https://sciteens.cdn.prismic.io https://*.algolia.net https://*.algolianet.com https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net; " +
               "frame-ancestors 'self'; " +
               "base-uri 'self'; " +
               "form-action 'self'",

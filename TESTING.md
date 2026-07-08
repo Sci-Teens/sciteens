@@ -92,20 +92,39 @@ real bugs this migration:
     own comment — a key-stability test is cheap insurance against a
     reintroduced infinite-refetch loop.
 
-## Priority 2 — API route tests (vitest + `node-mocks-http` or raw handler call)
+## Priority 2 — Toxicity detection unit tests (vitest, no mocking) — DONE
 
-- `pages/api/toxicity.js`: call the default-exported handler directly with
-  a mock `req`/`res` (no server needed).
-  - Non-POST method → 405 with `Allow: POST`.
-  - Cross-origin request (`Origin` header mismatched against
-    `NEXT_PUBLIC_SITE_URL`) → 403.
-  - Missing/empty `text` → 400; `text` over `MAX_TEXT_LEN` → 400.
-  - Rate limit exceeded (31st request in the window) → 429.
-  - Missing `GM_API_KEY` env → 500, and confirm the key is never present
-    in the response body/error message (secret-leak guard).
-  - This route exists specifically to keep `GM_API_KEY` server-only per
-    AGENTS.md — it deserves a direct test more than almost anything else
-    in `pages/api`.
+`pages/api/toxicity.js` (a Perspective API proxy gating `GM_API_KEY`) has
+been replaced with a fully client-side classifier — Xenova/toxic-bert run
+in-browser via `@huggingface/transformers`, in a Web Worker
+(`lib/toxicityWorker.js`), per
+https://web.dev/articles/ai-detect-toxicity-build. There is no longer an
+HTTP route, so the original method/origin/rate-limit/API-key bullets below
+no longer apply — nothing is left to gatekeep a request or leak a secret
+with; classification runs entirely on the user's own device against a
+public model name. `lib/toxicity.test.js` (implemented) covers what
+carries over and what matters most now that detection itself is the
+client's responsibility:
+
+- `validateCommentText`: missing/empty text is rejected; text over
+  `MAX_TEXT_LEN` is rejected; text at exactly the limit is accepted
+  (boundary) — this is the client-side equivalent of the old route's
+  400s, run before the worker is ever invoked.
+- `getToxicityTypes` / `assessToxicity`: only labels whose score is
+  strictly greater than `TOXICITY_THRESHOLD` are flagged (boundary case:
+  a score exactly at the threshold is excluded); malformed/empty
+  classifier output degrades to "not toxic" instead of throwing.
+- A regression guard that `lib/toxicity.js` never references
+  `process.env` — this module is meant to be safe to import anywhere
+  (including the Web Worker bundle), and reintroducing a server secret
+  into it would be the modern equivalent of the leak the old route
+  existed to prevent.
+
+Not covered by unit tests (would need a browser, per Priority 4): the
+`lib/toxicityWorker.js` message protocol itself (`MESSAGE_CODE.*`) and
+`components/Discussion.js`'s wiring to it — actually loading the ONNX
+model and running inference needs a real browser/WebAssembly
+environment, not vitest's Node environment.
 
 ## Priority 3 — Component tests (vitest + React Testing Library)
 

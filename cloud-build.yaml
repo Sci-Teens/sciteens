@@ -36,8 +36,6 @@ steps:
         '--build-arg',
         'NEXT_PUBLIC_AL_SEARCH_KEY=${_NEXT_PUBLIC_AL_SEARCH_KEY}',
         '--build-arg',
-        'GM_API_KEY=${_GM_API_KEY}',
-        '--build-arg',
         'NEXT_PUBLIC_GC_GRADE=${_NEXT_PUBLIC_GC_GRADE}',
       ]
   - name: 'gcr.io/cloud-builders/docker'
@@ -61,8 +59,6 @@ steps:
         'managed',
         '--port',
         '3000',
-        '--set-env-vars',
-        'GM_API_KEY=${_GM_API_KEY}',
         '--set-env-vars',
         'AL_ADMIN_KEY=${_AL_ADMIN_KEY}',
       ]
