@@ -15,7 +15,7 @@ export default function privacy() {
               <h2 className="mb-1 text-xl font-semibold">
                 Table of Contents
               </h2>
-              <ul className="ml-2 text-sm text-sciteensGreen-dark">
+              <ul className="text-sciteensGreen-dark ml-2 text-sm">
                 <li>
                   <a
                     href="#privacy1"
@@ -155,7 +155,7 @@ export default function privacy() {
           </div>
           <div className="mx-8 md:mx-12 lg:mx-0 lg:w-2/3">
             <h1 className="text-3xl">PRIVACY POLICY</h1>
-            <p className="mt-1 mb-8 whitespace-pre-line text-gray-700">
+            <p className="mb-8 mt-1 whitespace-pre-line text-gray-700">
               Last Updated 9/30/2021
             </p>
             <p className="mb-10 text-gray-700">
@@ -930,7 +930,7 @@ export default function privacy() {
                 Officer (DPO), John Sutor, by email at
                 john@sciteens.com, or by post to:
               </p>
-              <p className="my-4 text-sciteensGreen-regular">
+              <p className="text-sciteensGreen-regular my-4">
                 SciTeens Inc.
                 <br />
                 John Sutor

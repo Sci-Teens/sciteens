@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { i18n } from 'next-i18next'
@@ -8,7 +9,6 @@ export default function Footer() {
 
   useEffect(() => {
     if (router.isReady && i18n?.isInitialized) {
-      console.log('loaded i18n')
       i18n.addResourceBundle(router.locale, 'common')
     }
   }, [router, i18n])
@@ -44,7 +44,7 @@ export default function Footer() {
               fill="#2d8a5b"
             />
           </svg>
-          <div className="bg-sciteensGreen-regular px-10 pt-4 pb-8 text-gray-100 md:px-24">
+          <div className="bg-sciteensGreen-regular px-10 pb-8 pt-4 text-gray-100 md:px-24">
             <div className="mr-0 flex flex-col justify-between md:flex-row lg:mr-12">
               <div className="w-1/8 mb-8 md:mb-0">
                 <p className="mb-1 font-semibold text-white md:mb-2">
@@ -53,12 +53,12 @@ export default function Footer() {
                 <ul>
                   <li>
                     <Link href="/about">
-                      <a>{i18n.t('footer.about')}</a>
+                      {i18n.t('footer.about')}
                     </Link>
                   </li>
                   <li>
                     <Link href="/get-started">
-                      <a>{i18n.t('footer.get_started')}</a>
+                      {i18n.t('footer.get_started')}
                     </Link>
                   </li>
                   <li>
@@ -72,7 +72,7 @@ export default function Footer() {
                   </li>
                   <li>
                     <Link href="/getinvolved">
-                      <a>{i18n.t('footer.get_involved')}</a>
+                      {i18n.t('footer.get_involved')}
                     </Link>
                   </li>
                   <li>
@@ -93,17 +93,17 @@ export default function Footer() {
                 <ul>
                   <li>
                     <Link href="/legal/privacy">
-                      <a>{i18n.t('footer.privacy')}</a>
+                      {i18n.t('footer.privacy')}
                     </Link>
                   </li>
                   <li>
                     <Link href="/legal/terms">
-                      <a>{i18n.t('footer.terms')}</a>
+                      {i18n.t('footer.terms')}
                     </Link>
                   </li>
                   <li>
                     <Link href="/legal/gdpr">
-                      <a>{i18n.t('footer.cookies')}</a>
+                      {i18n.t('footer.cookies')}
                     </Link>
                   </li>
                 </ul>
@@ -118,7 +118,7 @@ export default function Footer() {
                       href={router.pathname}
                       locale="en"
                     >
-                      <a>English</a>
+                      English
                     </Link>
                   </li>
                   <li>
@@ -126,7 +126,7 @@ export default function Footer() {
                       href={router.pathname}
                       locale="es"
                     >
-                      <a>Español</a>
+                      Español
                     </Link>
                   </li>
                   <li>
@@ -134,7 +134,7 @@ export default function Footer() {
                       href={router.pathname}
                       locale="fr"
                     >
-                      <a>Français</a>
+                      Français
                     </Link>
                   </li>
                   <li>
@@ -142,7 +142,7 @@ export default function Footer() {
                       href={router.pathname}
                       locale="hi"
                     >
-                      <a>नहीं</a>
+                      नहीं
                     </Link>
                   </li>
                 </ul>
@@ -157,12 +157,13 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <img
-                      className="mr-4 h-6"
-                      src={
-                        '../assets/icons/facebook-flat.svg'
-                      }
+                    <Image
+                      className="mr-4 h-6 w-auto"
+                      src="/assets/icons/facebook-flat.svg"
                       alt="Facebook"
+                      width={24}
+                      height={24}
+                      unoptimized
                     />
                   </a>
                   <a
@@ -170,10 +171,13 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <img
-                      className="mr-4 h-6"
-                      src={'../assets/icons/instagram.svg'}
+                    <Image
+                      className="mr-4 h-6 w-auto"
+                      src="/assets/icons/instagram.svg"
                       alt="Instagram"
+                      width={24}
+                      height={24}
+                      unoptimized
                     />
                   </a>
                   <a
@@ -181,12 +185,13 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <img
-                      className="mr-4 h-6"
-                      src={
-                        '../assets/icons/linkedin-flat.svg'
-                      }
+                    <Image
+                      className="mr-4 h-6 w-auto"
+                      src="/assets/icons/linkedin-flat.svg"
                       alt="LinkedIn"
+                      width={26}
+                      height={24}
+                      unoptimized
                     />
                   </a>
                   <a
@@ -194,10 +199,13 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <img
-                      className="mr-4 h-6"
-                      src={'../assets/icons/youtube.svg'}
+                    <Image
+                      className="mr-4 h-6 w-auto"
+                      src="/assets/icons/youtube.svg"
                       alt="YouTube"
+                      width={24}
+                      height={24}
+                      unoptimized
                     />
                   </a>
                   <a
@@ -205,10 +213,13 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <img
-                      className="mr-4 h-6"
-                      src={'../assets/icons/tiktok.svg'}
+                    <Image
+                      className="mr-4 h-6 w-auto"
+                      src="/assets/icons/tiktok.svg"
                       alt="TikTok"
+                      width={24}
+                      height={24}
+                      unoptimized
                     />
                   </a>
                   <a
@@ -216,10 +227,13 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <img
-                      className="h-6"
-                      src={'../assets/icons/discord.svg'}
+                    <Image
+                      className="h-6 w-auto"
+                      src="/assets/icons/discord.svg"
                       alt="Discord"
+                      width={31}
+                      height={24}
+                      unoptimized
                     />
                   </a>
                 </div>

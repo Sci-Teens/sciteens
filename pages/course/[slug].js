@@ -10,37 +10,37 @@ import Discussion from '../../components/Discussion'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
+import { createCropImageLoader } from '../../lib/prismicImageLoader'
 
 function Course({ course }) {
   const [files, setFiles] = useState([])
   const { t } = useTranslation('common')
 
-  const imageLoader = ({ src, width, height }) => {
-    return `${src}?fit=crop&crop=faces&w=${
-      width || 582
-    }&h=${height || 386}`
-  }
+  const imageLoader = createCropImageLoader(582, 386)
 
-  useEffect(async () => {
-    try {
-      for (const r of course.data.files) {
-        const url = r.file.url
-        const xhr = new XMLHttpRequest()
-        xhr.responseType = 'blob'
-        xhr.onload = () => {
-          const blob = xhr.response
-          if (xhr.status == 200) {
-            console.log(blob)
-            blob.name = r.file.name
-            setFiles((fs) => [...fs, blob])
+  useEffect(() => {
+    async function loadFiles() {
+      try {
+        for (const r of course.data.files) {
+          const url = r.file?.url
+          if (!url) continue
+          const xhr = new XMLHttpRequest()
+          xhr.responseType = 'blob'
+          xhr.onload = () => {
+            const blob = xhr.response
+            if (xhr.status == 200) {
+              blob.name = r.file.name
+              setFiles((fs) => [...fs, blob])
+            }
           }
+          xhr.open('GET', url)
+          xhr.send()
         }
-        xhr.open('GET', url)
-        xhr.send()
+      } catch (e) {
+        console.error(e)
       }
-    } catch (e) {
-      console.error(e)
     }
+    loadFiles()
   }, [])
 
   const lessonComponent = course.data.body.map(
@@ -110,9 +110,9 @@ function Course({ course }) {
   return (
     <>
       <Head>
-        <title>
-          {RichText.asText(course.data.name)} | SciTeens
-        </title>
+        <title>{`${RichText.asText(
+          course.data.name
+        )} | SciTeens`}</title>
         <link rel="icon" href="/favicon.ico" />
         <meta
           name="description"
@@ -138,7 +138,7 @@ function Course({ course }) {
           content={course.data.description}
         />
       </Head>
-      <article className="prose-sm mx-auto mt-8 overflow-hidden break-words px-4 lg:prose">
+      <article className="prose-sm wrap-break-word lg:prose mx-auto mt-8 overflow-hidden px-4">
         <div>
           <h1>{RichText.asText(course.data.name)}</h1>
           {courseDateDisplay}
@@ -173,7 +173,7 @@ function Course({ course }) {
         <h2 className="mb-2 text-lg font-semibold">
           {t('course.lessons')}
         </h2>
-        <table className="mb-4 w-full table-auto rounded shadow">
+        <table className="mb-4 w-full table-auto rounded-sm shadow-sm">
           <tr className="rounded-t-md border-b border-gray-400 bg-gray-200 text-center">
             <th className="p-2">{t('course.date')}</th>
             <th className="p-2">{t('course.lesson')}</th>

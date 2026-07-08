@@ -1,33 +1,52 @@
-import { doc } from '@firebase/firestore'
+import {
+  doc,
+  getDoc,
+  getFirestore,
+} from 'firebase/firestore'
+import {
+  getApp,
+  getApps,
+  initializeApp,
+} from 'firebase/app'
 import {
   listAll,
   ref,
   getDownloadURL,
   getMetadata,
 } from '@firebase/storage'
-import {
-  useFirestore,
-  useFirestoreDocData,
-  useStorage,
-  useSigninCheck,
-} from 'reactfire'
+import { useFirestoreDocData } from '../../../lib/firestoreData'
+import { useSigninCheck } from '../../../context/AuthContext'
+import { db, storage } from '../../../lib/firebase'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
+import Image from 'next/image'
 import Error from 'next/error'
 import Link from 'next/link'
 import File from '../../../components/File'
-import { useEffect, useState } from 'react'
-import Discussion from '../../../components/Discussion'
+import { useEffect, useMemo, useState } from 'react'
+import dynamic from 'next/dynamic'
 import ProfilePhoto from '../../../components/ProfilePhoto'
+import firebaseConfig from '../../../firebaseConfig'
+import { normalizeProject } from '../../../lib/projects'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 
-function Project({ query }) {
+const Discussion = dynamic(
+  () => import('../../../components/Discussion'),
+  { ssr: false }
+)
+
+function Project({ query, initialProject }) {
   const router = useRouter()
-  const firestore = useFirestore()
-  const storage = useStorage()
 
-  const projectRef = doc(firestore, 'projects', query.id)
-  const { status, data: project } =
+  const projectRef = useMemo(
+    () => doc(db, 'projects', query.id),
+    [query.id]
+  )
+  const { status, data: liveProject } =
     useFirestoreDocData(projectRef)
+  const project = normalizeProject(
+    liveProject || initialProject
+  )
 
   const [files, setFiles] = useState([])
   const [loading_files, setLoadingFiles] = useState(true)
@@ -37,64 +56,54 @@ function Project({ query }) {
 
   const { data: signInCheckResult } = useSigninCheck()
 
-  useEffect(async () => {
-    const filesRef = ref(storage, `projects/${query.id}`)
-
-    // Find all the prefixes and items.
-
-    try {
-      const res = await listAll(filesRef)
-      for (let r of res.items) {
-        const url = await getDownloadURL(r)
-        const metadata = await getMetadata(r)
-        const xhr = new XMLHttpRequest()
-        xhr.responseType = 'blob'
-        xhr.onload = () => {
-          const blob = xhr.response
-          if (xhr.status == 200) {
-            blob.name = metadata.name
-            if (
-              metadata?.customMetadata?.project_photo ==
-              'true'
-            ) {
-              setProjectPhoto(URL.createObjectURL(blob))
-            }
-            setFiles((fs) => [...fs, blob])
-          }
-        }
-        xhr.open('GET', url)
-        xhr.send()
-      }
-    } catch (e) {
-      console.error(e)
-    }
-
-    setLoadingFiles(false)
-  }, [''])
-
   useEffect(() => {
-    for (const f of files) {
-      if (
-        f.name.includes('project_photo') &&
-        f.type.includes('image')
-      ) {
-        setProjectPhoto(URL.createObjectURL(f))
-      }
-    }
-  }, [files])
+    async function loadFiles() {
+      const filesRef = ref(storage, `projects/${query.id}`)
 
-  if (status === 'loading') {
+      try {
+        const res = await listAll(filesRef)
+        for (let r of res.items) {
+          const url = await getDownloadURL(r)
+          const metadata = await getMetadata(r)
+          const xhr = new XMLHttpRequest()
+          xhr.responseType = 'blob'
+          xhr.onload = () => {
+            const blob = xhr.response
+            if (xhr.status == 200) {
+              blob.name = metadata.name
+              if (
+                metadata?.customMetadata?.project_photo ==
+                'true'
+              ) {
+                setProjectPhoto(url)
+              }
+              setFiles((fs) => [...fs, blob])
+            }
+          }
+          xhr.open('GET', url)
+          xhr.send()
+        }
+      } catch (e) {
+        console.error(e)
+      }
+
+      setLoadingFiles(false)
+    }
+    loadFiles()
+  }, [query.id])
+
+  if (status === 'loading' && !project) {
     return (
-      <div className="prose-sm mx-auto mt-4 mb-24 animate-pulse lg:prose">
-        <div className="h-12 w-full rounded-lg bg-gray-200" />
-        <div className="mt-8 h-8 w-full rounded-lg bg-gray-200" />
-        <div className="mt-8 h-8 w-full rounded-lg bg-gray-200" />
-        <div className="mt-8 h-64 w-full rounded-lg bg-gray-200" />
-        <div className="mt-8 h-8 w-full rounded-lg bg-gray-200" />
-        <div className="mt-8 h-24 w-full rounded-lg bg-gray-200" />
+      <div className="prose-sm lg:prose mx-auto mb-24 mt-4 animate-pulse">
+        <div className="bg-muted h-12 w-full rounded-lg" />
+        <div className="bg-muted mt-8 h-8 w-full rounded-lg" />
+        <div className="bg-muted mt-8 h-8 w-full rounded-lg" />
+        <div className="bg-muted mt-8 h-64 w-full rounded-lg" />
+        <div className="bg-muted mt-8 h-8 w-full rounded-lg" />
+        <div className="bg-muted mt-8 h-24 w-full rounded-lg" />
       </div>
     )
-  } else if (status === 'error') {
+  } else if (status === 'error' || !project) {
     return <Error statusCode={404} />
   }
 
@@ -108,7 +117,7 @@ function Project({ query }) {
   return (
     <>
       <Head>
-        <title>{project.title} | SciTeens</title>
+        <title>{`${project.title} | SciTeens`}</title>
         <link rel="icon" href="/favicon.ico" />
         <meta
           name="description"
@@ -127,23 +136,22 @@ function Project({ query }) {
           content="/assets/sciteens_initials.jpg"
         />
       </Head>
-      <article className="prose-sm mx-auto mt-8 px-4 lg:prose lg:px-0">
+      <article className="prose-sm lg:prose text-foreground mx-auto mt-8 px-4 lg:px-0">
         <div>
           <div className="m-0 flex flex-row justify-between p-0 leading-none">
             <h1>{project.title}</h1>
-            {project.member_uids.includes(
+            {project.member_uids?.includes(
               signInCheckResult?.user?.uid
             ) && (
               <Link
                 href={`/project/${router?.query?.id}/edit`}
+                className="border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark h-1/3 cursor-pointer rounded-lg border-2 px-6 py-1.5 text-center text-xl font-semibold shadow-sm"
               >
-                <div className="h-1/3 cursor-pointer rounded-full border-2 border-sciteensLightGreen-regular py-1.5 px-6 text-center text-xl font-semibold text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark">
-                  Edit
-                </div>
+                Edit
               </Link>
             )}
           </div>
-          {project.member_arr && (
+          {project.member_arr?.length > 0 && (
             <div className="mb-3 flex flex-row items-center">
               <div className="flex -space-x-2 overflow-hidden">
                 {project.member_arr.map((member) => {
@@ -163,16 +171,15 @@ function Project({ query }) {
                 By&nbsp;
                 {project.member_arr.map((member) => {
                   return (
-                    <Link
+                    <a
                       key={member.uid}
                       href={`/profile/${
-                        member.slug ? member.slug : ''
+                        member.slug || member.uid
                       }`}
+                      className="text-sciteensGreen-regular hover:text-sciteensGreen-dark font-bold no-underline"
                     >
-                      <a className="font-bold text-sciteensGreen-regular no-underline hover:text-sciteensGreen-dark">
-                        {member.display + ' '}
-                      </a>
-                    </Link>
+                      {member.display + ' '}
+                    </a>
                   )
                 })}
               </p>
@@ -181,20 +188,24 @@ function Project({ query }) {
           <div>{start_date}</div>
           <div>
             {project_photo ? (
-              <img
-                src={project_photo}
-                alt="Project"
-                className="mt-0 w-full object-contain"
-              />
+              <div className="bg-muted relative my-8 aspect-video w-full overflow-hidden rounded-xl">
+                <Image
+                  src={project_photo}
+                  alt={project.title}
+                  fill
+                  sizes="(min-width: 1024px) 768px, 100vw"
+                  className="object-contain"
+                />
+              </div>
             ) : loading_files ? (
-              <div className="my-8 h-64 w-full animate-pulse rounded-lg bg-gray-200" />
+              <div className="bg-muted my-8 h-64 w-full animate-pulse rounded-xl" />
             ) : (
               <></>
             )}
           </div>
           <p>{project.abstract}</p>
           <div className="flex flex-row flex-wrap">
-            {project.fields.map((tag) => {
+            {(project.fields || []).map((tag) => {
               return (
                 <Link
                   key={tag}
@@ -202,10 +213,9 @@ function Project({ query }) {
                     pathname: '/projects',
                     query: { field: tag },
                   }}
+                  className="bg-card ring-border/60 my-1 mr-4 cursor-pointer rounded-full px-5 py-1.5 text-base no-underline shadow-sm ring-1 hover:shadow-md"
                 >
-                  <span className="my-1 mr-4 cursor-pointer rounded-full bg-white px-5 py-1.5 text-base shadow hover:shadow-md">
-                    {tag}
-                  </span>
+                  {tag}
                 </Link>
               )
             })}
@@ -226,16 +236,37 @@ function Project({ query }) {
             )
           })}
         </div>
-        {typeof window !== 'undefined' && (
-          <Discussion type="projects" item_id={query.id} />
-        )}
+        <Discussion type="projects" item_id={query.id} />
       </div>
     </>
   )
 }
 
-export async function getServerSideProps({ query }) {
-  return { props: { query: query } }
+export async function getServerSideProps({
+  query,
+  locale,
+}) {
+  const app = getApps().length
+    ? getApp()
+    : initializeApp(firebaseConfig)
+  const firestore = getFirestore(app)
+  const projectDoc = await getDoc(
+    doc(firestore, 'projects', query.id)
+  )
+
+  if (!projectDoc.exists()) {
+    return { notFound: true }
+  }
+
+  return {
+    props: {
+      query,
+      initialProject: JSON.parse(
+        JSON.stringify(normalizeProject(projectDoc.data()))
+      ),
+      ...(await serverSideTranslations(locale, ['common'])),
+    },
+  }
 }
 
 export default Project

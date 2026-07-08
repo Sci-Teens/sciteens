@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import Link from 'next/link'
 import Head from 'next/head'
@@ -6,78 +6,191 @@ import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
+import { useIntersectionObserver } from '../context/helpers'
 
 var Prismic = require('@prismicio/client')
 import { RichText } from 'prismic-reactjs'
 
 import moment from 'moment'
-import {
-  useSpring,
-  animated,
-  config,
-} from '@react-spring/web'
+import { Search } from 'lucide-react'
 import { getTranslatedFieldsDict } from '../context/helpers'
-import ReactPaginate from 'react-paginate'
+import { useInfiniteQuery } from '@tanstack/react-query'
+import { useWindowVirtualizer } from '@tanstack/react-virtual'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+
+const ARTICLES_PAGE_SIZE = 10
+
+async function fetchArticlesPage({
+  search,
+  field,
+  pageParam,
+}) {
+  const apiEndpoint =
+    'https://sciteens.cdn.prismic.io/api/v2'
+  const client = Prismic.default.client(apiEndpoint)
+  let predicates = []
+
+  if (search) {
+    predicates.push(
+      Prismic.default.Predicates.fulltext(
+        'document',
+        search
+      )
+    )
+  }
+  if (field) {
+    predicates.push(
+      Prismic.default.Predicates.at('document.tags', [
+        field,
+      ])
+    )
+  }
+
+  const articles = await client.query(
+    [
+      Prismic.default.Predicates.at(
+        'document.type',
+        'blog'
+      ),
+      ...predicates,
+    ],
+    {
+      orderings: `[document.first_publication_date desc]`,
+      pageSize: ARTICLES_PAGE_SIZE,
+      page: pageParam,
+    }
+  )
+
+  return {
+    articles: articles.results,
+    nextPage:
+      articles.page < articles.total_pages
+        ? articles.page + 1
+        : null,
+    totalPages: articles.total_pages,
+  }
+}
 
 function Articles({ cached_articles }) {
   const router = useRouter()
-  const [articles, setArticles] = useState(cached_articles)
-  const [, setPage] = useState(0)
-
-  useEffect(async () => {
-    let isSubscribed = true
-    if (isSubscribed) {
-      const apiEndpoint =
-        'https://sciteens.cdn.prismic.io/api/v2'
-      const client = Prismic.default.client(apiEndpoint)
-      let predicates = []
-      if (router.query.search) {
-        predicates.push(
-          Prismic.default.Predicates.fulltext(
-            'document',
-            router.query.search
-          )
-        )
-      }
-      if (
-        router.query.field &&
-        router.query.field != 'All'
-      ) {
-        predicates.push(
-          Prismic.default.Predicates.at('document.tags', [
-            router.query.field,
-          ])
-        )
-      }
-      const as = await client.query(
-        [
-          Prismic.default.Predicates.at(
-            'document.type',
-            'blog'
-          ),
-          ...predicates,
-        ],
-        {
-          orderings: `[document.first_publication_date desc]`,
-          pageSize: 10,
-          page: router.query?.page ? router.query.page : 1,
-        }
-      )
-      setArticles(as)
-      moment.locale(router?.locale ? router.locale : 'en')
-    }
-
-    return () => (isSubscribed = false)
-  }, [router])
-
   const [search, setSearch] = useState('')
   const [field, setField] = useState('All')
 
-  const imageLoader = ({ src, width, height }) => {
-    return `${src}?fit=crop&crop=faces&w=${
-      width || 256
-    }&h=${height || 256}`
-  }
+  const searchParam = router.query?.search || ''
+  const fieldParam =
+    router.query?.field && router.query.field !== 'All'
+      ? router.query.field
+      : ''
+  const queryPage = Number(router.query?.page || 1)
+  const firstPage =
+    Number.isFinite(queryPage) && queryPage > 0
+      ? queryPage
+      : 1
+
+  moment.locale(router?.locale ? router.locale : 'en')
+
+  const initialData = useMemo(() => {
+    if (
+      !router.isReady ||
+      searchParam ||
+      fieldParam ||
+      firstPage !== 1 ||
+      !cached_articles?.results
+    ) {
+      return undefined
+    }
+
+    return {
+      pages: [
+        {
+          articles: cached_articles.results,
+          nextPage:
+            cached_articles.page <
+            cached_articles.total_pages
+              ? cached_articles.page + 1
+              : null,
+          totalPages: cached_articles.total_pages,
+        },
+      ],
+      pageParams: [1],
+    }
+  }, [
+    router.isReady,
+    searchParam,
+    fieldParam,
+    firstPage,
+    cached_articles,
+  ])
+
+  const articlesQuery = useInfiniteQuery({
+    queryKey: [
+      'articles',
+      searchParam,
+      fieldParam,
+      firstPage,
+    ],
+    enabled: router.isReady,
+    initialPageParam: firstPage,
+    initialData,
+    queryFn: ({ pageParam }) =>
+      fetchArticlesPage({
+        search: searchParam,
+        field: fieldParam,
+        pageParam,
+      }),
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+  })
+
+  const articles = useMemo(
+    () =>
+      articlesQuery.data?.pages.flatMap(
+        (page) => page.articles
+      ) || [],
+    [articlesQuery.data]
+  )
+  const loading =
+    articlesQuery.isLoading && articles.length === 0
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } =
+    articlesQuery
+
+  useEffect(() => {
+    if (articlesQuery.isError) {
+      console.error(
+        'Failed to load articles:',
+        articlesQuery.error
+      )
+    }
+  }, [articlesQuery.isError, articlesQuery.error])
+
+  const ref = useRef(null)
+  const isBottomVisible = useIntersectionObserver(
+    ref,
+    { threshold: 0 },
+    false
+  )
+
+  useEffect(() => {
+    if (
+      isBottomVisible &&
+      hasNextPage &&
+      !isFetchingNextPage
+    ) {
+      fetchNextPage()
+    }
+  }, [
+    isBottomVisible,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  ])
 
   useEffect(() => {
     if (router?.isReady) {
@@ -88,7 +201,17 @@ function Articles({ cached_articles }) {
         router.query?.field ? router.query.field : ''
       )
     }
-  }, [router])
+  }, [
+    router.isReady,
+    router.query.search,
+    router.query.field,
+  ])
+
+  const imageLoader = ({ src, width, height }) => {
+    return `${src}?fit=crop&crop=faces&w=${
+      width || 256
+    }&h=${height || 256}`
+  }
 
   async function handleChange(e, target) {
     e.preventDefault()
@@ -111,25 +234,8 @@ function Articles({ cached_articles }) {
       pathname: '/articles',
       query: q,
     })
-    // router.push(`/articles?${search.trim() ? 'search=' + search.trim() : ''}${field ? '&field=' + field : ''}`)
   }
 
-  async function handlePageChange(e) {
-    setPage(e.selected)
-    console.log(e.selected)
-    let q = {}
-    if (search) {
-      q.search = search
-    }
-    if (field) {
-      q.field = field
-    }
-    q.page = e.selected + 1
-    router.push({
-      pathname: '/articles',
-      query: q,
-    })
-  }
   async function handleFieldSearch(field) {
     let q = {}
     q.field = field
@@ -157,104 +263,120 @@ function Articles({ cached_articles }) {
 
   const { t } = useTranslation('common')
 
-  // REACT SPRING ANIMATIONS
-  useEffect(() => {
-    set({
-      opacity: 0,
-      transform: 'translateX(150px)',
-      config: { tension: 10000, clamp: true },
-    })
-    window.setTimeout(function () {
-      set({
-        opacity: 1,
-        transform: 'translateX(0)',
-        config: config.slow,
-      })
-    }, 10)
-  }, [articles])
+  const articleVirtualizer = useWindowVirtualizer({
+    count: articles.length,
+    estimateSize: () => 340,
+    overscan: 5,
+  })
 
-  const [article_spring, set] = useSpring(() => ({
-    opacity: 1,
-    transform: 'translateX(0)',
-    from: {
-      opacity: 0,
-      transform: 'translateX(150px)',
-    },
-    config: config.slow,
-  }))
+  const articlesComponent = (
+    <div
+      className="relative w-full"
+      style={{
+        height: `${articleVirtualizer.getTotalSize()}px`,
+      }}
+    >
+      {articleVirtualizer
+        .getVirtualItems()
+        .map((virtualRow) => {
+          const article = articles[virtualRow.index]
+          if (!article) return null
 
-  const articlesComponent = articles.results.map(
-    (article, index) => {
-      const author_image = article.data.body.map(
-        (slice) => {
-          if (slice.slice_type == 'about_the_author') {
-            return (
-              <div
-                className="relative h-6 w-6 lg:h-8 lg:w-8"
-                key={index}
+          const author_image = article.data.body.map(
+            (slice, index) => {
+              if (slice.slice_type == 'about_the_author') {
+                return (
+                  <div
+                    className="relative h-6 w-6 lg:h-8 lg:w-8"
+                    key={index}
+                  >
+                    <Image
+                      alt={`${article.data.author} headshot`}
+                      className="h-6 w-6 rounded-full lg:h-8 lg:w-8"
+                      height={48}
+                      width={48}
+                      loader={imageLoader}
+                      src={slice.primary.headshot.url}
+                    />
+                  </div>
+                )
+              } else {
+                return null
+              }
+            }
+          )
+
+          return (
+            <div
+              key={article.id}
+              ref={articleVirtualizer.measureElement}
+              data-index={virtualRow.index}
+              className="absolute left-0 top-0 w-full pt-6 md:pt-8"
+              style={{
+                transform: `translateY(${virtualRow.start}px)`,
+              }}
+            >
+              <Link
+                href={`/article/${article.uid}`}
+                className="animate-in bg-card text-card-foreground ring-border/60 fade-in slide-in-from-right-8 z-50 flex cursor-pointer flex-row items-center rounded-xl p-4 shadow-sm ring-1 transition duration-300 hover:-translate-y-0.5 hover:shadow-md"
               >
-                <Image
-                  className="h-6 w-6 rounded-full lg:h-8 lg:w-8"
-                  height={48}
-                  width={48}
-                  loader={imageLoader}
-                  src={slice.primary.headshot.url}
-                />
-              </div>
-            )
-          } else {
-            return null
-          }
-        }
-      )
-
-      return (
-        <Link key={index} href={`/article/${article.uid}`}>
-          <animated.a
-            style={article_spring}
-            className="z-50 mt-6 flex cursor-pointer flex-row items-center rounded-lg bg-white p-4 shadow md:mt-8"
-          >
-            <div className="relative h-full max-w-[100px] md:max-w-[200px]">
-              <Image
-                className="flex-shrink-0 rounded-lg object-cover"
-                loader={imageLoader}
-                src={article.data.image.url}
-                width={256}
-                height={256}
-              />
+                <div className="relative h-full max-w-[100px] md:max-w-[200px]">
+                  <Image
+                    alt={RichText.asText(
+                      article.data.title
+                    )}
+                    className="shrink-0 rounded-lg object-cover"
+                    loader={imageLoader}
+                    src={article.data.image.url}
+                    width={256}
+                    height={256}
+                  />
+                </div>
+                <div className="ml-4 w-3/4 lg:w-11/12">
+                  <div className="mb-3 flex flex-row items-center">
+                    {author_image}
+                    <p className="ml-3">
+                      {article.data.author}
+                    </p>
+                  </div>
+                  <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">
+                    {RichText.asText(article.data.title)}
+                  </h3>
+                  <p className="line-clamp-none md:line-clamp-2 mb-2 hidden text-sm md:flex lg:text-base">
+                    {article.data.description}
+                  </p>
+                  <p className="flex text-xs">
+                    {moment(article.data.date).format(
+                      'll'
+                    ) +
+                      ' · ' +
+                      readingTime(article.data.text)}
+                  </p>
+                </div>
+              </Link>
             </div>
-            <div className="ml-4 w-3/4 lg:w-11/12">
-              <div className="mb-3 flex flex-row items-center">
-                {author_image}
-                <p className="ml-3">
-                  {article.data.author}
-                </p>
-              </div>
-              <h3 className="mb-2 text-base font-semibold line-clamp-2 md:text-xl lg:text-2xl">
-                {RichText.asText(article.data.title)}
-              </h3>
-              <p className="mb-2 hidden text-sm line-clamp-none md:flex md:line-clamp-2 lg:text-base">
-                {article.data.description}
-              </p>
-              <p className="flex text-xs">
-                {moment(article.data.date).format('ll') +
-                  ' · ' +
-                  readingTime(article.data.text)}
-              </p>
-            </div>
-          </animated.a>
-        </Link>
-      )
-    }
+          )
+        })}
+    </div>
   )
+
+  const loadingComponent = new Array(10)
+    .fill(1)
+    .map((index) => {
+      return (
+        <div
+          key={index}
+          className="bg-muted z-50 mt-4 h-16 rounded-xl p-4 shadow-sm"
+        ></div>
+      )
+    })
 
   return (
     <>
       <Head>
-        <title>
-          {field ? field + ' ' : ''} Articles{' '}
-          {search ? 'related to ' + search : ''} | SciTeens
-        </title>
+        <title>{`${field ? field + ' ' : ''} Articles ${
+          search ? 'related to ' + search : ''
+        } | SciTeens`}</title>
         <link rel="icon" href="/favicon.ico" />
         <meta
           name="description"
@@ -270,7 +392,7 @@ function Articles({ cached_articles }) {
           content="/assets/sciteens_initials.jpg"
         />
       </Head>
-      <div className="mx-auto mt-8 mb-24 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
+      <div className="text-foreground mx-auto mb-24 mt-8 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
         <div className="mx-auto w-11/12 md:w-[85%] lg:mx-0 lg:w-[60%]">
           <h1 className="ml-4 py-4 text-left text-4xl font-semibold">
             {t('articles.articles')} 📰
@@ -279,50 +401,54 @@ function Articles({ cached_articles }) {
             onSubmit={(e) => handleSearch(e)}
             className="flex flex-row lg:hidden"
           >
-            <button
+            <Button
               type="submit"
-              className="outline-none w-auto rounded-l-lg bg-sciteensLightGreen-regular px-3 font-semibold text-white shadow hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+              size="icon"
               onClick={(e) => handleSearch(e)}
             >
-              <img
-                src="assets/zondicons/search.svg"
-                alt="Search"
-                className="h-10"
+              <Search
+                aria-hidden="true"
+                className="h-5 w-5"
               />
-            </button>
-            <input
+            </Button>
+            <Input
               onChange={(e) => handleChange(e, 'searchbar')}
               value={search}
               name="search"
               placeholder="Search..."
               required
-              className={`focus:outline-none w-full appearance-none border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700`}
               type="text"
               aria-label="search"
               maxLength="100"
+              className="bg-card border-gray-300 shadow-sm"
             />
-            <select
-              onChange={(e) =>
-                handleFieldSearch(e.target.value)
-              }
+            <Select
               name="field"
-              id="field"
               value={field}
-              className="focus:outline-none w-1/2 appearance-none rounded-r-lg border-2 border-transparent bg-white p-2 leading-tight text-gray-700 placeholder-sciteensGreen-regular shadow focus:border-sciteensGreen-regular focus:bg-white focus:placeholder-gray-700"
+              onValueChange={(value) =>
+                handleFieldSearch(value)
+              }
             >
-              {Object.entries(
-                getTranslatedFieldsDict(t)
-              ).map(([key, value]) => {
-                return (
-                  <option key={key} value={key}>
-                    {value}
-                  </option>
-                )
-              })}
-            </select>
+              <SelectTrigger id="field" className="w-1/2">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(
+                  getTranslatedFieldsDict(t)
+                ).map(([key, value]) => {
+                  return (
+                    <SelectItem key={key} value={key}>
+                      {value}
+                    </SelectItem>
+                  )
+                })}
+              </SelectContent>
+            </Select>
           </form>
-          {articlesComponent}
-          {articles.results.length === 0 && (
+          {loading ? loadingComponent : articlesComponent}
+          {articlesQuery.isFetchingNextPage &&
+            loadingComponent.slice(0, 2)}
+          {articles.length === 0 && !loading && (
             <div className="mx-auto mt-20 text-center">
               <i className="text-xl font-semibold">
                 {t('articles.sorry')}{' '}
@@ -332,23 +458,10 @@ function Articles({ cached_articles }) {
               </i>
             </div>
           )}
-          <div className="flex w-full items-center justify-center">
-            <ReactPaginate
-              breakLabel="..."
-              nextLabel=">"
-              onPageChange={(e) => handlePageChange(e)}
-              pageRangeDisplayed={2}
-              pageCount={articles.total_pages}
-              previousLabel="<"
-              renderOnZeroPageCount={false}
-              className="mx-auto mt-2 flex h-full flex-row items-center gap-2 font-bold"
-              pageClassName="rounded-lg px-3 py-2 bg-white text-black shadow h-full"
-              previousLinkClassName="rounded-lg px-3 py-2 bg-white text-black shadow h-full"
-              nextLinkClassName="rounded-lg px-3 py-2 bg-white text-black shadow h-full"
-              activeLinkClassName="text-sciteensGreen-regular"
-              disableInitialCallback={false}
-            ></ReactPaginate>
-          </div>
+          <div
+            ref={ref}
+            style={{ width: '100%', height: '20px' }}
+          ></div>
         </div>
         <div className="hidden w-0 lg:ml-32 lg:block lg:w-[30%]">
           <div className="sticky top-1/2 w-full -translate-y-1/2 transform">
@@ -359,25 +472,24 @@ function Articles({ cached_articles }) {
               onSubmit={(e) => handleSearch(e)}
               className="flex flex-row"
             >
-              <input
+              <Input
                 onChange={(e) =>
                   handleChange(e, 'searchbar')
                 }
                 value={search}
                 name="search"
                 required
-                className={`focus:outline-none mr-3 w-full appearance-none rounded border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700`}
+                className="bg-card mr-3 border-gray-300 shadow-sm"
                 type="text"
                 aria-label="search"
                 maxLength="100"
               />
-              <button
+              <Button
                 type="submit"
-                className="outline-none rounded-lg bg-sciteensLightGreen-regular px-4 py-2 font-semibold text-white shadow hover:bg-sciteensLightGreen-dark disabled:opacity-50"
                 onClick={(e) => handleSearch(e)}
               >
                 {t('articles.search')}
-              </button>
+              </Button>
             </form>
 
             <hr className="my-8 bg-gray-300" />
@@ -390,18 +502,21 @@ function Articles({ cached_articles }) {
                 getTranslatedFieldsDict(t)
               ).map(([key, value]) => {
                 return (
-                  <button
+                  <Button
                     key={value}
+                    type="button"
+                    variant={
+                      key == field ? 'default' : 'secondary'
+                    }
                     onClick={() => handleFieldSearch(key)}
-                    className={`mr-4 mb-4 rounded-full px-3 py-2 text-sm shadow
-                                        ${
-                                          key == field
-                                            ? 'bg-sciteensLightGreen-regular text-white'
-                                            : 'bg-white'
-                                        }`}
+                    className={
+                      key == field
+                        ? 'mb-4 mr-4 rounded-full'
+                        : 'bg-card hover:bg-muted mb-4 mr-4 rounded-full border border-gray-300 shadow-sm'
+                    }
                   >
                     {value}
-                  </button>
+                  </Button>
                 )
               })}
             </div>
@@ -425,7 +540,7 @@ export async function getStaticProps({ locale }) {
       [Prismic.Predicates.at('document.type', 'blog')],
       {
         orderings: `[document.first_publication_date desc]`,
-        pageSize: 10,
+        pageSize: ARTICLES_PAGE_SIZE,
       }
     )
 

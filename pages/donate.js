@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import Head from 'next/head'
@@ -29,19 +30,20 @@ export default function Donate() {
           <h1 className="text-4xl">
             {t('donate.annual_donation_appeal')}
           </h1>
-          <div className="mt-4 mb-8 flex w-full flex-row">
+          <div className="mb-8 mt-4 flex w-full flex-row">
             <a
               href="https://www.paypal.com/donate?hosted_button_id=7B8QACYV83ACA"
               target="_blank"
-              className="mr-2 rounded-lg bg-blue-500 p-2 text-white shadow-md hover:bg-blue-600"
+              className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark mr-2 rounded-lg p-2 text-white shadow-md"
               rel="noreferrer"
             >
               {t('donate.donate_now')}
             </a>
-            <Link href="/about">
-              <a className="ml-2 p-2 text-gray-700 hover:underline">
-                {t('donate.read_our_mission')}
-              </a>
+            <Link
+              href="/about"
+              className="ml-2 p-2 text-gray-700 hover:underline"
+            >
+              {t('donate.read_our_mission')}
             </Link>
           </div>
           <p>{t('donate.dear_supporter')}</p>
@@ -56,10 +58,12 @@ export default function Donate() {
           </p>
           <p className="my-8">
             {t('donate.sincerely')}, <br />
-            <img
+            <Image
               src="/assets/sutor_signature.png"
               alt="John Sutor Signature"
-              className="h-12"
+              width={1099}
+              height={318}
+              className="h-12 w-auto"
             />
             John Sutor <br />
             {t('donate.co_founder')}

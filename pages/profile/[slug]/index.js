@@ -8,18 +8,20 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
 import {
+  getDoc,
   getDocs,
   getFirestore,
   query as firebase_query,
   collection,
+  doc,
   where,
   limit,
-} from '@firebase/firestore'
+} from 'firebase/firestore'
 import {
   getApp,
   getApps,
   initializeApp,
-} from '@firebase/app'
+} from 'firebase/app'
 import firebaseConfig from '../../../firebaseConfig'
 import {
   listAll,
@@ -27,24 +29,21 @@ import {
   getDownloadURL,
   getMetadata,
 } from '@firebase/storage'
-import { useStorage, useFirestore } from 'reactfire'
+import {
+  db as firestore,
+  storage,
+} from '../../../lib/firebase'
 
 import moment from 'moment'
-import {
-  useSpring,
-  animated,
-  config,
-} from '@react-spring/web'
-import { useSigninCheck } from 'reactfire'
+import { useSigninCheck } from '../../../context/AuthContext'
 import { AppContext } from '../../../context/context'
 import File from '../../../components/File'
-import { getTranslatedFieldsDict } from '../../../context/helpers'
+import ProjectCard from '../../../components/ProjectCard'
+import { normalizeProject } from '../../../lib/projects'
 
 function Project({ profile }) {
   const { t } = useTranslation('common')
   const router = useRouter()
-  const storage = useStorage()
-  const firestore = useFirestore()
 
   const [files, setFiles] = useState([])
   const [projects, setProjects] = useState([])
@@ -53,170 +52,72 @@ function Project({ profile }) {
   const { profile: current_user_profile } =
     useContext(AppContext)
 
-  useEffect(async () => {
-    // Load projects
-    let ps = []
-    const projectsCollection = collection(
-      firestore,
-      'projects'
-    )
-    const projectsQuery = firebase_query(
-      projectsCollection,
-      where('member_uids', 'array-contains', profile.id)
-    )
-    const projectsRef = await getDocs(projectsQuery)
-    projectsRef.forEach((p) => {
-      ps.push({
-        id: p.id,
-        ...p.data(),
+  useEffect(() => {
+    async function loadProfileData() {
+      let ps = []
+      const projectsCollection = collection(
+        firestore,
+        'projects'
+      )
+      const projectsQuery = firebase_query(
+        projectsCollection,
+        where('member_uids', 'array-contains', profile.id)
+      )
+      const projectsRef = await getDocs(projectsQuery)
+      projectsRef.forEach((p) => {
+        ps.push(
+          normalizeProject({
+            id: p.id,
+            ...p.data(),
+          })
+        )
       })
-    })
-    setProjects(ps)
+      setProjects(ps)
 
-    // Load files
-    const filesRef = ref(storage, `profiles/${profile.id}`)
-    try {
-      const res = await listAll(filesRef)
-      for (let r of res.items) {
-        const url = await getDownloadURL(r)
-        const metadata = await getMetadata(r)
-        const xhr = new XMLHttpRequest()
-        xhr.responseType = 'blob'
-        xhr.onload = () => {
-          const blob = xhr.response
-          if (xhr.status == 200) {
-            blob.name = metadata.name
-            setFiles((fs) => [...fs, blob])
+      const filesRef = ref(
+        storage,
+        `profiles/${profile.id}`
+      )
+      try {
+        const res = await listAll(filesRef)
+        for (let r of res.items) {
+          const url = await getDownloadURL(r)
+          const metadata = await getMetadata(r)
+          const xhr = new XMLHttpRequest()
+          xhr.responseType = 'blob'
+          xhr.onload = () => {
+            const blob = xhr.response
+            if (xhr.status == 200) {
+              blob.name = metadata.name
+              setFiles((fs) => [...fs, blob])
+            }
           }
+          xhr.open('GET', url)
+          xhr.send()
         }
-        xhr.open('GET', url)
-        xhr.send()
+      } catch (e) {
+        console.error(e)
       }
-    } catch (e) {
-      console.error(e)
     }
-  }, [''])
+
+    loadProfileData()
+  }, [profile.id])
 
   useEffect(() => {}, [status])
 
-  const [project_spring] = useSpring(() => ({
-    opacity: 1,
-    transform: 'translateX(0)',
-    from: {
-      opacity: 0,
-      transform: 'translateX(150px)',
-    },
-    config: config.slow,
-  }))
-
-  function checkForLongFields(fields) {
-    if (
-      fields
-        .slice(0, 3)
-        .includes('Mechanical Engineering') ||
-      fields
-        .slice(0, 3)
-        .includes('Electrical Engineering') ||
-      fields.slice(0, 3).includes('Environmental Science')
-    ) {
-      return 2
-    } else return 3
-  }
-
-  const projectsComponent = projects.map((project) => {
-    return (
-      <Link
-        key={project.id}
-        href={`/project/${project.id}`}
-      >
-        <animated.a
-          style={project_spring}
-          className="z-50 mt-6 flex cursor-pointer items-center overflow-hidden rounded-lg bg-white p-4 shadow md:mt-8"
-        >
-          <div className="relative h-full max-h-[100px] max-w-[100px] overflow-hidden rounded-lg md:max-h-[200px] md:max-w-[200px]">
-            <img
-              src={
-                project.project_photo
-                  ? project.project_photo
-                  : ''
-              }
-              className="rounded-lg object-cover"
-              alt=""
-            ></img>
-          </div>
-          <div className="ml-4 w-3/4 lg:w-11/12">
-            {project.member_arr && (
-              <div className="mb-3 flex flex-row items-center">
-                <div className="flex -space-x-2 overflow-hidden">
-                  {project.member_arr.map(
-                    (member, index) => {
-                      return (
-                        <div
-                          key={index}
-                          className="inline-block h-6 w-6 rounded-full ring-2 ring-white lg:h-8 lg:w-8"
-                        >
-                          <ProfilePhoto
-                            uid={member.uid}
-                          ></ProfilePhoto>
-                        </div>
-                      )
-                    }
-                  )}
-                </div>
-                <p className="ml-2">
-                  By{' '}
-                  {project.member_arr.map((member) => {
-                    return member.display + ' '
-                  })}
-                </p>
-              </div>
-            )}
-            <h3 className="mb-2 text-base font-semibold line-clamp-2 md:text-xl lg:text-2xl">
-              {project.title}
-            </h3>
-            <p className="mb-4 hidden line-clamp-none md:block md:line-clamp-2 lg:line-clamp-3">
-              {project.abstract}
-            </p>
-            <div className="hidden flex-row lg:flex">
-              {project.fields.map((field, index) => {
-                if (
-                  index < checkForLongFields(project.fields)
-                )
-                  return (
-                    <p
-                      key={index}
-                      className="z-30 mr-2 mb-2 whitespace-nowrap rounded-full bg-gray-100 py-1.5 px-3 text-xs shadow"
-                    >
-                      {getTranslatedFieldsDict(t)[field]}
-                    </p>
-                  )
-              })}
-              {project.fields.length >= 3 && (
-                <p className="mt-1.5 hidden whitespace-nowrap text-xs text-gray-600 lg:flex">
-                  +{' '}
-                  {project.fields.length -
-                    checkForLongFields(project.fields)}{' '}
-                  more field
-                  {project.fields.length -
-                    checkForLongFields(project.fields) ==
-                  1
-                    ? ''
-                    : 's'}
-                </p>
-              )}
-            </div>
-          </div>
-        </animated.a>
-      </Link>
-    )
-  })
+  const projectsComponent = projects.map((project) => (
+    <div key={project.id} className="mt-6 md:mt-8">
+      <ProjectCard
+        project={project}
+        showMemberLinks={false}
+      />
+    </div>
+  ))
 
   return (
     <>
       <Head>
-        <title>
-          {profile.display}&apos;s Profile | SciTeens
-        </title>
+        <title>{`${profile.display}'s Profile | SciTeens`}</title>
         <link rel="icon" href="/favicon.ico" />
         <meta
           name="description"
@@ -244,7 +145,7 @@ function Project({ profile }) {
           content="Check out "
         />
       </Head>
-      <div className="mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+      <div className="text-foreground mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         <div>
           <div className="m-0 flex flex-row justify-between p-0 leading-none">
             <div className="mb-8 flex flex-row items-center">
@@ -257,7 +158,7 @@ function Project({ profile }) {
                 <h1 className="text-3xl">
                   {profile.display}
                 </h1>
-                <p className="text-base text-gray-500">
+                <p className="text-muted-foreground text-base">
                   {profile.mentor ? 'Educator' : 'Student'}
                 </p>
               </div>
@@ -268,10 +169,9 @@ function Project({ profile }) {
                 router.query?.slug && (
                 <Link
                   href={`/profile/${router?.query?.slug}/edit`}
+                  className="border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark h-1/3 cursor-pointer rounded-lg border-2 px-6 py-1.5 text-center text-xl font-semibold shadow-sm"
                 >
-                  <div className="h-1/3 cursor-pointer rounded-full border-2 border-sciteensLightGreen-regular py-1.5 px-6 text-center text-xl font-semibold text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark">
-                    Edit
-                  </div>
+                  Edit
                 </Link>
               )}
           </div>
@@ -284,9 +184,6 @@ function Project({ profile }) {
           <p></p>
           <hr className="py-1" />
         </div>
-        {/* <div>
-                <img src={profile.image ? profile.image : 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fgetwallpapers.com%2Fwallpaper%2Ffull%2F3%2F7%2F2%2F538871.jpg&f=1&nofb=1'} className="w-full mt-0 object-contain" />
-            </div> */}
       </div>
 
       {/* About */}
@@ -294,7 +191,7 @@ function Project({ profile }) {
         <h2 className="mb-2 text-lg font-semibold md:text-2xl">
           About
         </h2>
-        <p className="text-gray-500">
+        <p className="text-muted-foreground">
           {profile.about == ''
             ? "This user hasn't written about themselves yet"
             : profile.about}
@@ -309,7 +206,7 @@ function Project({ profile }) {
         {projects?.length != 0 ? (
           projectsComponent
         ) : (
-          <p className="text-gray-500">
+          <p className="text-muted-foreground">
             This user hasn&apos;t created any projects yet
           </p>
         )}
@@ -354,22 +251,36 @@ export async function getServerSideProps({
     limit(1)
   )
   const profileRes = await getDocs(profileQuery)
-  if (!profileRes.empty) {
-    let profile
-    profileRes.forEach((p) => {
-      if (p.exists) {
-        profile = {
-          ...p.data(),
-          id: p.id,
-        }
+  let profile
+
+  profileRes.forEach((p) => {
+    if (p.exists()) {
+      profile = {
+        ...p.data(),
+        id: p.id,
       }
-    })
-    return { props: { profile: profile, ...translations } }
-  } else {
+    }
+  })
+
+  if (!profile) {
+    const profileDoc = await getDoc(
+      doc(firestore, 'profiles', query.slug)
+    )
+    if (profileDoc.exists()) {
+      profile = {
+        ...profileDoc.data(),
+        id: profileDoc.id,
+      }
+    }
+  }
+
+  if (!profile) {
     return {
       notFound: true,
     }
   }
+
+  return { props: { profile: profile, ...translations } }
 }
 
 export default Project

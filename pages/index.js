@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import Image from 'next/image'
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import {
@@ -7,8 +8,11 @@ import {
   animated,
   config,
 } from '@react-spring/web'
+import { Globe, GraduationCap, Code2 } from 'lucide-react'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
+
+const AnimatedImage = animated(Image)
 
 export default function Home() {
   const deskRendered = useRef(false)
@@ -89,7 +93,7 @@ export default function Home() {
           }
         })
       },
-      { threshold: 1 }
+      { threshold: 0.15, rootMargin: '0px 0px -10% 0px' }
     )
 
     observedSections.forEach(({ element }) => {
@@ -118,24 +122,32 @@ export default function Home() {
 
   const partners_arr = [
     {
-      src: '../assets/logos/Google_fullsize.png',
+      src: '/assets/logos/Google_fullsize.png',
       alt: 'Google',
       link: 'https://www.google.com/nonprofits/',
+      width: 625,
+      height: 212,
     },
     {
-      src: '../assets/logos/MIT.png',
+      src: '/assets/logos/MIT.png',
       alt: 'MIT',
       link: 'https://innovation.mit.edu/opportunity/mit-ideas-global-challenge/',
+      width: 1280,
+      height: 662,
     },
     {
-      src: '../assets/logos/FSU.png',
+      src: '/assets/logos/FSU.png',
       alt: 'FSU',
       link: 'https://www.bio.fsu.edu/ysp/',
+      width: 470,
+      height: 512,
     },
     {
-      src: '../assets/logos/Yale.png',
+      src: '/assets/logos/Yale.png',
       alt: 'Yale',
       link: 'https://city.yale.edu/',
+      width: 300,
+      height: 130,
     },
   ]
   const partnersTrail = useTrail(partners_arr.length, {
@@ -183,19 +195,19 @@ export default function Home() {
       body: 'Working with students across the world with SciTeens was amazing... I am super grateful that I was able to experience it.',
       name: 'David L.',
       country: 'United States',
-      image: './assets/zondicons/globe.svg',
+      icon: Globe,
     },
     {
       body: 'I want to first thank the members and founders of SciTeens for bringing such a wonderful and amazing opportunity we are having.I would love to thank all the mentors who were taking most of their time mentoring us as well helping us coming up with best projects.',
       name: 'Elisha M.',
       country: 'Zimbabwe',
-      image: './assets/zondicons/education.svg',
+      icon: GraduationCap,
     },
     {
       body: 'Because of the coding boot camp I did with SciTeens, I was able to find my passion for coding and further expand my knowledge in the STEM field.',
       name: 'Melissa R.',
       country: 'United States',
-      image: './assets/zondicons/code.svg',
+      icon: Code2,
     },
   ]
   const testimonialsTrail = useTrail(
@@ -301,42 +313,43 @@ export default function Home() {
               🧪
               {t('index.science_simplified')}
             </h1>
-            <p className="mt-4 mb-8 text-sm md:text-2xl">
+            <p className="mb-8 mt-4 text-sm md:text-2xl">
               {t('index.share_work')}
             </p>
             <div>
-              <Link href="/signup">
-                <a className="mr-2 rounded-lg bg-sciteensLightGreen-regular p-3 text-base text-white shadow-md hover:bg-sciteensLightGreen-dark md:p-4 md:text-xl">
-                  {t('index.get_started')}
-                </a>
+              <Link
+                href="/signup"
+                className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark mr-2 rounded-lg p-3 text-base text-white shadow-md md:p-4 md:text-xl"
+              >
+                {t('index.get_started')}
               </Link>
-              <Link href="/about">
-                <a className="ml-2 p-4 text-base text-gray-700 hover:underline active:bg-green-700 md:text-xl">
-                  About
-                </a>
+              <Link
+                href="/about"
+                className="ml-2 p-4 text-base text-gray-700 hover:underline active:bg-green-700 md:text-xl"
+              >
+                About
               </Link>
             </div>
           </animated.div>
           <div
             id="canvas-container"
-            className="absolute right-10 left-10 top-28 grid h-full grid-cols-1 grid-rows-1 items-center md:right-24 md:left-24 lg:right-16 lg:left-auto lg:top-0 lg:w-[35%] xl:w-[45%]"
+            className="absolute left-10 right-10 top-28 grid h-full grid-cols-1 grid-rows-1 items-center md:left-24 md:right-24 lg:left-auto lg:right-16 lg:top-0 lg:w-[35%] xl:w-[45%]"
           >
             <div
               id="loading-screen"
-              className="absolute z-10 bg-backgroundGreen transition-all duration-300"
+              className="bg-backgroundGreen absolute z-10 transition-all duration-300"
             >
-              <img
-                src={'./assets/desktop-preview.png'}
+              <Image
+                src="/assets/desktop-preview.png"
                 alt=""
-                width="759"
-                height="760"
-                decoding="async"
+                width={759}
+                height={760}
                 className="scale-75"
               />
             </div>
             <div
               id="canvas"
-              className="z-20 scale-75 transition-all duration-[1300ms]"
+              className="duration-1300 z-20 scale-75 transition-all"
             />
           </div>
         </div>
@@ -354,12 +367,12 @@ export default function Home() {
                 href={partners_arr[index].link}
                 className="group py-5 md:py-8"
               >
-                <animated.img
+                <Image
                   src={partners_arr[index].src}
                   alt={partners_arr[index].alt}
-                  loading="lazy"
-                  decoding="async"
-                  className="m-auto h-8 opacity-50 brightness-0 grayscale transition-all duration-300 group-hover:opacity-100 group-hover:brightness-100 group-hover:grayscale-0 md:h-9 lg:h-14"
+                  width={partners_arr[index].width}
+                  height={partners_arr[index].height}
+                  className="m-auto h-8 w-auto opacity-50 brightness-0 grayscale transition-all duration-300 group-hover:opacity-100 group-hover:brightness-100 group-hover:grayscale-0 md:h-9 lg:h-14"
                 />
               </animated.a>
             )
@@ -370,18 +383,16 @@ export default function Home() {
         <div className="relative mb-28 md:mb-36">
           <div className="mx-5 flex flex-col-reverse md:mx-16 lg:mx-24 lg:flex-row">
             <div className="relative mx-auto mt-6 w-11/12 transition-all lg:mt-0 lg:w-3/5">
-              <animated.img
+              <AnimatedImage
                 style={missionSpring}
                 id="mission_img"
-                src="assets/device_mockup.jpg"
-                width="1277"
-                height="782"
-                loading="lazy"
-                decoding="async"
+                src="/assets/device_mockup.jpg"
+                width={1277}
+                height={782}
                 alt="Computer and phone showing sciteens website"
               />
             </div>
-            <div className="my-auto mx-auto w-5/6 lg:w-2/5">
+            <div className="mx-auto my-auto w-5/6 lg:w-2/5">
               {missionTrail.map((styles, index) => {
                 return index == 0 ? (
                   <animated.h2
@@ -405,7 +416,7 @@ export default function Home() {
           </div>
           <div
             id="mission"
-            className="absolute left-0 top-[40%] h-20"
+            className="absolute left-0 right-0 top-[40%] h-20"
           />
         </div>
 
@@ -419,19 +430,14 @@ export default function Home() {
           </animated.h2>
           <div className="relative z-10 mx-5 flex flex-col items-center justify-between md:mx-16 md:flex-row md:items-stretch lg:mx-24">
             {testimonialsTrail.map((styles, index) => {
+              const Icon = testimonials_arr[index].icon
               return (
                 <animated.div
                   key={index}
                   style={styles}
-                  className="w-auto rounded-lg bg-white p-5 shadow first-of-type:mb-5 last-of-type:hidden md:w-[45%] md:first-of-type:mb-0 lg:w-[30%] lg:first-of-type:mb-8 lg:last-of-type:mb-8 lg:last-of-type:block"
+                  className="border-border/60 bg-card w-auto rounded-xl border p-5 shadow-sm first-of-type:mb-5 last-of-type:hidden md:w-[45%] md:first-of-type:mb-0 lg:w-[30%] lg:first-of-type:mb-8 lg:last-of-type:mb-8 lg:last-of-type:block"
                 >
-                  <animated.img
-                    src={testimonials_arr[index].image}
-                    className="mb-6 h-10"
-                    loading="lazy"
-                    decoding="async"
-                    alt=""
-                  />
+                  <Icon className="text-sciteensGreen-regular mb-6 h-10 w-10" />
                   <animated.p className="mb-4 text-sm lg:text-base">
                     {testimonials_arr[index].body}
                   </animated.p>
@@ -474,7 +480,7 @@ export default function Home() {
               fill="#2d8a5b"
             />
           </svg>
-          <div className="bg-sciteensGreen-regular px-0 pt-32 pb-10 text-center text-white md:px-24">
+          <div className="bg-sciteensGreen-regular px-0 pb-10 pt-32 text-center text-white md:px-24">
             <animated.div
               style={testimonialsStatsSpring}
               className="flex flex-row justify-evenly md:justify-between "
@@ -534,7 +540,7 @@ export default function Home() {
           </svg>
           <div
             id="testimonials"
-            className="absolute left-0 top-[38%] h-20"
+            className="absolute left-0 right-0 top-[38%] h-20"
           />
         </div>
 
@@ -550,20 +556,18 @@ export default function Home() {
             <animated.a
               style={mediaSpring1}
               href="https://www.neonscience.org/impact/observatory-blog/sciteens-data-science-and-ecology-gen-z"
-              className="group col-span-1 row-span-1 mr-0 mb-4 overflow-hidden rounded-lg bg-white shadow lg:row-span-2 lg:mr-4 lg:mb-0"
+              className="border-border/60 group col-span-1 row-span-1 mb-4 mr-0 overflow-hidden rounded-xl border bg-white shadow-sm lg:row-span-2 lg:mb-0 lg:mr-4"
               target="_blank"
               rel="noopener noreferrer"
             >
               <div className="flex h-full flex-col md:flex-row lg:flex-col">
                 <div className="relative h-full w-full overflow-hidden md:w-1/2 lg:w-auto">
-                  <img
-                    src={'./assets/featured_media/neon.jpg'}
+                  <Image
+                    src="/assets/featured_media/neon.jpg"
                     alt="NSF Neon Logo"
-                    width="1032"
-                    height="698"
-                    loading="lazy"
-                    decoding="async"
-                    className="absolute top-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                    fill
+                    sizes="(min-width: 1024px) 50vw, 100vw"
+                    className="object-cover transition duration-700 group-hover:scale-105"
                   />
                 </div>
                 <div className="z-10 w-full bg-white p-4 md:w-1/2 md:p-10 lg:w-auto">
@@ -579,22 +583,18 @@ export default function Home() {
             <animated.a
               style={mediaSpring2}
               href="https://news.mit.edu/2019/ideas-challenge-social-ventures-0430"
-              className="group  col-span-1 row-span-1 ml-0 mb-4 mt-4 overflow-hidden rounded-lg bg-white shadow lg:ml-4 lg:mt-0"
+              className="border-border/60 group col-span-1 row-span-1 mb-4 ml-0 mt-4 overflow-hidden rounded-xl border bg-white shadow-sm lg:ml-4 lg:mt-0"
               target="_blank"
               rel="noopener noreferrer"
             >
               <div className="flex h-full flex-col md:flex-row">
                 <div className="relative h-full w-full md:w-1/2">
-                  <img
-                    src={
-                      './assets/featured_media/ideas.jpg'
-                    }
+                  <Image
+                    src="/assets/featured_media/ideas.jpg"
                     alt=""
-                    width="600"
-                    height="400"
-                    loading="lazy"
-                    decoding="async"
-                    className="absolute top-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                    fill
+                    sizes="(min-width: 1024px) 50vw, 100vw"
+                    className="object-cover transition duration-700 group-hover:scale-105"
                   />
                 </div>
                 <div className="z-10 w-full bg-white p-4 md:w-1/2 md:p-10">
@@ -610,20 +610,18 @@ export default function Home() {
             <animated.a
               style={mediaSpring3}
               href="https://news.fsu.edu/multimedia/radio/2020/08/03/young-scholars-online-program-turns-students-into-scientists/"
-              className="group col-span-1 row-span-1 ml-0 mt-4 h-72 overflow-hidden rounded-lg bg-white shadow md:h-auto lg:ml-4"
+              className="border-border/60 group col-span-1 row-span-1 ml-0 mt-4 h-72 overflow-hidden rounded-xl border bg-white shadow-sm md:h-auto lg:ml-4"
               target="_blank"
               rel="noopener noreferrer"
             >
               <div className="flex h-full flex-col md:flex-row lg:flex-row-reverse">
                 <div className="relative h-full w-full md:w-1/2">
-                  <img
-                    src={'./assets/featured_media/ysp.jpg'}
+                  <Image
+                    src="/assets/featured_media/ysp.jpg"
                     alt=""
-                    width="600"
-                    height="400"
-                    loading="lazy"
-                    decoding="async"
-                    className="absolute top-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                    fill
+                    sizes="(min-width: 1024px) 50vw, 100vw"
+                    className="object-cover transition duration-700 group-hover:scale-105"
                   />
                 </div>
                 <div className="z-10 w-full bg-white p-4 md:w-1/2 md:p-10">
@@ -639,7 +637,7 @@ export default function Home() {
           </div>
           <div
             id="media"
-            className="absolute left-0 top-[40%] h-20"
+            className="absolute left-0 right-0 top-[40%] h-20"
           />
         </div>
       </div>

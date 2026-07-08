@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import {
-  useSpring,
+  useTrail,
   animated,
   config,
 } from '@react-spring/web'
@@ -11,7 +11,7 @@ import Head from 'next/head'
 export default function GetInvolved() {
   const { t } = useTranslation('common')
   // REACT SPRING ANIMATIONS
-  const get_involved_spring = useSpring({
+  const cardsTrail = useTrail(3, {
     transform: 'scale(1)',
     from: {
       transform: 'scale(0)',
@@ -46,8 +46,8 @@ export default function GetInvolved() {
           </h1>
           <div className="flex flex-col">
             <animated.div
-              style={get_involved_spring}
-              className="relative mr-0 mb-10 overflow-hidden rounded-lg bg-white p-12 shadow-md md:mr-8 md:mb-8"
+              style={cardsTrail[0]}
+              className="border-border/60 bg-card relative mb-10 mr-0 overflow-hidden rounded-xl border p-12 shadow-md md:mb-8 md:mr-8"
             >
               <h2 className="mb-3 text-2xl font-semibold md:text-3xl">
                 {t('get_involved.students')}
@@ -57,19 +57,20 @@ export default function GetInvolved() {
                 <a
                   href="mailto:opportunities@sciteens.com"
                   target="_blank"
-                  className="text-blue-700"
+                  className="text-sciteensGreen-regular hover:text-sciteensGreen-dark font-semibold"
                   rel="noreferrer"
                 >
                   &nbsp;opportunities@sciteens.com.&nbsp;
                 </a>
               </p>
-              <Link href="/signup/student">
-                <a className="mb-4 rounded-lg bg-sciteensLightGreen-regular p-2 text-center text-white shadow-md hover:bg-sciteensLightGreen-dark">
-                  {t('get_involved.student_sign_up')}
-                </a>
+              <Link
+                href="/signup/student"
+                className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark mb-4 rounded-lg p-2 text-center text-white shadow-md"
+              >
+                {t('get_involved.student_sign_up')}
               </Link>
               <svg
-                className="absolute -top-8 -left-8 h-2/3 -rotate-12 transform opacity-5"
+                className="absolute -left-8 -top-8 h-2/3 -rotate-12 transform opacity-5"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
               >
@@ -78,8 +79,8 @@ export default function GetInvolved() {
             </animated.div>
 
             <animated.div
-              style={get_involved_spring}
-              className="relative mr-0 mb-10 overflow-hidden rounded-lg bg-white p-12 shadow-md md:mr-8 md:mt-8"
+              style={cardsTrail[1]}
+              className="border-border/60 bg-card relative mb-10 mr-0 overflow-hidden rounded-xl border p-12 shadow-md md:mr-8 md:mt-8"
             >
               <h2 className="mb-3 mr-6 text-2xl font-semibold md:text-3xl">
                 {t('get_involved.outreach')}
@@ -89,7 +90,7 @@ export default function GetInvolved() {
                 <a
                   href="mailto:support@sciteens.com"
                   target="_blank"
-                  className="text-blue-700"
+                  className="text-sciteensGreen-regular hover:text-sciteensGreen-dark font-semibold"
                   rel="noreferrer"
                 >
                   &nbsp;opportunities@sciteens.com.&nbsp;
@@ -98,13 +99,13 @@ export default function GetInvolved() {
               <a
                 href="mailto:support@sciteens.com"
                 target="_blank"
-                className="rounded-lg bg-sciteensLightGreen-regular p-2 text-center text-white shadow-md hover:bg-sciteensLightGreen-dark"
+                className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark rounded-lg p-2 text-center text-white shadow-md"
                 rel="noreferrer"
               >
                 {t('get_involved.contact_us')}
               </a>
               <svg
-                className="absolute -top-8 -left-8 h-2/3 -rotate-12 transform opacity-5"
+                className="absolute -left-8 -top-8 h-2/3 -rotate-12 transform opacity-5"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
               >
@@ -113,8 +114,8 @@ export default function GetInvolved() {
             </animated.div>
 
             <animated.div
-              style={get_involved_spring}
-              className="relative ml-0 mb-10 overflow-hidden rounded-lg bg-white p-12 shadow-md md:ml-8 md:mt-8"
+              style={cardsTrail[2]}
+              className="border-border/60 bg-card relative mb-10 ml-0 overflow-hidden rounded-xl border p-12 shadow-md md:ml-8 md:mt-8"
             >
               <h2 className="mb-3 text-2xl font-semibold md:text-3xl">
                 {t('get_involved.funding')}
@@ -124,7 +125,7 @@ export default function GetInvolved() {
                 <a
                   href="mailto:support@sciteens.com"
                   target="_blank"
-                  className="text-blue-700"
+                  className="text-sciteensGreen-regular hover:text-sciteensGreen-dark font-semibold"
                   rel="noreferrer"
                 >
                   &nbsp;opportunities@sciteens.com.&nbsp;
@@ -134,13 +135,13 @@ export default function GetInvolved() {
               <a
                 href="https://www.paypal.com/donate?hosted_button_id=7B8QACYV83ACA"
                 target="_blank"
-                className="mr-2 rounded-lg bg-blue-500 p-2 text-white shadow-md hover:bg-blue-600"
+                className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark mr-2 rounded-lg p-2 text-white shadow-md"
                 rel="noreferrer"
               >
                 {t('get_involved.donate_now')}
               </a>
               <svg
-                className="absolute -top-8 -left-8 h-2/3 -rotate-12 transform opacity-5"
+                className="absolute -left-8 -top-8 h-2/3 -rotate-12 transform opacity-5"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
               >

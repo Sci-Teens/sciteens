@@ -4,6 +4,7 @@ import {
   useEffect,
   useContext,
 } from 'react'
+import LoadingSpinner from '../../components/LoadingSpinner'
 
 import Head from 'next/head'
 import Error from 'next/error'
@@ -12,10 +13,10 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
 import {
-  useFirestore,
-  useSigninCheck,
-  useStorage,
-} from 'reactfire'
+  db as firestore,
+  storage,
+} from '../../lib/firebase'
+import { useSigninCheck } from '../../context/AuthContext'
 import {
   collection,
   query,
@@ -41,25 +42,36 @@ import debounce from 'lodash.debounce'
 import moment from 'moment'
 import { useDropzone } from 'react-dropzone'
 import {
-  getTranslatedFieldsDict,
+  getProjectFieldOptions,
   sanitizeFileName,
 } from '../../context/helpers'
 import { AppContext } from '../../context/context'
 import File from '../../components/File'
 
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field'
+
 export default function CreateProject() {
   const { t } = useTranslation('common')
   const [loading, setLoading] = useState(false)
-  const [title, setTitle] = useState('')
-  const [start_date, setStartDate] = useState('')
-  const [end_date, setEndDate] = useState('')
-  const [abstract, setAbstract] = useState('')
   const [member, setMember] = useState('')
   const [members, setMembers] = useState([])
   const [select_photo_mode, setMode] = useState(false)
   const [field_values, setFieldValues] = useState(
     new Array(
-      Object.keys(getTranslatedFieldsDict(t)).length
+      Object.keys(getProjectFieldOptions(t)).length
     ).fill(false)
   )
 
@@ -81,19 +93,12 @@ export default function CreateProject() {
   ])
   const [files, setFiles] = useState([])
   const [project_photo, setProjectPhoto] = useState('')
-
-  const [error_title, setErrorTitle] = useState('')
-  const [error_start_date, setErrorStartDate] = useState('')
-  const [error_end_date, setErrorEndDate] = useState('')
-  const [error_abstract, setErrorAbstract] = useState('')
   const [error_member, setErrorMember] = useState('')
   const [error_file, setErrorFile] = useState('')
 
   const { profile } = useContext(AppContext)
   const { status, data: signInCheckResult } =
     useSigninCheck()
-  const firestore = useFirestore()
-  const storage = useStorage()
 
   const router = useRouter()
 
@@ -109,27 +114,66 @@ export default function CreateProject() {
     }
   })
 
-  const createProject = async (e) => {
-    e.preventDefault()
+  const schema = z
+    .object({
+      title: z
+        .string()
+        .min(1, t('project_create_edit.error_title')),
+      start_date: z
+        .string()
+        .min(1, t('project_create_edit.error_start_date')),
+      end_date: z
+        .string()
+        .min(1, t('project_create_edit.error_end_date')),
+      abstract: z
+        .string()
+        .min(1, t('project_create_edit.error_abstract')),
+    })
+    .superRefine((data, ctx) => {
+      if (
+        data.start_date &&
+        data.end_date &&
+        data.start_date >= data.end_date
+      ) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['end_date'],
+          message: t('project_create_edit.error_dates'),
+        })
+      }
+    })
+
+  const form = useForm({
+    resolver: zodResolver(schema),
+    mode: 'onChange',
+    defaultValues: {
+      title: '',
+      start_date: '',
+      end_date: '',
+      abstract: '',
+    },
+  })
+
+  const onSubmit = async (values) => {
     setLoading(true)
     try {
       const res = await addDoc(
         collection(firestore, 'projects'),
         {
-          title: title.trim(),
-          start: start_date
-            ? moment(start_date).toISOString()
+          title: values.title.trim(),
+          start: values.start_date
+            ? moment(values.start_date).toISOString()
             : moment().toISOString(),
-          end: end_date
-            ? moment(end_date).toISOString()
+          end: values.end_date
+            ? moment(values.end_date).toISOString()
             : '',
-          abstract: abstract.trim(),
+          abstract: values.abstract.trim(),
           need_mentor: false,
           links: [],
           date: moment().toISOString(),
           subscribers: [],
           fields: Object.keys(
-            getTranslatedFieldsDict(t)
+            getProjectFieldOptions(t)
           ).filter((item, i) => field_values[i]),
           member_uids: [signInCheckResult.user.uid],
           member_arr: [
@@ -145,7 +189,7 @@ export default function CreateProject() {
         doc(firestore, 'project-invites', res.id),
         {
           emails: members,
-          title: title.trim(),
+          title: values.title.trim(),
         }
       )
       for (const f of files) {
@@ -170,9 +214,9 @@ export default function CreateProject() {
       router.push(`/project/${res.id}`)
       setLoading(false)
     } catch (error) {
-      setErrorTitle(
-        t('project_create_edit.could_not_create')
-      )
+      form.setError('title', {
+        message: t('project_create_edit.could_not_create'),
+      })
       console.error(error)
       setLoading(false)
     }
@@ -204,7 +248,6 @@ export default function CreateProject() {
         )
       } else {
         reader.readAsDataURL(f)
-        console.log(f)
         setFiles((oldfiles) => [
           ...new Set([...oldfiles, f]),
         ])
@@ -217,58 +260,6 @@ export default function CreateProject() {
 
   async function onChange(e, target) {
     switch (target) {
-      case 'title':
-        setTitle(e.target.value)
-        if (e.target.value.trim() == '') {
-          setErrorTitle(
-            t('project_create_edit.error_title')
-          )
-        } else {
-          setErrorTitle('')
-        }
-        break
-
-      case 'start_date':
-        console.log(e.target.value)
-        setStartDate(e.target.value)
-        if (e.target.value == '') {
-          setErrorStartDate(
-            t('project_create_edit.error_start_date')
-          )
-        } else {
-          setErrorStartDate('')
-        }
-        break
-
-      case 'end_date':
-        setEndDate(e.target.value)
-        if (e.target.value == '') {
-          setErrorEndDate(
-            t('project_create_edit.error_end_date')
-          )
-        } else if (
-          start_date != '' &&
-          start_date >= e.target.value
-        ) {
-          setErrorEndDate(
-            t('project_create_edit.error_dates')
-          )
-        } else {
-          setErrorEndDate('')
-        }
-        break
-
-      case 'abstract':
-        setAbstract(e.target.value)
-        if (e.target.value == '') {
-          setErrorAbstract(
-            t('project_create_edit.error_abstract')
-          )
-        } else {
-          setErrorAbstract('')
-        }
-        break
-
       case 'member':
         setMember(e.target.value)
         if (!isEmail(e.target.value)) {
@@ -280,16 +271,6 @@ export default function CreateProject() {
           validateEmail(e.target.value)
         }
         break
-
-      case 'fields': {
-        const id = e.target.id
-        const index = Object.keys(
-          getTranslatedFieldsDict(t)
-        ).indexOf(id)
-        let temp = [...field_values]
-        temp[index] = !temp[index]
-        setFieldValues([...temp])
-      }
     }
   }
 
@@ -305,7 +286,6 @@ export default function CreateProject() {
           limit(3)
         )
         const res = await getDocs(q)
-        console.log(res)
         if (res.empty) {
           setErrorMember(
             t('project_create_edit.could_not_find_email')
@@ -354,344 +334,344 @@ export default function CreateProject() {
     setMode(false)
   }
 
+  const toggleField = (key) => {
+    const index = Object.keys(
+      getProjectFieldOptions(t)
+    ).indexOf(key)
+    let temp = [...field_values]
+    temp[index] = !temp[index]
+    setFieldValues([...temp])
+  }
+
   if (status == 'success' && signInCheckResult.signedIn) {
     return (
       <>
         <Head></Head>
         <main>
-          <div className="relative z-30 mx-auto mt-8 mb-24 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
+          <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow-sm md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
             <h1 className="mb-2 text-center text-3xl font-semibold">
               {t('project_create_edit.create_project')}
             </h1>
             <p className="mb-6 text-center text-gray-700">
               {t('project_create_edit.why_create_project')}
             </p>
-            <form onSubmit={(e) => createProject(e)}>
-              <label
-                htmlFor="title"
-                className="uppercase text-gray-600"
-              >
-                {t('project_create_edit.title')}
-              </label>
-              <input
-                onChange={(e) => onChange(e, 'title')}
-                value={title}
-                name="title"
-                required
-                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
-                  error_title
-                    ? 'border-red-700 text-red-800 placeholder-red-700'
-                    : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
-                }`}
-                type="text"
-                aria-label="title"
-                maxLength="100"
-              />
-              <p className="mb-4 text-sm text-red-800">
-                {error_title}
-              </p>
-
-              <label
-                htmlFor="start-date"
-                className="uppercase text-gray-600"
-              >
-                {t('project_create_edit.start_date')}
-              </label>
-              <input
-                required
-                onChange={(e) => onChange(e, 'start_date')}
-                value={start_date}
-                type="date"
-                id="start-date"
-                name="start-date"
-                placeholder="Not Required..."
-                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
-                  error_start_date
-                    ? 'border-red-700 text-red-800 placeholder-red-700'
-                    : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
-                }`}
-              />
-              <p
-                className={`mb-4 text-sm ${
-                  error_start_date
-                    ? 'text-red-800'
-                    : 'text-gray-700'
-                }`}
-              >
-                {error_start_date}
-              </p>
-
-              <label
-                htmlFor="end-date"
-                className="uppercase text-gray-600"
-              >
-                {t('project_create_edit.end_date')}
-              </label>
-              <input
-                required
-                onChange={(e) => onChange(e, 'end_date')}
-                value={end_date}
-                type="date"
-                id="end-date"
-                name="end-date"
-                placeholder="Not Required..."
-                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
-                  error_end_date
-                    ? 'border-red-700 text-red-800 placeholder-red-700'
-                    : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
-                }`}
-              />
-              <p
-                className={`mb-4 text-sm ${
-                  error_end_date
-                    ? 'text-red-800'
-                    : 'text-gray-700'
-                }`}
-              >
-                {error_end_date}
-              </p>
-
-              <label
-                htmlFor="abstract"
-                className="uppercase text-gray-600"
-              >
-                {t('project_create_edit.summary')}
-              </label>
-              <textarea
-                onChange={(e) => onChange(e, 'abstract')}
-                value={abstract}
-                name="abstract"
-                required
-                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
-                  error_abstract
-                    ? 'border-red-700 text-red-800 placeholder-red-700'
-                    : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
-                }`}
-                type="textarea"
-                aria-label="summary"
-                maxLength="1000"
-              />
-              <p className="mb-4 text-sm text-red-800">
-                {error_abstract}
-              </p>
-
-              <label
-                htmlFor="member"
-                className="uppercase text-gray-600"
-              >
-                {t('project_create_edit.add_members')}
-              </label>
-              <input
-                onChange={(e) => onChange(e, 'member')}
-                value={member}
-                name="member"
-                required
-                className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
-                  error_member
-                    ? 'border-red-700 text-red-800 placeholder-red-700'
-                    : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
-                }`}
-                type="email"
-                aria-label="title"
-                maxLength="100"
-              />
-              <p className="mb-4 text-sm text-red-800">
-                {error_member}
-              </p>
-              {members.map((m, index) => (
-                <p key={index} className="p-2">
-                  <button
-                    name={index}
-                    className="mr-2 h-3 w-3 fill-current hover:text-red-900"
-                    onClick={(e) => removeMember(e)}
-                  >
-                    <svg
-                      name={index}
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
+            <form
+              noValidate
+              onSubmit={form.handleSubmit(onSubmit)}
+            >
+              <FieldGroup>
+                <Controller
+                  name="title"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field
+                      data-invalid={fieldState.invalid}
                     >
-                      <path d="M10 8.586L2.929 1.515 1.515 2.929 8.586 10l-7.071 7.071 1.414 1.414L10 11.414l7.071 7.071 1.414-1.414L11.414 10l7.071-7.071-1.414-1.414L10 8.586z" />
-                    </svg>
-                  </button>
-                  {m}
-                </p>
-              ))}
+                      <FieldLabel htmlFor="title">
+                        {t('project_create_edit.title')}
+                      </FieldLabel>
+                      <Input
+                        {...field}
+                        id="title"
+                        type="text"
+                        aria-label="title"
+                        maxLength="100"
+                        aria-invalid={fieldState.invalid}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError
+                          errors={[fieldState.error]}
+                        />
+                      )}
+                    </Field>
+                  )}
+                />
 
-              <label
-                htmlFor="fields"
-                className="uppercase text-gray-600"
-              >
-                {t('project_create_edit.fields')}
-              </label>
-
-              {Object.entries(
-                getTranslatedFieldsDict(t)
-              ).map(([key, value], index) => {
-                return (
-                  <div key={key}>
-                    <input
-                      id={key}
-                      className="form-checkbox active:outline-none mr-2 text-sciteensLightGreen-regular"
-                      type="checkbox"
-                      value={field_values[index]}
-                      checked={field_values[index]}
-                      onChange={(e) =>
-                        onChange(e, 'fields')
-                      }
-                    />
-                    <label
-                      htmlFor={key}
-                      className="text-gray-700"
+                <Controller
+                  name="start_date"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field
+                      data-invalid={fieldState.invalid}
                     >
-                      {value}
-                      <br />
-                    </label>
-                  </div>
-                )
-              })}
-              <div className="mb-4"></div>
-              <div
-                {...getRootProps()}
-                className={`h-40 w-full border-2 ${
-                  error_file
-                    ? 'bg-red-200 hover:bg-red-300'
-                    : 'bg-gray-100 hover:bg-gray-200'
-                }  flex items-center justify-center rounded-lg border-dashed border-gray-600 text-center text-gray-700`}
-              >
-                <input {...getInputProps()} />
-                {isDragActive ? (
-                  <p>
-                    {t('project_create_edit.drop_files')}
-                  </p>
-                ) : (
-                  <p>
-                    {t('project_create_edit.drag_files')}
-                  </p>
-                )}
-              </div>
-              <p className="mb-4 text-sm text-red-800">
-                {error_file}
-              </p>
-              {files.length == 0 && (
-                <p className="text-sm">
-                  {t('project_create_edit.suggest_photo')}
-                </p>
-              )}
-              {files.length != 0 && (
-                <div className="mb-6">
-                  {files.length > 1 && (
-                    <p className="mb-2">
-                      {t(
-                        'project_create_edit.multiple_photos'
-                      )}{' '}
-                      <span
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (
-                            e.key === 'Enter' ||
-                            e.key === ' '
-                          ) {
-                            e.preventDefault()
-                            setMode(!select_photo_mode)
-                          }
-                        }}
-                        onClick={() =>
-                          setMode(!select_photo_mode)
-                        }
-                        className="cursor-pointer font-semibold text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark"
-                      >
+                      <FieldLabel htmlFor="start-date">
                         {t(
-                          'project_create_edit.set_display_photo'
+                          'project_create_edit.start_date'
                         )}
-                      </span>
-                      .
+                      </FieldLabel>
+                      <Input
+                        {...field}
+                        id="start-date"
+                        type="date"
+                        placeholder="Not Required..."
+                        aria-invalid={fieldState.invalid}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError
+                          errors={[fieldState.error]}
+                        />
+                      )}
+                    </Field>
+                  )}
+                />
+
+                <Controller
+                  name="end_date"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field
+                      data-invalid={fieldState.invalid}
+                    >
+                      <FieldLabel htmlFor="end-date">
+                        {t('project_create_edit.end_date')}
+                      </FieldLabel>
+                      <Input
+                        {...field}
+                        id="end-date"
+                        type="date"
+                        placeholder="Not Required..."
+                        aria-invalid={fieldState.invalid}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError
+                          errors={[fieldState.error]}
+                        />
+                      )}
+                    </Field>
+                  )}
+                />
+
+                <Controller
+                  name="abstract"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field
+                      data-invalid={fieldState.invalid}
+                    >
+                      <FieldLabel htmlFor="abstract">
+                        {t('project_create_edit.summary')}
+                      </FieldLabel>
+                      <Textarea
+                        {...field}
+                        id="abstract"
+                        rows={5}
+                        aria-label="summary"
+                        maxLength="1000"
+                        aria-invalid={fieldState.invalid}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError
+                          errors={[fieldState.error]}
+                        />
+                      )}
+                    </Field>
+                  )}
+                />
+
+                <Field>
+                  <FieldLabel htmlFor="member">
+                    {t('project_create_edit.add_members')}
+                  </FieldLabel>
+                  <Input
+                    id="member"
+                    name="member"
+                    value={member}
+                    onChange={(e) => onChange(e, 'member')}
+                    type="email"
+                    aria-label="title"
+                    maxLength="100"
+                  />
+                  {error_member && (
+                    <p className="text-sm text-red-800">
+                      {error_member}
                     </p>
                   )}
-                  <label
-                    htmlFor="project_photo"
-                    className="mt-2 uppercase text-gray-600"
-                  >
-                    {t('project_create_edit.display_photo')}
-                  </label>
-                  <File
-                    file={files[0]}
-                    id={files[0].id}
-                    removeFile={removeFile}
-                    setPhoto={setPhoto}
-                  ></File>
-                </div>
-              )}
-              <div className="flex flex-col space-y-3">
-                {files.length > 1 && (
-                  <>
-                    <label
-                      htmlFor="other_photos"
-                      className="mt-2 -mb-3 text-left uppercase text-gray-600"
+                </Field>
+                {members.map((m, index) => (
+                  <p key={index} className="p-2">
+                    <button
+                      name={index}
+                      className="mr-2 h-3 w-3 fill-current hover:text-red-900"
+                      onClick={(e) => removeMember(e)}
                     >
-                      Other Photo
-                      {files.length > 1 ? 's' : ''}
+                      <svg
+                        name={index}
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M10 8.586L2.929 1.515 1.515 2.929 8.586 10l-7.071 7.071 1.414 1.414L10 11.414l7.071 7.071 1.414-1.414L11.414 10l7.071-7.071-1.414-1.414L10 8.586z" />
+                      </svg>
+                    </button>
+                    {m}
+                  </p>
+                ))}
+
+                <label className="uppercase text-gray-600">
+                  {t('project_create_edit.fields')}
+                </label>
+
+                {Object.entries(
+                  getProjectFieldOptions(t)
+                ).map(([key, value], index) => {
+                  return (
+                    <Field
+                      key={key}
+                      orientation="horizontal"
+                    >
+                      <Checkbox
+                        id={key}
+                        checked={field_values[index]}
+                        onCheckedChange={() =>
+                          toggleField(key)
+                        }
+                      />
+                      <FieldLabel
+                        htmlFor={key}
+                        className="font-normal text-gray-700"
+                      >
+                        {value}
+                      </FieldLabel>
+                    </Field>
+                  )
+                })}
+                <div className="mb-4"></div>
+                <div
+                  {...getRootProps()}
+                  className={`h-40 w-full border-2 ${
+                    error_file
+                      ? 'bg-red-200 hover:bg-red-300'
+                      : 'bg-gray-100 hover:bg-gray-200'
+                  }  flex items-center justify-center rounded-lg border-dashed border-gray-600 text-center text-gray-700`}
+                >
+                  <input {...getInputProps()} />
+                  {isDragActive ? (
+                    <p>
+                      {t('project_create_edit.drop_files')}
+                    </p>
+                  ) : (
+                    <p>
+                      {t('project_create_edit.drag_files')}
+                    </p>
+                  )}
+                </div>
+                <p className="mb-4 text-sm text-red-800">
+                  {error_file}
+                </p>
+                {files.length == 0 && (
+                  <p className="text-sm">
+                    {t('project_create_edit.suggest_photo')}
+                  </p>
+                )}
+                {files.length != 0 && (
+                  <div className="mb-6">
+                    {files.length > 1 && (
+                      <p className="mb-2">
+                        {t(
+                          'project_create_edit.multiple_photos'
+                        )}{' '}
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (
+                              e.key === 'Enter' ||
+                              e.key === ' '
+                            ) {
+                              e.preventDefault()
+                              setMode(!select_photo_mode)
+                            }
+                          }}
+                          onClick={() =>
+                            setMode(!select_photo_mode)
+                          }
+                          className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark cursor-pointer font-semibold"
+                        >
+                          {t(
+                            'project_create_edit.set_display_photo'
+                          )}
+                        </span>
+                        .
+                      </p>
+                    )}
+                    <label
+                      htmlFor="project_photo"
+                      className="mt-2 uppercase text-gray-600"
+                    >
+                      {t(
+                        'project_create_edit.display_photo'
+                      )}
                     </label>
-                    {files.map((f, id) => {
-                      if (
-                        (project_photo != '' &&
-                          f.name != project_photo) ||
-                        id > 0
-                      )
-                        return (
-                          <div
-                            key={f.id}
-                            className="flex w-full flex-row"
-                          >
-                            <button
-                              onClick={(e) =>
-                                setPhoto(e, id)
-                              }
-                              className={`rounded-lg border-2 border-sciteensLightGreen-regular font-semibold text-sciteensLightGreen-regular transition-all duration-500 hover:border-sciteensLightGreen-dark hover:bg-gray-50 hover:text-sciteensLightGreen-dark ${
-                                select_photo_mode
-                                  ? 'mr-4 px-3'
-                                  : 'w-0 overflow-hidden border-none'
-                              }`}
-                            >
-                              Select
-                            </button>
-                            <File
-                              file={f}
-                              id={id}
-                              key={f.id}
-                              removeFile={removeFile}
-                              setPhoto={setPhoto}
-                            ></File>
-                          </div>
+                    <File
+                      file={files[0]}
+                      id={files[0].id}
+                      removeFile={removeFile}
+                      setPhoto={setPhoto}
+                    ></File>
+                  </div>
+                )}
+                <div className="flex flex-col space-y-3">
+                  {files.length > 1 && (
+                    <>
+                      <label
+                        htmlFor="other_photos"
+                        className="-mb-3 mt-2 text-left uppercase text-gray-600"
+                      >
+                        Other Photo
+                        {files.length > 1 ? 's' : ''}
+                      </label>
+                      {files.map((f, id) => {
+                        if (
+                          (project_photo != '' &&
+                            f.name != project_photo) ||
+                          id > 0
                         )
-                    })}
-                  </>
-                )}
-              </div>
-              <button
-                type="submit"
-                disabled={
-                  loading ||
-                  error_abstract ||
-                  !abstract ||
-                  error_start_date ||
-                  error_end_date ||
-                  error_file ||
-                  error_title ||
-                  !title
-                }
-                className="outline-none mt-4 w-full rounded-lg bg-sciteensLightGreen-regular p-2 text-lg font-semibold text-white shadow hover:bg-sciteensLightGreen-dark disabled:opacity-50"
-                onClick={(e) => createProject(e)}
-              >
-                {t('project_create_edit.create')}
-                {loading && (
-                  <img
-                    src="/assets/loading.svg"
-                    alt="Loading Spinner"
-                    className="ml-2 inline-block h-5 w-5"
-                  />
-                )}
-              </button>
+                          return (
+                            <div
+                              key={f.id}
+                              className="flex w-full flex-row"
+                            >
+                              <button
+                                onClick={(e) =>
+                                  setPhoto(e, id)
+                                }
+                                className={`border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark rounded-lg border-2 font-semibold transition-all duration-500 hover:bg-gray-50 ${
+                                  select_photo_mode
+                                    ? 'mr-4 px-3'
+                                    : 'w-0 overflow-hidden border-none'
+                                }`}
+                              >
+                                Select
+                              </button>
+                              <File
+                                file={f}
+                                id={id}
+                                key={f.id}
+                                removeFile={removeFile}
+                                setPhoto={setPhoto}
+                              ></File>
+                            </div>
+                          )
+                      })}
+                    </>
+                  )}
+                </div>
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="mt-4 w-full"
+                  disabled={
+                    !form.formState.isValid ||
+                    form.formState.isSubmitting ||
+                    loading ||
+                    error_file
+                  }
+                >
+                  {t('project_create_edit.create')}
+                  {loading && (
+                    <LoadingSpinner className="ml-2" />
+                  )}
+                </Button>
+              </FieldGroup>
             </form>
           </div>
         </main>

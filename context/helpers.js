@@ -109,6 +109,28 @@ export function getTranslatedFieldsDict(t) {
   return FIELD_NAMES
 }
 
+export function getProjectFieldOptions(t) {
+  // Same dict, minus the "All" sentinel — for UIs where a user picks
+  // the field(s) a specific project belongs to (create/edit forms).
+  // "All" only makes sense as a filter option, never as project data.
+  const { All: _all, ...fields } =
+    getTranslatedFieldsDict(t)
+  return fields
+}
+
+export function getFieldLabel(translatedFields, field) {
+  // Legacy project docs store `fields` lowercase; the dict above is
+  // keyed Title Case, so fall back to a case-insensitive match before
+  // giving up and showing the raw stored value.
+  if (!field) return field
+  if (translatedFields[field])
+    return translatedFields[field]
+  const key = Object.keys(translatedFields).find(
+    (k) => k.toLowerCase() === field.toLowerCase()
+  )
+  return key ? translatedFields[key] : field
+}
+
 export function validatePassword(password, t) {
   // Validate a password, with support for translations (t)
   const isWhitespace = /^(?=.*\s)/

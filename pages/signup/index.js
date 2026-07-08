@@ -1,9 +1,11 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
+import { X, CircleHelp } from 'lucide-react'
 
 export default function SignUpIndex() {
   const { t } = useTranslation('common')
@@ -11,8 +13,6 @@ export default function SignUpIndex() {
     useState(false)
 
   const router = useRouter()
-
-  console.log(router)
 
   return (
     <div>
@@ -33,10 +33,12 @@ export default function SignUpIndex() {
           content="/assets/sciteens_initials.jpg"
         />
       </Head>
-      <main className="-mt-8 flex h-screen justify-center">
-        <div className="flex flex-col items-center justify-center text-center">
-          <h1 className="text-4xl">{t('auth.i_am_a')}</h1>
-          <div className="mx-auto">
+      <main className="-mt-8 flex min-h-screen items-center justify-center px-4 py-12">
+        <div className="border-border/60 bg-card mx-auto w-full max-w-md rounded-xl border p-8 text-center shadow-sm sm:p-10">
+          <h1 className="text-3xl font-semibold">
+            {t('auth.i_am_a')}
+          </h1>
+          <div className="mx-auto mt-2 text-gray-700">
             {t('auth.have_account')}&nbsp;
             <Link
               href={
@@ -49,13 +51,12 @@ export default function SignUpIndex() {
                     }
                   : '/signin/student'
               }
+              className="font-bold"
             >
-              <a className="font-bold">
-                {t('auth.sign_in_link')}
-              </a>
+              {t('auth.sign_in_link')}
             </Link>
           </div>
-          <div className="mx-auto flex flex-wrap justify-center">
+          <div className="mx-auto mt-8 flex justify-center">
             <Link
               href={
                 router.query?.ref
@@ -67,68 +68,61 @@ export default function SignUpIndex() {
                     }
                   : '/signup/student'
               }
+              className="border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark flex h-56 w-56 flex-col items-center justify-center rounded-xl border-2 transition-colors"
             >
-              <a className="m-6 h-56 w-56 rounded bg-white shadow hover:shadow-md">
-                {show_student_info ? (
-                  <div className="relative pt-8">
-                    <button
-                      type="button"
-                      className="absolute top-0 right-0 m-2 h-6 w-6"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        setShowStudentInfo(
-                          !show_student_info
-                        )
-                      }}
-                    >
-                      <img
-                        src="/assets/zondicons/close-solid.svg"
-                        alt="Close"
-                        className="h-6 w-6"
-                      />
-                    </button>
-                    <h2 className="mx-2 text-xl text-sciteensGreen-regular">
-                      {t('auth.student_info')}
-                    </h2>
-                  </div>
-                ) : (
-                  <div className="relative">
-                    <button
-                      type="button"
-                      className="absolute top-0 right-0 m-2 h-6 w-6"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        setShowStudentInfo(
-                          !show_student_info
-                        )
-                      }}
-                    >
-                      <img
-                        src="/assets/zondicons/question.svg"
-                        alt="Question"
-                        className="h-6 w-6"
-                      />
-                    </button>
-                    <img
-                      src="/assets/student.svg"
-                      alt="Student Icon"
-                      className="mx-auto h-40 p-4"
-                    />
-                    <h2 className="text-xl text-sciteensGreen-regular">
-                      {t('auth.student')}
-                    </h2>
-                  </div>
-                )}
-              </a>
+              {show_student_info ? (
+                <div className="relative pt-8">
+                  <button
+                    type="button"
+                    aria-label={t('auth.close')}
+                    className="absolute right-0 top-0 m-2 h-6 w-6"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setShowStudentInfo(!show_student_info)
+                    }}
+                  >
+                    <X className="h-6 w-6" />
+                  </button>
+                  <h2 className="text-sciteensGreen-regular mx-2 text-xl">
+                    {t('auth.student_info')}
+                  </h2>
+                </div>
+              ) : (
+                <div className="relative">
+                  <button
+                    type="button"
+                    aria-label={t('auth.more_info')}
+                    className="absolute right-0 top-0 m-2 h-6 w-6"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setShowStudentInfo(!show_student_info)
+                    }}
+                  >
+                    <CircleHelp className="h-6 w-6" />
+                  </button>
+                  <Image
+                    src="/assets/student.svg"
+                    alt="Student Icon"
+                    width={148}
+                    height={160}
+                    unoptimized
+                    className="mx-auto h-40 w-auto p-4"
+                  />
+                  <h2 className="text-sciteensGreen-regular text-xl">
+                    {t('auth.student')}
+                  </h2>
+                </div>
+              )}
             </Link>
           </div>
-          <div className="mb-1/4 mx-auto">
+          <div className="mx-auto mt-8">
             <p className="text-gray-700">
               {t('auth.neither_of_above')}&nbsp;
-              <Link href="/getinvolved">
-                <a className="font-bold">
-                  {t('auth.involved_link')}
-                </a>
+              <Link
+                href="/getinvolved"
+                className="font-bold"
+              >
+                {t('auth.involved_link')}
               </Link>
             </p>
           </div>

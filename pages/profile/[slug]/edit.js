@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useContext,
 } from 'react'
+import LoadingSpinner from '../../../components/LoadingSpinner'
 
 import Error from 'next/error'
 import { useRouter } from 'next/router'
@@ -11,11 +12,11 @@ import Link from 'next/link'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
+import { useSigninCheck } from '../../../context/AuthContext'
 import {
-  useSigninCheck,
-  useStorage,
-  useFirestore,
-} from 'reactfire'
+  db as firestore,
+  storage,
+} from '../../../lib/firebase'
 import {
   collection,
   updateDoc,
@@ -42,12 +43,24 @@ import File from '../../../components/File'
 import { AppContext } from '../../../context/context'
 import { sanitizeFileName } from '../../../context/helpers'
 
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field'
+
 export default function UpdateProfilePage({
   user_profile,
 }) {
   const { t } = useTranslation('common')
   const [loading, setLoading] = useState(false)
-  const [about, setAbout] = useState('')
   const [members] = useState([])
   const [file_extensions] = useState([
     'text/html',
@@ -69,16 +82,25 @@ export default function UpdateProfilePage({
   const [metadata_arr, setMetadata] = useState([])
   const [profile_photo, setProfilePhoto] = useState(null)
 
-  const [error_about, setErrorAbout] = useState('')
   const [error_file, setErrorFile] = useState('')
 
   const { status, data: signInCheckResult } =
     useSigninCheck()
-  const storage = useStorage()
-  const firestore = useFirestore()
 
   const router = useRouter()
   const { profile } = useContext(AppContext)
+
+  const schema = z.object({
+    about: z.string().refine((v) => v.trim() !== '', {
+      message: t('fill_out_about'),
+    }),
+  })
+
+  const form = useForm({
+    resolver: zodResolver(schema),
+    mode: 'onChange',
+    defaultValues: { about: user_profile.about || '' },
+  })
 
   useEffect(() => {
     if (
@@ -98,61 +120,63 @@ export default function UpdateProfilePage({
     }
   })
 
-  useEffect(async () => {
-    setFiles([])
-    const filesRef = ref(
-      storage,
-      `profiles/${user_profile.id}`
-    )
-    setAbout(user_profile.about)
+  useEffect(() => {
+    async function loadFiles() {
+      setFiles([])
+      const filesRef = ref(
+        storage,
+        `profiles/${user_profile.id}`
+      )
 
-    // Find all the prefixes and items.
-    try {
-      const res = await listAll(filesRef)
-      for (let r of res.items) {
-        const url = await getDownloadURL(r)
-        const metadata = await getMetadata(r)
-        const xhr = new XMLHttpRequest()
-        xhr.responseType = 'blob'
-        xhr.onload = () => {
-          const blob = xhr.response
-          if (xhr.status == 200) {
-            blob.name = metadata.name
-            setFiles((oldFiles) => [...oldFiles, blob])
-            setMetadata((oldMetadata) => [
-              ...oldMetadata,
-              metadata,
-            ])
+      // Find all the prefixes and items.
+      try {
+        const res = await listAll(filesRef)
+        for (let r of res.items) {
+          const url = await getDownloadURL(r)
+          const metadata = await getMetadata(r)
+          const xhr = new XMLHttpRequest()
+          xhr.responseType = 'blob'
+          xhr.onload = () => {
+            const blob = xhr.response
+            if (xhr.status == 200) {
+              blob.name = metadata.name
+              setFiles((oldFiles) => [...oldFiles, blob])
+              setMetadata((oldMetadata) => [
+                ...oldMetadata,
+                metadata,
+              ])
 
-            if (metadata.name.includes('profile_photo')) {
-              setProfilePhoto(metadata.name)
+              if (metadata.name.includes('profile_photo')) {
+                setProfilePhoto(metadata.name)
+              }
             }
           }
+          xhr.open('GET', url)
+          xhr.send()
         }
-        xhr.open('GET', url)
-        xhr.send()
+      } catch (e) {
+        router.push(`/profile/${user_profile.id}`)
       }
-    } catch (e) {
-      router.push(`/profile/${user_profile.id}`)
     }
+    loadFiles()
   }, [])
 
-  const updateProfile = async (e) => {
-    e.preventDefault()
+  const updateProfile = async (values) => {
     setLoading(true)
     try {
       await updateDoc(
         doc(firestore, 'profiles', user_profile.id),
         {
-          about: about.trim(),
+          about: values.about.trim(),
           links: [],
         }
       )
     } catch (e) {
       console.error(e)
-      setErrorAbout(
-        t('edit_profile.couldnt_update_profile')
-      )
+      form.setError('about', {
+        type: 'server',
+        message: t('edit_profile.couldnt_update_profile'),
+      })
     }
 
     try {
@@ -190,9 +214,10 @@ export default function UpdateProfilePage({
       router.push(`/profile/${user_profile.slug}`)
       setLoading(false)
     } catch (error) {
-      setErrorAbout(
-        t('edit_profile.couldnt_update_profile')
-      )
+      form.setError('about', {
+        type: 'server',
+        message: t('edit_profile.couldnt_update_profile'),
+      })
       console.error(error)
       setLoading(false)
     }
@@ -232,19 +257,6 @@ export default function UpdateProfilePage({
   const { getRootProps, getInputProps, isDragActive } =
     useDropzone({ onDrop })
 
-  async function onChange(e, target) {
-    switch (target) {
-      case 'about':
-        setAbout(e.target.value)
-        if (e.target.value.trim() == '') {
-          setErrorAbout(t('fill_out_about'))
-        } else {
-          setErrorAbout('')
-        }
-        break
-    }
-  }
-
   const removeFile = async (e, id) => {
     e.preventDefault()
     let temp_files = [...files]
@@ -268,39 +280,42 @@ export default function UpdateProfilePage({
   if (status == 'success' && signInCheckResult.signedIn) {
     return (
       <>
-        <div className="relative z-30 mx-auto mt-8 mb-24 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
+        <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow-sm md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
           <h1 className="mb-2 text-center text-3xl font-semibold">
             {t('edit_profile.update_your_profile')}
           </h1>
           <p className="mb-6 text-center text-gray-700">
             {t('edit_profile.why_update_your_profile')}
           </p>
-          <form onSubmit={(e) => updateProfile(e)}>
-            <label
-              htmlFor="about"
-              className="uppercase text-gray-600"
-            >
-              {t('edit_profile.about')}
-            </label>
-            <textarea
-              onChange={(e) => onChange(e, 'about')}
-              value={about}
-              name="about"
-              rows="7"
-              required
-              className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
-                error_about
-                  ? 'border-red-700 text-red-800 placeholder-red-700'
-                  : 'text-gray-700 focus:border-sciteensLightGreen-regular focus:bg-white'
-              }`}
-              type="textarea"
-              placeholder={t('edit_profile.tell_us_about')}
-              aria-label="about"
-              maxLength="1000"
-            />
-            <p className="mb-4 text-sm text-red-800">
-              {error_about}
-            </p>
+          <form onSubmit={form.handleSubmit(updateProfile)}>
+            <FieldGroup>
+              <Controller
+                name="about"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="about">
+                      {t('edit_profile.about')}
+                    </FieldLabel>
+                    <Textarea
+                      {...field}
+                      id="about"
+                      rows={7}
+                      maxLength={1000}
+                      placeholder={t(
+                        'edit_profile.tell_us_about'
+                      )}
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError
+                        errors={[fieldState.error]}
+                      />
+                    )}
+                  </Field>
+                )}
+              />
+            </FieldGroup>
 
             {members.map((m, index) => (
               <p key={index} className="p-2">
@@ -365,27 +380,25 @@ export default function UpdateProfilePage({
             </div>
 
             <div className="flex w-full justify-end">
-              <button
+              <Button
                 type="submit"
+                size="lg"
                 disabled={
-                  loading || error_about || error_file
+                  !form.formState.isValid ||
+                  form.formState.isSubmitting ||
+                  loading ||
+                  error_file
                 }
-                className="outline-none mr-2 mt-4 w-full rounded-lg bg-sciteensLightGreen-regular p-2 text-lg font-semibold text-white shadow hover:bg-sciteensLightGreen-dark disabled:opacity-50"
-                onClick={(e) => updateProfile(e)}
+                className="mr-2 mt-4 w-full"
               >
                 {t('edit_profile.update')}
-                {loading && (
-                  <img
-                    src="/assets/loading.svg"
-                    alt="Loading Spinner"
-                    className="inline-block h-5 w-5"
-                  />
-                )}
-              </button>
-              <Link href={`/profile/${user_profile.slug}`}>
-                <a className="outline-none ml-2 mt-4 w-full rounded-lg border-2 border-gray-200 bg-gray-100 p-2 text-center text-lg font-semibold text-black shadow hover:border-gray-300 hover:bg-gray-200 disabled:opacity-50">
-                  {t('edit_profile.cancel')}
-                </a>
+                {loading && <LoadingSpinner />}
+              </Button>
+              <Link
+                href={`/profile/${user_profile.slug}`}
+                className="ml-2 mt-4 w-full rounded-lg border-2 border-gray-200 bg-gray-100 p-2 text-center text-lg font-semibold text-black shadow-sm hover:border-gray-300 hover:bg-gray-200 disabled:opacity-50"
+              >
+                {t('edit_profile.cancel')}
               </Link>
             </div>
           </form>

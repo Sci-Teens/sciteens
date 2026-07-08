@@ -9,58 +9,58 @@ import { useTranslation } from 'next-i18next'
 
 var Prismic = require('@prismicio/client')
 import { RichText } from 'prismic-reactjs'
-import {
-  useSpring,
-  animated,
-  config,
-} from '@react-spring/web'
 import moment from 'moment'
 
 import { getTranslatedFieldsDict } from '../context/helpers'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 function Courses({ cached_courses }) {
   const router = useRouter()
   const [courses, setCourses] = useState(cached_courses)
 
-  useEffect(async () => {
-    if (router.asPath !== '/courses') {
-      const apiEndpoint =
-        'https://sciteens.cdn.prismic.io/api/v2'
-      const client = Prismic.default.client(apiEndpoint)
-      let predicates = []
-      if (router.query.search) {
-        predicates.push(
-          Prismic.default.Predicates.fulltext(
-            'document',
-            router.query.search
+  useEffect(() => {
+    async function loadCourses() {
+      if (router.asPath !== '/courses') {
+        const apiEndpoint =
+          'https://sciteens.cdn.prismic.io/api/v2'
+        const client = Prismic.default.client(apiEndpoint)
+        let predicates = []
+        if (router.query.search) {
+          predicates.push(
+            Prismic.default.Predicates.fulltext(
+              'document',
+              router.query.search
+            )
           )
-        )
-      }
-      if (
-        router.query.field &&
-        router.query.field != 'All'
-      ) {
-        predicates.push(
-          Prismic.default.Predicates.at('document.tags', [
-            router.query.field,
-          ])
-        )
-      }
-      const cs = await client.query(
-        [
-          Prismic.default.Predicates.at(
-            'document.type',
-            'course'
-          ),
-          ...predicates,
-        ],
-        {
-          orderings: `[document.first_publication_date desc]`,
-          pageSize: 10,
         }
-      )
-      setCourses(cs)
+        if (
+          router.query.field &&
+          router.query.field != 'All'
+        ) {
+          predicates.push(
+            Prismic.default.Predicates.at('document.tags', [
+              router.query.field,
+            ])
+          )
+        }
+        const cs = await client.query(
+          [
+            Prismic.default.Predicates.at(
+              'document.type',
+              'course'
+            ),
+            ...predicates,
+          ],
+          {
+            orderings: `[document.first_publication_date desc]`,
+            pageSize: 10,
+          }
+        )
+        setCourses(cs)
+      }
     }
+    loadCourses()
   }, [router])
 
   const [search, setSearch] = useState('')
@@ -112,32 +112,6 @@ function Courses({ cached_courses }) {
     setField(field)
   }
 
-  // REACT SPRING ANIMATIONS
-  useEffect(() => {
-    set({
-      opacity: 0,
-      transform: 'translateX(150px)',
-      config: { tension: 10000, clamp: true },
-    })
-    window.setTimeout(function () {
-      set({
-        opacity: 1,
-        transform: 'translateX(0)',
-        config: config.slow,
-      })
-    }, 10)
-  }, [courses])
-
-  const [courses_spring, set] = useSpring(() => ({
-    opacity: 1,
-    transform: 'translateX(0)',
-    from: {
-      opacity: 0,
-      transform: 'translateX(150px)',
-    },
-    config: config.slow,
-  }))
-
   const coursesComponent = courses.results.map((course) => {
     let courseStart = moment(course.data.start).format('ll')
     let dateDisplay = <p></p>
@@ -156,40 +130,38 @@ function Courses({ cached_courses }) {
     }
 
     return (
-      <Link key={course.uid} href={`/course/${course.uid}`}>
-        <animated.div
-          style={courses_spring}
-          className="z-50 mt-6 flex cursor-pointer items-center rounded-lg bg-white p-4 shadow md:mt-8"
-        >
-          <div className="relative h-full max-w-[100px] md:max-w-[200px]">
-            <Image
-              className="flex-shrink-0 rounded-lg object-cover"
-              loader={imageLoader}
-              src={course.data.image_main.url}
-              width={256}
-              height={256}
-            />
-          </div>
-          <div className="ml-4 w-3/4 lg:w-11/12">
-            <h3 className="mb-2 text-base font-semibold line-clamp-2 md:text-xl lg:text-2xl">
-              {RichText.asText(course.data.name)}
-            </h3>
-            <p className="mb-2 hidden line-clamp-none md:block md:line-clamp-2 lg:line-clamp-3">
-              {RichText.asText(course.data.description)}
-            </p>
-            {dateDisplay}
-          </div>
-        </animated.div>
+      <Link
+        key={course.uid}
+        href={`/course/${course.uid}`}
+        className="animate-in bg-card text-card-foreground ring-border/60 fade-in slide-in-from-right-8 z-50 mt-6 flex cursor-pointer items-center rounded-xl p-4 shadow-sm ring-1 transition duration-300 hover:-translate-y-0.5 hover:shadow-md md:mt-8"
+      >
+        <div className="relative h-full max-w-[100px] md:max-w-[200px]">
+          <Image
+            className="shrink-0 rounded-lg object-cover"
+            loader={imageLoader}
+            src={course.data.image_main.url}
+            width={256}
+            height={256}
+          />
+        </div>
+        <div className="ml-4 w-3/4 lg:w-11/12">
+          <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">
+            {RichText.asText(course.data.name)}
+          </h3>
+          <p className="line-clamp-none md:line-clamp-2 lg:line-clamp-3 mb-2 hidden md:block">
+            {RichText.asText(course.data.description)}
+          </p>
+          {dateDisplay}
+        </div>
       </Link>
     )
   })
   return (
     <>
       <Head>
-        <title>
-          {field ? field + ' ' : ''}Courses{' '}
-          {search ? 'related to ' + search : ''} | SciTeens
-        </title>
+        <title>{`${field ? field + ' ' : ''}Courses ${
+          search ? 'related to ' + search : ''
+        } | SciTeens`}</title>
         <link rel="icon" href="/favicon.ico" />
         <meta
           name="description"
@@ -205,7 +177,7 @@ function Courses({ cached_courses }) {
           content="/assets/sciteens_initials.jpg"
         />
       </Head>
-      <div className="mx-auto mt-8 mb-24 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
+      <div className="text-foreground mx-auto mb-24 mt-8 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
         <div className="mx-auto w-11/12 md:w-[85%] lg:mx-0 lg:w-[60%]">
           <h1 className="ml-4 py-4 text-left text-4xl font-semibold">
             {t('courses.courses')} 📖
@@ -225,37 +197,36 @@ function Courses({ cached_courses }) {
 
         <div className="hidden w-0 lg:ml-32 lg:block lg:w-[30%]">
           <div className="sticky top-1/2 w-full -translate-y-1/2 transform">
-            <h2 className="mb-2 text-xl text-gray-700">
+            <h2 className="text-muted-foreground mb-2 text-xl">
               {t('courses.search_courses')}
             </h2>
             <form
               onSubmit={(e) => handleSearch(e)}
               className="flex flex-row"
             >
-              <input
+              <Input
                 onChange={(e) =>
                   handleChange(e, 'searchbar')
                 }
                 value={search}
                 name="search"
                 required
-                className={`focus:outline-none mr-3 w-full appearance-none rounded border-2 border-transparent bg-white p-2 leading-tight text-gray-700 shadow focus:border-sciteensLightGreen-regular focus:bg-white focus:placeholder-gray-700`}
+                className="mr-3"
                 type="text"
                 aria-label="search"
                 maxLength="100"
               />
-              <button
+              <Button
                 type="submit"
-                className="outline-none rounded-lg bg-sciteensLightGreen-regular px-4 py-2 font-semibold text-white shadow hover:bg-sciteensLightGreen-dark disabled:opacity-50"
                 onClick={(e) => handleSearch(e)}
               >
                 {t('courses.search')}
-              </button>
+              </Button>
             </form>
 
-            <hr className="my-8 bg-gray-300" />
+            <hr className="bg-border my-8" />
 
-            <h2 className="mb-2 text-xl text-gray-700">
+            <h2 className="text-muted-foreground mb-2 text-xl">
               {t('courses.topics')}
             </h2>
             <div className="flex flex-row flex-wrap">
@@ -263,18 +234,21 @@ function Courses({ cached_courses }) {
                 getTranslatedFieldsDict(t)
               ).map(([key, value]) => {
                 return (
-                  <button
+                  <Button
                     key={value}
+                    type="button"
+                    variant={
+                      key == field ? 'default' : 'secondary'
+                    }
                     onClick={() => handleFieldSearch(key)}
-                    className={`mr-4 mb-4 rounded-full px-3 py-2 text-sm shadow
-                                        ${
-                                          key == field
-                                            ? 'bg-sciteensLightGreen-regular text-white'
-                                            : 'bg-white'
-                                        }`}
+                    className={
+                      key == field
+                        ? 'mb-4 mr-4 rounded-full'
+                        : 'bg-card hover:bg-muted mb-4 mr-4 rounded-full border border-gray-300 shadow-sm'
+                    }
                   >
                     {value}
-                  </button>
+                  </Button>
                 )
               })}
             </div>

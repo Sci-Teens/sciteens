@@ -1,12 +1,17 @@
-import { useContext, useState } from 'react'
+import { useContext } from 'react'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
-import { useFirestore, useAuth } from 'reactfire'
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+
+import { auth, db as firestore } from '../../lib/firebase'
 import { doc, getDoc } from '@firebase/firestore'
 import { signInWithEmailAndPassword } from '@firebase/auth'
 
@@ -19,8 +24,20 @@ import {
   resolveRefPath,
 } from '../../context/helpers'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field'
+
 export default function StudentSignIn() {
   const { t } = useTranslation('common')
+  const router = useRouter()
+  const { setProfile } = useContext(AppContext)
+
   const f_signin_errors = {
     'auth/invalid-email': t('auth.auth_invalid_email'),
     'auth/user-disabled': t('auth.auth_user_disabled'),
@@ -31,20 +48,25 @@ export default function StudentSignIn() {
     ),
   }
 
-  const [error_email, setErrorEmail] = useState('')
-  const [error_password, setErrorPassword] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [, setLoading] = useState(false)
-  const firestore = useFirestore()
-  const auth = useAuth()
-  const router = useRouter()
+  const schema = z.object({
+    email: z.string().refine((v) => isEmail(v), {
+      message: t('auth.valid_email'),
+    }),
+    password: z.string().superRefine((val, ctx) => {
+      const message = validatePassword(val, t)
+      if (message) {
+        ctx.addIssue({ code: 'custom', message })
+      }
+    }),
+  })
 
-  const { setProfile } = useContext(AppContext)
+  const form = useForm({
+    resolver: zodResolver(schema),
+    mode: 'onChange',
+    defaultValues: { email: '', password: '' },
+  })
 
-  async function emailSignIn(event) {
-    event.preventDefault()
-    setLoading(true)
+  async function emailSignIn({ email, password }) {
     try {
       const res = await signInWithEmailAndPassword(
         auth,
@@ -59,33 +81,13 @@ export default function StudentSignIn() {
       router.push(dest || '/')
     } catch (e) {
       console.log(e.code)
-      f_signin_errors[e.code]
-        ? setErrorEmail(f_signin_errors[e.code])
-        : setErrorEmail(t('auth.sign_in_failed'))
-      setEmail('')
-      setLoading(false)
-    }
-  }
-
-  const onChange = (e, target) => {
-    switch (target) {
-      case 'email':
-        setEmail(e.target.value)
-        if (
-          e.target.value == '' ||
-          !isEmail(e.target.value)
-        ) {
-          setErrorEmail(t('auth.valid_email'))
-        } else {
-          setErrorEmail('')
-        }
-        break
-      case 'password':
-        setPassword(e.target.value)
-        setErrorPassword(
-          validatePassword(e.target.value, t)
-        )
-        break
+      form.setValue('email', '')
+      form.setError('email', {
+        type: 'server',
+        message:
+          f_signin_errors[e.code] ||
+          t('auth.sign_in_failed'),
+      })
     }
   }
 
@@ -109,7 +111,7 @@ export default function StudentSignIn() {
         <meta property="og:type" content="website" />
       </Head>
       <main>
-        <div className="relative z-30 mx-auto mt-8 mb-24 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
+        <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow-sm md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
           <h1 className="mb-2 text-center text-3xl font-semibold">
             {t('auth.student_sign_in')}
           </h1>
@@ -126,88 +128,90 @@ export default function StudentSignIn() {
                     }
                   : '/signin/educator'
               }
+              className="cursor-pointer font-bold"
             >
-              <a className="cursor-pointer font-bold">
-                {t('auth.sign_in_here')}
-              </a>
+              {t('auth.sign_in_here')}
             </Link>
           </p>
-          <form onSubmit={emailSignIn}>
-            <label
-              htmlFor="email"
-              className="uppercase text-gray-600"
-            >
-              {t('auth.email')}
-            </label>
-            <input
-              value={email}
-              onChange={(e) => onChange(e, 'email')}
-              name="email"
-              required
-              className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
-                error_email
-                  ? 'border-red-700 text-red-800 placeholder-red-700'
-                  : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
-              }`}
-              type="email"
-              aria-label="email"
-            />
-            <p className="mb-4 text-sm text-red-800">
-              {error_email}
-            </p>
-
-            <label
-              htmlFor="password"
-              className="uppercase text-gray-600"
-            >
-              {t('auth.password')}
-            </label>
-            <input
-              value={password}
-              onChange={(e) => onChange(e, 'password')}
-              name="password"
-              required
-              className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-gray-100 p-2 leading-tight ${
-                error_password
-                  ? 'border-red-700 text-red-800 placeholder-red-700'
-                  : 'text-gray-700 placeholder-sciteensGreen-regular focus:border-sciteensLightGreen-regular focus:bg-white'
-              }`}
-              type="password"
-              aria-label="password"
-            />
-            <p className="mb-2 text-sm text-red-800">
-              {error_password}
-            </p>
-
-            <div className="my-2 flex flex-col justify-between">
-              <Link href="/signin/reset">
-                <a className="mr-1 mb-2 flex-1 rounded py-2 text-sm text-gray-600">
+          <form onSubmit={form.handleSubmit(emailSignIn)}>
+            <FieldGroup>
+              <Controller
+                name="email"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="email">
+                      {t('auth.email')}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="email"
+                      type="email"
+                      autoComplete="email"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError
+                        errors={[fieldState.error]}
+                      />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="password"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="password">
+                      {t('auth.password')}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="password"
+                      type="password"
+                      autoComplete="current-password"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError
+                        errors={[fieldState.error]}
+                      />
+                    )}
+                  </Field>
+                )}
+              />
+              <div className="my-2 flex flex-col justify-between">
+                <Link
+                  href="/signin/reset"
+                  className="mb-2 mr-1 flex-1 rounded-sm py-2 text-sm text-gray-600"
+                >
                   {t('auth.reset_password')}
-                </a>
-              </Link>
-
-              <button
-                type="submit"
-                className="outline-none w-full rounded-lg bg-sciteensLightGreen-regular p-2 text-lg font-semibold text-white shadow hover:bg-sciteensLightGreen-dark disabled:opacity-50"
-                onClick={emailSignIn}
-                disabled={
-                  error_email ||
-                  error_password ||
-                  !email.length ||
-                  !password.length
-                }
-              >
-                {t('auth.sign_in')}
-              </button>
-            </div>
+                </Link>
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="w-full"
+                  disabled={
+                    !form.formState.isValid ||
+                    form.formState.isSubmitting
+                  }
+                >
+                  {t('auth.sign_in')}
+                </Button>
+              </div>
+            </FieldGroup>
           </form>
           <div className="mb-8 mt-4 h-3 w-full border-b border-gray-300 text-center">
             <span className="bg-white p-2">
               {t('auth.or')}
             </span>
           </div>
-          <button
-            className="mb-2 flex w-full items-center justify-center rounded bg-white p-2 shadow hover:shadow-md"
+          <Button
+            variant="outline"
+            type="button"
+            size="lg"
+            className="mb-2 w-full"
             onClick={() =>
               providerSignIn(
                 auth,
@@ -217,13 +221,15 @@ export default function StudentSignIn() {
               )
             }
           >
-            <img
+            <Image
               src="/assets/logos/Google.png"
               alt="Google Logo"
+              width={20}
+              height={20}
               className="mr-2 h-5 w-5"
             />
             {t('auth.google_sign_in')}
-          </button>
+          </Button>
           <div className="mt-4 flex justify-center">
             <p className="text-gray-700">
               {t('auth.new_here')}&nbsp;
@@ -238,10 +244,9 @@ export default function StudentSignIn() {
                       }
                     : '/signup/student'
                 }
+                className="font-bold"
               >
-                <a className="font-bold">
-                  {t('auth.sign_up')}
-                </a>
+                {t('auth.sign_up')}
               </Link>
             </p>
           </div>

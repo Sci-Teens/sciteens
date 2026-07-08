@@ -1,3 +1,6 @@
+import Image from 'next/image'
+import { maxWidthImageLoader } from './lib/prismicImageLoader'
+
 var PrismicDOM = require('prismic-dom')
 var Elements = PrismicDOM.RichText.Elements
 
@@ -25,11 +28,15 @@ export default function htmlSerializer(
 
     case Elements.image:
       return (
-        <img
+        <Image
+          loader={maxWidthImageLoader}
           src={element.url}
           alt={element.alt || ''}
-          className="mx-auto w-full"
-        ></img>
+          width={element.dimensions.width}
+          height={element.dimensions.height}
+          sizes="100vw"
+          className="mx-auto h-auto w-full"
+        />
       )
 
     // Return null to stick with the default behavior for all other elements

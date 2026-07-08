@@ -1,13 +1,17 @@
-import 'tailwindcss/tailwind.css'
+import '../styles/globals.css'
 import Layout from '../components/Layout'
 import { AppContext } from '../context/context'
-import firebaseConfig from '../firebaseConfig'
-import { FirebaseAppProvider } from 'reactfire'
+import { AuthProvider } from '../context/AuthContext'
 import { useState, useEffect } from 'react'
+import { nunito } from '../lib/fonts'
 import Head from 'next/head'
 import '../styles/nprogress.css'
 import dynamic from 'next/dynamic'
 import { appWithTranslation } from 'next-i18next'
+import {
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query'
 
 const TopProgressBar = dynamic(
   () => {
@@ -18,10 +22,20 @@ const TopProgressBar = dynamic(
 
 function MyApp({ Component, pageProps }) {
   const [profile, setUserProfile] = useState({})
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            refetchOnWindowFocus: false,
+          },
+        },
+      })
+  )
 
   function setProfile(p) {
     setUserProfile(p)
-    if (process.browser) {
+    if (typeof window !== 'undefined') {
       window.localStorage.setItem(
         'profile',
         JSON.stringify(p)
@@ -30,7 +44,7 @@ function MyApp({ Component, pageProps }) {
   }
 
   useEffect(() => {
-    if (process.browser) {
+    if (typeof window !== 'undefined') {
       let p
       if (
         window.localStorage.getItem('profile') !=
@@ -48,25 +62,25 @@ function MyApp({ Component, pageProps }) {
   }, [])
 
   return (
-    <div className="h-full w-full bg-backgroundGreen font-sciteens">
+    <div
+      className={`${nunito.variable} bg-background font-sciteens text-foreground min-h-screen w-full`}
+    >
       <Head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Nunito&display=swap"
-          rel="stylesheet"
-        />
         <title>Welcome to SciTeens</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <FirebaseAppProvider firebaseConfig={firebaseConfig}>
-        <AppContext.Provider
-          value={{ profile, setProfile }}
-        >
-          <TopProgressBar></TopProgressBar>
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
-        </AppContext.Provider>
-      </FirebaseAppProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <AppContext.Provider
+            value={{ profile, setProfile }}
+          >
+            <TopProgressBar></TopProgressBar>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </AppContext.Provider>
+        </AuthProvider>
+      </QueryClientProvider>
     </div>
   )
 }

@@ -3,33 +3,31 @@ import {
   query,
   addDoc,
   orderBy,
-} from '@firebase/firestore'
-import { useState, useCallback } from 'react'
-import {
-  useFirestore,
-  useFirestoreCollectionData,
-  useSigninCheck,
-} from 'reactfire'
+} from 'firebase/firestore'
+import { useState, useCallback, useMemo } from 'react'
+import LoadingSpinner from './LoadingSpinner'
+import { useFirestoreCollectionData } from '../lib/firestoreData'
+import { useSigninCheck } from '../context/AuthContext'
+import { db } from '../lib/firebase'
 import { useRouter } from 'next/router'
 import { post } from '../context/helpers.js'
 import ProfilePhoto from './ProfilePhoto'
-
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import { FieldLabel } from '@/components/ui/field'
 import debounce from 'lodash.debounce'
 import moment from 'moment'
 
 export default function Discussion({ type, item_id }) {
   const { data: signInCheckResult } = useSigninCheck()
-  const firestore = useFirestore()
 
-  let discussionCollection = collection(
-    firestore,
-    type,
-    item_id,
-    'discussion'
-  )
-  const discussionQuery = query(
-    discussionCollection,
-    orderBy('date', 'asc')
+  const discussionQuery = useMemo(
+    () =>
+      query(
+        collection(db, type, item_id, 'discussion'),
+        orderBy('date', 'asc')
+      ),
+    [type, item_id]
   )
   const { data: discussion } = useFirestoreCollectionData(
     discussionQuery,
@@ -155,15 +153,14 @@ export default function Discussion({ type, item_id }) {
       })
       return
     }
-    // console.log(e)
-    if (process.client) {
+    if (typeof window !== 'undefined') {
       document
         .getElementById('discussion-form')
         .checkValidity()
     }
     e.preventDefault()
     await addDoc(
-      collection(firestore, type, item_id, 'discussion'),
+      collection(db, type, item_id, 'discussion'),
       {
         date: new Date().toISOString(),
         uid: signInCheckResult.user.uid,
@@ -197,33 +194,32 @@ export default function Discussion({ type, item_id }) {
         <h2 className="mb-4 text-3xl font-bold text-black">
           Discussion
         </h2>
-        <label
+        <FieldLabel
           htmlFor="comment"
           className="uppercase text-gray-600"
         >
           Comment
-        </label>
-        <textarea
+        </FieldLabel>
+        <Textarea
           onChange={(e) => onChange(e, true, -1)}
           value={comment}
           name="comment"
           id="comment"
           required
-          rows="3"
-          className={`focus:outline-none mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-white p-2 leading-tight shadow focus:bg-white focus:placeholder-gray-700 focus:shadow-lg ${
+          rows={3}
+          className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-white p-2 leading-tight shadow focus:bg-white focus:placeholder-gray-700 focus:shadow-lg ${
             error_comment
               ? 'border-red-700 text-red-800 placeholder-red-700'
-              : 'text-gray-700 focus:border-sciteensLightGreen-regular'
+              : 'focus:border-sciteensLightGreen-regular text-gray-700'
           }`}
-          type="textarea"
           placeholder={
             discussion?.length
               ? ''
               : 'Start the conversation...'
           }
           aria-label="comment"
-          maxLength="1000"
-        ></textarea>
+          maxLength={1000}
+        />
         <p className="text-sm text-red-800">
           {error_comment}
         </p>
@@ -232,35 +228,29 @@ export default function Discussion({ type, item_id }) {
             comment === '' ? 'hidden' : ''
           }`}
         >
-          <button
+          <Button
             type="reset"
             onClick={() => {
               setReplyingToName('')
               setReplyingToId('')
               setComment('')
             }}
-            className="outline-none mr-2 rounded-lg border-2 border-gray-500 bg-gray-200 p-2 opacity-50 shadow hover:bg-opacity-100 disabled:opacity-50"
+            variant="outline"
+            className="mr-2"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
             disabled={loading || error_comment}
-            className="outline-none rounded-lg bg-sciteensLightGreen-regular p-2 text-white shadow hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+            className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark rounded-lg p-2 text-white shadow-sm disabled:opacity-50"
             onClick={(e) => postComment(e)}
           >
             Post
-            {loading && (
-              <img
-                src="/assets/loading.svg"
-                alt="Loading Spinner"
-                className="inline-block h-5 w-5"
-              />
-            )}
-          </button>
+            {loading && <LoadingSpinner />}
+          </Button>
         </div>
       </form>
-      {router.isReady && router.basePath}
       {discussion?.length ? (
         discussion.map((comment, key) => {
           if (comment.reply_to_id == '')
@@ -289,21 +279,22 @@ export default function Discussion({ type, item_id }) {
                       {comment.display}
                     </p>
                   </div>
-                  <p className="absolute top-4 right-4 text-xs text-gray-700">
+                  <p className="absolute right-4 top-4 text-xs text-gray-700">
                     {moment(comment.date).calendar(null, {
                       sameElse: 'MMMM DD, YYYY',
                     })}
                   </p>
                   <p>{comment.comment}</p>
                   <div className="flex justify-end">
-                    <button
+                    <Button
+                      variant="ghost"
                       className="text-gray-700 hover:text-black"
                       onClick={() =>
                         handleReplyTo(comment, key)
                       }
                     >
                       Reply
-                    </button>
+                    </Button>
                   </div>
                 </div>
                 <div
@@ -318,62 +309,63 @@ export default function Discussion({ type, item_id }) {
                                 : 'h-0 overflow-hidden rounded-lg'
                             }`}
                 >
-                  <textarea
-                    onChange={(e) =>
-                      onChange(e, false, key)
-                    }
-                    name="reply"
-                    id={'reply' + key}
-                    required
-                    rows="3"
-                    className={`w-full resize-none appearance-none border-transparent bg-white p-2 leading-tight shadow focus:shadow-lg 
+                  <div className="flex w-full flex-col">
+                    <FieldLabel
+                      htmlFor={`reply${key}`}
+                      className="sr-only"
+                    >
+                      Reply
+                    </FieldLabel>
+                    <Textarea
+                      onChange={(e) =>
+                        onChange(e, false, key)
+                      }
+                      name="reply"
+                      id={`reply${key}`}
+                      required
+                      rows={3}
+                      className={`w-full resize-none appearance-none border-transparent bg-white p-2 leading-tight shadow focus:shadow-lg 
                                 ${
                                   replyingToId == comment.id
                                     ? 'rounded-lg'
                                     : 'rounded-lg border-none'
-                                } focus:outline-none focus:bg-white focus:placeholder-gray-700 
+                                } focus:bg-white focus:placeholder-gray-700 
                                 ${
                                   error_reply &&
                                   error_reply_index === key
                                     ? 'text-red-800 placeholder-red-700'
                                     : 'border-sciteensLightGreen-regular text-gray-700'
                                 }`}
-                    type="textarea"
-                    placeholder="Reply..."
-                    aria-label="reply"
-                    maxLength="1000"
-                  ></textarea>
+                      placeholder="Reply..."
+                      aria-label="reply"
+                      maxLength={1000}
+                    />
+                  </div>
                   <div className="flex w-min flex-col">
-                    <button
+                    <Button
                       type="reset"
                       onClick={() => {
                         setReplyingToName('')
                         setReplyingToId('')
                         setComment('')
                       }}
-                      className="outline-none mr-2 h-full w-full bg-gray-200 py-2 px-2 hover:bg-gray-300 disabled:opacity-50 md:px-4"
+                      className="mr-2 h-full w-full bg-gray-200 px-2 py-2 hover:bg-gray-300 disabled:opacity-50 md:px-4"
                     >
                       Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="submit"
                       disabled={
                         loading ||
                         error_reply ||
                         !signInCheckResult?.signedIn
                       }
-                      className="outline-none h-full rounded-br-lg bg-sciteensLightGreen-regular p-2 text-white hover:bg-sciteensLightGreen-dark disabled:opacity-50"
+                      className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark h-full rounded-br-lg p-2 text-white disabled:opacity-50"
                       onClick={(e) => postComment(e)}
                     >
                       Post
-                      {loading && (
-                        <img
-                          src="/assets/loading.svg"
-                          alt="Loading Spinner"
-                          className="inline-block h-5 w-5"
-                        />
-                      )}
-                    </button>
+                      {loading && <LoadingSpinner />}
+                    </Button>
                   </div>
                 </div>
                 <div className="mb-7">
@@ -398,7 +390,7 @@ export default function Discussion({ type, item_id }) {
                             <div
                               id={reply.id}
                               key={reply.date}
-                              className={`relative mb-2 ml-auto rounded-lg bg-white p-4  shadow`}
+                              className={`relative mb-2 ml-auto rounded-lg bg-white p-4  shadow-sm`}
                             >
                               <div className="mb-2 flex flex-row items-center">
                                 <div className="mr-2 h-10 w-10">
@@ -411,7 +403,7 @@ export default function Discussion({ type, item_id }) {
                                 </p>
                               </div>
                               <p>{reply.comment}</p>
-                              <p className="absolute top-4 right-4 text-xs text-gray-700">
+                              <p className="absolute right-4 top-4 text-xs text-gray-700">
                                 {moment(
                                   reply.date
                                 ).calendar(null, {

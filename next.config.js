@@ -1,10 +1,27 @@
 const { i18n } = require('./next-i18next.config')
 const CompressionPlugin = require('compression-webpack-plugin')
 
+const isDevelopment = process.env.NODE_ENV !== 'production'
+const scriptSrc = [
+  "'self'",
+  "'unsafe-inline'",
+  ...(isDevelopment ? ["'unsafe-eval'"] : []),
+  'https://images.prismic.io',
+  'https://www.googletagmanager.com',
+  'https://www.google.com',
+  'https://www.gstatic.com',
+].join(' ')
+
 module.exports = {
   i18n,
   images: {
-    domains: ['images.prismic.io', 'source.unsplash.com'],
+    domains: [
+      'images.prismic.io',
+      'source.unsplash.com',
+      'lh3.googleusercontent.com',
+      'firebasestorage.googleapis.com',
+      'storage.googleapis.com',
+    ],
   },
   eslint: {
     // Lint errors should fail the build — security-relevant rules
@@ -45,11 +62,12 @@ module.exports = {
             key: 'Content-Security-Policy',
             value:
               "default-src 'self'; " +
-              "script-src 'self' 'unsafe-inline' https://images.prismic.io; " +
+              `script-src ${scriptSrc}; ` +
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
               "img-src 'self' data: https://images.prismic.io https://source.unsplash.com https://lh3.googleusercontent.com https://firebasestorage.googleapis.com https://storage.googleapis.com https://lh3.googleusercontent.com; " +
               "font-src 'self' https://fonts.gstatic.com; " +
-              "connect-src 'self' https://firestore.googleapis.com https://www.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebaseinstallations.googleapis.com https://firebasestorage.googleapis.com https://commentanalyzer.googleapis.com https://sciteens.cdn.prismic.io https://*.algolia.net https://*.algolianet.com; " +
+              'frame-src https://www.google.com; ' +
+              "connect-src 'self' https://firestore.googleapis.com https://firebase.googleapis.com https://www.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebaseinstallations.googleapis.com https://firebasestorage.googleapis.com https://commentanalyzer.googleapis.com https://sciteens.cdn.prismic.io https://*.algolia.net https://*.algolianet.com https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net; " +
               "frame-ancestors 'self'; " +
               "base-uri 'self'; " +
               "form-action 'self'",

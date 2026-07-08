@@ -43,3 +43,7 @@ pnpm-debug.log*
 # cloud-build.yaml
 # Dockerfile
 # .dockerignore
+
+# next-sitemap build output
+public/robots.txt
+public/sitemap.xml
