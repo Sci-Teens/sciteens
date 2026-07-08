@@ -126,19 +126,41 @@ Not covered by unit tests (would need a browser, per Priority 4): the
 model and running inference needs a real browser/WebAssembly
 environment, not vitest's Node environment.
 
-## Priority 3 — Component tests (vitest + React Testing Library)
+## Priority 3 — Component tests (vitest + React Testing Library) — DONE
 
 - Signup/signin forms (`pages/signup/student.js`, `pages/signin/student.js`):
   submit stays disabled until all fields are valid; birthday under 13
   rejected with the expected zod error; submit stays disabled until
   `recaptchaSolved` even when the rest of the form is valid.
+  (`tests/pages/signup/student.test.js`, `tests/pages/signin/student.test.js`)
 - `components/ProjectCard.js`: renders zero-member projects without a
   dangling "By" label (regression test — `member_arr?.length > 0`, not a
   truthy-empty-array check); field badge renders the correct label for
   both legacy-lowercase and Title-Case `fields` values.
+  (`components/ProjectCard.test.js`)
 - `components/ui/*` primitives are thin Base UI wrappers — not worth
   testing directly (see sweep notes); test them through the pages that
   use them instead (Sheet via NavBar, Field/Label via the forms above).
+
+Two implementation notes for anyone adding more of these:
+
+- Page-level component tests live under `tests/pages/**`, not colocated
+  in `pages/**` — Next's Pages Router treats every `.js` file under
+  `pages/` as a route, so a colocated `pages/signup/student.test.js`
+  broke `next build` (it tried to render the test file as a page). Mock
+  the page's dependencies via the `@/*` alias (`vi.mock('@/lib/firebase', …)`)
+  rather than a relative path, since the test file's location no longer
+  matches the page's.
+- `vitest.config.js` forces `oxc.lang: 'jsx'` for `.js`/`.jsx` files —
+  Vite 8's built-in oxc transform infers JSX support from the file
+  extension, so it silently refuses to parse the plain `.js`-with-JSX
+  files this repo (and Next) writes everywhere. `@testing-library/react`,
+  `@testing-library/jest-dom`, `@testing-library/user-event`, and
+  `jsdom` are the only new test-only dependencies; `vitest.setup.js`
+  wires up the jest-dom matchers and each component test file opts into
+  `// @vitest-environment jsdom` (the pure-function suites stay on the
+  faster default `node` environment) and calls `afterEach(cleanup)`
+  itself, since this repo doesn't set `test.globals: true`.
 
 ## Priority 4 — Playwright end-to-end (the few flows worth a real browser)
 
