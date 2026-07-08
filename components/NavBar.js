@@ -251,6 +251,7 @@ export default function NavBar() {
           <SheetContent
             side="right"
             className="text-foreground px-6 pt-16 text-lg"
+            closeLabel={i18n.t('auth.close')}
           >
             <SheetTitle className="sr-only">
               {i18n.t('navigation.menu')}

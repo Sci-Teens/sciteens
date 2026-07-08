@@ -6,11 +6,11 @@ a Next.js site (SSR + SSG) on React, backed by Firebase v9 modular SDK
 search in Algolia, i18n in four locales (en/es/fr/hi). Deployed on Google
 Cloud Run. Security, ownership checks, and secret hygiene matter most.
 
-A migration is in progress; `MIGRATION-PHASES.md` (gitignored) is the source
-of truth for current phase and locked decisions (shadcn over Base UI, Next 14
-Pages Router, TanStack Query replacing reactfire/swr/react-paginate, stay JS).
-Read it before touching deps, the Firebase data layer, or UI primitives. Do
-not pin to specific versions without checking the tree.
+SciTeens' platform-lift migration (Next 14 Pages Router, React 18,
+Tailwind v4, shadcn/Base UI primitives, TanStack Query replacing
+reactfire/swr/react-paginate) is complete and merged to `main`. Do not
+pin to specific dependency versions without checking `package.json` and
+the tree first.
 
 ## Setup commands
 
@@ -86,21 +86,10 @@ args; without them `pnpm dev` errors at runtime, not install.
 - For Firestore/Storage rule changes, walk the rule through the enforcement
   model by hand before deploying.
 
-## Migration gotchas
-
-- **reactfire, swr, react-paginate are being retired** (Phase 1/4). New code
-  imports from `lib/firebase.js`, `context/AuthContext.js`,
-  `lib/firestoreData.js`, or TanStack Query. Do not add new `reactfire`,
-  `swr`, or `react-paginate` imports. `components/Layout.js` and several
-  pages still use reactfire and are pending migration.
-- Do not assume Babel/SWC status, `next/font`, `next/image`, or Tailwind
-  config shape without checking the current `package.json`, `next.config.js`,
-  and `tailwind.config.js`.
-
 ## Testing instructions
 
-No test runner is configured yet (Phase 6 of `MIGRATION-PHASES.md`). Verify
-another way:
+No test runner is configured yet; see `TESTING.md` for the recommended
+vitest/Playwright rollout. Until then, verify another way:
 
 - Bug fix: describe the repro and confirm the fix (manual `pnpm dev`, or a
   `fetch` against an API route).
