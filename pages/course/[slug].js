@@ -18,25 +18,29 @@ function Course({ course }) {
 
   const imageLoader = createCropImageLoader(582, 386)
 
-  useEffect(async () => {
-    try {
-      for (const r of course.data.files) {
-        const url = r.file.url
-        const xhr = new XMLHttpRequest()
-        xhr.responseType = 'blob'
-        xhr.onload = () => {
-          const blob = xhr.response
-          if (xhr.status == 200) {
-            blob.name = r.file.name
-            setFiles((fs) => [...fs, blob])
+  useEffect(() => {
+    async function loadFiles() {
+      try {
+        for (const r of course.data.files) {
+          const url = r.file?.url
+          if (!url) continue
+          const xhr = new XMLHttpRequest()
+          xhr.responseType = 'blob'
+          xhr.onload = () => {
+            const blob = xhr.response
+            if (xhr.status == 200) {
+              blob.name = r.file.name
+              setFiles((fs) => [...fs, blob])
+            }
           }
+          xhr.open('GET', url)
+          xhr.send()
         }
-        xhr.open('GET', url)
-        xhr.send()
+      } catch (e) {
+        console.error(e)
       }
-    } catch (e) {
-      console.error(e)
     }
+    loadFiles()
   }, [])
 
   const lessonComponent = course.data.body.map(
@@ -106,9 +110,9 @@ function Course({ course }) {
   return (
     <>
       <Head>
-        <title>
-          {RichText.asText(course.data.name)} | SciTeens
-        </title>
+        <title>{`${RichText.asText(
+          course.data.name
+        )} | SciTeens`}</title>
         <link rel="icon" href="/favicon.ico" />
         <meta
           name="description"

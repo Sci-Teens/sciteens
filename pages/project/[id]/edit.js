@@ -45,7 +45,7 @@ import debounce from 'lodash.debounce'
 import { useDropzone } from 'react-dropzone'
 import File from '../../../components/File'
 import {
-  getTranslatedFieldsDict,
+  getProjectFieldOptions,
   sanitizeFileName,
 } from '../../../context/helpers'
 
@@ -74,7 +74,7 @@ export default function UpdateProject({ query }) {
 
   const [field_values, setFieldValues] = useState(
     new Array(
-      Object.keys(getTranslatedFieldsDict(t)).length
+      Object.keys(getProjectFieldOptions(t)).length
     ).fill(false)
   )
   const [file_extensions] = useState([
@@ -164,74 +164,85 @@ export default function UpdateProject({ query }) {
     }
   }, [status, member_uids])
 
-  useEffect(async () => {
-    setFiles([])
-    const projectRef = doc(firestore, 'projects', query.id)
-    const filesRef = ref(storage, `projects/${query.id}`)
+  useEffect(() => {
+    async function loadProject() {
+      setFiles([])
+      const projectRef = doc(
+        firestore,
+        'projects',
+        query.id
+      )
+      const filesRef = ref(storage, `projects/${query.id}`)
 
-    // Find all the prefixes and items.
-    try {
-      const projectDoc = await getDoc(projectRef)
-      const projectData = projectDoc.data()
+      // Find all the prefixes and items.
+      try {
+        const projectDoc = await getDoc(projectRef)
+        const projectData = projectDoc.data()
 
-      // Check if user is a member
-      setMemberUids((old_uids) => [
-        ...old_uids,
-        ...projectData.member_uids,
-      ])
-      form.reset({
-        title: projectData.title,
-        abstract: projectData.abstract,
-        start_date: projectData.start
-          ? moment(projectData.start).format('yyyy-MM-DD')
-          : '',
-        end_date: projectData.end
-          ? moment(projectData.end).format('yyyy-MM-DD')
-          : '',
-      })
-      setFieldValues(projectData.fields)
-      let temp_fields = new Array(
-        Object.keys(getTranslatedFieldsDict(t)).length
-      ).fill(false)
-      for (
-        let i = 0;
-        i < Object.keys(getTranslatedFieldsDict(t)).length;
-        i++
-      ) {
-        if (
-          projectData.fields.includes(
-            Object.keys(getTranslatedFieldsDict(t))[i]
-          )
+        // Check if user is a member
+        setMemberUids((old_uids) => [
+          ...old_uids,
+          ...projectData.member_uids,
+        ])
+        form.reset({
+          title: projectData.title,
+          abstract: projectData.abstract,
+          start_date: projectData.start
+            ? moment(projectData.start).format('yyyy-MM-DD')
+            : '',
+          end_date: projectData.end
+            ? moment(projectData.end).format('yyyy-MM-DD')
+            : '',
+        })
+        setFieldValues(projectData.fields)
+        let temp_fields = new Array(
+          Object.keys(getProjectFieldOptions(t)).length
+        ).fill(false)
+        for (
+          let i = 0;
+          i < Object.keys(getProjectFieldOptions(t)).length;
+          i++
         ) {
-          temp_fields[i] = true
-        }
-      }
-      setFieldValues(temp_fields)
-
-      const res = await listAll(filesRef)
-      for (let r of res.items) {
-        const url = await getDownloadURL(r)
-        const metadata = await getMetadata(r)
-        const xhr = new XMLHttpRequest()
-        xhr.responseType = 'blob'
-        xhr.onload = () => {
-          const blob = xhr.response
-          if (xhr.status == 200) {
-            blob.name = metadata.name
-            setFiles((oldFiles) => [...oldFiles, blob])
-            setMetadata((oldMetadata) => [
-              ...oldMetadata,
-              metadata,
-            ])
+          if (
+            projectData.fields.some(
+              (f) =>
+                f.toLowerCase() ===
+                Object.keys(getProjectFieldOptions(t))[
+                  i
+                ].toLowerCase()
+            )
+          ) {
+            temp_fields[i] = true
           }
         }
-        xhr.open('GET', url)
-        xhr.send()
+        setFieldValues(temp_fields)
+
+        const res = await listAll(filesRef)
+        for (let r of res.items) {
+          const url = await getDownloadURL(r)
+          const metadata = await getMetadata(r)
+          const xhr = new XMLHttpRequest()
+          xhr.responseType = 'blob'
+          xhr.onload = () => {
+            const blob = xhr.response
+            if (xhr.status == 200) {
+              blob.name = metadata.name
+              setFiles((oldFiles) => [...oldFiles, blob])
+              setMetadata((oldMetadata) => [
+                ...oldMetadata,
+                metadata,
+              ])
+            }
+          }
+          xhr.open('GET', url)
+          xhr.send()
+        }
+      } catch (e) {
+        console.error(e)
+        router.push(`/project/${query.id}`)
       }
-    } catch (e) {
-      console.error(e)
-      router.push(`/project/${query.id}`)
     }
+    loadProject()
   }, [])
 
   useEffect(() => {
@@ -263,7 +274,7 @@ export default function UpdateProject({ query }) {
           links: [],
           date: moment().toISOString(),
           fields: Object.keys(
-            getTranslatedFieldsDict(t)
+            getProjectFieldOptions(t)
           ).filter((item, i) => field_values[i]),
         }
       )
@@ -450,7 +461,7 @@ export default function UpdateProject({ query }) {
 
   const toggleField = (key) => {
     const index = Object.keys(
-      getTranslatedFieldsDict(t)
+      getProjectFieldOptions(t)
     ).indexOf(key)
     let temp = [...field_values]
     temp[index] = !temp[index]
@@ -625,7 +636,7 @@ export default function UpdateProject({ query }) {
                   {t('project_create_edit.fields')}
                 </label>
                 {Object.entries(
-                  getTranslatedFieldsDict(t)
+                  getProjectFieldOptions(t)
                 ).map(([key, value], index) => {
                   return (
                     <Field

@@ -111,7 +111,7 @@ function Project({ query, initialProject }) {
   return (
     <>
       <Head>
-        <title>{project.title} | SciTeens</title>
+        <title>{`${project.title} | SciTeens`}</title>
         <link rel="icon" href="/favicon.ico" />
         <meta
           name="description"

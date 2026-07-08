@@ -245,10 +245,9 @@ function Article({ article, recommendations }) {
       ) : (
         <>
           <Head>
-            <title>
-              {RichText.asText(article.data.title)} |
-              SciTeens
-            </title>
+            <title>{`${RichText.asText(
+              article.data.title
+            )} | SciTeens`}</title>
             <link rel="icon" href="/favicon.ico" />
             <meta
               name="description"

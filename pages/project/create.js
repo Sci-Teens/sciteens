@@ -42,7 +42,7 @@ import debounce from 'lodash.debounce'
 import moment from 'moment'
 import { useDropzone } from 'react-dropzone'
 import {
-  getTranslatedFieldsDict,
+  getProjectFieldOptions,
   sanitizeFileName,
 } from '../../context/helpers'
 import { AppContext } from '../../context/context'
@@ -71,7 +71,7 @@ export default function CreateProject() {
   const [select_photo_mode, setMode] = useState(false)
   const [field_values, setFieldValues] = useState(
     new Array(
-      Object.keys(getTranslatedFieldsDict(t)).length
+      Object.keys(getProjectFieldOptions(t)).length
     ).fill(false)
   )
 
@@ -173,7 +173,7 @@ export default function CreateProject() {
           date: moment().toISOString(),
           subscribers: [],
           fields: Object.keys(
-            getTranslatedFieldsDict(t)
+            getProjectFieldOptions(t)
           ).filter((item, i) => field_values[i]),
           member_uids: [signInCheckResult.user.uid],
           member_arr: [
@@ -336,7 +336,7 @@ export default function CreateProject() {
 
   const toggleField = (key) => {
     const index = Object.keys(
-      getTranslatedFieldsDict(t)
+      getProjectFieldOptions(t)
     ).indexOf(key)
     let temp = [...field_values]
     temp[index] = !temp[index]
@@ -511,7 +511,7 @@ export default function CreateProject() {
                 </label>
 
                 {Object.entries(
-                  getTranslatedFieldsDict(t)
+                  getProjectFieldOptions(t)
                 ).map(([key, value], index) => {
                   return (
                     <Field

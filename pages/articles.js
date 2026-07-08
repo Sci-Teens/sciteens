@@ -374,10 +374,9 @@ function Articles({ cached_articles }) {
   return (
     <>
       <Head>
-        <title>
-          {field ? field + ' ' : ''} Articles{' '}
-          {search ? 'related to ' + search : ''} | SciTeens
-        </title>
+        <title>{`${field ? field + ' ' : ''} Articles ${
+          search ? 'related to ' + search : ''
+        } | SciTeens`}</title>
         <link rel="icon" href="/favicon.ico" />
         <meta
           name="description"

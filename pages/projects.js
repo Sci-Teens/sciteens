@@ -96,8 +96,15 @@ async function fetchProjectsPage({
 
   const constraints = []
   if (field) {
+    // Legacy project docs store `fields` lowercase (pre-dates the
+    // Title Case FIELD_NAMES dict); array-contains can't do a
+    // case-insensitive match, so match both casings instead of
+    // requiring a Firestore data backfill.
     constraints.push(
-      firebase_where('fields', 'array-contains', field)
+      firebase_where('fields', 'array-contains-any', [
+        field,
+        field.toLowerCase(),
+      ])
     )
   }
   constraints.push(orderBy('date', 'desc'))
@@ -334,10 +341,9 @@ function Projects({ cached_projects }) {
   return (
     <>
       <Head>
-        <title>
-          {field ? field + ' ' : ''}Projects{' '}
-          {search ? 'related to ' + search : ''} | SciTeens
-        </title>
+        <title>{`${field ? field + ' ' : ''}Projects ${
+          search ? 'related to ' + search : ''
+        } | SciTeens`}</title>
         <link rel="icon" href="/favicon.ico" />
         <meta
           name="description"

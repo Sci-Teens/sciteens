@@ -120,42 +120,45 @@ export default function UpdateProfilePage({
     }
   })
 
-  useEffect(async () => {
-    setFiles([])
-    const filesRef = ref(
-      storage,
-      `profiles/${user_profile.id}`
-    )
+  useEffect(() => {
+    async function loadFiles() {
+      setFiles([])
+      const filesRef = ref(
+        storage,
+        `profiles/${user_profile.id}`
+      )
 
-    // Find all the prefixes and items.
-    try {
-      const res = await listAll(filesRef)
-      for (let r of res.items) {
-        const url = await getDownloadURL(r)
-        const metadata = await getMetadata(r)
-        const xhr = new XMLHttpRequest()
-        xhr.responseType = 'blob'
-        xhr.onload = () => {
-          const blob = xhr.response
-          if (xhr.status == 200) {
-            blob.name = metadata.name
-            setFiles((oldFiles) => [...oldFiles, blob])
-            setMetadata((oldMetadata) => [
-              ...oldMetadata,
-              metadata,
-            ])
+      // Find all the prefixes and items.
+      try {
+        const res = await listAll(filesRef)
+        for (let r of res.items) {
+          const url = await getDownloadURL(r)
+          const metadata = await getMetadata(r)
+          const xhr = new XMLHttpRequest()
+          xhr.responseType = 'blob'
+          xhr.onload = () => {
+            const blob = xhr.response
+            if (xhr.status == 200) {
+              blob.name = metadata.name
+              setFiles((oldFiles) => [...oldFiles, blob])
+              setMetadata((oldMetadata) => [
+                ...oldMetadata,
+                metadata,
+              ])
 
-            if (metadata.name.includes('profile_photo')) {
-              setProfilePhoto(metadata.name)
+              if (metadata.name.includes('profile_photo')) {
+                setProfilePhoto(metadata.name)
+              }
             }
           }
+          xhr.open('GET', url)
+          xhr.send()
         }
-        xhr.open('GET', url)
-        xhr.send()
+      } catch (e) {
+        router.push(`/profile/${user_profile.id}`)
       }
-    } catch (e) {
-      router.push(`/profile/${user_profile.id}`)
     }
+    loadFiles()
   }, [])
 
   const updateProfile = async (values) => {

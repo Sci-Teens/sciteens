@@ -2,7 +2,10 @@ import Image from 'next/image'
 import { useTranslation } from 'next-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 
-import { getTranslatedFieldsDict } from '../context/helpers'
+import {
+  getTranslatedFieldsDict,
+  getFieldLabel,
+} from '../context/helpers'
 import { normalizeProject } from '../lib/projects'
 import ProfilePhoto from './ProfilePhoto'
 
@@ -18,15 +21,17 @@ function getProfileHref(member) {
 
 function fieldLimit(fields) {
   const longFields = [
-    'Mechanical Engineering',
-    'Electrical Engineering',
-    'Environmental Science',
-    'Fall 2022 Science Fair',
+    'mechanical engineering',
+    'electrical engineering',
+    'environmental science',
+    'fall 2022 science fair',
   ]
 
   return fields
     .slice(0, 3)
-    .some((field) => longFields.includes(field))
+    .some((field) =>
+      longFields.includes(field.toLowerCase())
+    )
     ? 2
     : 3
 }
@@ -137,7 +142,7 @@ export default function ProjectCard({
                     key={field}
                     className="bg-muted z-30 mb-2 mr-2 whitespace-nowrap rounded-full px-3 py-1.5 text-xs shadow-sm"
                   >
-                    {translatedFields[field] || field}
+                    {getFieldLabel(translatedFields, field)}
                   </p>
                 ))}
               {fields.length >= 3 && (

@@ -6,12 +6,15 @@ var Prismic = require('@prismicio/client')
 
 function Banner({ closeBanner }) {
   const [banner, setBanner] = useState(null)
-  useEffect(async () => {
-    const apiEndpoint =
-      'https://sciteens.cdn.prismic.io/api/v2'
-    const client = Prismic.default.client(apiEndpoint)
-    const banner = await client.getSingle('banner')
-    setBanner(banner)
+  useEffect(() => {
+    async function loadBanner() {
+      const apiEndpoint =
+        'https://sciteens.cdn.prismic.io/api/v2'
+      const client = Prismic.default.client(apiEndpoint)
+      const banner = await client.getSingle('banner')
+      setBanner(banner)
+    }
+    loadBanner()
   }, [])
   return banner?.data.show_banner ? (
     <div className="textl-lg bg-linear-to-r relative mx-auto flex h-32 w-full flex-row items-center justify-center from-indigo-500 via-purple-500 to-pink-500 text-center text-white lg:h-12">

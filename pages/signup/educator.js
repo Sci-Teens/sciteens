@@ -138,33 +138,36 @@ export default function MentorSignUp() {
     },
   })
 
-  useEffect(async () => {
-    if (
-      typeof window !== 'undefined' &&
-      !document
-        .getElementById('recaptcha-container')
-        .hasChildNodes()
-    ) {
-      const recaptchaVerifier = new RecaptchaVerifier(
-        'recaptcha-container',
-        {
-          size: 'normal',
-          callback: () => {
-            setRecaptchaSolved(true)
+  useEffect(() => {
+    async function setupRecaptcha() {
+      if (
+        typeof window !== 'undefined' &&
+        !document
+          .getElementById('recaptcha-container')
+          .hasChildNodes()
+      ) {
+        const recaptchaVerifier = new RecaptchaVerifier(
+          'recaptcha-container',
+          {
+            size: 'normal',
+            callback: () => {
+              setRecaptchaSolved(true)
+            },
+            'expired-callback': () => {
+              setRecaptchaSolved(false)
+            },
           },
-          'expired-callback': () => {
-            setRecaptchaSolved(false)
-          },
-        },
-        auth
-      )
-      await recaptchaVerifier.render()
-      const verified = await recaptchaVerifier.verify()
-      if (verified.length) {
-        setRecaptchaSolved(true)
+          auth
+        )
+        await recaptchaVerifier.render()
+        const verified = await recaptchaVerifier.verify()
+        if (verified.length) {
+          setRecaptchaSolved(true)
+        }
       }
     }
-  })
+    setupRecaptcha()
+  }, [])
 
   async function emailSignUp(values) {
     setLoading(true)

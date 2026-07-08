@@ -117,9 +117,7 @@ function Project({ profile }) {
   return (
     <>
       <Head>
-        <title>
-          {profile.display}&apos;s Profile | SciTeens
-        </title>
+        <title>{`${profile.display}'s Profile | SciTeens`}</title>
         <link rel="icon" href="/favicon.ico" />
         <meta
           name="description"
