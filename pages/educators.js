@@ -1,7 +1,7 @@
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import {
-  useSpring,
+  useTrail,
   animated,
   config,
 } from '@react-spring/web'
@@ -11,7 +11,7 @@ export default function Educators() {
   const { t } = useTranslation('common')
 
   // REACT SPRING ANIMATIONS
-  const get_involved_spring = useSpring({
+  const cardsTrail = useTrail(3, {
     transform: 'scale(1)',
     from: {
       transform: 'scale(0)',
@@ -41,8 +41,8 @@ export default function Educators() {
       </Head>
       <div className="mx-5 mb-24 mt-16 flex flex-col text-center md:mx-16 lg:mx-24 lg:grid lg:grid-cols-2 lg:grid-rows-2 xl:grid-cols-3 xl:grid-rows-1">
         <animated.div
-          style={get_involved_spring}
-          className="mb-8 mr-0 space-y-2 rounded-lg bg-white p-8 text-sm shadow-sm lg:mb-0 lg:mr-8 xl:mb-32"
+          style={cardsTrail[0]}
+          className="border-border/60 bg-card mb-8 mr-0 space-y-2 rounded-xl border p-8 text-sm shadow-sm lg:mb-0 lg:mr-8 xl:mb-32"
         >
           <h1 className="mb-3 text-2xl font-semibold capitalize">
             {t('educators.resources')}
@@ -52,8 +52,8 @@ export default function Educators() {
         </animated.div>
 
         <animated.div
-          style={get_involved_spring}
-          className="space-y-2 rounded-lg bg-white p-8 text-sm shadow-sm"
+          style={cardsTrail[1]}
+          className="border-border/60 bg-card space-y-2 rounded-xl border p-8 text-sm shadow-sm"
         >
           <h1 className="mb-3 text-2xl font-semibold capitalize">
             {t('educators.courses')}
@@ -87,8 +87,8 @@ export default function Educators() {
         </animated.div>
 
         <animated.div
-          style={get_involved_spring}
-          className="mr-0 mt-8 space-y-2 rounded-lg bg-white p-8 text-sm shadow-sm lg:mr-8 xl:mb-32 xl:ml-8 xl:mr-0 xl:mt-0"
+          style={cardsTrail[2]}
+          className="border-border/60 bg-card mr-0 mt-8 space-y-2 rounded-xl border p-8 text-sm shadow-sm lg:mr-8 xl:mb-32 xl:ml-8 xl:mr-0 xl:mt-0"
         >
           <h1 className="mb-3 text-2xl font-semibold capitalize">
             {t('educators.projects')}

@@ -75,7 +75,11 @@ export default function ProjectCard({
             }
             fill
             sizes="(min-width: 768px) 160px, 96px"
-            className="object-cover"
+            className={
+              normalizedProject?.project_photo
+                ? 'object-cover'
+                : 'object-contain p-4 opacity-70'
+            }
           />
         </div>
         <div className="ml-4 min-w-0 flex-1">

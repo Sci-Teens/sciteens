@@ -185,6 +185,10 @@ export default function About() {
     setMembers(randomized_members)
   }, [])
 
+  const currentMembers = members.filter(
+    (m) => m.current == true
+  )
+
   // Intersection Observer Stuff
   useEffect(() => {
     const member_elements =
@@ -200,7 +204,8 @@ export default function About() {
         })
       },
       {
-        threshold: 0.85,
+        threshold: 0.15,
+        rootMargin: '0px 0px -10% 0px',
       }
     )
 
@@ -236,27 +241,30 @@ export default function About() {
           <p className="mx-0 mb-12 text-center text-base md:text-xl lg:mx-24">
             {t('about.we_strive')}
           </p>
-          <div className="mb-8 inline-grid h-full w-full grid-cols-2 place-items-center lg:grid-cols-3">
-            {members
-              .filter((m) => m.current == true)
-              .map((member) => {
-                return (
-                  <div
-                    key={member.name}
-                    className="member relative mb-6 h-[90%] w-11/12 scale-0 rounded-lg bg-white p-4 shadow-sm transition-all duration-500 md:p-8"
-                  >
-                    <Image
-                      src={`/assets/headshots/${member.image}`}
-                      alt={member.name}
-                      width={112}
-                      height={112}
-                      className="m-auto mb-4 h-20 w-20 rounded-full object-cover shadow-sm lg:h-28 lg:w-28"
-                    />
-                    <p className="mb-2 text-center text-base font-semibold md:text-2xl">
-                      {member.name}
-                    </p>
-                    <p
-                      className={`hidden text-center text-gray-700 md:block
+          {currentMembers.length > 0 && (
+            <>
+              <h2 className="mb-6 text-center text-2xl font-bold md:text-3xl">
+                {t('about.current_members')}
+              </h2>
+              <div className="mb-8 inline-grid h-full w-full grid-cols-2 place-items-center lg:grid-cols-3">
+                {currentMembers.map((member) => {
+                  return (
+                    <div
+                      key={member.name}
+                      className="member border-border/60 bg-card relative mb-6 h-[90%] w-11/12 scale-0 rounded-xl border p-4 shadow-sm transition-all duration-500 md:p-8"
+                    >
+                      <Image
+                        src={`/assets/headshots/${member.image}`}
+                        alt={member.name}
+                        width={112}
+                        height={112}
+                        className="m-auto mb-4 h-20 w-20 rounded-full object-cover shadow-sm lg:h-28 lg:w-28"
+                      />
+                      <p className="mb-2 text-center text-base font-semibold md:text-2xl">
+                        {member.name}
+                      </p>
+                      <p
+                        className={`hidden text-center text-gray-700 md:block
                                     ${
                                       member.name ===
                                         'Angelica Castillejos' ||
@@ -265,16 +273,18 @@ export default function About() {
                                         ? 'text-sm'
                                         : 'text-base'
                                     }`}
-                    >
-                      {member.about}
-                    </p>
-                  </div>
-                )
-              })}
-          </div>
+                      >
+                        {member.about}
+                      </p>
+                    </div>
+                  )
+                })}
+              </div>
+            </>
+          )}
 
           <h2 className="mb-6 text-center text-2xl font-bold md:text-3xl">
-            Previous Members
+            {t('about.previous_members')}
           </h2>
           <div className="mb-8 inline-grid h-full w-full grid-cols-2 place-items-center lg:grid-cols-3">
             {members
@@ -283,7 +293,7 @@ export default function About() {
                 return (
                   <div
                     key={member.name}
-                    className="member relative mb-6 h-[90%] w-11/12 scale-0 rounded-lg bg-white p-4 shadow-sm transition-all duration-500 md:p-8"
+                    className="member border-border/60 bg-card relative mb-6 h-[90%] w-11/12 scale-0 rounded-xl border p-4 shadow-sm transition-all duration-500 md:p-8"
                   >
                     <Image
                       src={`/assets/headshots/${member.image}`}

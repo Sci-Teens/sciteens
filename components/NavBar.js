@@ -151,13 +151,14 @@ export default function NavBar() {
             <div className="inline-block md:w-1/2">
               <Link
                 href="/"
-                className="relative ml-4 block h-12 w-12"
+                className="relative ml-4 block aspect-[182/161] h-11"
               >
                 <Image
                   src="/assets/sciteens_logo_initials.svg"
                   alt="SciTeens"
                   fill
-                  sizes="48px"
+                  sizes="45px"
+                  className="object-contain"
                   priority
                 />
               </Link>

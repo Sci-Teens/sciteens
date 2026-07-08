@@ -235,7 +235,8 @@ export default function Discussion({ type, item_id }) {
               setReplyingToId('')
               setComment('')
             }}
-            className="mr-2 rounded-lg border-2 border-gray-500 bg-gray-200 p-2 opacity-50 shadow-sm hover:bg-opacity-100 disabled:opacity-50"
+            variant="outline"
+            className="mr-2"
           >
             Cancel
           </Button>
@@ -250,7 +251,6 @@ export default function Discussion({ type, item_id }) {
           </Button>
         </div>
       </form>
-      {router.isReady && router.basePath}
       {discussion?.length ? (
         discussion.map((comment, key) => {
           if (comment.reply_to_id == '')

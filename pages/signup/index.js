@@ -33,10 +33,12 @@ export default function SignUpIndex() {
           content="/assets/sciteens_initials.jpg"
         />
       </Head>
-      <main className="-mt-8 flex h-screen justify-center">
-        <div className="flex flex-col items-center justify-center text-center">
-          <h1 className="text-4xl">{t('auth.i_am_a')}</h1>
-          <div className="mx-auto">
+      <main className="-mt-8 flex min-h-screen items-center justify-center px-4 py-12">
+        <div className="border-border/60 bg-card mx-auto w-full max-w-md rounded-xl border p-8 text-center shadow-sm sm:p-10">
+          <h1 className="text-3xl font-semibold">
+            {t('auth.i_am_a')}
+          </h1>
+          <div className="mx-auto mt-2 text-gray-700">
             {t('auth.have_account')}&nbsp;
             <Link
               href={
@@ -54,7 +56,7 @@ export default function SignUpIndex() {
               {t('auth.sign_in_link')}
             </Link>
           </div>
-          <div className="mx-auto flex flex-wrap justify-center">
+          <div className="mx-auto mt-8 flex justify-center">
             <Link
               href={
                 router.query?.ref
@@ -66,7 +68,7 @@ export default function SignUpIndex() {
                     }
                   : '/signup/student'
               }
-              className="m-6 h-56 w-56 rounded-sm bg-white shadow-sm hover:shadow-md"
+              className="border-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark flex h-56 w-56 flex-col items-center justify-center rounded-xl border-2 transition-colors"
             >
               {show_student_info ? (
                 <div className="relative pt-8">
@@ -113,7 +115,7 @@ export default function SignUpIndex() {
               )}
             </Link>
           </div>
-          <div className="mb-1/4 mx-auto">
+          <div className="mx-auto mt-8">
             <p className="text-gray-700">
               {t('auth.neither_of_above')}&nbsp;
               <Link

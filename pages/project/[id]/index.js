@@ -24,10 +24,16 @@ import Error from 'next/error'
 import Link from 'next/link'
 import File from '../../../components/File'
 import { useEffect, useMemo, useState } from 'react'
-import Discussion from '../../../components/Discussion'
+import dynamic from 'next/dynamic'
 import ProfilePhoto from '../../../components/ProfilePhoto'
 import firebaseConfig from '../../../firebaseConfig'
 import { normalizeProject } from '../../../lib/projects'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+
+const Discussion = dynamic(
+  () => import('../../../components/Discussion'),
+  { ssr: false }
+)
 
 function Project({ query, initialProject }) {
   const router = useRouter()
@@ -145,7 +151,7 @@ function Project({ query, initialProject }) {
               </Link>
             )}
           </div>
-          {project.member_arr && (
+          {project.member_arr?.length > 0 && (
             <div className="mb-3 flex flex-row items-center">
               <div className="flex -space-x-2 overflow-hidden">
                 {project.member_arr.map((member) => {
@@ -207,7 +213,7 @@ function Project({ query, initialProject }) {
                     pathname: '/projects',
                     query: { field: tag },
                   }}
-                  className="bg-card ring-border/60 my-1 mr-4 cursor-pointer rounded-full px-5 py-1.5 text-base shadow-sm ring-1 hover:shadow-md"
+                  className="bg-card ring-border/60 my-1 mr-4 cursor-pointer rounded-full px-5 py-1.5 text-base no-underline shadow-sm ring-1 hover:shadow-md"
                 >
                   {tag}
                 </Link>
@@ -230,15 +236,16 @@ function Project({ query, initialProject }) {
             )
           })}
         </div>
-        {typeof window !== 'undefined' && (
-          <Discussion type="projects" item_id={query.id} />
-        )}
+        <Discussion type="projects" item_id={query.id} />
       </div>
     </>
   )
 }
 
-export async function getServerSideProps({ query }) {
+export async function getServerSideProps({
+  query,
+  locale,
+}) {
   const app = getApps().length
     ? getApp()
     : initializeApp(firebaseConfig)
@@ -257,6 +264,7 @@ export async function getServerSideProps({ query }) {
       initialProject: JSON.parse(
         JSON.stringify(normalizeProject(projectDoc.data()))
       ),
+      ...(await serverSideTranslations(locale, ['common'])),
     },
   }
 }

@@ -17,16 +17,16 @@ function Banner({ closeBanner }) {
     loadBanner()
   }, [])
   return banner?.data.show_banner ? (
-    <div className="textl-lg bg-linear-to-r relative mx-auto flex h-32 w-full flex-row items-center justify-center from-indigo-500 via-purple-500 to-pink-500 text-center text-white lg:h-12">
-      <div className="m-1 w-11/12 overflow-auto">
+    <div className="bg-sciteensGreen-regular relative mx-auto flex w-full flex-row items-center justify-center gap-3 px-4 py-2.5 text-center text-sm text-white lg:text-base">
+      <div className="[&_a]:decoration-white/70 [&_a]:hover:decoration-white [&_a]:underline [&_a]:underline-offset-2 [&_a]:hover:text-white m-1 w-11/12 break-words">
         {RichText.render(banner.data.message)}
       </div>
       <button
         onClick={() => closeBanner()}
         aria-label="Close"
-        className="relative flex h-full w-1/12 items-center justify-center"
+        className="hover:bg-white/15 relative flex shrink-0 items-center justify-center rounded-full p-1.5 transition-colors"
       >
-        <X className="h-5 w-5" />
+        <X className="h-4 w-4" />
       </button>
     </div>
   ) : (

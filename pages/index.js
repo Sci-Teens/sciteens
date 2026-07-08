@@ -93,7 +93,7 @@ export default function Home() {
           }
         })
       },
-      { threshold: 1 }
+      { threshold: 0.15, rootMargin: '0px 0px -10% 0px' }
     )
 
     observedSections.forEach(({ element }) => {
@@ -416,7 +416,7 @@ export default function Home() {
           </div>
           <div
             id="mission"
-            className="absolute left-0 top-[40%] h-20"
+            className="absolute left-0 right-0 top-[40%] h-20"
           />
         </div>
 
@@ -435,7 +435,7 @@ export default function Home() {
                 <animated.div
                   key={index}
                   style={styles}
-                  className="w-auto rounded-lg bg-white p-5 shadow-sm first-of-type:mb-5 last-of-type:hidden md:w-[45%] md:first-of-type:mb-0 lg:w-[30%] lg:first-of-type:mb-8 lg:last-of-type:mb-8 lg:last-of-type:block"
+                  className="border-border/60 bg-card w-auto rounded-xl border p-5 shadow-sm first-of-type:mb-5 last-of-type:hidden md:w-[45%] md:first-of-type:mb-0 lg:w-[30%] lg:first-of-type:mb-8 lg:last-of-type:mb-8 lg:last-of-type:block"
                 >
                   <Icon className="text-sciteensGreen-regular mb-6 h-10 w-10" />
                   <animated.p className="mb-4 text-sm lg:text-base">
@@ -540,7 +540,7 @@ export default function Home() {
           </svg>
           <div
             id="testimonials"
-            className="absolute left-0 top-[38%] h-20"
+            className="absolute left-0 right-0 top-[38%] h-20"
           />
         </div>
 
@@ -556,7 +556,7 @@ export default function Home() {
             <animated.a
               style={mediaSpring1}
               href="https://www.neonscience.org/impact/observatory-blog/sciteens-data-science-and-ecology-gen-z"
-              className="group col-span-1 row-span-1 mb-4 mr-0 overflow-hidden rounded-lg bg-white shadow-sm lg:row-span-2 lg:mb-0 lg:mr-4"
+              className="border-border/60 group col-span-1 row-span-1 mb-4 mr-0 overflow-hidden rounded-xl border bg-white shadow-sm lg:row-span-2 lg:mb-0 lg:mr-4"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -583,7 +583,7 @@ export default function Home() {
             <animated.a
               style={mediaSpring2}
               href="https://news.mit.edu/2019/ideas-challenge-social-ventures-0430"
-              className="group  col-span-1 row-span-1 mb-4 ml-0 mt-4 overflow-hidden rounded-lg bg-white shadow-sm lg:ml-4 lg:mt-0"
+              className="border-border/60 group col-span-1 row-span-1 mb-4 ml-0 mt-4 overflow-hidden rounded-xl border bg-white shadow-sm lg:ml-4 lg:mt-0"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -610,7 +610,7 @@ export default function Home() {
             <animated.a
               style={mediaSpring3}
               href="https://news.fsu.edu/multimedia/radio/2020/08/03/young-scholars-online-program-turns-students-into-scientists/"
-              className="group col-span-1 row-span-1 ml-0 mt-4 h-72 overflow-hidden rounded-lg bg-white shadow-sm md:h-auto lg:ml-4"
+              className="border-border/60 group col-span-1 row-span-1 ml-0 mt-4 h-72 overflow-hidden rounded-xl border bg-white shadow-sm md:h-auto lg:ml-4"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -637,7 +637,7 @@ export default function Home() {
           </div>
           <div
             id="media"
-            className="absolute left-0 top-[40%] h-20"
+            className="absolute left-0 right-0 top-[40%] h-20"
           />
         </div>
       </div>
