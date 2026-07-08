@@ -234,18 +234,21 @@ function Courses({ cached_courses }) {
                 getTranslatedFieldsDict(t)
               ).map(([key, value]) => {
                 return (
-                  <button
+                  <Button
                     key={value}
+                    type="button"
+                    variant={
+                      key == field ? 'default' : 'secondary'
+                    }
                     onClick={() => handleFieldSearch(key)}
-                    className={`mb-4 mr-4 rounded-full px-3 py-2 text-sm shadow
-                                        ${
-                                          key == field
-                                            ? 'bg-sciteensLightGreen-regular text-white'
-                                            : 'bg-white'
-                                        }`}
+                    className={
+                      key == field
+                        ? 'mb-4 mr-4 rounded-full'
+                        : 'bg-card hover:bg-muted mb-4 mr-4 rounded-full border border-gray-300 shadow-sm'
+                    }
                   >
                     {value}
-                  </button>
+                  </Button>
                 )
               })}
             </div>

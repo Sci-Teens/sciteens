@@ -125,7 +125,11 @@ export default function ProjectCard({
             </div>
           )}
           {date && (
-            <div className="text-muted-foreground mb-2 ml-10 text-sm">
+            <div
+              className={`text-muted-foreground mb-2 text-sm ${
+                members.length > 0 ? 'ml-10' : ''
+              }`}
+            >
               {date}
             </div>
           )}
