@@ -36,8 +36,12 @@ pnpm-debug.log*
 # vercel
 .vercel
 
-# Firebase 
+# Firebase
 .firebaserc
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+.firebase/
 
 # Containerization
 # cloud-build.yaml
