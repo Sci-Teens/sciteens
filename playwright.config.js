@@ -97,8 +97,10 @@ module.exports = defineConfig({
   ),
   fullyParallel: true,
   // Capped: too much parallelism serializes route compilation behind
-  // one dev server.
-  workers: 4,
+  // one dev server. Lower still in CI: 4 parallel Chromium instances
+  // plus `next dev` plus the JVM Firestore/Auth emulator process
+  // OOM-killed the whole run at workers: 4 on a GitHub-hosted runner.
+  workers: process.env.CI ? 2 : 4,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI
