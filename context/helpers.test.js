@@ -1,7 +1,16 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest'
+import { doc, getDoc } from '@firebase/firestore'
 import {
   ALLOWED_UPLOAD_MIME_TYPES,
   UPLOAD_MIME_EXTENSIONS,
+  createUniqueSlug,
   getFieldLabel,
   getProjectFieldOptions,
   getSafeUploadName,
@@ -9,6 +18,14 @@ import {
   resolveRefPath,
   validatePassword,
 } from './helpers'
+
+vi.mock('@firebase/firestore', () => ({
+  doc: vi.fn((_db, collectionName, slug) => ({
+    collectionName,
+    slug,
+  })),
+  getDoc: vi.fn(),
+}))
 
 // Identity translator: lets assertions check against the raw key.
 const t = (key) => key
@@ -249,4 +266,59 @@ describe('validatePassword', () => {
       expect(validatePassword(password, t)).toBe('')
     }
   )
+})
+
+describe('createUniqueSlug', () => {
+  beforeEach(() => {
+    doc.mockClear()
+    getDoc.mockReset()
+  })
+
+  it('returns the slug unchanged when it is not taken', async () => {
+    getDoc.mockResolvedValueOnce({ exists: () => false })
+    await expect(
+      createUniqueSlug({}, 'john-doe', 'profile-slugs', 1)
+    ).resolves.toBe('john-doe')
+    expect(getDoc).toHaveBeenCalledTimes(1)
+  })
+
+  it('appends "-1" on the first collision', async () => {
+    getDoc
+      .mockResolvedValueOnce({ exists: () => true })
+      .mockResolvedValueOnce({ exists: () => false })
+    await expect(
+      createUniqueSlug({}, 'john-doe', 'profile-slugs', 1)
+    ).resolves.toBe('john-doe-1')
+    expect(getDoc).toHaveBeenCalledTimes(2)
+    expect(doc).toHaveBeenNthCalledWith(
+      2,
+      {},
+      'profile-slugs',
+      'john-doe-1'
+    )
+  })
+
+  it('increments the trailing counter on repeated collisions', async () => {
+    getDoc
+      .mockResolvedValueOnce({ exists: () => true })
+      .mockResolvedValueOnce({ exists: () => true })
+      .mockResolvedValueOnce({ exists: () => false })
+    await expect(
+      createUniqueSlug({}, 'john-doe', 'profile-slugs', 1)
+    ).resolves.toBe('john-doe-2')
+    expect(getDoc).toHaveBeenCalledTimes(3)
+  })
+
+  // Regression guard: the increment regex must only ever touch the
+  // appended "-N" counter, never digits already in the base slug
+  // (`/[0-9]+(?!.*[0-9])/` matches the LAST digit run only).
+  it('increments only the appended counter, not digits in the base slug', async () => {
+    getDoc
+      .mockResolvedValueOnce({ exists: () => true })
+      .mockResolvedValueOnce({ exists: () => true })
+      .mockResolvedValueOnce({ exists: () => false })
+    await expect(
+      createUniqueSlug({}, 'user2000', 'profile-slugs', 1)
+    ).resolves.toBe('user2000-2')
+  })
 })
