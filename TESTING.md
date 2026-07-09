@@ -162,36 +162,40 @@ Two implementation notes for anyone adding more of these:
   faster default `node` environment) and calls `afterEach(cleanup)`
   itself, since this repo doesn't set `test.globals: true`.
 
-## Priority 4 — Playwright end-to-end (the few flows worth a real browser)
+## Priority 4 — Playwright end-to-end (the few flows worth a real browser) — DONE
 
-Keep this list short — E2E is expensive to write and maintain. Cover the
-journeys that cross multiple systems (auth + Firestore + routing) where a
-unit test can't catch the integration failure:
+Implemented in `playwright.config.js` + `e2e/*.spec.js`. Two projects:
+"emulator" (local Firebase Auth + Firestore emulators, everything that
+writes data) and "live" (real firebaseConfig, `csp-smoke.spec.js` only
+— skipped when no real Firebase config is available).
 
-1. **Signup → redirect**: student signup happy path, then a second run
-   hitting `/signup/student?ref=project|<id>` confirms the post-signup
-   redirect lands on `/project/<id>` (exercises `resolveRefPath` end to
-   end, not just the pure function).
-2. **Project create → member invite → edit**: create a project, add a
-   member by email, edit it, confirm field checkboxes reflect saved
-   state (regression coverage for the legacy-lowercase-fields
-   pre-check bug already fixed once in `project/[id]/edit.js`).
-3. **`/projects?field=X` filtering**: for at least one seeded lowercase
-   legacy project and one Title-Case project, confirm the filtered list
-   is non-empty and shows the translated badge (this is the exact bug
-   MIGRATION-PHASES.md's post-Phase-5 sweep found and fixed — a filter
-   silently returning zero results is easy to miss without this test).
-4. **Mobile nav Sheet a11y**: open the hamburger menu, Tab through links,
-   confirm Escape closes it and focus returns to the trigger (regression
-   coverage for the Phase 3 a11y rewrite — Base UI should handle this,
-   but it's cheap to pin down with a real browser rather than trust it).
-5. **i18n smoke**: load `/`, `/projects`, `/articles` in all four locales
-   (`en`/`es`/`fr`/`hi`) and assert zero `next-i18next` missing-key
-   console warnings and zero page errors.
-6. **CSP smoke**: load `/signup/student`, confirm zero
-   `Content-Security-Policy` violation reports in the console and that
-   the reCAPTCHA iframe actually mounts (regression coverage for the
-   CSP-blocked-recaptcha bug already found and fixed once).
+1. **Signup → redirect** (`signup-redirect.spec.js`): student signup
+   with no `?ref=` redirects home; a sign-in (not a second signup —
+   the Auth Emulator's reCAPTCHA mock only auto-resolves once per
+   emulator lifetime, firebase-js-sdk#4126) with
+   `?ref=project|<id>` redirects to `/project/<id>`.
+2. **Project create → member invite → edit** (`project-flow.spec.js`):
+   field checkboxes survive create + edit, including the
+   legacy-lowercase-fields pre-check case. Found and documented a
+   pre-existing bug: member-by-email lookup is non-functional in
+   production (`validateEmail()` queries a collection firestore.rules
+   denies all reads on) — needs a Cloud Function fix, out of scope
+   here.
+3. **`/projects?field=X` filtering** (`projects-filter.spec.js`): a
+   seeded lowercase legacy project and a Title-Case project both show
+   up with the translated badge.
+4. **Mobile nav Sheet a11y** (`nav-a11y.spec.js`): focus trap,
+   Escape-to-close, focus restoration.
+5. **i18n smoke** (`i18n-smoke.spec.js`): zero missing-key warnings and
+   zero page errors across `/`, `/projects`, `/articles` × 4 locales.
+   `/articles` has a known, tracked hydration-mismatch bug under
+   `next dev` (not root-caused; suspect `useWindowVirtualizer` racing
+   live external CMS data) — marked via `test.fail()`, not silently
+   dropped.
+6. **CSP smoke** (`csp-smoke.spec.js`): reCAPTCHA iframe mounts, zero
+   CSP violations (a "script-src: eval" from Google's reCAPTCHA
+   challenge UI is filtered — it's an external dependency's behavior,
+   not this app's CSP allowlist).
 
 ## Setup notes
 
@@ -202,12 +206,11 @@ unit test can't catch the integration failure:
 - **Firebase emulator**: `firebase emulators:start --only firestore` in
   CI, `@firebase/rules-unit-testing`'s `initializeTestEnvironment` for the
   P0 rules suite. Do not point rules tests at the real project.
-- **Playwright**: `webServer` config pointing at `pnpm build && pnpm start`
-  (or `pnpm dev` for local iteration) so tests exercise the same SSR/SSG
-  paths users hit. Needs a real (or emulator-backed) `firebaseConfig.js`/
-  `.env.local` — do not commit test credentials; wire from CI secrets the
-  same way `firebaseConfig.js` already works locally.
-- Wire both into `package.json` (`test`, `test:e2e`) and CI once the P0/P1
-  suites exist; don't block the first PR on covering everything above —
-  land P0 (rules) + P1 (pure functions) first, they're the cheapest and
-  catch the sharpest bugs.
+- **Playwright**: `webServer` runs `pnpm dev` for the "emulator"
+  project (faster iteration; `next build && next start` surfaced
+  more, not fewer, hydration issues in testing) and
+  `next build && next start` for "live" (`csp-smoke.spec.js`, real
+  firebaseConfig).
+- `test:e2e` is wired into `package.json` and CI
+  (`.github/workflows/test.yml`'s `e2e-tests` job, "emulator" project
+  only — "live" needs real Firebase secrets not yet configured in CI).

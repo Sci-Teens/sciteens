@@ -30,7 +30,9 @@ args; without them `pnpm dev` errors at runtime, not install.
 
 - Prettier is enforced by ESLint: no semicolons, single quotes, trailing
   comma `es5`, `printWidth: 60`, `tabWidth: 2`. Run `pnpm format:fix`.
-- Comments answer "why", not "what". No section-divider comments.
+- Comments answer "why", not "what". No section-divider comments. Comments
+  should be sparse and minimal. If you MUST comment, only use a single
+  sentence or statement.
 - No em dashes or emojis in prose (README, docs, commits, PRs).
 - i18n required on user-facing pages: `useTranslation('common')` in
   components, `serverSideTranslations(locale, ['common'])` in `getStaticProps`.

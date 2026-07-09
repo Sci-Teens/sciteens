@@ -95,8 +95,6 @@ function Articles({ cached_articles }) {
       ? queryPage
       : 1
 
-  moment.locale(router?.locale ? router.locale : 'en')
-
   const initialData = useMemo(() => {
     if (
       !router.isReady ||
@@ -346,9 +344,9 @@ function Articles({ cached_articles }) {
                     {article.data.description}
                   </p>
                   <p className="flex text-xs">
-                    {moment(article.data.date).format(
-                      'll'
-                    ) +
+                    {moment(article.data.date)
+                      .locale(router?.locale || 'en')
+                      .format('ll') +
                       ' · ' +
                       readingTime(article.data.text)}
                   </p>

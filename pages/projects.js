@@ -140,8 +140,6 @@ function Projects({ cached_projects }) {
       ? router.query.field
       : ''
 
-  moment.locale(router?.locale ? router.locale : 'en')
-
   const initialData = useMemo(() => {
     if (
       !router.isReady ||
@@ -279,7 +277,9 @@ function Projects({ cached_projects }) {
 
   function formatProjectDate(date) {
     const parsedDate = date?.toDate ? date.toDate() : date
-    const formattedDate = moment(parsedDate).format('ll')
+    const formattedDate = moment(parsedDate)
+      .locale(router?.locale || 'en')
+      .format('ll')
 
     return formattedDate === 'Invalid date'
       ? ''

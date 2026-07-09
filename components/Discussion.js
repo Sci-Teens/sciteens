@@ -115,8 +115,6 @@ export default function Discussion({ type, item_id }) {
 
   const router = useRouter()
 
-  moment.locale(router?.locale ? router.locale : 'en')
-
   const onChange = async (e, isComment, index) => {
     setLoading(true)
     if (isComment) {
@@ -318,9 +316,11 @@ export default function Discussion({ type, item_id }) {
                     </p>
                   </div>
                   <p className="absolute right-4 top-4 text-xs text-gray-700">
-                    {moment(comment.date).calendar(null, {
-                      sameElse: 'MMMM DD, YYYY',
-                    })}
+                    {moment(comment.date)
+                      .locale(router?.locale || 'en')
+                      .calendar(null, {
+                        sameElse: 'MMMM DD, YYYY',
+                      })}
                   </p>
                   <p>{comment.comment}</p>
                   <div className="flex justify-end">
@@ -442,11 +442,14 @@ export default function Discussion({ type, item_id }) {
                               </div>
                               <p>{reply.comment}</p>
                               <p className="absolute right-4 top-4 text-xs text-gray-700">
-                                {moment(
-                                  reply.date
-                                ).calendar(null, {
-                                  sameElse: 'MMMM DD, YYYY',
-                                })}
+                                {moment(reply.date)
+                                  .locale(
+                                    router?.locale || 'en'
+                                  )
+                                  .calendar(null, {
+                                    sameElse:
+                                      'MMMM DD, YYYY',
+                                  })}
                               </p>
                             </div>
                           </div>
