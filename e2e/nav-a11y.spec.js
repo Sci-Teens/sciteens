@@ -1,4 +1,4 @@
-// TESTING.md Priority 4, item 4: mobile nav Sheet a11y. Pins down
+// Mobile nav Sheet a11y. Pins down
 // that @base-ui/react's Dialog primitive (behind NavBar.js's Sheet)
 // actually delivers focus trap, Escape-to-close, and focus
 // restoration in a real browser.

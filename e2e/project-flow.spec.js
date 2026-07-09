@@ -1,5 +1,5 @@
-// TESTING.md Priority 4, item 2: create a project, add a member by
-// email, edit it, confirm field checkboxes reflect saved state.
+// Creates a project, adds a member by email, edits it, confirms field
+// checkboxes reflect saved state.
 //
 // KNOWN BUG (pre-existing): member-by-email is non-functional —
 // `validateEmail()` queries the `emails` collection client-side, but

@@ -9,8 +9,7 @@ import {
 import userEvent from '@testing-library/user-event'
 import StudentSignIn from '@/pages/signin/student'
 
-// TESTING.md's Priority 3 ("Signup/signin forms") intent for the signin
-// page: submit stays disabled until both fields (email + password) pass
+// Submit stays disabled until both fields (email + password) pass
 // their zod validation, driven through the real react-hook-form + zod
 // wiring rather than internal state.
 //

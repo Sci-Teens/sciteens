@@ -103,8 +103,19 @@ args; without them `pnpm dev` errors at runtime, not install.
 
 ## Testing instructions
 
-No test runner is configured yet; see `TESTING.md` for the recommended
-vitest/Playwright rollout. Until then, verify another way:
+vitest (unit, component, and Firestore rules tests) and Playwright
+(end-to-end) are configured; see the Makefile for shortcuts.
+
+- `make test-unit` (or `pnpm test:unit`): pure-function, component, and
+  page-level tests under `context/`, `lib/`, `components/`, `tests/pages/`.
+- `make test-rules` (or `pnpm test:rules`): `firestore.rules` against the
+  Firestore emulator (needs a JDK 21+ for the `firebase-tools` emulator).
+- `make test-e2e` / `make test-e2e-ui` (or `pnpm test:e2e[:ui]`):
+  Playwright, `emulator` project by default; the `live` project
+  (`csp-smoke.spec.js`) needs a real `firebaseConfig.js`.
+- `make test` runs unit + rules, matching CI.
+
+For anything not covered by an existing suite:
 
 - Bug fix: describe the repro and confirm the fix (manual `pnpm dev`, or a
   `fetch` against an API route).
@@ -118,7 +129,8 @@ vitest/Playwright rollout. Until then, verify another way:
 - Branch off `main` with `fix/`, `feat/`, `refactor/`, `chore/` prefixes.
   Conventional commit messages; standard git commits only; never commit via
   credential tokens.
-- Run `pnpm lint && pnpm build` before opening a PR.
+- Run `pnpm lint && pnpm test:unit && pnpm build` before opening a PR
+  (`make lint test-unit build` also works).
 - End each task with: **What changed** (files/functions), **Why** (root cause
   or rationale), **Validation** (commands run and what passed), **Open
   questions/risks**.

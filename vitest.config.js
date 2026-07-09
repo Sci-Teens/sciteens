@@ -2,7 +2,7 @@ const { defineConfig } = require('vitest/config')
 const path = require('node:path')
 
 module.exports = defineConfig({
-  // Component tests (Priority 3) import `pages/**` and `components/**`
+  // Component tests import `pages/**` and `components/**`
   // files that are plain `.js` but contain JSX, matching Next's own
   // convention (no `.jsx` extension required). Vite 8's built-in oxc
   // transform infers its parser `lang` from the file extension, so a

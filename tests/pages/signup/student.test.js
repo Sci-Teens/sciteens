@@ -17,11 +17,10 @@ import userEvent from '@testing-library/user-event'
 import moment from 'moment'
 import StudentSignUp from '@/pages/signup/student'
 
-// This covers TESTING.md's Priority 3 ("Signup/signin forms") intent:
-// the submit button's gated-disabled logic (form validity AND, on this
-// page, a solved reCAPTCHA) and the birthday-under-13 zod rejection, all
-// driven through real react-hook-form + zod validation rather than
-// asserting on internal state.
+// Covers the submit button's gated-disabled logic (form validity AND,
+// on this page, a solved reCAPTCHA) and the birthday-under-13 zod
+// rejection, all driven through real react-hook-form + zod validation
+// rather than asserting on internal state.
 //
 // Lives under tests/pages/ rather than pages/signup/ — Next's Pages
 // Router treats every `.js` file under `pages/` as a route, so a

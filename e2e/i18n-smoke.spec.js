@@ -1,4 +1,4 @@
-// TESTING.md Priority 4, item 5: load /, /projects, /articles in all
+// Loads /, /projects, /articles in all
 // four locales, assert zero next-i18next missing-key warnings and
 // zero page errors. Debug logging for missing keys is opt-in
 // (NEXT_PUBLIC_I18NEXT_DEBUG=true, set in playwright.config.js).

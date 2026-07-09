@@ -7,13 +7,12 @@ import {
 } from '@testing-library/react'
 import ProjectCard from './ProjectCard'
 
-// TESTING.md's Priority 3 intent for ProjectCard: (1) a regression guard
-// for the zero-member "By" label bug (the render gate is
-// `member_arr?.length > 0`, not a truthy-empty-array check — an empty
-// array is truthy in JS, so a naive `member_arr &&` gate would render a
-// dangling "By" with no names), and (2) that the field badge resolves
-// the same label for both legacy-lowercase and Title-Case `fields`
-// values via `getFieldLabel`'s case-insensitive fallback.
+// Regression guard for the zero-member "By" label bug (the render gate
+// is `member_arr?.length > 0`, not a truthy-empty-array check — an
+// empty array is truthy in JS, so a naive `member_arr &&` gate would
+// render a dangling "By" with no names), and confirms the field badge
+// resolves the same label for both legacy-lowercase and Title-Case
+// `fields` values via `getFieldLabel`'s case-insensitive fallback.
 
 vi.mock('next-i18next', () => ({
   useTranslation: () => ({ t: (key) => key }),

@@ -1,4 +1,4 @@
-// TESTING.md Priority 4, item 6: load /signup/student, confirm zero
+// Loads /signup/student, confirms zero
 // CSP violations and that the reCAPTCHA iframe mounts. Runs against
 // the "live" project (real firebaseConfig) — the Auth emulator fakes
 // reCAPTCHA entirely, which would make this pass trivially.

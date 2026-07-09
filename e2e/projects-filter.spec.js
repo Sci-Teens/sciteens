@@ -1,4 +1,4 @@
-// TESTING.md Priority 4, item 3: for one seeded lowercase legacy
+// For one seeded lowercase legacy
 // project and one Title-Case project, /projects?field=X returns a
 // non-empty, translated-badge result for both. Fixtures are seeded
 // once in e2e/global-setup.js to avoid racing project-flow.spec.js.

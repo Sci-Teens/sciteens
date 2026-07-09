@@ -1,8 +1,8 @@
-// TESTING.md Priority 4, item 1: exercises resolveRefPath end to end
-// through the real router. Second scenario uses sign-in, not a
-// second signup: the Auth Emulator's reCAPTCHA mock only auto-resolves
-// once per emulator lifetime (firebase-js-sdk#4126), and sign-in has
-// no reCAPTCHA gate but shares the same redirect pattern.
+// Exercises resolveRefPath end to end through the real router. Second
+// scenario uses sign-in, not a second signup: the Auth Emulator's
+// reCAPTCHA mock only auto-resolves once per emulator lifetime
+// (firebase-js-sdk#4126), and sign-in has no reCAPTCHA gate but shares
+// the same redirect pattern.
 const { test, expect } = require('@playwright/test')
 const {
   uniqueSuffix,

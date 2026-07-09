@@ -1,5 +1,5 @@
-// Priority 0 (AGENTS.md: "Owner-scoped writes only") — exercises the actual
-// firestore.rules file against the Firestore emulator, one `describe` per
+// Exercises the actual firestore.rules file against the Firestore
+// emulator (AGENTS.md: "Owner-scoped writes only"), one `describe` per
 // collection. Run via `pnpm test:rules` (wraps this file in
 // `firebase emulators:exec` so the emulator lifecycle is managed for us).
 import { readFileSync } from 'node:fs'

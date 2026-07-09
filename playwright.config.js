@@ -1,7 +1,7 @@
-// Priority 4 (TESTING.md). Two projects: "emulator" (everything that
-// writes data, backed by local Firebase emulators) and "live"
-// (csp-smoke.spec.js only, real firebaseConfig, since the Auth
-// emulator fakes reCAPTCHA and that test needs the real widget).
+// Two projects: "emulator" (local Firebase Auth + Firestore emulators,
+// everything that writes data) and "live" (real firebaseConfig,
+// csp-smoke.spec.js only — reCAPTCHA needs the real widget, which the
+// Auth emulator fakes).
 const {
   defineConfig,
   devices,
