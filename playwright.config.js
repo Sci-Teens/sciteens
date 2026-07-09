@@ -33,11 +33,18 @@ const webServer = [
   {
     // `emulators:exec` (not `emulators:start`) for reliable teardown:
     // the Firestore emulator's Java process runs in its own detached
-    // session and survives a plain SIGTERM.
+    // session and survives a plain SIGTERM. Capped heap: standard
+    // GitHub-hosted runners have 7GB total RAM and the JVM's default
+    // heap sizing left nothing for `next dev` + Chromium, OOM-killing
+    // the whole run near the end regardless of Playwright's own
+    // `workers` setting (fixture data here is tiny — 1g is generous).
     command: `pnpm exec firebase emulators:exec --only auth,firestore --project ${EMULATOR_PROJECT_ID} "node e2e/support/hold-open.js"`,
     url: 'http://127.0.0.1:8080',
     reuseExistingServer,
     timeout: 60_000,
+    env: {
+      JAVA_TOOL_OPTIONS: '-Xmx1g',
+    },
   },
   {
     // `next dev`, not build+start: build+start didn't fix the known
@@ -51,6 +58,11 @@ const webServer = [
       ...EMULATOR_FIREBASE_CONFIG,
       NEXT_PUBLIC_I18NEXT_DEBUG: 'true',
       NEXT_DIST_DIR: '.next-e2e-emulator',
+      // Same 7GB-runner memory budget as the JVM cap above — `next
+      // dev`'s module graph grows with every distinct route/locale
+      // it compiles across the run, so cap it instead of letting V8
+      // grow toward the default (much larger) ceiling.
+      NODE_OPTIONS: '--max-old-space-size=1536',
     },
   },
 ]
@@ -97,10 +109,12 @@ module.exports = defineConfig({
   ),
   fullyParallel: true,
   // Capped: too much parallelism serializes route compilation behind
-  // one dev server. Lower still in CI: 4 parallel Chromium instances
-  // plus `next dev` plus the JVM Firestore/Auth emulator process
-  // OOM-killed the whole run at workers: 4 on a GitHub-hosted runner.
-  workers: process.env.CI ? 2 : 4,
+  // one dev server. Single worker in CI: standard GitHub-hosted
+  // runners only have 7GB RAM total, and even 2 parallel Chromium
+  // instances alongside `next dev` and the JVM Firestore/Auth
+  // emulator OOM-killed the run (see the JVM/Node heap caps above —
+  // this is a memory budget problem, not a compile-race one).
+  workers: process.env.CI ? 1 : 4,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI
