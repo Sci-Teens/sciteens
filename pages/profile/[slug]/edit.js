@@ -41,7 +41,11 @@ import { updateProfile as updateFirebaseProfile } from '@firebase/auth'
 import { useDropzone } from 'react-dropzone'
 import File from '../../../components/File'
 import { AppContext } from '../../../context/context'
-import { sanitizeFileName } from '../../../context/helpers'
+import {
+  ALLOWED_UPLOAD_MIME_TYPES,
+  UPLOAD_MIME_EXTENSIONS,
+  getSafeUploadName,
+} from '../../../context/helpers'
 
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -62,22 +66,6 @@ export default function UpdateProfilePage({
   const { t } = useTranslation('common')
   const [loading, setLoading] = useState(false)
   const [members] = useState([])
-  const [file_extensions] = useState([
-    'text/html',
-    'image/png',
-    'image/jpg',
-    'image/jpeg',
-    'application/pdf',
-    'application/vnd.ms-word',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.ms-powerpoint',
-    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    'application/x-ipynb+json',
-    'application/vnd.jupyter',
-    'application/vnd.jupyter.cells',
-    'application/vnd.jupyter.dragindex',
-  ])
   const [files, setFiles] = useState([])
   const [metadata_arr, setMetadata] = useState([])
   const [profile_photo, setProfilePhoto] = useState(null)
@@ -182,12 +170,17 @@ export default function UpdateProfilePage({
     try {
       for (const f of files) {
         const isProfilePhoto = f.name == profile_photo
-        const ext = (
-          f.name.split('.').pop() || ''
-        ).toLowerCase()
         const safeName = isProfilePhoto
-          ? `profile_photo.${ext || 'img'}`
-          : sanitizeFileName(f.name)
+          ? `profile_photo.${
+              UPLOAD_MIME_EXTENSIONS[f.type] || 'img'
+            }`
+          : getSafeUploadName(f)
+        if (!safeName) {
+          setErrorFile(
+            t('edit_profile.format_not_accepted')
+          )
+          continue
+        }
         const fileRef = ref(
           storage,
           `profiles/${user_profile.id}/${safeName}`
@@ -233,13 +226,7 @@ export default function UpdateProfilePage({
         setErrorFile(t('edit_profile.file_failed'))
       reader.onload = () => setErrorFile('')
 
-      if (
-        !(
-          file_extensions.includes(f.type) ||
-          f.name.includes('.docx') ||
-          f.name.includes('.pptx')
-        )
-      ) {
+      if (!ALLOWED_UPLOAD_MIME_TYPES.includes(f.type)) {
         setErrorFile(t('edit_profile.format_not_accepted'))
       } else if (f.size > 8000000) {
         setErrorFile(
@@ -255,7 +242,10 @@ export default function UpdateProfilePage({
   })
 
   const { getRootProps, getInputProps, isDragActive } =
-    useDropzone({ onDrop })
+    useDropzone({
+      onDrop,
+      accept: ALLOWED_UPLOAD_MIME_TYPES.join(','),
+    })
 
   const removeFile = async (e, id) => {
     e.preventDefault()

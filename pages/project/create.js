@@ -42,8 +42,9 @@ import debounce from 'lodash.debounce'
 import moment from 'moment'
 import { useDropzone } from 'react-dropzone'
 import {
+  ALLOWED_UPLOAD_MIME_TYPES,
   getProjectFieldOptions,
-  sanitizeFileName,
+  getSafeUploadName,
 } from '../../context/helpers'
 import { AppContext } from '../../context/context'
 import File from '../../components/File'
@@ -75,22 +76,6 @@ export default function CreateProject() {
     ).fill(false)
   )
 
-  const [file_extensions] = useState([
-    'text/html',
-    'image/png',
-    'image/jpg',
-    'image/jpeg',
-    'application/pdf',
-    'application/vnd.ms-word',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.ms-powerpoint',
-    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    'application/x-ipynb+json',
-    'application/vnd.jupyter',
-    'application/vnd.jupyter.cells',
-    'application/vnd.jupyter.dragindex',
-  ])
   const [files, setFiles] = useState([])
   const [project_photo, setProjectPhoto] = useState('')
   const [error_member, setErrorMember] = useState('')
@@ -193,7 +178,15 @@ export default function CreateProject() {
         }
       )
       for (const f of files) {
-        const safeName = sanitizeFileName(f.name)
+        const safeName = getSafeUploadName(f)
+        if (!safeName) {
+          setErrorFile(
+            t(
+              'project_create_edit.file_format_not_accepted'
+            )
+          )
+          continue
+        }
         const fileRef = ref(
           storage,
           `projects/${res.id}/${safeName}`
@@ -232,13 +225,7 @@ export default function CreateProject() {
         setErrorFile(t('project_create_edit.file_failed'))
       reader.onload = () => setErrorFile('')
 
-      if (
-        !(
-          file_extensions.includes(f.type) ||
-          f.name.includes('.docx') ||
-          f.name.includes('.pptx')
-        )
-      ) {
+      if (!ALLOWED_UPLOAD_MIME_TYPES.includes(f.type)) {
         setErrorFile(
           t('project_create_edit.file_format_not_accepted')
         )
@@ -256,7 +243,10 @@ export default function CreateProject() {
   })
 
   const { getRootProps, getInputProps, isDragActive } =
-    useDropzone({ onDrop })
+    useDropzone({
+      onDrop,
+      accept: ALLOWED_UPLOAD_MIME_TYPES.join(','),
+    })
 
   async function onChange(e, target) {
     switch (target) {

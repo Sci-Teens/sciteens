@@ -4,13 +4,22 @@ import {
   addDoc,
   orderBy,
 } from 'firebase/firestore'
-import { useState, useCallback, useMemo } from 'react'
+import {
+  useState,
+  useCallback,
+  useMemo,
+  useEffect,
+  useRef,
+} from 'react'
 import LoadingSpinner from './LoadingSpinner'
 import { useFirestoreCollectionData } from '../lib/firestoreData'
 import { useSigninCheck } from '../context/AuthContext'
 import { db } from '../lib/firebase'
 import { useRouter } from 'next/router'
-import { post } from '../context/helpers.js'
+import {
+  MESSAGE_CODE,
+  validateCommentText,
+} from '../lib/toxicity'
 import ProfilePhoto from './ProfilePhoto'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -46,9 +55,65 @@ export default function Discussion({ type, item_id }) {
   const [error_reply_index, setErrorReplyIndex] =
     useState(0)
 
-  const router = useRouter()
+  // Web Worker running Xenova/toxic-bert (Transformers.js) fully
+  // client-side — see lib/toxicityWorker.js. Created lazily so it only
+  // exists in the browser (never during SSR), and terminated on unmount.
+  const toxicityWorkerRef = useRef(null)
+  // Which field a classification result belongs to; set right before
+  // posting to the worker, read back when its response arrives.
+  const pendingToxicityRequestRef = useRef(null)
 
-  moment.locale(router?.locale ? router.locale : 'en')
+  useEffect(() => {
+    const worker = new Worker(
+      new URL('../lib/toxicityWorker.js', import.meta.url),
+      { type: 'module' }
+    )
+    worker.onmessage = (event) => {
+      const { code, payload } = event.data || {}
+      switch (code) {
+        case MESSAGE_CODE.RESPONSE_READY: {
+          const pending = pendingToxicityRequestRef.current
+          if (!pending) break
+          if (payload?.isToxic) {
+            const msg =
+              'Please refrain from submitting inappropriate comments'
+            if (pending.isComment) {
+              setErrorComment(msg)
+            } else {
+              setErrorReply(msg)
+              setErrorReplyIndex(pending.index)
+            }
+          } else {
+            setErrorComment('')
+            setErrorReply('')
+            setErrorReplyIndex(-1)
+          }
+          setLoading(false)
+          break
+        }
+        case MESSAGE_CODE.INFERENCE_ERROR:
+        case MESSAGE_CODE.MODEL_ERROR: {
+          // Model unavailable / inference failed — fail open, same as
+          // the old proxy's 5xx/network handling: never block posting
+          // over a classifier problem, only over actual toxicity.
+          setErrorComment('')
+          setErrorReply('')
+          setErrorReplyIndex(-1)
+          setLoading(false)
+          break
+        }
+        default:
+          break
+      }
+    }
+    toxicityWorkerRef.current = worker
+    return () => {
+      worker.terminate()
+      toxicityWorkerRef.current = null
+    }
+  }, [])
+
+  const router = useRouter()
 
   const onChange = async (e, isComment, index) => {
     setLoading(true)
@@ -78,68 +143,39 @@ export default function Discussion({ type, item_id }) {
   }
 
   const getScores = useCallback(
-    debounce(async (userComment, isComment, index) => {
+    debounce((userComment, isComment, index) => {
       setLoading(true)
-      const THRESHOLD = 0.7
 
-      post(window.location.origin + '/api/toxicity', {
-        text: userComment,
-      })
-        .then((res) => {
-          try {
-            if (
-              res.attributeScores.INSULT.summaryScore
-                .value > THRESHOLD ||
-              res.attributeScores.PROFANITY.summaryScore
-                .value > THRESHOLD ||
-              res.attributeScores.TOXICITY.summaryScore
-                .value > THRESHOLD
-            ) {
-              if (isComment) {
-                setErrorComment(
-                  'Please refrain from submitting inappropriate comments'
-                )
-              } else {
-                setErrorReply(
-                  'Please refrain from submitting inappropriate comments'
-                )
-                setErrorReplyIndex(index)
-              }
-              setLoading(false)
-            } else {
-              setErrorComment('')
-              setErrorReply('')
-              setErrorReplyIndex(-1)
-              setLoading(false)
-            }
-          } catch (e) {
-            setErrorComment('')
-            setErrorReply('')
-            setErrorReplyIndex(-1)
-            setLoading(false)
-          }
-        })
-        .catch((err) => {
-          // 400 = validation failure (e.g. empty/oversize text) — block.
-          // 5xx / network = service unavailable — allow (fail open).
-          const isValidationError =
-            String(err).includes('400')
-          if (isValidationError) {
-            const msg =
-              'This comment could not be submitted; please shorten it and try again.'
-            if (isComment) {
-              setErrorComment(msg)
-            } else {
-              setErrorReply(msg)
-              setErrorReplyIndex(index)
-            }
-          } else {
-            setErrorComment('')
-            setErrorReply('')
-            setErrorReplyIndex(-1)
-          }
-          setLoading(false)
-        })
+      const validation = validateCommentText(userComment)
+      if (!validation.valid) {
+        // Missing/oversized text — block, mirroring the old proxy's
+        // 400 handling.
+        const msg =
+          'This comment could not be submitted; please shorten it and try again.'
+        if (isComment) {
+          setErrorComment(msg)
+        } else {
+          setErrorReply(msg)
+          setErrorReplyIndex(index)
+        }
+        setLoading(false)
+        return
+      }
+
+      if (!toxicityWorkerRef.current) {
+        // Worker not ready yet (e.g. unmounted) — fail open.
+        setErrorComment('')
+        setErrorReply('')
+        setErrorReplyIndex(-1)
+        setLoading(false)
+        return
+      }
+
+      pendingToxicityRequestRef.current = {
+        isComment,
+        index,
+      }
+      toxicityWorkerRef.current.postMessage(userComment)
     }, 500),
     []
   )
@@ -280,9 +316,11 @@ export default function Discussion({ type, item_id }) {
                     </p>
                   </div>
                   <p className="absolute right-4 top-4 text-xs text-gray-700">
-                    {moment(comment.date).calendar(null, {
-                      sameElse: 'MMMM DD, YYYY',
-                    })}
+                    {moment(comment.date)
+                      .locale(router?.locale || 'en')
+                      .calendar(null, {
+                        sameElse: 'MMMM DD, YYYY',
+                      })}
                   </p>
                   <p>{comment.comment}</p>
                   <div className="flex justify-end">
@@ -404,11 +442,14 @@ export default function Discussion({ type, item_id }) {
                               </div>
                               <p>{reply.comment}</p>
                               <p className="absolute right-4 top-4 text-xs text-gray-700">
-                                {moment(
-                                  reply.date
-                                ).calendar(null, {
-                                  sameElse: 'MMMM DD, YYYY',
-                                })}
+                                {moment(reply.date)
+                                  .locale(
+                                    router?.locale || 'en'
+                                  )
+                                  .calendar(null, {
+                                    sameElse:
+                                      'MMMM DD, YYYY',
+                                  })}
                               </p>
                             </div>
                           </div>

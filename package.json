@@ -10,7 +10,13 @@
     "deploy": "",
     "lint": "next lint",
     "format": "prettier --check .",
-    "format:fix": "prettier --write ."
+    "format:fix": "prettier --write .",
+    "test": "pnpm test:unit && pnpm test:rules",
+    "test:unit": "vitest run context lib components tests/pages",
+    "test:watch": "vitest context lib components tests/pages",
+    "test:rules": "firebase emulators:exec --project demo-sciteens-test --only firestore \"vitest run tests/rules\"",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -48,18 +54,27 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^2.0.7",
+    "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4.3.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.10.2",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-prettier": "^4.2.5",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^4.6.2",
+    "firebase-admin": "^10.3.0",
+    "firebase-tools": "^15.22.4",
+    "jsdom": "^29.1.1",
     "next-sitemap": "^1.9.12",
     "postcss": "^8.5.16",
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.1.13",
-    "tailwindcss": "^4.3.2"
+    "tailwindcss": "^4.3.2",
+    "vitest": "^4.1.10"
   },
   "description": "This is the work-in-progress version of the open-source SciTeens platform. This application is built in Next JS (A Server-Side Rendered React JS framework.) If you encounter issues with the website, please fork our site and commit fixes or detail the issues in the issues tab on GitHub. If you just want to explore the code, then enjoy!",
   "main": ".eslintrc.js",
