@@ -7,6 +7,7 @@ import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import { useIntersectionObserver } from '../context/helpers'
+import PageHeading from '@/components/PageHeading'
 
 var Prismic = require('@prismicio/client')
 import { RichText } from 'prismic-reactjs'
@@ -392,9 +393,9 @@ function Articles({ cached_articles }) {
       </Head>
       <div className="text-foreground mx-auto mb-24 mt-8 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
         <div className="mx-auto w-11/12 md:w-[85%] lg:mx-0 lg:w-[60%]">
-          <h1 className="ml-4 py-4 text-left text-4xl font-semibold">
+          <PageHeading className="ml-4 py-4 text-left">
             {t('articles.articles')} 📰
-          </h1>
+          </PageHeading>
           <form
             onSubmit={(e) => handleSearch(e)}
             className="flex flex-col gap-2 lg:hidden"

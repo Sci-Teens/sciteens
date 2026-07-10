@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import PageHeading from '@/components/PageHeading'
 
 export default function FourOhFour() {
   return (
@@ -13,9 +14,9 @@ export default function FourOhFour() {
           height={462}
           className="mx-auto h-auto w-1/2"
         />
-        <h1 className="py-4 text-4xl font-semibold">
+        <PageHeading className="py-4">
           Page not found
-        </h1>
+        </PageHeading>
         <p className="mb-6 text-xl">
           This page may not exist or may have been deleted.
         </p>

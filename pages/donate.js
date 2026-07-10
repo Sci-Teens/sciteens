@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import Head from 'next/head'
+import PageHeading from '@/components/PageHeading'
 
 export default function Donate() {
   const { t } = useTranslation('common')
@@ -27,9 +28,9 @@ export default function Donate() {
       </Head>
       <div className="w-full">
         <div className="mx-auto w-full px-4 py-8 text-left md:p-8 lg:w-2/3">
-          <h1 className="text-4xl">
+          <PageHeading>
             {t('donate.annual_donation_appeal')}
-          </h1>
+          </PageHeading>
           <div className="mb-8 mt-4 flex w-full flex-row">
             <a
               href="https://www.paypal.com/donate?hosted_button_id=7B8QACYV83ACA"

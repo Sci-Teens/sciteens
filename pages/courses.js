@@ -14,6 +14,7 @@ import moment from 'moment'
 import { getTranslatedFieldsDict } from '../context/helpers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import PageHeading from '@/components/PageHeading'
 
 function Courses({ cached_courses }) {
   const router = useRouter()
@@ -179,9 +180,9 @@ function Courses({ cached_courses }) {
       </Head>
       <div className="text-foreground mx-auto mb-24 mt-8 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
         <div className="mx-auto w-11/12 md:w-[85%] lg:mx-0 lg:w-[60%]">
-          <h1 className="ml-4 py-4 text-left text-4xl font-semibold">
+          <PageHeading className="ml-4 py-4 text-left">
             {t('courses.courses')} 📖
-          </h1>
+          </PageHeading>
           {coursesComponent}
           {courses.results.length == 0 && (
             <div className="mx-auto mt-20 text-center">

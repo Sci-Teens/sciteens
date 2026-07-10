@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
+import PageHeading from '@/components/PageHeading'
 
 export default function About() {
   const { t } = useTranslation('common')
@@ -235,9 +236,9 @@ export default function About() {
       </Head>
       <main>
         <div className="mx-auto w-full px-4 py-8 text-left md:p-8 lg:w-5/6">
-          <h1 className="my-4 text-center text-3xl font-semibold md:text-5xl">
+          <PageHeading className="my-4 text-center">
             {t('about.on_a_mission')}
-          </h1>
+          </PageHeading>
           <p className="mx-0 mb-12 text-center text-base md:text-xl lg:mx-24">
             {t('about.we_strive')}
           </p>

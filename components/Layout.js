@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import Banner from '../components/Banner'
 import MyPageViewLogger from './Analytics'
@@ -11,10 +11,31 @@ const Footer = dynamic(() => import('./Footer'), {
   ssr: false,
 })
 
+// Matches the nav's rendered height (mt-3 + h-16) when no banner is
+// showing, so the content doesn't jump on first paint.
+const DEFAULT_NAV_HEIGHT = 76
+
 export default function Layout({ children }) {
   const [visibleNav, setVisibleNav] = useState(true)
   const [visibleBanner, setVisibleBanner] = useState(true)
+  const navWrapRef = useRef(null)
+  const [navHeight, setNavHeight] = useState(
+    DEFAULT_NAV_HEIGHT
+  )
 
+  useEffect(() => {
+    const node = navWrapRef.current
+    if (!node || typeof ResizeObserver === 'undefined')
+      return
+
+    const observer = new ResizeObserver((entries) => {
+      const height = entries[0]?.contentRect.height
+      if (height) setNavHeight(height)
+    })
+    observer.observe(node)
+
+    return () => observer.disconnect()
+  }, [])
   useEffect(() => {
     let previousY = document.documentElement.scrollTop
 
@@ -59,6 +80,7 @@ export default function Layout({ children }) {
   return (
     <>
       <div
+        ref={navWrapRef}
         className={`fixed z-50 w-full transform transition-all duration-300 ${
           visibleNav ? 'translate-y-0' : '-translate-y-32'
         }`}
@@ -69,7 +91,8 @@ export default function Layout({ children }) {
         <NavBar />
       </div>
       <div
-        className={`${visibleBanner ? 'pt-52' : 'pt-20'}`}
+        className="flex-1"
+        style={{ paddingTop: navHeight }}
       >
         {children}
       </div>
