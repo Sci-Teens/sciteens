@@ -22,7 +22,7 @@ import Head from 'next/head'
 import Image from 'next/image'
 import Error from 'next/error'
 import Link from 'next/link'
-import File from '../../../components/File'
+import FileGallery from '../../../components/FileGallery'
 import { ExternalLink } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'next-i18next'
@@ -248,21 +248,18 @@ function Project({ query, initialProject }) {
               {t('course.files')}
             </h2>
           )}
-        <div className="flex flex-col items-center space-y-2">
-          {filesStatus !== 'loading' &&
-            fileRecords.map((record) => (
-              <File
-                file={{
-                  name: record.name,
-                  type: record.contentType,
-                  size: record.size,
-                  url: record.url,
-                }}
-                id={record.id}
-                key={record.id}
-              />
-            ))}
-        </div>
+        {filesStatus !== 'loading' && (
+          <FileGallery
+            files={fileRecords.map((record) => ({
+              id: record.id,
+              name: record.name,
+              type: record.contentType,
+              size: record.size,
+              url: record.url,
+              thumbnailUrl: record.thumbnailUrl,
+            }))}
+          />
+        )}
         <Discussion type="projects" item_id={query.id} />
       </div>
     </>

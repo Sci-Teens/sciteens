@@ -94,7 +94,12 @@
   "file": {
     "unsupported_legacy": "This file type is no longer supported and can't be opened here. Contact us if you need it converted to a PDF.",
     "unknown_type": "Unrecognized file type ({{type}}) — this file cannot be opened here.",
-    "unknown_type_generic": "Unrecognized file type — this file cannot be opened here."
+    "unknown_type_generic": "Unrecognized file type — this file cannot be opened here.",
+    "images": "Images",
+    "documents": "Documents",
+    "previous": "Previous image",
+    "next": "Next image",
+    "open_new_tab": "Open in new tab"
   },
   "auth": {
     "auth_invalid_email": "Email address or password is invalid (if logging in with Gmail, try using the button below)",

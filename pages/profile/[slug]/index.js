@@ -34,7 +34,7 @@ import { db as firestore } from '../../../lib/firebase'
 import moment from 'moment'
 import { useSigninCheck } from '../../../context/AuthContext'
 import { AppContext } from '../../../context/context'
-import File from '../../../components/File'
+import FileGallery from '../../../components/FileGallery'
 import ProjectCard from '../../../components/ProjectCard'
 import { Skeleton } from '../../../components/ui/skeleton'
 import { normalizeProject } from '../../../lib/projects'
@@ -229,18 +229,16 @@ function Project({ profile }) {
               <Skeleton className="h-12 w-full" />
             </>
           ) : (
-            fileRecords.map((record) => (
-              <File
-                file={{
-                  name: record.name,
-                  type: record.contentType,
-                  size: record.size,
-                  url: record.url,
-                }}
-                id={record.id}
-                key={record.id}
-              ></File>
-            ))
+            <FileGallery
+              files={fileRecords.map((record) => ({
+                id: record.id,
+                name: record.name,
+                type: record.contentType,
+                size: record.size,
+                url: record.url,
+                thumbnailUrl: record.thumbnailUrl,
+              }))}
+            />
           )}
         </div>
       </div>
