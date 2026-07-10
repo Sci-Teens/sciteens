@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Head from 'next/head'
 import htmlSerializer from '../../htmlserializer'
 import { useState, useEffect } from 'react'
-import File from '../../components/File'
+import FileGallery from '../../components/FileGallery'
 import Discussion from '../../components/Discussion'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
@@ -181,22 +181,12 @@ function Course({ course }) {
           </tr>
           {lessonComponent}
         </table>
-        {files?.length && (
+        {files?.length > 0 && (
           <>
             <h2 className="mb-2 text-lg font-semibold">
               {t('course.files')}
             </h2>
-            <div className="flex flex-col items-center space-y-2">
-              {files.map((f, id) => {
-                return (
-                  <File
-                    file={f}
-                    id={id}
-                    key={f.name}
-                  ></File>
-                )
-              })}
-            </div>
+            <FileGallery files={files} />
           </>
         )}
         {typeof window !== 'undefined' && (

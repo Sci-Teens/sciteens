@@ -127,7 +127,10 @@ module.exports = {
               // uses to relay auth events — the project id varies per
               // deployment (dev/staging/prod) and isn't available to this
               // config at container runtime, hence the wildcard.
-              'frame-src https://www.google.com https://*.firebaseapp.com; ' +
+              // firebasestorage.googleapis.com/storage.googleapis.com —
+              // components/FileGallery.js embeds an uploaded PDF's own
+              // download URL in an <iframe> for in-page viewing.
+              'frame-src https://www.google.com https://*.firebaseapp.com https://firebasestorage.googleapis.com https://storage.googleapis.com; ' +
               `connect-src ${connectSrc}; ` +
               "frame-ancestors 'self'; " +
               "base-uri 'self'; " +

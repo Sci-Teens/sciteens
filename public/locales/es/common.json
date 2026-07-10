@@ -94,7 +94,12 @@
   "file": {
     "unsupported_legacy": "Este tipo de archivo ya no es compatible y no se puede abrir aquí. Contáctenos si necesita convertirlo a PDF.",
     "unknown_type": "Tipo de archivo no reconocido ({{type}}): este archivo no se puede abrir aquí.",
-    "unknown_type_generic": "Tipo de archivo no reconocido: este archivo no se puede abrir aquí."
+    "unknown_type_generic": "Tipo de archivo no reconocido: este archivo no se puede abrir aquí.",
+    "images": "Imágenes",
+    "documents": "Documentos",
+    "previous": "Imagen anterior",
+    "next": "Siguiente imagen",
+    "open_new_tab": "Abrir en una nueva pestaña"
   },
   "auth": {
     "auth_invalid_email": "La dirección de correo electrónico o la contraseña no son válidas (si inicia sesión con Gmail, intente usar el botón a continuación)",

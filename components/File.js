@@ -29,7 +29,9 @@ function UnsupportedFile({ file, id, removeFile, reason }) {
     <div className="flex w-full justify-between rounded-lg bg-white shadow-sm">
       <FileWarning className="m-1 h-11 w-11 shrink-0 text-amber-600" />
       <div className="ml-2 flex-1 text-left">
-        <p className="line-clamp-1">{file?.name}</p>
+        <p className="line-clamp-1" title={file?.name}>
+          {file?.name}
+        </p>
         <p className="line-clamp-2 text-sm text-gray-700">
           {reason}
         </p>
@@ -43,7 +45,7 @@ function UnsupportedFile({ file, id, removeFile, reason }) {
 // uploaded) or a plain `{ name, type, size?, url, thumbnailUrl? }`
 // descriptor (an already-uploaded Firestore file record) — the latter
 // never needs a blob download just to render a preview.
-function getPreviewUrl(file) {
+export function getPreviewUrl(file) {
   if (file?.url) return file.url
   if (typeof file?.arrayBuffer === 'function') {
     return URL.createObjectURL(file)
@@ -100,7 +102,7 @@ export default function RenderFile({
             )}
           </div>
           <div className="line-clamp-1 ml-2 flex-1 p-2 text-left">
-            <p>{file?.name}</p>
+            <p title={file?.name}>{file?.name}</p>
             <p className="text-sm text-gray-700">
               application/pdf
             </p>
@@ -127,7 +129,7 @@ export default function RenderFile({
             className="h-16 w-[10%] rounded-l-lg object-cover object-center"
           />
           <div className="line-clamp-1 ml-2 flex-1 p-2 text-left">
-            <p>{file?.name}</p>
+            <p title={file?.name}>{file?.name}</p>
             <p className="text-sm text-gray-700">image</p>
           </div>
           {removeFile && (
