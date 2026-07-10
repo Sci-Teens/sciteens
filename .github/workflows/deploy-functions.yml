@@ -33,4 +33,4 @@ jobs:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
       - name: Deploy functions
-        run: npx firebase-tools deploy --only functions --project directed-relic-266701
+        run: npx firebase-tools deploy --only functions --project directed-relic-266701 --force
