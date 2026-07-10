@@ -153,6 +153,7 @@ export default function StudentSignUp() {
           .hasChildNodes()
       ) {
         const recaptchaVerifier = new RecaptchaVerifier(
+          auth,
           'recaptcha-container',
           {
             size: 'normal',
@@ -162,8 +163,7 @@ export default function StudentSignUp() {
             'expired-callback': () => {
               setRecaptchaSolved(false)
             },
-          },
-          auth
+          }
         )
         await recaptchaVerifier.render()
         const verified = await recaptchaVerifier.verify()

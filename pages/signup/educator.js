@@ -147,6 +147,7 @@ export default function MentorSignUp() {
           .hasChildNodes()
       ) {
         const recaptchaVerifier = new RecaptchaVerifier(
+          auth,
           'recaptcha-container',
           {
             size: 'normal',
@@ -156,8 +157,7 @@ export default function MentorSignUp() {
             'expired-callback': () => {
               setRecaptchaSolved(false)
             },
-          },
-          auth
+          }
         )
         await recaptchaVerifier.render()
         const verified = await recaptchaVerifier.verify()

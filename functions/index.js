@@ -1,31 +1,46 @@
 // Firebase
-const functions = require('firebase-functions')
+const functions = require('firebase-functions/v1')
+const {
+  defineSecret,
+} = require('firebase-functions/params')
 const admin = require('firebase-admin')
 admin.initializeApp()
 
 // Google
 const vision = require('@google-cloud/vision')
 
-// Mailjet
-const mailjet = require('node-mailjet').connect(
-  functions.config().mailjet.apikey,
-  functions.config().mailjet.apisecret
-)
+// Mailjet — functions.config() was removed in firebase-functions v7, so
+// credentials are Secret Manager params instead. Secrets are only
+// readable at invocation time (after being bound via
+// `.runWith({ secrets: [...] })` on each export that needs them), so
+// the client is built lazily rather than at module load.
+const mailjetApiKey = defineSecret('MAILJET_APIKEY')
+const mailjetApiSecret = defineSecret('MAILJET_APISECRET')
+let mailjetClient
+function getMailjet() {
+  if (!mailjetClient) {
+    mailjetClient = require('node-mailjet').connect(
+      mailjetApiKey.value(),
+      mailjetApiSecret.value()
+    )
+  }
+  return mailjetClient
+}
 
 // Prismic
 const Prismic = require('@prismicio/client')
 const { firestore } = require('firebase-admin')
+const prismicSecret = defineSecret('PRISMIC_SECRET')
 
 const axios = require('axios').default
 // Post to the SciTeens Slack webhook. The webhook URL is stored in
-// `functions.config().slack.webhook` (set via
-// `firebase functions:config:set slack.webhook="..."`). Never hardcode
+// the SLACK_WEBHOOK secret (set via
+// `firebase functions:secrets:set SLACK_WEBHOOK`). Never hardcode
 // the webhook — the repo is public.
+const slackWebhook = defineSecret('SLACK_WEBHOOK')
 async function slackPost(text) {
   try {
-    const webhook =
-      functions.config().slack &&
-      functions.config().slack.webhook
+    const webhook = slackWebhook.value()
     if (!webhook) {
       console.warn(
         'Slack webhook not configured; skipping post'
@@ -118,11 +133,14 @@ exports.deleteProject = functions.firestore
     the website
 */
 
-exports.newUser = functions.auth
-  .user()
+exports.newUser = functions
+  .runWith({
+    secrets: [mailjetApiKey, mailjetApiSecret],
+  })
+  .auth.user()
   .onCreate(async (user) => {
     await Promise.all([
-      mailjet
+      getMailjet()
         .post('contact', { version: 'v3' })
         .request({
           IsExcludedFromCampaigns: 'false',
@@ -166,8 +184,11 @@ exports.newUser = functions.auth
     the website (related to their firebase profile)
 */
 
-exports.newProfile = functions.firestore
-  .document('profiles/{profileID}')
+exports.newProfile = functions
+  .runWith({
+    secrets: [mailjetApiKey, mailjetApiSecret],
+  })
+  .firestore.document('profiles/{profileID}')
   .onCreate(async (profile) => {
     let id = profile.id
     let data = { ...profile.data() }
@@ -185,7 +206,7 @@ exports.newProfile = functions.firestore
         email,
         actionCodeSettings
       )
-    const request = mailjet
+    const request = getMailjet()
       .post('send', { version: 'v3.1' })
       .request({
         Messages: [
@@ -212,7 +233,7 @@ exports.newProfile = functions.firestore
     await request
 
     // Add to all contact list
-    await mailjet
+    await getMailjet()
       .post('listrecipient', { version: 'v3' })
       .request({
         IsUnsubscribed: 'false',
@@ -229,7 +250,7 @@ exports.newProfile = functions.firestore
         await admin
           .auth()
           .setCustomUserClaims(id, { mentor: true })
-        await mailjet
+        await getMailjet()
           .post('listrecipient', { version: 'v3' })
           .request({
             IsUnsubscribed: 'false',
@@ -237,7 +258,7 @@ exports.newProfile = functions.firestore
             ListID: '10251293',
           })
 
-        await mailjet
+        await getMailjet()
           .post('send', { version: 'v3.1' })
           .request({
             Messages: [
@@ -265,7 +286,7 @@ exports.newProfile = functions.firestore
           })
         break
       default:
-        await mailjet
+        await getMailjet()
           .post('listrecipient', { version: 'v3' })
           .request({
             IsUnsubscribed: 'false',
@@ -274,7 +295,7 @@ exports.newProfile = functions.firestore
           })
 
         // Send student welcome
-        await mailjet
+        await getMailjet()
           .post('send', { version: 'v3.1' })
           .request({
             Messages: [
@@ -439,8 +460,13 @@ exports.updateProgram = functions.firestore
 
 */
 
-exports.newDiscussion = functions.firestore
-  .document('projects/{projectID}/discussion/{feedbackID}')
+exports.newDiscussion = functions
+  .runWith({
+    secrets: [mailjetApiKey, mailjetApiSecret],
+  })
+  .firestore.document(
+    'projects/{projectID}/discussion/{feedbackID}'
+  )
   .onCreate(async (event, context) => {
     // Determine if a reply
     if (event.data().reply_to_id) {
@@ -467,7 +493,7 @@ exports.newDiscussion = functions.firestore
         'Sending discussion email to user ' +
           originalComment.data().uid
       )
-      return mailjet
+      return getMailjet()
         .post('send', { version: 'v3.1' })
         .request({
           Messages: [
@@ -507,8 +533,11 @@ exports.newDiscussion = functions.firestore
     upcoming deadlines. If so, it informs all subscribers via email and
     then deletes.
 */
-exports.scheduledProgramEmailer = functions.pubsub
-  .schedule('5 0 * * *')
+exports.scheduledProgramEmailer = functions
+  .runWith({
+    secrets: [mailjetApiKey, mailjetApiSecret],
+  })
+  .pubsub.schedule('5 0 * * *')
   .timeZone('America/New_York') // Users can choose timezone - default is America/Los_Angeles
   .onRun((context) => {
     // Fetch the current Unix Timestamp
@@ -534,7 +563,7 @@ exports.scheduledProgramEmailer = functions.pubsub
               .getUser(sub)
               .then((user) => {
                 // Send using Mailjet API v3
-                mailjet
+                getMailjet()
                   .post('send', { version: 'v3.1' })
                   .request({
                     Messages: [
@@ -753,8 +782,11 @@ exports.fileUpload = functions.storage
     
     Handles the operations necessary when a new project invite is created
 */
-exports.newProjectInvite = functions.firestore
-  .document('project-invites/{projectID}')
+exports.newProjectInvite = functions
+  .runWith({
+    secrets: [mailjetApiKey, mailjetApiSecret],
+  })
+  .firestore.document('project-invites/{projectID}')
   .onCreate((event) => {
     let id = event.id
     let emails = event.data().emails
@@ -810,7 +842,7 @@ exports.newProjectInvite = functions.firestore
 
       // Email the user that they've been added to a project
       // Send an email to the user
-      mailjet
+      getMailjet()
         .post('send', { version: 'v3.1' })
         .request({
           Messages: [
@@ -856,8 +888,9 @@ exports.newProjectInvite = functions.firestore
     the total number of mentors and students on the platform at 
     any given time. 
 */
-exports.updateUserStats = functions.pubsub
-  .schedule('0 0 * * 0')
+exports.updateUserStats = functions
+  .runWith({ secrets: [slackWebhook] })
+  .pubsub.schedule('0 0 * * 0')
   .timeZone('America/New_York')
   .onRun(async (context) => {
     // Fetch all users on the platform
@@ -994,17 +1027,15 @@ exports.updateUserStats = functions.pubsub
 
     Runs when a new course is added to Prismic. 
 */
-exports.newCourse = functions.https.onRequest(
-  async (request, response) => {
+exports.newCourse = functions
+  .runWith({ secrets: [prismicSecret] })
+  .https.onRequest(async (request, response) => {
     // Verify the Prismic webhook secret. Prismic includes the configured
     // secret as the `secret` field in the JSON body (not an HMAC header).
-    // Stored in `functions.config().prismic.secret` (set via
-    // `firebase functions:config:set prismic.secret="..."`).
+    // Stored in the PRISMIC_SECRET secret (set via
+    // `firebase functions:secrets:set PRISMIC_SECRET`).
     const crypto = require('crypto')
-    const expected =
-      (functions.config().prismic &&
-        functions.config().prismic.secret) ||
-      ''
+    const expected = prismicSecret.value() || ''
     const provided =
       (request.body && request.body.secret) || ''
     if (!expected || provided.length !== expected.length) {
@@ -1140,5 +1171,4 @@ exports.newCourse = functions.https.onRequest(
         )
         response.status(400).send('Document not found')
       })
-  }
-)
+  })
