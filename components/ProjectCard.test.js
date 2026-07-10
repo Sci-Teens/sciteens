@@ -108,4 +108,71 @@ describe('ProjectCard', () => {
       screen.getByText('fields.biology')
     ).toBeInTheDocument()
   })
+
+  // Regression guard for the mobile date-misalignment bug: the date used
+  // to get a hardcoded `ml-10` that only lined up with a specific avatar
+  // count/breakpoint. The date now shares a CSS grid column with the "By"
+  // label so it lines up regardless of member count or breakpoint.
+  it('aligns the date under the "By" label via a shared grid column when members are present', () => {
+    const { container } = render(
+      <ProjectCard
+        project={{
+          id: 'p6',
+          title: 'Dated Project',
+          member_arr: [
+            { uid: 'u1', display: 'Ada Lovelace' },
+          ],
+        }}
+        date="Mar 15, 2024"
+      />
+    )
+
+    const dateNode = screen.getByText('Mar 15, 2024')
+    expect(dateNode.className).toContain('col-start-2')
+    expect(container.textContent).toMatch(/Mar 15, 2024/)
+  })
+
+  it('spans the full row for the date when there are no members to align under', () => {
+    render(
+      <ProjectCard
+        project={{ id: 'p7', title: 'Solo Dated Project' }}
+        date="Mar 15, 2024"
+      />
+    )
+
+    expect(
+      screen.getByText('Mar 15, 2024').className
+    ).toContain('col-span-2')
+  })
+
+  // Regression guard: a missing project photo used to fall back to the
+  // sciteens logo stretched over a gray box (`sciteens_initials.jpg`),
+  // which looked broken. It should render a neutral image placeholder
+  // icon instead, and never request the logo asset.
+  it('renders an icon placeholder instead of the sciteens logo when there is no project photo', () => {
+    const { container } = render(
+      <ProjectCard
+        project={{ id: 'p8', title: 'No Photo Project' }}
+      />
+    )
+
+    expect(container.querySelector('img')).toBeNull()
+    expect(container.querySelector('svg')).not.toBeNull()
+  })
+
+  it('renders the real photo when present', () => {
+    const { container } = render(
+      <ProjectCard
+        project={{
+          id: 'p9',
+          title: 'Photo Project',
+          project_photo: 'https://example.com/photo.jpg',
+        }}
+      />
+    )
+
+    const img = container.querySelector('img')
+    expect(img).not.toBeNull()
+    expect(img.getAttribute('alt')).toBe('Photo Project')
+  })
 })

@@ -7,7 +7,6 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import { useIntersectionObserver } from '../context/helpers'
 import { getTranslatedFieldsDict } from '../context/helpers'
-import moment from 'moment'
 
 import { db as firestore } from '../lib/firebase'
 import firebaseConfig from '../firebaseConfig'
@@ -33,7 +32,10 @@ import { useWindowVirtualizer } from '@tanstack/react-virtual'
 import algoliasearch from 'algoliasearch/lite'
 import { PlusCircle } from 'lucide-react'
 import ProjectCard from '../components/ProjectCard'
-import { normalizeProject } from '../lib/projects'
+import {
+  normalizeProject,
+  formatProjectDate,
+} from '../lib/projects'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
@@ -275,17 +277,6 @@ function Projects({ cached_projects }) {
     setField(field)
   }
 
-  function formatProjectDate(date) {
-    const parsedDate = date?.toDate ? date.toDate() : date
-    const formattedDate = moment(parsedDate)
-      .locale(router?.locale || 'en')
-      .format('ll')
-
-    return formattedDate === 'Invalid date'
-      ? ''
-      : formattedDate
-  }
-
   const { t } = useTranslation('common')
 
   const projectVirtualizer = useWindowVirtualizer({
@@ -319,7 +310,10 @@ function Projects({ cached_projects }) {
             >
               <ProjectCard
                 project={project}
-                date={formatProjectDate(project.date)}
+                date={formatProjectDate(
+                  project.date,
+                  router?.locale
+                )}
               />
             </div>
           )

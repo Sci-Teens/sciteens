@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import Image from 'next/image'
+import { Image as ImageIcon } from 'lucide-react'
 import { useTranslation } from 'next-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -42,6 +44,7 @@ export default function ProjectCard({
   showMemberLinks = true,
 }) {
   const { t } = useTranslation('common')
+  const [photoError, setPhotoError] = useState(false)
   const normalizedProject = normalizeProject(project)
   const fields = Array.isArray(normalizedProject?.fields)
     ? normalizedProject.fields
@@ -53,9 +56,8 @@ export default function ProjectCard({
     : []
   const visibleFieldCount = fieldLimit(fields)
   const translatedFields = getTranslatedFieldsDict(t)
-  const imageSrc =
-    normalizedProject?.project_photo ||
-    '/assets/sciteens_initials.jpg'
+  const hasPhoto =
+    Boolean(normalizedProject?.project_photo) && !photoError
 
   return (
     <Card className="animate-in border-border/60 fade-in slide-in-from-right-8 relative isolate overflow-hidden transition duration-300 hover:-translate-y-0.5 hover:shadow-md">
@@ -66,71 +68,84 @@ export default function ProjectCard({
       />
       <CardContent className="flex items-center">
         <div className="bg-muted relative h-24 w-24 shrink-0 overflow-hidden rounded-lg md:h-40 md:w-40">
-          <Image
-            src={imageSrc}
-            alt={
-              normalizedProject?.project_photo
-                ? normalizedProject.title
-                : ''
-            }
-            fill
-            sizes="(min-width: 768px) 160px, 96px"
-            className={
-              normalizedProject?.project_photo
-                ? 'object-cover'
-                : 'object-contain p-4 opacity-70'
-            }
-          />
-        </div>
-        <div className="ml-4 min-w-0 flex-1">
-          {members.length > 0 && (
-            <div className="text-muted-foreground mb-1 flex flex-row items-center text-sm">
-              <div className="flex -space-x-2 overflow-hidden">
-                {members.map((member, index) => (
-                  <div
-                    key={member.uid || index}
-                    className="ring-background inline-block h-6 w-6 rounded-full ring-2 lg:h-8 lg:w-8"
-                  >
-                    <ProfilePhoto uid={member.uid} />
-                  </div>
-                ))}
-              </div>
-              <p className="ml-2 min-w-0">
-                By&nbsp;
-                {members.map((member) => {
-                  const href = getProfileHref(member)
-                  const label = `${member.display || ''} `
-
-                  if (showMemberLinks && href) {
-                    return (
-                      <a
-                        key={member.uid || member.display}
-                        href={href}
-                        className="text-sciteensGreen-regular hover:text-sciteensGreen-dark relative z-20 font-bold no-underline"
-                      >
-                        {label}
-                      </a>
-                    )
-                  }
-
-                  return (
-                    <span
-                      key={member.uid || member.display}
-                    >
-                      {label}
-                    </span>
-                  )
-                })}
-              </p>
+          {hasPhoto ? (
+            <Image
+              src={normalizedProject.project_photo}
+              alt={normalizedProject.title}
+              fill
+              sizes="(min-width: 768px) 160px, 96px"
+              className="object-cover"
+              onError={() => setPhotoError(true)}
+            />
+          ) : (
+            <div className="text-muted-foreground/50 flex h-full w-full items-center justify-center">
+              <ImageIcon
+                strokeWidth={1.5}
+                aria-hidden="true"
+                className="h-8 w-8 md:h-12 md:w-12"
+              />
             </div>
           )}
-          {date && (
-            <div
-              className={`text-muted-foreground mb-2 text-sm ${
-                members.length > 0 ? 'ml-10' : ''
-              }`}
-            >
-              {date}
+        </div>
+        <div className="ml-4 min-w-0 flex-1">
+          {(members.length > 0 || date) && (
+            <div className="text-muted-foreground mb-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 gap-y-1 text-sm">
+              {members.length > 0 && (
+                <>
+                  <div className="flex -space-x-2 overflow-hidden">
+                    {members.map((member, index) => (
+                      <div
+                        key={member.uid || index}
+                        className="ring-background inline-block h-6 w-6 rounded-full ring-2 lg:h-8 lg:w-8"
+                      >
+                        <ProfilePhoto uid={member.uid} />
+                      </div>
+                    ))}
+                  </div>
+                  <p className="min-w-0">
+                    By&nbsp;
+                    {members.map((member) => {
+                      const href = getProfileHref(member)
+                      const label = `${
+                        member.display || ''
+                      } `
+
+                      if (showMemberLinks && href) {
+                        return (
+                          <a
+                            key={
+                              member.uid || member.display
+                            }
+                            href={href}
+                            className="text-sciteensGreen-regular hover:text-sciteensGreen-dark relative z-20 font-bold no-underline"
+                          >
+                            {label}
+                          </a>
+                        )
+                      }
+
+                      return (
+                        <span
+                          key={member.uid || member.display}
+                        >
+                          {label}
+                        </span>
+                      )
+                    })}
+                  </p>
+                </>
+              )}
+              {date && (
+                <div
+                  className={
+                    members.length > 0
+                      ? 'col-start-2'
+                      : 'col-span-2'
+                  }
+                >
+                  {date}
+                </div>
+              )}
             </div>
           )}
           <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">

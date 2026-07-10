@@ -115,6 +115,17 @@ async function seedProject(data) {
   return ref.id
 }
 
+// Direct `profile-pictures/{uid}` write bypassing client rules, for
+// planting a picture URL (including deliberately dead ones) without
+// driving the profile-photo upload flow.
+async function seedProfilePicture(uid, picture) {
+  await adminApp()
+    .firestore()
+    .collection('profile-pictures')
+    .doc(uid)
+    .set({ picture })
+}
+
 async function getProject(projectId) {
   const snap = await adminApp()
     .firestore()
@@ -148,6 +159,7 @@ module.exports = {
   uniqueSuffix,
   seedStudent,
   seedProject,
+  seedProfilePicture,
   getProject,
   setProjectFields,
   getProjectInvite,

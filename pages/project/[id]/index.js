@@ -24,10 +24,14 @@ import Error from 'next/error'
 import Link from 'next/link'
 import File from '../../../components/File'
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'next-i18next'
 import dynamic from 'next/dynamic'
 import ProfilePhoto from '../../../components/ProfilePhoto'
 import firebaseConfig from '../../../firebaseConfig'
-import { normalizeProject } from '../../../lib/projects'
+import {
+  normalizeProject,
+  formatProjectDate,
+} from '../../../lib/projects'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 
 const Discussion = dynamic(
@@ -37,6 +41,7 @@ const Discussion = dynamic(
 
 function Project({ query, initialProject }) {
   const router = useRouter()
+  const { t } = useTranslation('common')
 
   const projectRef = useMemo(
     () => doc(db, 'projects', query.id),
@@ -51,6 +56,8 @@ function Project({ query, initialProject }) {
   const [files, setFiles] = useState([])
   const [loading_files, setLoadingFiles] = useState(true)
   const [project_photo, setProjectPhoto] = useState('')
+  const [project_photo_error, setProjectPhotoError] =
+    useState(false)
 
   // const { profile } = useContext(AppContext)
 
@@ -75,6 +82,7 @@ function Project({ query, initialProject }) {
                 metadata?.customMetadata?.project_photo ==
                 'true'
               ) {
+                setProjectPhotoError(false)
                 setProjectPhoto(url)
               }
               setFiles((fs) => [...fs, blob])
@@ -107,12 +115,10 @@ function Project({ query, initialProject }) {
     return <Error statusCode={404} />
   }
 
-  let start_date
-  if (project.start_date === undefined) {
-    start_date = <p></p>
-  } else {
-    start_date = <p> Started on {project.start_date}</p>
-  }
+  const startDate = formatProjectDate(
+    project.start,
+    router?.locale
+  )
 
   return (
     <>
@@ -185,9 +191,13 @@ function Project({ query, initialProject }) {
               </p>
             </div>
           )}
-          <div>{start_date}</div>
+          {startDate && (
+            <p className="text-muted-foreground">
+              {t('projects.started_on')} {startDate}
+            </p>
+          )}
           <div>
-            {project_photo ? (
+            {project_photo && !project_photo_error ? (
               <div className="bg-muted relative my-8 aspect-video w-full overflow-hidden rounded-xl">
                 <Image
                   src={project_photo}
@@ -195,6 +205,7 @@ function Project({ query, initialProject }) {
                   fill
                   sizes="(min-width: 1024px) 768px, 100vw"
                   className="object-contain"
+                  onError={() => setProjectPhotoError(true)}
                 />
               </div>
             ) : loading_files ? (
