@@ -8,6 +8,7 @@ const {
   uniqueSuffix,
   seedStudent,
 } = require('./support/admin')
+const { waitForHydration } = require('./support/ui')
 
 const PASSWORD = 'SciTeens!23'
 
@@ -16,13 +17,26 @@ test.describe('resolveRefPath redirect end to end', () => {
     page,
   }) => {
     await page.goto('/signup/student')
+    await waitForHydration(page, '#first_name')
     await page.locator('#first_name').fill('Ada')
     await page.locator('#last_name').fill('Lovelace')
     await page
       .locator('#email')
       .fill(`e2e-signup-${uniqueSuffix()}@example.com`)
     await page.locator('#password').fill(PASSWORD)
-    await page.locator('#birthday').fill('2000-01-01')
+    // BirthdayField is a Popover+Calendar, not a native date
+    // input; open it, navigate to January 2000 via the
+    // dropdowns, click day 1.
+    await page.locator('#birthday').click()
+    await page
+      .getByRole('combobox', { name: 'Choose the Year' })
+      .selectOption('2000')
+    await page
+      .getByRole('combobox', { name: 'Choose the Month' })
+      .selectOption({ label: 'Jan' })
+    await page
+      .getByRole('button', { name: /January 1st, 2000/ })
+      .click()
     await page
       .getByRole('checkbox', {
         name: 'I have read and accept',
@@ -33,7 +47,8 @@ test.describe('resolveRefPath redirect end to end', () => {
       name: 'Create Account',
     })
     // Gated on form validity plus the emulator-faked reCAPTCHA
-    // resolving (lib/firebase.js's appVerificationDisabledForTesting).
+    // resolving (lib/firebase.js's
+    // appVerificationDisabledForTesting).
     await expect(submit).toBeEnabled({ timeout: 15_000 })
     await submit.click()
 
@@ -54,14 +69,15 @@ test.describe('resolveRefPath redirect end to end', () => {
     await page.goto(
       `/signin/student?ref=project|${projectId}`
     )
+    await waitForHydration(page, '#email')
     await page.locator('#email').fill(student.email)
     await page.locator('#password').fill(student.password)
-    await page
-      .getByRole('button', {
-        name: 'Sign In',
-        exact: true,
-      })
-      .click()
+    const submit = page.getByRole('button', {
+      name: 'Sign In',
+      exact: true,
+    })
+    await expect(submit).toBeEnabled({ timeout: 15_000 })
+    await submit.click()
 
     await page.waitForURL(`/project/${projectId}`, {
       timeout: 15_000,

@@ -89,5 +89,13 @@ jobs:
           path: ~/.cache/firebase/emulators
           key: firebase-emulators-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: firebase-emulators-${{ runner.os }}-
+      # GitHub-hosted runners have 7GB RAM and no swap. The Firestore
+      # emulator JVM, next dev, and Chromium together peak above that
+      # during teardown, triggering an OOM SIGKILL after all tests pass.
+      # 4GB swap gives headroom for the spike without slowing tests
+      # (working set fits in RAM; only teardown touches swap).
+      - uses: pierotofy/set-swap-space@v1.0
+        with:
+          swap-size-gb: 4
       # "live" project needs real Firebase secrets, not wired in CI yet.
-      - run: pnpm exec playwright test --project=emulator
+      - run: npx playwright test --project=emulator

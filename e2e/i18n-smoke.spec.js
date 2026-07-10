@@ -18,18 +18,6 @@ test.describe('i18n smoke', () => {
       test(`${path} has no missing keys or errors in ${locale}`, async ({
         page,
       }) => {
-        // KNOWN ISSUE, not caused by this test: /articles reliably
-        // hydration-fails under `next dev` in every locale (not a
-        // moment.js locale race, not concurrency-specific — root
-        // cause not pinned down, suspect useWindowVirtualizer racing
-        // /articles' live external CMS data). Tracked via test.fail()
-        // so it flips to a build failure once someone actually fixes
-        // it.
-        test.fail(
-          path === '/articles',
-          'Known /articles hydration-mismatch bug, not yet root-caused — see comment above'
-        )
-
         const missingKeyLogs = []
         const pageErrors = []
 

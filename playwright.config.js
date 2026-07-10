@@ -34,26 +34,27 @@ const webServer = [
     // `emulators:exec` (not `emulators:start`) for reliable teardown:
     // the Firestore emulator's Java process runs in its own detached
     // session and survives a plain SIGTERM. Capped heap: standard
-    // GitHub-hosted runners have 7GB total RAM and the JVM's default
-    // heap sizing left nothing for `next dev` + Chromium, OOM-killing
-    // the whole run near the end regardless of Playwright's own
-    // `workers` setting (fixture data here is tiny — 1g is generous).
-    command: `pnpm exec firebase emulators:exec --only auth,firestore --project ${EMULATOR_PROJECT_ID} "node e2e/support/hold-open.js"`,
+    // GitHub-hosted runners have 7GB total RAM and no swap — the JVM,
+    // next dev, and Chromium together peak above that during teardown.
+    // Fixture data is a handful of docs, so 512m is generous.
+    command: `node_modules/.bin/firebase emulators:exec --only auth,firestore --project ${EMULATOR_PROJECT_ID} "node e2e/support/hold-open.js"`,
     url: 'http://127.0.0.1:8080',
     reuseExistingServer,
     timeout: 60_000,
+    gracefulShutdown: { timeout: 5_000 },
     env: {
-      JAVA_TOOL_OPTIONS: '-Xmx1g',
+      JAVA_TOOL_OPTIONS: '-Xmx512m',
     },
   },
   {
     // `next dev`, not build+start: build+start didn't fix the known
     // /articles hydration issue (see i18n-smoke.spec.js) and was less
     // stable overall in testing.
-    command: `pnpm exec next dev -p ${EMULATOR_APP_PORT}`,
+    command: `node_modules/.bin/next dev -p ${EMULATOR_APP_PORT}`,
     url: `http://127.0.0.1:${EMULATOR_APP_PORT}`,
     reuseExistingServer,
     timeout: 180_000,
+    gracefulShutdown: { timeout: 5_000 },
     env: {
       ...EMULATOR_FIREBASE_CONFIG,
       NEXT_PUBLIC_I18NEXT_DEBUG: 'true',
@@ -62,7 +63,7 @@ const webServer = [
       // dev`'s module graph grows with every distinct route/locale
       // it compiles across the run, so cap it instead of letting V8
       // grow toward the default (much larger) ceiling.
-      NODE_OPTIONS: '--max-old-space-size=1536',
+      NODE_OPTIONS: '--max-old-space-size=1024',
     },
   },
 ]
