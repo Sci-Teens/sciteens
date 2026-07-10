@@ -18,7 +18,7 @@ import {
 import { useSigninCheck } from '../../../context/AuthContext'
 import { db } from '../../../lib/firebase'
 import { useRouter } from 'next/router'
-import Head from 'next/head'
+import SocialMeta from '../../../components/SocialMeta'
 import Image from 'next/image'
 import Error from 'next/error'
 import Link from 'next/link'
@@ -110,26 +110,24 @@ function Project({ query, initialProject }) {
 
   return (
     <>
-      <Head>
-        <title>{`${project.title} | SciTeens`}</title>
-        <link rel="icon" href="/favicon.ico" />
-        <meta
-          name="description"
-          content={
-            project?.abstract
-              ? project.abstract
-              : `${project.title} on SciTeens`
-          }
-        />
-        <meta
-          name="keywords"
-          content="SciTeens, sciteens, project, teen science"
-        />
-        <meta
-          name="og:image"
-          content="/assets/sciteens_initials.jpg"
-        />
-      </Head>
+      <SocialMeta
+        title={`${project.title} | SciTeens`}
+        description={
+          project?.abstract
+            ? project.abstract
+            : `${project.title} on SciTeens`
+        }
+        eyebrow="Project"
+        badge={
+          project.fields?.[0]
+            ? getFieldLabel(
+                translatedFields,
+                project.fields[0]
+              )
+            : undefined
+        }
+        path={router.asPath}
+      />
       <article className="prose-sm lg:prose text-foreground mx-auto mt-8 px-4 lg:px-0">
         <div>
           <div className="m-0 flex flex-row justify-between p-0 leading-none">

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import Head from 'next/head'
+import SocialMeta from '@/components/SocialMeta'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
@@ -159,25 +159,17 @@ function Courses({ cached_courses }) {
   })
   return (
     <>
-      <Head>
-        <title>{`${field ? field + ' ' : ''}Courses ${
-          search ? 'related to ' + search : ''
-        } | SciTeens`}</title>
-        <link rel="icon" href="/favicon.ico" />
-        <meta
-          name="description"
-          content="SciTeens Courses Page"
-        />
-        <meta
-          name="keywords"
-          content="SciTeens, sciteens, courses, teen science"
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          name="og:image"
-          content="/assets/sciteens_initials.jpg"
-        />
-      </Head>
+      <SocialMeta
+        title={`${
+          field && field !== 'All' ? field + ' ' : ''
+        }Courses${
+          search ? ` related to ${search}` : ''
+        } | SciTeens`}
+        description="Free, project-based science courses taught by and for teens — biology, physics, data science, and more."
+        eyebrow="Courses"
+        badge={field && field !== 'All' ? field : undefined}
+        path="/courses"
+      />
       <div className="text-foreground mx-auto mb-24 mt-8 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
         <div className="mx-auto w-11/12 md:w-[85%] lg:mx-0 lg:w-[60%]">
           <PageHeading className="ml-4 py-4 text-left">

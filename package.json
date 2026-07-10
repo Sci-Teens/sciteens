@@ -27,6 +27,7 @@
     "@tailwindcss/typography": "^0.5.15",
     "@tanstack/react-query": "^5.101.2",
     "@tanstack/react-virtual": "^3.14.5",
+    "@vercel/og": "^0.11.1",
     "algoliasearch": "^4.27.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

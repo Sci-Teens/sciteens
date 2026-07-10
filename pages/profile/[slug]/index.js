@@ -5,7 +5,7 @@ import {
   useContext,
 } from 'react'
 
-import Head from 'next/head'
+import SocialMeta from '../../../components/SocialMeta'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import ProfilePhoto from '../../../components/ProfilePhoto'
@@ -110,35 +110,16 @@ function Project({ profile }) {
 
   return (
     <>
-      <Head>
-        <title>{`${profile.display}'s Profile | SciTeens`}</title>
-        <link rel="icon" href="/favicon.ico" />
-        <meta
-          name="description"
-          content={
-            profile?.about
-              ? profile.about
-              : `${profile.display}'s Profile on SciTeens`
-          }
-        />
-        <meta
-          name="keywords"
-          content="SciTeens, sciteens, profile, teen science"
-        />
-        <meta
-          name="og:image"
-          content="/assets/sciteens_initials.jpg"
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          property="og:title"
-          content={`${profile.display}'s Profile | SciTeens`}
-        />
-        <meta
-          property="og:description"
-          content="Check out "
-        />
-      </Head>
+      <SocialMeta
+        title={`${profile.display}'s Profile | SciTeens`}
+        description={
+          profile?.about
+            ? profile.about
+            : `${profile.display}'s Profile on SciTeens`
+        }
+        eyebrow="Profile"
+        path={router.asPath}
+      />
       <div className="text-foreground mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         <div>
           <div className="m-0 flex flex-row justify-between p-0 leading-none">

@@ -1,11 +1,10 @@
 import { useContext } from 'react'
 
 import Link from 'next/link'
-import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
-
+import SocialMeta from '../../components/SocialMeta'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -93,23 +92,12 @@ export default function MentorSignIn() {
 
   return (
     <div>
-      <Head>
-        <title>Educator Sign In | SciTeens</title>
-        <link rel="icon" href="/favicon.ico" />
-        <meta
-          name="description"
-          content="Sign in to SciTeens"
-        />
-        <meta
-          name="keywords"
-          content="SciTeens, sciteens, mentor sign in, teen science"
-        />
-        <meta
-          name="og:image"
-          content="/assets/sciteens_initials.jpg"
-        />
-        <meta property="og:type" content="website" />
-      </Head>
+      <SocialMeta
+        title="Educator Sign In | SciTeens"
+        description="Sign in to SciTeens to mentor students and support their STEM journey."
+        eyebrow="Sign In"
+        path="/signin/educator"
+      />
       <AuthCard
         title={t('auth.educator_sign_in')}
         subtitle={

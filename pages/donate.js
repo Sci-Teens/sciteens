@@ -2,30 +2,19 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
-import Head from 'next/head'
+import SocialMeta from '@/components/SocialMeta'
 import PageHeading from '@/components/PageHeading'
 
 export default function Donate() {
   const { t } = useTranslation('common')
   return (
     <>
-      <Head>
-        <title>Donate | SciTeens</title>
-        <link rel="icon" href="/favicon.ico" />
-        <meta
-          name="description"
-          content="Donate to help support SciTeens"
-        />
-        <meta
-          name="keywords"
-          content="SciTeens, sciteens, donate, teen science"
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          name="og:image"
-          content="/assets/sciteens_initials.jpg"
-        />
-      </Head>
+      <SocialMeta
+        title="Donate | SciTeens"
+        description="Donate to help support SciTeens and expand free STEM opportunities for teens."
+        eyebrow="Donate"
+        path="/donate"
+      />
       <div className="w-full">
         <div className="mx-auto w-full px-4 py-8 text-left md:p-8 lg:w-2/3">
           <PageHeading>

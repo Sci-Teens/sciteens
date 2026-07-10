@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import Link from 'next/link'
-import Head from 'next/head'
+import SocialMeta from '@/components/SocialMeta'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
@@ -383,25 +383,17 @@ function Articles({ cached_articles }) {
 
   return (
     <>
-      <Head>
-        <title>{`${field ? field + ' ' : ''} Articles ${
-          search ? 'related to ' + search : ''
-        } | SciTeens`}</title>
-        <link rel="icon" href="/favicon.ico" />
-        <meta
-          name="description"
-          content="SciTeens Articles Page"
-        />
-        <meta
-          name="keywords"
-          content="SciTeens, sciteens, articles, teen science"
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          name="og:image"
-          content="/assets/sciteens_initials.jpg"
-        />
-      </Head>
+      <SocialMeta
+        title={`${
+          field && field !== 'All' ? field + ' ' : ''
+        }Articles${
+          search ? ` related to ${search}` : ''
+        } | SciTeens`}
+        description="Read science articles written by teens, for teens — explore biology, chemistry, physics, and more."
+        eyebrow="Articles"
+        badge={field && field !== 'All' ? field : undefined}
+        path="/articles"
+      />
       <div className="text-foreground mx-auto mb-24 mt-8 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
         <div className="mx-auto w-11/12 md:w-[85%] lg:mx-0 lg:w-[60%]">
           <PageHeading className="ml-4 py-4 text-left">

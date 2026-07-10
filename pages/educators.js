@@ -5,7 +5,7 @@ import {
   animated,
   config,
 } from '@react-spring/web'
-import Head from 'next/head'
+import SocialMeta from '@/components/SocialMeta'
 
 export default function Educators() {
   const { t } = useTranslation('common')
@@ -22,23 +22,12 @@ export default function Educators() {
 
   return (
     <>
-      <Head>
-        <title>Educators | SciTeens</title>
-        <link rel="icon" href="/favicon.ico" />
-        <meta
-          name="description"
-          content="Help your students succeed via SciTeens"
-        />
-        <meta
-          name="keywords"
-          content="SciTeens, sciteens, donate, teen science"
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          name="og:image"
-          content="/assets/sciteens_initials.jpg"
-        />
-      </Head>
+      <SocialMeta
+        title="Educators | SciTeens"
+        description="Help your students succeed with free STEM courses, mentorship, and project support from SciTeens."
+        eyebrow="Educators"
+        path="/educators"
+      />
       <div className="mx-5 mb-24 mt-16 flex flex-col text-center md:mx-16 lg:mx-24 lg:grid lg:grid-cols-2 lg:grid-rows-2 xl:grid-cols-3 xl:grid-rows-1">
         <animated.div
           style={cardsTrail[0]}

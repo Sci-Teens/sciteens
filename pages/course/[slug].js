@@ -2,7 +2,7 @@ import { RichText } from 'prismic-reactjs'
 var Prismic = require('@prismicio/client')
 import moment from 'moment'
 import Image from 'next/image'
-import Head from 'next/head'
+import SocialMeta from '../../components/SocialMeta'
 import htmlSerializer from '../../htmlserializer'
 import { useState, useEffect } from 'react'
 import FileGallery from '../../components/FileGallery'
@@ -109,35 +109,16 @@ function Course({ course }) {
 
   return (
     <>
-      <Head>
-        <title>{`${RichText.asText(
+      <SocialMeta
+        title={`${RichText.asText(
           course.data.name
-        )} | SciTeens`}</title>
-        <link rel="icon" href="/favicon.ico" />
-        <meta
-          name="description"
-          content={RichText.asText(course.data.description)}
-        />
-        <meta
-          name="keywords"
-          content="SciTeens, sciteens, course, teen science"
-        />
-        <meta
-          name="og:image"
-          content={course.data.image_main.url}
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          property="og:title"
-          content={`${RichText.asText(
-            course.data.name
-          )} | SciTeens`}
-        />
-        <meta
-          property="og:description"
-          content={course.data.description}
-        />
-      </Head>
+        )} | SciTeens`}
+        description={RichText.asText(
+          course.data.description
+        )}
+        eyebrow="Course"
+        path={router.asPath}
+      />
       <article className="prose-sm wrap-break-word lg:prose mx-auto mt-8 overflow-hidden px-4">
         <div>
           <h1>{RichText.asText(course.data.name)}</h1>

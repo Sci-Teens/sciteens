@@ -6,7 +6,7 @@ import {
 } from '@react-spring/web'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
-import Head from 'next/head'
+import SocialMeta from '@/components/SocialMeta'
 import PageHeading from '@/components/PageHeading'
 
 export default function GetInvolved() {
@@ -23,23 +23,12 @@ export default function GetInvolved() {
 
   return (
     <div>
-      <Head>
-        <title>Get Involved | SciTeens</title>
-        <link rel="icon" href="/favicon.ico" />
-        <meta
-          name="description"
-          content="Get involved with SciTeens"
-        />
-        <meta
-          name="keywords"
-          content="SciTeens, sciteens, get involved, teen science"
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          name="og:image"
-          content="/assets/sciteens_initials.jpg"
-        />
-      </Head>
+      <SocialMeta
+        title="Get Involved | SciTeens"
+        description="Volunteer, mentor, or partner with SciTeens to bring free STEM opportunities to more students."
+        eyebrow="Get Involved"
+        path="/getinvolved"
+      />
       <div>
         <div className="mx-auto w-full px-4 py-8 text-left md:p-8 lg:w-5/6">
           <PageHeading className="my-4 mb-10 text-center">

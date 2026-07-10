@@ -4,7 +4,7 @@ var Prismic = require('@prismicio/client')
 import Link from 'next/link'
 import moment from 'moment'
 import Image from 'next/image'
-import Head from 'next/head'
+import SocialMeta from '../../components/SocialMeta'
 import htmlSerializer from '../../htmlserializer'
 import Discussion from '../../components/Discussion'
 import { useRouter } from 'next/router'
@@ -222,35 +222,15 @@ function Article({ article, recommendations }) {
         <h3>AMP article in progess...</h3>
       ) : (
         <>
-          <Head>
-            <title>{`${RichText.asText(
+          <SocialMeta
+            title={`${RichText.asText(
               article.data.title
-            )} | SciTeens`}</title>
-            <link rel="icon" href="/favicon.ico" />
-            <meta
-              name="description"
-              content={article.data.description}
-            />
-            <meta
-              name="keywords"
-              content="SciTeens, sciteens, article, teen science"
-            />
-            <meta
-              name="og:image"
-              content={article.data.image.url}
-            />
-            <meta property="og:type" content="website" />
-            <meta
-              property="og:title"
-              content={`${RichText.asText(
-                article.data.title
-              )} | SciTeens`}
-            />
-            <meta
-              property="og:description"
-              content={article.data.description}
-            />
-          </Head>
+            )} | SciTeens`}
+            description={article.data.description}
+            eyebrow="Article"
+            badge={article.data.author}
+            path={router.asPath}
+          />
           <main>
             <article className="prose wrap-break-word lg:prose-lg mx-auto mt-8 overflow-hidden px-4">
               <h1>{RichText.asText(article.data.title)}</h1>
