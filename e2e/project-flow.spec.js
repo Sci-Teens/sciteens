@@ -14,6 +14,7 @@ const {
   getProjectInvite,
   setProjectFields,
 } = require('./support/admin')
+const { waitForHydration } = require('./support/ui')
 
 const PASSWORD = 'SciTeens!23'
 
@@ -23,14 +24,16 @@ async function signIn(page, { email, password }, ref) {
       ? `/signin/student?ref=${encodeURIComponent(ref)}`
       : '/signin/student'
   )
+  // Wait for React hydration before filling (see support/ui.js).
+  await waitForHydration(page, '#email')
   await page.locator('#email').fill(email)
   await page.locator('#password').fill(password)
-  await page
-    .getByRole('button', {
-      name: 'Sign In',
-      exact: true,
-    })
-    .click()
+  const submit = page.getByRole('button', {
+    name: 'Sign In',
+    exact: true,
+  })
+  await expect(submit).toBeEnabled({ timeout: 15_000 })
+  await submit.click()
 }
 
 test.describe('project create -> invite -> edit', () => {

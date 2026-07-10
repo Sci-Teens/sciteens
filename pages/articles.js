@@ -84,6 +84,12 @@ function Articles({ cached_articles }) {
   const router = useRouter()
   const [search, setSearch] = useState('')
   const [field, setField] = useState('All')
+  // useWindowVirtualizer computes getTotalSize() from window
+  // dimensions, which are absent during SSR — rendering it on the
+  // server produces height:0px vs the client's real height, a
+  // hydration mismatch. Defer virtualized rendering to after mount.
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
 
   const searchParam = router.query?.search || ''
   const fieldParam =
@@ -98,7 +104,6 @@ function Articles({ cached_articles }) {
 
   const initialData = useMemo(() => {
     if (
-      !router.isReady ||
       searchParam ||
       fieldParam ||
       firstPage !== 1 ||
@@ -121,13 +126,7 @@ function Articles({ cached_articles }) {
       ],
       pageParams: [1],
     }
-  }, [
-    router.isReady,
-    searchParam,
-    fieldParam,
-    firstPage,
-    cached_articles,
-  ])
+  }, [searchParam, fieldParam, firstPage, cached_articles])
 
   const articlesQuery = useInfiniteQuery({
     queryKey: [
@@ -262,13 +261,80 @@ function Articles({ cached_articles }) {
 
   const { t } = useTranslation('common')
 
+  function renderArticleCard(article) {
+    const author_image = article.data.body.map(
+      (slice, i) => {
+        if (slice.slice_type == 'about_the_author') {
+          return (
+            <div
+              className="relative h-6 w-6 lg:h-8 lg:w-8"
+              key={i}
+            >
+              <Image
+                alt={`${article.data.author} headshot`}
+                className="h-6 w-6 rounded-full lg:h-8 lg:w-8"
+                height={48}
+                width={48}
+                loader={imageLoader}
+                src={slice.primary.headshot.url}
+              />
+            </div>
+          )
+        } else {
+          return null
+        }
+      }
+    )
+
+    return (
+      <div key={article.id} className="w-full pt-6 md:pt-8">
+        <Link
+          href={`/article/${article.uid}`}
+          className="animate-in bg-card text-card-foreground ring-border/60 fade-in slide-in-from-right-8 z-50 flex cursor-pointer flex-row items-center rounded-xl p-4 shadow-sm ring-1 transition duration-300 hover:-translate-y-0.5 hover:shadow-md"
+        >
+          <div className="relative h-full max-w-[100px] md:max-w-[200px]">
+            <Image
+              alt={RichText.asText(article.data.title)}
+              className="shrink-0 rounded-lg object-cover"
+              loader={imageLoader}
+              src={article.data.image.url}
+              width={256}
+              height={256}
+            />
+          </div>
+          <div className="ml-4 w-3/4 lg:w-11/12">
+            <div className="mb-3 flex flex-row items-center">
+              {author_image}
+              <p className="ml-3">{article.data.author}</p>
+            </div>
+            <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">
+              {RichText.asText(article.data.title)}
+            </h3>
+            <p className="line-clamp-none md:line-clamp-2 mb-2 hidden text-sm md:flex lg:text-base">
+              {article.data.description}
+            </p>
+            <p className="flex text-xs">
+              {(mounted
+                ? moment(article.data.date)
+                    .locale(router?.locale || 'en')
+                    .format('ll')
+                : moment(article.data.date).format('ll')) +
+                ' · ' +
+                readingTime(article.data.text)}
+            </p>
+          </div>
+        </Link>
+      </div>
+    )
+  }
+
   const articleVirtualizer = useWindowVirtualizer({
     count: articles.length,
     estimateSize: () => 340,
     overscan: 5,
   })
 
-  const articlesComponent = (
+  const articlesComponent = mounted ? (
     <div
       className="relative w-full"
       style={{
@@ -281,81 +347,26 @@ function Articles({ cached_articles }) {
           const article = articles[virtualRow.index]
           if (!article) return null
 
-          const author_image = article.data.body.map(
-            (slice, index) => {
-              if (slice.slice_type == 'about_the_author') {
-                return (
-                  <div
-                    className="relative h-6 w-6 lg:h-8 lg:w-8"
-                    key={index}
-                  >
-                    <Image
-                      alt={`${article.data.author} headshot`}
-                      className="h-6 w-6 rounded-full lg:h-8 lg:w-8"
-                      height={48}
-                      width={48}
-                      loader={imageLoader}
-                      src={slice.primary.headshot.url}
-                    />
-                  </div>
-                )
-              } else {
-                return null
-              }
-            }
-          )
-
           return (
             <div
               key={article.id}
               ref={articleVirtualizer.measureElement}
               data-index={virtualRow.index}
-              className="absolute left-0 top-0 w-full pt-6 md:pt-8"
+              className="absolute left-0 top-0 w-full"
               style={{
                 transform: `translateY(${virtualRow.start}px)`,
               }}
             >
-              <Link
-                href={`/article/${article.uid}`}
-                className="animate-in bg-card text-card-foreground ring-border/60 fade-in slide-in-from-right-8 z-50 flex cursor-pointer flex-row items-center rounded-xl p-4 shadow-sm ring-1 transition duration-300 hover:-translate-y-0.5 hover:shadow-md"
-              >
-                <div className="relative h-full max-w-[100px] md:max-w-[200px]">
-                  <Image
-                    alt={RichText.asText(
-                      article.data.title
-                    )}
-                    className="shrink-0 rounded-lg object-cover"
-                    loader={imageLoader}
-                    src={article.data.image.url}
-                    width={256}
-                    height={256}
-                  />
-                </div>
-                <div className="ml-4 w-3/4 lg:w-11/12">
-                  <div className="mb-3 flex flex-row items-center">
-                    {author_image}
-                    <p className="ml-3">
-                      {article.data.author}
-                    </p>
-                  </div>
-                  <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">
-                    {RichText.asText(article.data.title)}
-                  </h3>
-                  <p className="line-clamp-none md:line-clamp-2 mb-2 hidden text-sm md:flex lg:text-base">
-                    {article.data.description}
-                  </p>
-                  <p className="flex text-xs">
-                    {moment(article.data.date)
-                      .locale(router?.locale || 'en')
-                      .format('ll') +
-                      ' · ' +
-                      readingTime(article.data.text)}
-                  </p>
-                </div>
-              </Link>
+              {renderArticleCard(article)}
             </div>
           )
         })}
+    </div>
+  ) : (
+    <div className="relative w-full">
+      {articles.map((article) =>
+        renderArticleCard(article)
+      )}
     </div>
   )
 
