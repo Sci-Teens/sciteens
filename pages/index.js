@@ -1,4 +1,4 @@
-import Head from 'next/head'
+import SocialMeta from '@/components/SocialMeta'
 import Image from 'next/image'
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
@@ -284,23 +284,13 @@ export default function Home() {
 
   return (
     <div>
-      <Head>
-        <title>Welcome to SciTeens! | SciTeens</title>
-        <link rel="icon" href="/favicon.ico" />
-        <meta
-          name="description"
-          content="SciTeens Home Page"
-        />
-        <meta
-          name="keywords"
-          content="SciTeens, sciteens, home, teen science"
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          name="og:image"
-          content="/assets/sciteens_initials.jpg"
-        />
-      </Head>
+      <SocialMeta
+        title={`SciTeens — ${t(
+          'index.science_simplified'
+        )}`}
+        description={t('index.share_work')}
+        path="/"
+      />
 
       <div className="mt-0 overflow-x-hidden lg:-mt-20">
         {/* Landing screen */}

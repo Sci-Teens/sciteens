@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
 import { useRouter } from 'next/router'
-import Head from 'next/head'
+import SocialMeta from '../../components/SocialMeta'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import { X, CircleHelp } from 'lucide-react'
@@ -16,23 +16,12 @@ export default function SignUpIndex() {
 
   return (
     <div>
-      <Head>
-        <title>Sign Up | SciTeens</title>
-        <link rel="icon" href="/favicon.ico" />
-        <meta
-          name="description"
-          content="Sign up for SciTeens"
-        />
-        <meta
-          name="keywords"
-          content="SciTeens, sciteens, sign up, teen science"
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          name="og:image"
-          content="/assets/sciteens_initials.jpg"
-        />
-      </Head>
+      <SocialMeta
+        title="Sign Up | SciTeens"
+        description="Sign up for SciTeens — it's free — to share your work, get feedback, and find STEM opportunities."
+        eyebrow="Sign Up"
+        path="/signup"
+      />
       <main className="-mt-8 flex min-h-screen items-center justify-center px-4 py-12">
         <div className="border-border/60 bg-card mx-auto w-full max-w-md rounded-xl border p-8 text-center shadow-sm sm:p-10">
           <h1 className="text-3xl font-semibold">

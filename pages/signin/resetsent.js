@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import Head from 'next/head'
+import SocialMeta from '../../components/SocialMeta'
 import { MailCheck } from 'lucide-react'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
@@ -11,23 +11,12 @@ export default function ResetSent() {
   const { t } = useTranslation('common')
   return (
     <div>
-      <Head>
-        <title>Reset Password Sent | SciTeens</title>
-        <link rel="icon" href="/favicon.ico" />
-        <meta
-          name="description"
-          content="Reset password on SciTeens"
-        />
-        <meta
-          name="keywords"
-          content="SciTeens, sciteens, reset password, teen science"
-        />
-        <meta
-          name="og:image"
-          content="/assets/sciteens_initials.jpg"
-        />
-        <meta property="og:type" content="website" />
-      </Head>
+      <SocialMeta
+        title="Reset Password Sent | SciTeens"
+        description="Reset your SciTeens password."
+        eyebrow="Sign In"
+        path="/signin/resetsent"
+      />
       <AuthCard subtitle={t('auth.reset_message')}>
         <MailCheck className="text-sciteensGreen-regular mx-auto mb-4 h-12 w-12" />
         <Button

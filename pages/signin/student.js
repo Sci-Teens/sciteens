@@ -2,7 +2,7 @@ import { useContext } from 'react'
 
 import Link from 'next/link'
 import Image from 'next/image'
-import Head from 'next/head'
+import SocialMeta from '../../components/SocialMeta'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
@@ -96,23 +96,12 @@ export default function StudentSignIn() {
 
   return (
     <div>
-      <Head>
-        <title>Student Sign In | SciTeens</title>
-        <link rel="icon" href="/favicon.ico" />
-        <meta
-          name="description"
-          content="Student Sign In to SciTeens"
-        />
-        <meta
-          name="keywords"
-          content="SciTeens, sciteens, student sign in, teen science"
-        />
-        <meta
-          name="og:image"
-          content="/assets/sciteens_initials.jpg"
-        />
-        <meta property="og:type" content="website" />
-      </Head>
+      <SocialMeta
+        title="Student Sign In | SciTeens"
+        description="Sign in to SciTeens to share your work and explore free STEM opportunities."
+        eyebrow="Sign In"
+        path="/signin/student"
+      />
       <AuthCard
         title={t('auth.student_sign_in')}
         subtitle={

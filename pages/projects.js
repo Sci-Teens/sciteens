@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import Link from 'next/link'
-import Head from 'next/head'
+import SocialMeta from '@/components/SocialMeta'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
@@ -335,25 +335,17 @@ function Projects({ cached_projects }) {
 
   return (
     <>
-      <Head>
-        <title>{`${field ? field + ' ' : ''}Projects ${
-          search ? 'related to ' + search : ''
-        } | SciTeens`}</title>
-        <link rel="icon" href="/favicon.ico" />
-        <meta
-          name="description"
-          content="SciTeens Projects Page"
-        />
-        <meta
-          name="keywords"
-          content="SciTeens, sciteens, projects, teen science"
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          name="og:image"
-          content="/assets/sciteens_initials.jpg"
-        />
-      </Head>
+      <SocialMeta
+        title={`${
+          field && field !== 'All' ? field + ' ' : ''
+        }Projects${
+          search ? ` related to ${search}` : ''
+        } | SciTeens`}
+        description="Real research projects built by teen scientists — get inspired, give feedback, or start your own."
+        eyebrow="Projects"
+        badge={field && field !== 'All' ? field : undefined}
+        path="/projects"
+      />
       <div className="text-foreground mx-auto mb-24 mt-8 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
         <div className="mx-auto w-11/12 md:w-[85%] lg:mx-0 lg:w-[60%]">
           <div className="flex flex-row justify-between">

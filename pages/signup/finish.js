@@ -7,7 +7,7 @@ import { db as firestore } from '../../lib/firebase'
 import { useUser } from '../../context/AuthContext'
 import { useRouter } from 'next/router'
 import moment from 'moment'
-import Head from 'next/head'
+import SocialMeta from '../../components/SocialMeta'
 import Link from 'next/link'
 import { AppContext } from '../../context/context'
 import { createUniqueSlug } from '../../context/helpers'
@@ -186,23 +186,12 @@ export default function FinishSignUp() {
 
   return (
     <div>
-      <Head>
-        <title>Finish Sign Up | SciTeens</title>
-        <link rel="icon" href="/favicon.ico" />
-        <meta
-          name="description"
-          content="Finish Signing Up to SciTeens"
-        />
-        <meta
-          name="keywords"
-          content="SciTeens, sciteens, finish sign up, teen science"
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          name="og:image"
-          content="/assets/sciteens_initials.jpg"
-        />
-      </Head>
+      <SocialMeta
+        title="Finish Sign Up | SciTeens"
+        description="Finish setting up your SciTeens account."
+        eyebrow="Sign Up"
+        path="/signup/finish"
+      />
       <AuthCard
         maxWidth="max-w-lg"
         title={t('auth.finish_signup')}

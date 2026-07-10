@@ -1,4 +1,4 @@
-import Head from 'next/head'
+import SocialMeta from '@/components/SocialMeta'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
@@ -217,23 +217,12 @@ export default function About() {
 
   return (
     <div>
-      <Head>
-        <title>About Us | SciTeens</title>
-        <link rel="icon" href="/favicon.ico" />
-        <meta
-          name="description"
-          content="SciTeens About Page"
-        />
-        <meta
-          name="keywords"
-          content="SciTeens, sciteens, science, teen science"
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          name="og:image"
-          content="/assets/sciteens_initials.jpg"
-        />
-      </Head>
+      <SocialMeta
+        title="About Us | SciTeens"
+        description={t('about.we_strive')}
+        eyebrow="About"
+        path="/about"
+      />
       <main>
         <div className="mx-auto w-full px-4 py-8 text-left md:p-8 lg:w-5/6">
           <PageHeading className="my-4 text-center">

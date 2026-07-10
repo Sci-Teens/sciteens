@@ -2,7 +2,7 @@ import { auth } from '../../lib/firebase'
 import { useRouter } from 'next/router'
 import { sendPasswordResetEmail } from '@firebase/auth'
 import isEmail from 'validator/lib/isEmail'
-import Head from 'next/head'
+import SocialMeta from '../../components/SocialMeta'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
@@ -51,23 +51,12 @@ export default function Reset() {
 
   return (
     <div>
-      <Head>
-        <title>Reset Password | SciTeens</title>
-        <link rel="icon" href="/favicon.ico" />
-        <meta
-          name="description"
-          content="Reset password on SciTeens"
-        />
-        <meta
-          name="keywords"
-          content="SciTeens, sciteens, reset password, teen science"
-        />
-        <meta
-          name="og:image"
-          content="/assets/sciteens_initials.jpg"
-        />
-        <meta property="og:type" content="website" />
-      </Head>
+      <SocialMeta
+        title="Reset Password | SciTeens"
+        description="Reset your SciTeens password."
+        eyebrow="Sign In"
+        path="/signin/reset"
+      />
       <AuthCard
         title={t('auth.reset_password')}
         subtitle={t('auth.why_reset_password')}

@@ -3,7 +3,7 @@ import LoadingSpinner from '../../components/LoadingSpinner'
 import { useContext } from 'react'
 
 import Link from 'next/link'
-import Head from 'next/head'
+import SocialMeta from '../../components/SocialMeta'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
@@ -238,23 +238,12 @@ export default function MentorSignUp() {
 
   return (
     <div>
-      <Head>
-        <title>Educator Sign Up | SciTeens</title>
-        <link rel="icon" href="/favicon.ico" />
-        <meta
-          name="description"
-          content="Mentor sign up for SciTeens"
-        />
-        <meta
-          name="keywords"
-          content="SciTeens, sciteens, sign up, teen science"
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          name="og:image"
-          content="/assets/sciteens_initials.jpg"
-        />
-      </Head>
+      <SocialMeta
+        title="Educator Sign Up | SciTeens"
+        description="Sign up as an educator to mentor students and support their STEM journey on SciTeens."
+        eyebrow="Sign Up"
+        path="/signup/educator"
+      />
       <AuthCard
         maxWidth="max-w-lg"
         title={t('auth.educate_on_sciteens')}
