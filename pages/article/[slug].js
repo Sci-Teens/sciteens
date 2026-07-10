@@ -1,5 +1,5 @@
 import { RichText } from 'prismic-reactjs'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 var Prismic = require('@prismicio/client')
 import Link from 'next/link'
 import moment from 'moment'
@@ -12,11 +12,17 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import { logEvent, getAnalytics } from 'firebase/analytics'
 import { createCropImageLoader } from '../../lib/prismicImageLoader'
+import { getTranslatedFieldsDict } from '../../context/helpers'
+import { Button } from '@/components/ui/button'
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel'
 
 function Article({ article, recommendations }) {
-  const [, setLeftVisible] = useState(false)
-  const [, setRightVisible] = useState(true)
-  const [scrollIndex, setScrollIndex] = useState(-1)
   const [vote, setVote] = useState(null)
   const isAmp = false
   const { t } = useTranslation('common')
@@ -44,7 +50,17 @@ function Article({ article, recommendations }) {
     }
   }
 
-  const imageLoader = createCropImageLoader(582, 389)
+  // Each usage below gets its own loader tuned to its own display
+  // aspect ratio (cover, square avatars, 16:9 recommendation
+  // thumbnails) — sharing one loader across mismatched shapes is
+  // what previously stretched avatars and thumbnails out of shape.
+  const coverImageLoader = createCropImageLoader(670, 400)
+  const avatarImageLoader = createCropImageLoader(256, 256)
+  const recommendationImageLoader = createCropImageLoader(
+    1280,
+    720
+  )
+  const translatedFields = getTranslatedFieldsDict(t)
 
   function readingTime(article) {
     let article_length = 0
@@ -61,78 +77,26 @@ function Article({ article, recommendations }) {
     return `${time_to_read} minute read`
   }
 
-  useEffect(() => {
-    if (scrollIndex < 3) {
-      setRightVisible(true)
-    } else if (scrollIndex == 3) {
-      setRightVisible(false)
-    }
-    if (scrollIndex >= 0) {
-      setLeftVisible(true)
-    } else if (scrollIndex == -1) {
-      setLeftVisible(false)
-    }
-  }, [scrollIndex])
-
-  function scroll(e, direction, index) {
-    e.preventDefault()
-    let element = document.getElementById('readMore')
-
-    if (index >= 0) {
-      if (index == 0) {
-        element.scrollTo(0, 0)
-        setScrollIndex(-1)
-      } else {
-        element.scrollTo(
-          document.getElementById(
-            'i-' +
-              (window.innerWidth >= 768 ? index - 1 : index)
-          )?.offsetLeft,
-          0
-        )
-        setScrollIndex(index - 1)
-      }
-      return
-    }
-
-    if (direction == 'right') {
-      if (scrollIndex < 4) {
-        element.scrollTo(
-          document.getElementById('i-' + (scrollIndex + 1))
-            ?.offsetLeft,
-          0
-        )
-        setScrollIndex(scrollIndex + 1)
-      }
-    } else {
-      if (scrollIndex > 0) {
-        element.scrollTo(
-          document.getElementById('i-' + (scrollIndex - 1))
-            ?.offsetLeft,
-          0
-        )
-      } else if (scrollIndex == 0) {
-        element.scrollTo(0, 0)
-      }
-      setScrollIndex(scrollIndex - 1)
-    }
-  }
-
   const about_the_author = article.data.body.map(
     (slice, index) => {
       if (slice.slice_type == 'about_the_author') {
         return (
           <div key={index} className="inline-block">
             <h3>{t('article.about_the_author')}</h3>
-            <div className="flex flex-col items-center lg:flex-row">
-              <Image
-                className="h-20 w-20 grow-0 rounded-full"
-                height="256"
-                width="256"
-                loader={imageLoader}
-                src={slice.primary.headshot.url}
-              />
-              <p className="ml-4">
+            <div className="flex flex-col items-center gap-4 lg:flex-row">
+              <div className="not-prose relative h-20 w-20 shrink-0 overflow-hidden rounded-full">
+                <Image
+                  fill
+                  sizes="80px"
+                  className="object-cover"
+                  loader={avatarImageLoader}
+                  src={slice.primary.headshot.url}
+                  alt={RichText.asText(
+                    slice.primary.information
+                  )}
+                />
+              </div>
+              <p className="text-center lg:text-left">
                 {RichText.asText(slice.primary.information)}
               </p>
             </div>
@@ -152,16 +116,21 @@ function Article({ article, recommendations }) {
           {slice.items.map((interview, ix) => {
             return (
               <div key={ix} className="inline-block">
-                <div className="flex flex-col items-center lg:flex-row">
-                  <Image
-                    className="h-20 w-20 rounded-full"
-                    height="64"
-                    width="64"
-                    loader={imageLoader}
-                    src={interview.headshot.url}
-                  />
+                <div className="flex flex-col items-center gap-4 lg:flex-row">
+                  <div className="not-prose relative h-20 w-20 shrink-0 overflow-hidden rounded-full">
+                    <Image
+                      fill
+                      sizes="80px"
+                      className="object-cover"
+                      loader={avatarImageLoader}
+                      src={interview.headshot.url}
+                      alt={RichText.asText(
+                        interview.information
+                      )}
+                    />
+                  </div>
                   <h4
-                    className="ml-4"
+                    className="text-center lg:text-left"
                     style={{
                       marginTop: 0,
                       marginBottom: 0,
@@ -184,14 +153,19 @@ function Article({ article, recommendations }) {
   const author_image = article.data.body.map((slice) => {
     if (slice.slice_type == 'about_the_author') {
       return (
-        <Image
+        <div
           key={slice.primary.headshot.url}
-          className="rounded-full"
-          height="48"
-          width="48"
-          loader={imageLoader}
-          src={slice.primary.headshot.url}
-        />
+          className="not-prose relative h-12 w-12 shrink-0 overflow-hidden rounded-full"
+        >
+          <Image
+            fill
+            sizes="48px"
+            className="object-cover"
+            loader={avatarImageLoader}
+            src={slice.primary.headshot.url}
+            alt={article.data.author}
+          />
+        </div>
       )
     } else {
       return null
@@ -201,38 +175,42 @@ function Article({ article, recommendations }) {
   const recommendationsRendered = recommendations.map(
     (a, index) => {
       return (
-        <Link
+        <CarouselItem
           key={index}
-          href={`/article/${a.uid}`}
-          id={'i-' + index}
-          className="mr-[5vw] mt-6 w-[75vw] shrink-0 cursor-pointer rounded-lg bg-white p-4 shadow-sm hover:shadow-md  md:mr-[2.9vw] md:mt-8 md:w-[31vw]"
+          className="basis-3/4 md:basis-1/3"
         >
-          <div className="relative">
-            <Image
-              className="shrink-0 rounded-lg object-cover"
-              loader={imageLoader}
-              src={a.data.image.url}
-              width={1280}
-              height={720}
-            />
-          </div>
-          <div className="">
-            <h3 className="line-clamp-1 text-lg font-semibold">
-              {RichText.asText(a.data.title)}
-            </h3>
-            <p className="line-clamp-3 mb-auto text-sm">
-              {a.data.description}
-            </p>
-            <p className="line-clamp-1 mt-2 hidden text-sm lg:flex">
-              By{' '}
-              {a.data.author +
-                ' · ' +
-                moment(a.data.date).format('ll') +
-                ' · ' +
-                readingTime(a.data.text)}
-            </p>
-          </div>
-        </Link>
+          <Link
+            href={`/article/${a.uid}`}
+            className="block cursor-pointer rounded-lg bg-white p-4 shadow-sm hover:shadow-md"
+          >
+            <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+              <Image
+                fill
+                sizes="(min-width: 768px) 31vw, 75vw"
+                className="object-cover"
+                loader={recommendationImageLoader}
+                src={a.data.image.url}
+                alt={RichText.asText(a.data.title)}
+              />
+            </div>
+            <div>
+              <h3 className="line-clamp-1 text-lg font-semibold">
+                {RichText.asText(a.data.title)}
+              </h3>
+              <p className="line-clamp-3 mb-auto text-sm">
+                {a.data.description}
+              </p>
+              <p className="line-clamp-1 mt-2 hidden text-sm lg:flex">
+                By{' '}
+                {a.data.author +
+                  ' · ' +
+                  moment(a.data.date).format('ll') +
+                  ' · ' +
+                  readingTime(a.data.text)}
+              </p>
+            </div>
+          </Link>
+        </CarouselItem>
       )
     }
   )
@@ -274,7 +252,7 @@ function Article({ article, recommendations }) {
             />
           </Head>
           <main>
-            <article className="prose prose-sm wrap-break-word lg:prose-lg mx-auto mt-8 overflow-hidden px-4">
+            <article className="prose wrap-break-word lg:prose-lg mx-auto mt-8 overflow-hidden px-4">
               <h1>{RichText.asText(article.data.title)}</h1>
               <div>
                 <div className="mb-4 flex items-center">
@@ -282,7 +260,7 @@ function Article({ article, recommendations }) {
                   <p className="ml-6 text-lg text-black ">
                     {t('article.by')} {article.data.author}{' '}
                     <br />
-                    <span className="text-gray-500">
+                    <span className="text-gray-700">
                       {' '}
                       {moment(article.data.date).format(
                         'MMMM DD, YYYY'
@@ -291,32 +269,38 @@ function Article({ article, recommendations }) {
                     </span>
                   </p>
                 </div>
-                <div className="flex flex-row flex-wrap">
+                <div className="not-prose flex flex-row flex-wrap">
                   {article.tags.map((tag) => {
                     return (
-                      <Link
+                      <Button
                         key={tag}
-                        href={{
-                          pathname: '/articles',
-                          query: { field: tag },
-                        }}
-                      >
-                        <p className="my-1 mr-4 cursor-pointer rounded-full bg-white px-5 py-1.5 text-base shadow-sm hover:shadow-md">
-                          {tag}
-                        </p>
-                      </Link>
+                        variant="secondary"
+                        className="bg-card hover:bg-muted mb-1 mr-4 rounded-full border border-gray-300 shadow-sm"
+                        render={
+                          <Link
+                            href={{
+                              pathname: '/articles',
+                              query: { field: tag },
+                            }}
+                          >
+                            {translatedFields[tag] || tag}
+                          </Link>
+                        }
+                      />
                     )
                   })}
                 </div>
               </div>
               <div>
-                {/* Image Slider */}
+                {/* Cover image */}
                 <Image
-                  loader={imageLoader}
+                  loader={coverImageLoader}
                   src={article.data.image.url}
-                  width="670"
-                  height="400"
-                  className="mt-0 object-cover"
+                  alt={RichText.asText(article.data.title)}
+                  width={670}
+                  height={400}
+                  sizes="(min-width: 1024px) 670px, 100vw"
+                  className="mt-0 h-auto w-full rounded-lg object-cover"
                 />
 
                 <div>
@@ -382,55 +366,14 @@ function Article({ article, recommendations }) {
             <h3 className="mt-8 text-center text-2xl font-semibold md:text-5xl">
               {t('article.related')}
             </h3>
-            <div className="relative">
-              <div
-                id="readMore"
-                style={{ scrollBehavior: 'smooth' }}
-                className="flex flex-row overflow-x-hidden px-[12.5vw] pb-8 transition-all md:px-[16.5vw]"
-              >
-                {recommendationsRendered}
-                <button
-                  onClick={(e) => scroll(e, 'right')}
-                  className={`absolute right-6 top-1/2 z-50 h-12 w-12 -translate-y-1/2 transform rounded-full bg-white opacity-70 shadow hover:opacity-100 hover:shadow-lg lg:h-16 lg:w-16
-                                  `}
-                >
-                  <svg
-                    className="m-auto h-2/3"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M12.95 10.707l.707-.707L8 4.343 6.586 5.757 10.828 10l-4.242 4.243L8 15.657l4.95-4.95z" />
-                  </svg>
-                </button>
-                <button
-                  onClick={(e) => scroll(e, 'left')}
-                  className={`absolute left-6 top-1/2 z-50 h-12 w-12 -translate-y-1/2 transform rounded-full bg-white opacity-70 shadow hover:opacity-100 hover:shadow-lg lg:h-16 lg:w-16
-                                  `}
-                >
-                  <svg
-                    className="m-auto h-2/3"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M7.05 9.293L6.343 10 12 15.657l1.414-1.414L9.172 10l4.242-4.243L12 4.343z" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div className="mx-auto mb-20 flex flex-row justify-center">
-              {new Array(5).fill(1).map((data, i) => {
-                return (
-                  <button
-                    key={i}
-                    onClick={(e) => scroll(e, null, i)}
-                    className={`h-[10px] w-[10px] rounded-full border border-black ${
-                      scrollIndex == i - 1
-                        ? 'bg-black'
-                        : 'bg-transparent'
-                    } ${i == 4 ? '' : 'mr-4'}`}
-                  />
-                )
-              })}
+            <div className="mx-auto w-11/12 max-w-4xl pb-8">
+              <Carousel opts={{ align: 'start' }}>
+                <CarouselContent>
+                  {recommendationsRendered}
+                </CarouselContent>
+                <CarouselPrevious className="left-2 lg:-left-12" />
+                <CarouselNext className="right-2 lg:-right-12" />
+              </Carousel>
             </div>
           </main>
         </>
