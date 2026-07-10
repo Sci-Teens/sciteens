@@ -10,6 +10,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 
+import AuthCard from '@/components/AuthCard'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -67,60 +68,51 @@ export default function Reset() {
         />
         <meta property="og:type" content="website" />
       </Head>
-      <main className="flex h-screen items-center justify-center">
-        <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow-sm md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
-          <form
-            onSubmit={form.handleSubmit(
-              submitForgotPassword
-            )}
-          >
-            <h1 className="mb-2 text-center text-3xl font-semibold">
-              {t('auth.reset_password')}
-            </h1>
-            <p className="mb-6 text-center text-gray-700">
-              {t('auth.why_reset_password')}
-            </p>
-            <FieldGroup>
-              <Controller
-                name="email"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="email">
-                      {t('auth.email')}
-                    </FieldLabel>
-                    <Input
-                      {...field}
-                      id="email"
-                      type="email"
-                      autoComplete="email"
-                      aria-invalid={fieldState.invalid}
+      <AuthCard
+        title={t('auth.reset_password')}
+        subtitle={t('auth.why_reset_password')}
+      >
+        <form
+          onSubmit={form.handleSubmit(submitForgotPassword)}
+        >
+          <FieldGroup>
+            <Controller
+              name="email"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="email">
+                    {t('auth.email')}
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError
+                      errors={[fieldState.error]}
                     />
-                    {fieldState.invalid && (
-                      <FieldError
-                        errors={[fieldState.error]}
-                      />
-                    )}
-                  </Field>
-                )}
-              />
-              <div className="mb-10 mt-2 flex content-end justify-end">
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="w-full"
-                  disabled={
-                    !form.formState.isValid ||
-                    form.formState.isSubmitting
-                  }
-                >
-                  {t('auth.reset_password')}
-                </Button>
-              </div>
-            </FieldGroup>
-          </form>
-        </div>
-      </main>
+                  )}
+                </Field>
+              )}
+            />
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full"
+              disabled={
+                !form.formState.isValid ||
+                form.formState.isSubmitting
+              }
+            >
+              {t('auth.reset_password')}
+            </Button>
+          </FieldGroup>
+        </form>
+      </AuthCard>
     </div>
   )
 }

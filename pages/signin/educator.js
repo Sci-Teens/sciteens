@@ -22,6 +22,8 @@ import {
   resolveRefPath,
 } from '../../context/helpers'
 
+import AuthCard from '@/components/AuthCard'
+import PasswordField from '@/components/PasswordField'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -108,12 +110,10 @@ export default function MentorSignIn() {
         />
         <meta property="og:type" content="website" />
       </Head>
-      <main>
-        <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow-sm md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
-          <h1 className="mb-2 text-center text-3xl font-semibold">
-            {t('auth.educator_sign_in')}
-          </h1>
-          <p className="mb-6 text-center text-gray-700">
+      <AuthCard
+        title={t('auth.educator_sign_in')}
+        subtitle={
+          <>
             {t('auth.why_educator_sign_in')}&nbsp;
             <Link
               href={
@@ -130,98 +130,80 @@ export default function MentorSignIn() {
             >
               {t('auth.sign_in_here')}
             </Link>
-          </p>
-          <form onSubmit={form.handleSubmit(emailSignIn)}>
-            <FieldGroup>
-              <Controller
-                name="email"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="email">
-                      {t('auth.email')}
-                    </FieldLabel>
-                    <Input
-                      {...field}
-                      id="email"
-                      type="email"
-                      autoComplete="email"
-                      aria-invalid={fieldState.invalid}
+          </>
+        }
+      >
+        <form onSubmit={form.handleSubmit(emailSignIn)}>
+          <FieldGroup>
+            <Controller
+              name="email"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="email">
+                    {t('auth.email')}
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError
+                      errors={[fieldState.error]}
                     />
-                    {fieldState.invalid && (
-                      <FieldError
-                        errors={[fieldState.error]}
-                      />
-                    )}
-                  </Field>
-                )}
-              />
-              <Controller
-                name="password"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="password">
-                      {t('auth.password')}
-                    </FieldLabel>
-                    <Input
-                      {...field}
-                      id="password"
-                      type="password"
-                      autoComplete="current-password"
-                      aria-invalid={fieldState.invalid}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError
-                        errors={[fieldState.error]}
-                      />
-                    )}
-                  </Field>
-                )}
-              />
-              <div className="my-2 flex flex-col justify-between">
-                <Link
-                  href="/signin/reset"
-                  className="mb-2 mr-1 flex-1 rounded-sm py-2 text-sm text-gray-600"
-                >
-                  {t('auth.reset_password')}
-                </Link>
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="w-full"
-                  disabled={
-                    !form.formState.isValid ||
-                    form.formState.isSubmitting
-                  }
-                >
-                  {t('auth.sign_in')}
-                </Button>
-              </div>
-            </FieldGroup>
-          </form>
-          <div className="mt-4 flex justify-center">
-            <p className="text-gray-700">
-              {t('auth.new_here')}&nbsp;
+                  )}
+                </Field>
+              )}
+            />
+            <PasswordField
+              control={form.control}
+              autoComplete="current-password"
+            />
+            <div className="flex flex-col justify-between">
               <Link
-                href={
-                  router.query?.ref
-                    ? {
-                        pathname: '/signup/educator',
-                        query: {
-                          ref: router.query?.ref,
-                        },
-                      }
-                    : '/signup/educator'
-                }
-                className="font-bold"
+                href="/signin/reset"
+                className="text-muted-foreground mb-2 mr-1 flex-1 rounded-sm py-2 text-sm"
               >
-                {t('auth.sign_up')}
+                {t('auth.reset_password')}
               </Link>
-            </p>
-          </div>
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full"
+                disabled={
+                  !form.formState.isValid ||
+                  form.formState.isSubmitting
+                }
+              >
+                {t('auth.sign_in')}
+              </Button>
+            </div>
+          </FieldGroup>
+        </form>
+        <div className="mt-4 flex justify-center">
+          <p className="text-muted-foreground">
+            {t('auth.new_here')}&nbsp;
+            <Link
+              href={
+                router.query?.ref
+                  ? {
+                      pathname: '/signup/educator',
+                      query: {
+                        ref: router.query?.ref,
+                      },
+                    }
+                  : '/signup/educator'
+              }
+              className="font-bold"
+            >
+              {t('auth.sign_up')}
+            </Link>
+          </p>
         </div>
-      </main>
+      </AuthCard>
     </div>
   )
 }

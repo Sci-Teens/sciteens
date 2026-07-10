@@ -18,6 +18,8 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 
+import AuthCard from '@/components/AuthCard'
+import BirthdayField from '@/components/BirthdayField'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -30,7 +32,6 @@ import {
 } from '@/components/ui/select'
 import {
   Field,
-  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -202,234 +203,202 @@ export default function FinishSignUp() {
           content="/assets/sciteens_initials.jpg"
         />
       </Head>
-      <main>
-        <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow-sm md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
-          <h1 className="mb-2 text-center text-3xl font-semibold">
-            {t('auth.finish_signup')}
-          </h1>
-          <p className="mb-6 text-center text-gray-700">
-            {t('auth.why_finish_signup')}
-          </p>
-
-          <form onSubmit={form.handleSubmit(finishSignUp)}>
-            <FieldGroup>
-              <div className="flex flex-row gap-2">
-                <Controller
-                  name="first_name"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field
-                      className="flex-1"
-                      data-invalid={fieldState.invalid}
-                    >
-                      <FieldLabel htmlFor="first_name">
-                        {t('auth.first_name')}
-                      </FieldLabel>
-                      <Input
-                        {...field}
-                        id="first_name"
-                        type="text"
-                        maxLength={50}
-                        aria-invalid={fieldState.invalid}
-                      />
-                      {fieldState.invalid && (
-                        <FieldError
-                          errors={[fieldState.error]}
-                        />
-                      )}
-                    </Field>
-                  )}
-                />
-                <Controller
-                  name="last_name"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field
-                      className="flex-1"
-                      data-invalid={fieldState.invalid}
-                    >
-                      <FieldLabel htmlFor="last_name">
-                        {t('auth.last_name')}
-                      </FieldLabel>
-                      <Input
-                        {...field}
-                        id="last_name"
-                        type="text"
-                        maxLength={50}
-                        aria-invalid={fieldState.invalid}
-                      />
-                      {fieldState.invalid && (
-                        <FieldError
-                          errors={[fieldState.error]}
-                        />
-                      )}
-                    </Field>
-                  )}
-                />
-              </div>
-
+      <AuthCard
+        maxWidth="max-w-lg"
+        title={t('auth.finish_signup')}
+        subtitle={t('auth.why_finish_signup')}
+      >
+        <form onSubmit={form.handleSubmit(finishSignUp)}>
+          <FieldGroup>
+            <div className="flex flex-row gap-2">
               <Controller
-                name="birthday"
+                name="first_name"
                 control={form.control}
                 render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="birthday">
-                      {t('auth.birthday')}
+                  <Field
+                    className="flex-1"
+                    data-invalid={fieldState.invalid}
+                  >
+                    <FieldLabel htmlFor="first_name">
+                      {t('auth.first_name')}
                     </FieldLabel>
                     <Input
                       {...field}
-                      id="birthday"
-                      type="date"
+                      id="first_name"
+                      type="text"
+                      maxLength={50}
+                      autoComplete="given-name"
                       aria-invalid={fieldState.invalid}
                     />
-                    {fieldState.invalid ? (
+                    {fieldState.invalid && (
                       <FieldError
                         errors={[fieldState.error]}
                       />
-                    ) : (
-                      <FieldDescription>
-                        Your date of birth. You must be 13
-                        years of age or older to use
-                        SciTeens
-                      </FieldDescription>
                     )}
                   </Field>
                 )}
               />
-
               <Controller
-                name="gender"
+                name="last_name"
                 control={form.control}
-                render={({ field }) => (
-                  <Field>
-                    <FieldLabel htmlFor="gender">
-                      {t('auth.gender')}
+                render={({ field, fieldState }) => (
+                  <Field
+                    className="flex-1"
+                    data-invalid={fieldState.invalid}
+                  >
+                    <FieldLabel htmlFor="last_name">
+                      {t('auth.last_name')}
                     </FieldLabel>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger
-                        id="gender"
-                        className="w-full"
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Male">
-                          {t('auth.male')}
-                        </SelectItem>
-                        <SelectItem value="Female">
-                          {t('auth.female')}
-                        </SelectItem>
-                        <SelectItem value="Other">
-                          {t('auth.other')}
-                        </SelectItem>
-                        <SelectItem value="Prefer not to answer">
-                          {t('auth.prefer_not_answer')}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                )}
-              />
-
-              <Controller
-                name="race"
-                control={form.control}
-                render={({ field }) => (
-                  <Field>
-                    <FieldLabel htmlFor="race">
-                      {t('auth.race')}
-                    </FieldLabel>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger
-                        id="race"
-                        className="w-full"
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="American Indian or Alaska Native">
-                          {t('auth.american_indian')}
-                        </SelectItem>
-                        <SelectItem value="Asian (including Indian subcontinent and Philippines origin)">
-                          {t('auth.asian')}
-                        </SelectItem>
-                        <SelectItem value="Black or African American">
-                          {t('auth.black')}
-                        </SelectItem>
-                        <SelectItem value="Hispanic or Latino">
-                          {t('auth.hispanic')}
-                        </SelectItem>
-                        <SelectItem value="White (including Middle Eastern origin)">
-                          {t('auth.white')}
-                        </SelectItem>
-                        <SelectItem value="Native Hawaiian or Other Pacific Islander">
-                          {t('auth.native_hawaiian')}
-                        </SelectItem>
-                        <SelectItem value="Prefer not to answer">
-                          {t('auth.prefer_not_answer')}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                )}
-              />
-
-              <div className="my-2 flex flex-col justify-between">
-                <Controller
-                  name="terms"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field
-                      orientation="horizontal"
-                      data-invalid={fieldState.invalid}
-                    >
-                      <Checkbox
-                        id="terms"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        aria-invalid={fieldState.invalid}
+                    <Input
+                      {...field}
+                      id="last_name"
+                      type="text"
+                      maxLength={50}
+                      autoComplete="family-name"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError
+                        errors={[fieldState.error]}
                       />
-                      <FieldLabel
-                        htmlFor="terms"
-                        className="whitespace-nowrap text-sm font-normal text-gray-600"
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
+
+            <BirthdayField control={form.control} />
+
+            <Controller
+              name="gender"
+              control={form.control}
+              render={({ field }) => (
+                <Field>
+                  <FieldLabel htmlFor="gender">
+                    {t('auth.gender')}
+                  </FieldLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger
+                      id="gender"
+                      className="w-full"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Male">
+                        {t('auth.male')}
+                      </SelectItem>
+                      <SelectItem value="Female">
+                        {t('auth.female')}
+                      </SelectItem>
+                      <SelectItem value="Other">
+                        {t('auth.other')}
+                      </SelectItem>
+                      <SelectItem value="Prefer not to answer">
+                        {t('auth.prefer_not_answer')}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              )}
+            />
+
+            <Controller
+              name="race"
+              control={form.control}
+              render={({ field }) => (
+                <Field>
+                  <FieldLabel htmlFor="race">
+                    {t('auth.race')}
+                  </FieldLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger
+                      id="race"
+                      className="w-full"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="American Indian or Alaska Native">
+                        {t('auth.american_indian')}
+                      </SelectItem>
+                      <SelectItem value="Asian (including Indian subcontinent and Philippines origin)">
+                        {t('auth.asian')}
+                      </SelectItem>
+                      <SelectItem value="Black or African American">
+                        {t('auth.black')}
+                      </SelectItem>
+                      <SelectItem value="Hispanic or Latino">
+                        {t('auth.hispanic')}
+                      </SelectItem>
+                      <SelectItem value="White (including Middle Eastern origin)">
+                        {t('auth.white')}
+                      </SelectItem>
+                      <SelectItem value="Native Hawaiian or Other Pacific Islander">
+                        {t('auth.native_hawaiian')}
+                      </SelectItem>
+                      <SelectItem value="Prefer not to answer">
+                        {t('auth.prefer_not_answer')}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              )}
+            />
+
+            <div className="flex flex-col justify-between">
+              <Controller
+                name="terms"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field
+                    orientation="horizontal"
+                    data-invalid={fieldState.invalid}
+                  >
+                    <Checkbox
+                      id="terms"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      aria-invalid={fieldState.invalid}
+                    />
+                    <FieldLabel
+                      htmlFor="terms"
+                      className="font-normal"
+                    >
+                      {t('auth.terms')}&nbsp;
+                      <Link
+                        href="/legal/terms"
+                        className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold"
                       >
-                        <div className="flex flex-row">
-                          {t('auth.terms')}&nbsp;
-                          <Link
-                            href="/legal/terms"
-                            className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold"
-                          >
-                            {t('auth.terms_link')}
-                          </Link>
-                        </div>
-                      </FieldLabel>
-                    </Field>
-                  )}
-                />
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="mt-4 w-full"
-                  disabled={
-                    loading ||
-                    !form.formState.isValid ||
-                    form.formState.isSubmitting
-                  }
-                >
-                  {t('auth.create_account')}
-                  {loading && <LoadingSpinner />}
-                </Button>
-              </div>
-            </FieldGroup>
-          </form>
-        </div>
-      </main>
+                        {t('auth.terms_link')}
+                      </Link>
+                    </FieldLabel>
+                  </Field>
+                )}
+              />
+              <Button
+                type="submit"
+                size="lg"
+                className="mt-4 w-full"
+                disabled={
+                  loading ||
+                  !form.formState.isValid ||
+                  form.formState.isSubmitting
+                }
+              >
+                {t('auth.create_account')}
+                {loading && <LoadingSpinner />}
+              </Button>
+            </div>
+          </FieldGroup>
+        </form>
+      </AuthCard>
     </div>
   )
 }

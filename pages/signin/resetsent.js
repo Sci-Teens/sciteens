@@ -1,8 +1,11 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import Head from 'next/head'
+import { MailCheck } from 'lucide-react'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
+
+import AuthCard from '@/components/AuthCard'
+import { Button } from '@/components/ui/button'
 
 export default function ResetSent() {
   const { t } = useTranslation('common')
@@ -25,24 +28,14 @@ export default function ResetSent() {
         />
         <meta property="og:type" content="website" />
       </Head>
-      <main className="relative z-30 mx-auto -mt-8 mb-4 flex h-screen w-full flex-col justify-center px-4 text-center md:w-96">
-        <Image
-          src="/assets/sciteens_logo_main.svg"
-          alt="SciTeens Logo Main"
-          width={300}
-          height={93}
-          unoptimized
+      <AuthCard subtitle={t('auth.reset_message')}>
+        <MailCheck className="text-sciteensGreen-regular mx-auto mb-4 h-12 w-12" />
+        <Button
+          render={<Link href="/">{t('auth.go_home')}</Link>}
+          size="lg"
+          className="mt-6 w-full"
         />
-        <p className="mb-4 text-center text-lg">
-          {t('auth.reset_message')}
-        </p>
-        <Link
-          href="/"
-          className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark rounded-lg p-2 text-white shadow-sm"
-        >
-          {t('auth.go_home')}
-        </Link>
-      </main>
+      </AuthCard>
     </div>
   )
 }

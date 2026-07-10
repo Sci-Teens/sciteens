@@ -96,6 +96,26 @@ const validFields = {
     .format('YYYY-MM-DD'),
 }
 
+// Opens the already-focused birthday popover and selects the given date
+// via the calendar's month/year dropdowns + day grid, since
+// BirthdayField renders a Popover + Calendar instead of a native date
+// input.
+async function pickBirthday(user, momentDate) {
+  await user.selectOptions(
+    screen.getByLabelText('Choose the Year'),
+    String(momentDate.year())
+  )
+  await user.selectOptions(
+    screen.getByLabelText('Choose the Month'),
+    momentDate.format('MMM')
+  )
+  await user.click(
+    screen.getByRole('button', {
+      name: momentDate.format('dddd, MMMM Do, YYYY'),
+    })
+  )
+}
+
 async function fillValidForm(user) {
   await user.type(
     screen.getByLabelText('auth.first_name'),
@@ -113,9 +133,10 @@ async function fillValidForm(user) {
     screen.getByLabelText('auth.password'),
     validFields.password
   )
-  await user.type(
-    screen.getByLabelText('auth.birthday'),
-    validFields.birthday
+  await user.click(screen.getByLabelText('auth.birthday'))
+  await pickBirthday(
+    user,
+    moment(validFields.birthday, 'YYYY-MM-DD')
   )
   await user.click(
     screen.getByRole('checkbox', { name: /auth\.terms/ })
@@ -148,11 +169,8 @@ describe('StudentSignUp', () => {
     render(<StudentSignUp />)
 
     const birthday = screen.getByLabelText('auth.birthday')
-    await user.type(
-      birthday,
-      moment().subtract(5, 'years').format('YYYY-MM-DD')
-    )
-    await user.tab()
+    await user.click(birthday)
+    await pickBirthday(user, moment().subtract(5, 'years'))
 
     await waitFor(() => {
       expect(birthday).toHaveAttribute(
@@ -164,12 +182,8 @@ describe('StudentSignUp', () => {
       'auth.error_birthday'
     )
 
-    await user.clear(birthday)
-    await user.type(
-      birthday,
-      moment().subtract(20, 'years').format('YYYY-MM-DD')
-    )
-    await user.tab()
+    await user.click(birthday)
+    await pickBirthday(user, moment().subtract(20, 'years'))
 
     await waitFor(() => {
       expect(birthday).toHaveAttribute(

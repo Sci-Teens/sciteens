@@ -181,7 +181,10 @@
     "error_first_name": "Please only enter your first name (or connect it with hyphens)",
     "error_last_name": "Please only enter your last name (or connect it with hyphens)",
     "valid_institution": "Please provide a valid institution",
-    "error_birthday": "You must be 13 years old or older to use SciTeens"
+    "error_birthday": "You must be 13 years old or older to use SciTeens",
+    "select_birthday": "Pick a date",
+    "show_password": "Show password",
+    "hide_password": "Hide password"
   },
   "404": {
     "sorry": "404 - Sorry, we couldn't find that",

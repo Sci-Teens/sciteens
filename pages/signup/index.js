@@ -38,7 +38,7 @@ export default function SignUpIndex() {
           <h1 className="text-3xl font-semibold">
             {t('auth.i_am_a')}
           </h1>
-          <div className="mx-auto mt-2 text-gray-700">
+          <div className="text-muted-foreground mx-auto mt-2">
             {t('auth.have_account')}&nbsp;
             <Link
               href={
@@ -101,11 +101,10 @@ export default function SignUpIndex() {
                     <CircleHelp className="h-6 w-6" />
                   </button>
                   <Image
-                    src="/assets/student.svg"
+                    src="/assets/student_icon.png"
                     alt="Student Icon"
-                    width={148}
-                    height={160}
-                    unoptimized
+                    width={768}
+                    height={1376}
                     className="mx-auto h-40 w-auto p-4"
                   />
                   <h2 className="text-sciteensGreen-regular text-xl">
@@ -116,7 +115,7 @@ export default function SignUpIndex() {
             </Link>
           </div>
           <div className="mx-auto mt-8">
-            <p className="text-gray-700">
+            <p className="text-muted-foreground">
               {t('auth.neither_of_above')}&nbsp;
               <Link
                 href="/getinvolved"
