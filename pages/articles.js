@@ -397,29 +397,33 @@ function Articles({ cached_articles }) {
           </h1>
           <form
             onSubmit={(e) => handleSearch(e)}
-            className="flex flex-row lg:hidden"
+            className="flex flex-col gap-2 lg:hidden"
           >
-            <Button
-              type="submit"
-              size="icon"
-              onClick={(e) => handleSearch(e)}
-            >
-              <Search
-                aria-hidden="true"
-                className="h-5 w-5"
+            <div className="flex flex-row gap-2">
+              <Button
+                type="submit"
+                size="icon"
+                onClick={(e) => handleSearch(e)}
+              >
+                <Search
+                  aria-hidden="true"
+                  className="h-5 w-5"
+                />
+              </Button>
+              <Input
+                onChange={(e) =>
+                  handleChange(e, 'searchbar')
+                }
+                value={search}
+                name="search"
+                placeholder="Search..."
+                required
+                type="text"
+                aria-label="search"
+                maxLength="100"
+                className="bg-card border-gray-300 shadow-sm"
               />
-            </Button>
-            <Input
-              onChange={(e) => handleChange(e, 'searchbar')}
-              value={search}
-              name="search"
-              placeholder="Search..."
-              required
-              type="text"
-              aria-label="search"
-              maxLength="100"
-              className="bg-card border-gray-300 shadow-sm"
-            />
+            </div>
             <Select
               name="field"
               value={field}
@@ -427,7 +431,10 @@ function Articles({ cached_articles }) {
                 handleFieldSearch(value)
               }
             >
-              <SelectTrigger id="field" className="w-1/2">
+              <SelectTrigger
+                id="field"
+                className="bg-card w-full border-gray-300 shadow-sm"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
