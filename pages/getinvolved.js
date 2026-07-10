@@ -7,6 +7,7 @@ import {
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import Head from 'next/head'
+import PageHeading from '@/components/PageHeading'
 
 export default function GetInvolved() {
   const { t } = useTranslation('common')
@@ -41,9 +42,9 @@ export default function GetInvolved() {
       </Head>
       <div>
         <div className="mx-auto w-full px-4 py-8 text-left md:p-8 lg:w-5/6">
-          <h1 className="my-4 mb-10 text-center text-3xl font-semibold md:text-5xl">
+          <PageHeading className="my-4 mb-10 text-center">
             {t('get_involved.want_to_get_involved')}
-          </h1>
+          </PageHeading>
           <div className="flex flex-col">
             <animated.div
               style={cardsTrail[0]}

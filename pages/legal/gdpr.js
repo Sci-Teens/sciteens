@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import PageHeading from '@/components/PageHeading'
 
 export default function gdpr() {
   return (
@@ -86,7 +87,7 @@ export default function gdpr() {
             </div>
           </div>
           <div className="mx-8 md:mx-12 lg:mx-0 lg:w-2/3">
-            <h1 className="text-3xl">COOKIE POLICY</h1>
+            <PageHeading>COOKIE POLICY</PageHeading>
             <p className="mb-8 mt-1 whitespace-pre-line text-gray-700">
               Last Updated 9/30/2021
             </p>

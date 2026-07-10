@@ -7,6 +7,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import { useIntersectionObserver } from '../context/helpers'
 import { getTranslatedFieldsDict } from '../context/helpers'
+import PageHeading from '@/components/PageHeading'
 
 import { db as firestore } from '../lib/firebase'
 import firebaseConfig from '../firebaseConfig'
@@ -356,9 +357,9 @@ function Projects({ cached_projects }) {
       <div className="text-foreground mx-auto mb-24 mt-8 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
         <div className="mx-auto w-11/12 md:w-[85%] lg:mx-0 lg:w-[60%]">
           <div className="flex flex-row justify-between">
-            <h1 className="ml-0 py-4 text-left text-3xl font-semibold md:ml-4 md:text-4xl">
+            <PageHeading className="ml-0 py-4 text-left md:ml-4">
               {t('projects.projects')} 🔬
-            </h1>
+            </PageHeading>
             <Link
               href="/project/create"
               className="border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark my-auto inline-flex items-center rounded-lg border-2 px-3 py-1.5 no-underline shadow-sm transition md:px-5 md:text-lg"
