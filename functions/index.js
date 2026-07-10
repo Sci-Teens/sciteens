@@ -737,160 +737,189 @@ exports.scheduledProgramEmailer = functions
 /*
     Function fileUpload()
 
-    Runs every time a file is uploaded. Checks if the file
-    contains innapropriate content (memes, adult, or violence),
-    and deletes the file and notifies the user that uploaded the
-    content if so. 
+    Runs every time a file is uploaded. Scans images and PDFs
+    for inappropriate content (adult, violent, spoof, or racy)
+    via Cloud Vision SafeSearch, and deletes the file if any is
+    detected.
+
+    Images use the synchronous safeSearchDetection endpoint.
+    PDFs use batchAnnotateFiles (files:annotate), which runs
+    SAFE_SEARCH_DETECTION on up to 5 pages per file and returns
+    per-page results inline. If any scanned page is flagged, the
+    entire file is deleted.
 */
 
 exports.fileUpload = functions.storage
   .object()
   .onFinalize(async (object) => {
-    // Determine if the object isn't an image
-    if (!object.contentType.startsWith('image/')) {
-      return console.log('Not an image')
-    } else {
-      // Define an array of acceptable return values for the
-      // safe search categorizer
-      const SAFE_STRINGS = ['UNLIKELY', 'VERY_UNLIKELY']
+    const contentType = object.contentType
+    if (!contentType) {
+      return console.log('No content type')
+    }
 
-      // Check the image for adult, violent, or meme content
-      const visionClient = new vision.ImageAnnotatorClient()
-      const data = await visionClient.safeSearchDetection(
+    const isImage = contentType.startsWith('image/')
+    const isPdf = contentType === 'application/pdf'
+    if (!isImage && !isPdf) {
+      return console.log(
+        'Unsupported type for SafeSearch: ' + contentType
+      )
+    }
+
+    // Likelihood levels the API may return, ordered from least to
+    // most likely. Anything above VERY_UNLIKELY is treated as a hit.
+    const SAFE_STRINGS = ['UNLIKELY', 'VERY_UNLIKELY']
+
+    function isSafe(annotation) {
+      return (
+        SAFE_STRINGS.indexOf(annotation.adult) >= 0 &&
+        SAFE_STRINGS.indexOf(annotation.spoof) >= 0 &&
+        SAFE_STRINGS.indexOf(annotation.violence) >= 0 &&
+        SAFE_STRINGS.indexOf(annotation.racy) >= 0
+      )
+    }
+
+    const visionClient = new vision.ImageAnnotatorClient()
+    let safe = false
+
+    if (isImage) {
+      const [data] = await visionClient.safeSearchDetection(
         `gs://${object.bucket}/${object.name}`
       )
+      safe = isSafe(data.safeSearchAnnotation)
+    } else {
+      // files:annotate (synchronous) requires inline file content
+      // rather than a GCS URI, so download the object first.
+      const [file] = await admin
+        .storage()
+        .bucket(object.bucket)
+        .file(object.name)
+        .download()
 
-      // If adult, violent, or meme content detected, delete
-      // the content
-      const results = data[0].safeSearchAnnotation
-      if (
-        SAFE_STRINGS.indexOf(results.adult) >= 0 &&
-        SAFE_STRINGS.indexOf(results.spoof) >= 0 &&
-        SAFE_STRINGS.indexOf(results.violence) >= 0 &&
-        SAFE_STRINGS.indexOf(results.racy) >= 0
-      ) {
-        console.log(
-          'No offensive image found for ' + object.name
-        )
+      // batchAnnotateFiles scans up to 5 pages per file; if any
+      // page is flagged, the whole file is rejected. PDFs uploaded
+      // through the client are capped at 8MB by storage.rules, so
+      // this covers the vast majority of documents.
+      const [result] =
+        await visionClient.batchAnnotateFiles({
+          requests: [
+            {
+              inputConfig: {
+                mimeType: 'application/pdf',
+                content: file,
+              },
+              features: [{ type: 'SAFE_SEARCH_DETECTION' }],
+              pages: [1, 2, 3, 4, 5],
+            },
+          ],
+        })
 
-        // Determine which folder the file belongs to
-        if (object.name.startsWith('profilephoto/')) {
-          // Belongs to profile photo collection
-          let uid = object.name.split('/')[1].split('.')[0]
+      const pageResponses = result.responses[0].responses
+      safe = pageResponses.every(
+        (page) =>
+          page.safeSearchAnnotation &&
+          isSafe(page.safeSearchAnnotation)
+      )
+    }
+
+    if (!safe) {
+      console.log(
+        'Offensive content found in ' +
+          object.name +
+          '. Deleting...'
+      )
+      return admin
+        .storage()
+        .bucket(object.bucket)
+        .file(object.name)
+        .delete()
+    }
+
+    console.log(
+      'No offensive content found for ' + object.name
+    )
+
+    // File passed moderation. Make it public and update the
+    // corresponding Firestore record based on the upload path.
+    // NOTE: profilephoto/ and project/ are legacy singular prefixes
+    // from the original implementation; current client uploads use
+    // profiles/ and projects/ (plural) per storage.rules. Only
+    // courses/ matches today.
+    if (object.name.startsWith('profilephoto/')) {
+      let uid = object.name.split('/')[1].split('.')[0]
+      return admin
+        .storage()
+        .bucket(object.bucket)
+        .file(object.name)
+        .makePublic()
+        .then(() => {
           return admin
-            .storage()
-            .bucket(object.bucket)
-            .file(object.name)
-            .makePublic()
-            .then(() => {
-              console.log(
-                object.name +
-                  ' is now a publicly accessible file'
-              )
-              return admin
-                .firestore()
-                .collection('profile-pictures')
-                .doc(uid)
-                .set({
-                  picture: object.mediaLink,
-                })
-                .then(() => {
-                  console.log(
-                    'Set the profile photo for user ' + uid
-                  )
-                })
-                .catch((err) => {
-                  console.error(
-                    'Error setting profile photo: ' + err
-                  )
-                })
-            })
-        }
-
-        // Determine if the image belongs to a project
-        else if (object.name.startsWith('project/')) {
-          let segments = object.name.split('/')
-          let project_id = segments[1]
-          return admin
-            .storage()
-            .bucket(object.bucket)
-            .file(object.name)
-            .makePublic()
-            .then(() => {
-              return admin
-                .firestore()
-                .collection('projects')
-                .doc(project_id)
-                .update({
-                  photo: object.mediaLink,
-                })
-            })
-            .then(() => {
-              console.log(
-                'Successfully set project photo for project ' +
-                  project_id
-              )
-            })
-            .catch((err) => {
-              console.error(
-                'Unsuccessfully set project photo for project ' +
-                  project_id +
-                  ': ' +
-                  err
-              )
-            })
-        }
-
-        // Determine if the image belongs to a course
-        if (object.name.startsWith('courses/')) {
-          let course_id = object.name.split('/')[1]
-
+            .firestore()
+            .collection('profile-pictures')
+            .doc(uid)
+            .set({ picture: object.mediaLink })
+        })
+        .then(() => {
           console.log(
-            'Setting photo for course ' + course_id
+            'Set the profile photo for user ' + uid
           )
+        })
+        .catch((err) => {
+          console.error(
+            'Error setting profile photo: ' + err
+          )
+        })
+    } else if (object.name.startsWith('project/')) {
+      let projectId = object.name.split('/')[1]
+      return admin
+        .storage()
+        .bucket(object.bucket)
+        .file(object.name)
+        .makePublic()
+        .then(() => {
           return admin
-            .storage()
-            .bucket(object.bucket)
-            .file(object.name)
-            .makePublic()
-            .then(() => {
-              console.log(
-                object.name +
-                  ' is now a publicly accessible file'
-              )
-              return admin
-                .firestore()
-                .collection('courses')
-                .doc(course_id)
-                .update({
-                  photo: object.mediaLink,
-                })
-                .then(() => {
-                  console.log(
-                    'Set the course photo for course ' +
-                      course_id
-                  )
-                })
-                .catch((err) => {
-                  console.error(
-                    'Error setting course photo: ' + err
-                  )
-                })
-            })
-        }
-      } else {
-        // Delete the file from firebase storage
-        admin
-          .storage()
-          .bucket(object.bucket)
-          .file(object.name)
-          .delete()
-          .then(() => {
-            return console.log(
-              'Offensive image found. Deleting...'
-            )
-          })
-      }
+            .firestore()
+            .collection('projects')
+            .doc(projectId)
+            .update({ photo: object.mediaLink })
+        })
+        .then(() => {
+          console.log(
+            'Successfully set project photo for project ' +
+              projectId
+          )
+        })
+        .catch((err) => {
+          console.error(
+            'Unsuccessfully set project photo for project ' +
+              projectId +
+              ': ' +
+              err
+          )
+        })
+    } else if (object.name.startsWith('courses/')) {
+      let courseId = object.name.split('/')[1]
+      return admin
+        .storage()
+        .bucket(object.bucket)
+        .file(object.name)
+        .makePublic()
+        .then(() => {
+          return admin
+            .firestore()
+            .collection('courses')
+            .doc(courseId)
+            .update({ photo: object.mediaLink })
+        })
+        .then(() => {
+          console.log(
+            'Set the course photo for course ' + courseId
+          )
+        })
+        .catch((err) => {
+          console.error(
+            'Error setting course photo: ' + err
+          )
+        })
     }
   })
 
