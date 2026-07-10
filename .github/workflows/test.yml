@@ -94,7 +94,7 @@ jobs:
       # during teardown, triggering an OOM SIGKILL after all tests pass.
       # 4GB swap gives headroom for the spike without slowing tests
       # (working set fits in RAM; only teardown touches swap).
-      - uses: pierotofy/set-swap-space@v1
+      - uses: pierotofy/set-swap-space@v1.0
         with:
           swap-size-gb: 4
       # "live" project needs real Firebase secrets, not wired in CI yet.
