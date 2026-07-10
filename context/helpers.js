@@ -6,6 +6,7 @@ import {
   getAdditionalUserInfo,
 } from '@firebase/auth'
 import { useState, useRef, useEffect } from 'react'
+import moment from 'moment'
 
 export async function createUniqueSlug(
   firestore,
@@ -226,6 +227,58 @@ export const ALLOWED_UPLOAD_MIME_TYPES = Object.keys(
   UPLOAD_MIME_EXTENSIONS
 )
 
+// MIME types accepted by uploads before the allowlist above was
+// introduced. Files already sitting in Storage with one of these types
+// (pre-existing project/profile attachments) must never render as a
+// clickable link — Office documents can carry macros/active content and
+// nothing here scans them server-side (unlike the safeSearch check that
+// runs on images). See scripts/convert-legacy-files.js, the one-off
+// tool that converts and removes them.
+export const LEGACY_UNSUPPORTED_MIME_TYPES = [
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-powerpoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+]
+
+export function isLegacyUnsupportedFile(type) {
+  return LEGACY_UNSUPPORTED_MIME_TYPES.includes(type)
+}
+
+// Hosts a project's "Links" field may point to. Kept intentionally
+// small — this is the only thing standing between a project page and
+// hosting an arbitrary (phishing/malware) outbound link, since anyone
+// who owns a project can otherwise write anything to its `links` array
+// directly through the Firestore SDK. Extend deliberately.
+export const ALLOWED_LINK_HOSTS = [
+  'github.com',
+  'youtube.com',
+  'youtu.be',
+]
+
+export const MAX_PROJECT_LINKS = 10
+
+// True only for an https URL whose hostname is, or is a subdomain of,
+// an entry in ALLOWED_LINK_HOSTS. This is the single point of
+// enforcement — called both when a link is added in the create/edit
+// forms and again right before it's rendered as an anchor on the
+// project page, since stored data can never be trusted on its own.
+export function isAllowedProjectLink(url) {
+  if (typeof url !== 'string' || !url) return false
+  let parsed
+  try {
+    parsed = new URL(url)
+  } catch {
+    return false
+  }
+  if (parsed.protocol !== 'https:') return false
+  const host = parsed.hostname.toLowerCase()
+  return ALLOWED_LINK_HOSTS.some(
+    (allowed) =>
+      host === allowed || host.endsWith(`.${allowed}`)
+  )
+}
+
 function generateUploadId() {
   return typeof window !== 'undefined' &&
     window.crypto?.randomUUID
@@ -242,6 +295,43 @@ export function getSafeUploadName(file) {
   const ext = UPLOAD_MIME_EXTENSIONS[file?.type]
   if (!ext) return null
   return `${generateUploadId()}.${ext}`
+}
+
+// Builds the Firestore record written alongside every Storage upload,
+// at `projects/{id}/files/{fileId}` or `profiles/{uid}/files/{fileId}`
+// — `fileId` is always the object's own basename (getSafeUploadName's
+// return value), so the two can never drift apart. This record is
+// now the source of truth for "what files does this project/profile
+// have" instead of listing the Storage bucket — listAll()+
+// getMetadata() per file is slow, and downloading the full blob just
+// to render a preview/icon doesn't scale to large files.
+export function buildFileRecord({
+  storagePath,
+  bucket,
+  name,
+  contentType,
+  size,
+  url,
+  uploadedBy,
+  isPhoto = false,
+  thumbnailUrl = null,
+}) {
+  return {
+    path: storagePath,
+    bucket,
+    name,
+    contentType,
+    size,
+    url,
+    uploadedBy,
+    isPhoto,
+    // Firestore rejects `undefined` field values outright, so this is
+    // explicitly nullable rather than an omitted key — a PDF whose
+    // thumbnail generation failed (or any non-PDF upload, which never
+    // gets one) still needs a well-formed record.
+    thumbnailUrl,
+    createdAt: moment().toISOString(),
+  }
 }
 
 // Resolve a post-login `?ref=section|id` query into an internal path,

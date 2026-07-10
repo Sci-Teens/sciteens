@@ -21,3 +21,7 @@ public/sitemap.xml
 
 # untracked migration tracker — hand-maintained, not committed
 MIGRATION-PHASES.md
+
+# pdfjs-dist worker, copied verbatim from node_modules — vendor code,
+# never hand-edited (see scripts/copy-pdf-worker.js)
+public/pdf.worker.min.mjs

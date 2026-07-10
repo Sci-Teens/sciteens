@@ -55,3 +55,7 @@ ui-debug.log
 # next-sitemap build output
 public/robots.txt
 public/sitemap.xml
+
+# pdfjs-dist worker, copied from node_modules at build/dev time
+# (scripts/copy-pdf-worker.js) — see components/PdfThumbnail.js
+public/pdf.worker.min.mjs

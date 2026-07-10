@@ -1,4 +1,9 @@
-import { useEffect, useState, useContext } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useState,
+  useContext,
+} from 'react'
 
 import Head from 'next/head'
 import Link from 'next/link'
@@ -16,6 +21,7 @@ import {
   doc,
   where,
   limit,
+  orderBy,
 } from 'firebase/firestore'
 import {
   getApp,
@@ -23,16 +29,7 @@ import {
   initializeApp,
 } from 'firebase/app'
 import firebaseConfig from '../../../firebaseConfig'
-import {
-  listAll,
-  ref,
-  getDownloadURL,
-  getMetadata,
-} from '@firebase/storage'
-import {
-  db as firestore,
-  storage,
-} from '../../../lib/firebase'
+import { db as firestore } from '../../../lib/firebase'
 
 import moment from 'moment'
 import { useSigninCheck } from '../../../context/AuthContext'
@@ -41,13 +38,12 @@ import File from '../../../components/File'
 import ProjectCard from '../../../components/ProjectCard'
 import { Skeleton } from '../../../components/ui/skeleton'
 import { normalizeProject } from '../../../lib/projects'
+import { useFirestoreCollectionData } from '../../../lib/firestoreData'
 
 function Project({ profile }) {
   const { t } = useTranslation('common')
   const router = useRouter()
 
-  const [files, setFiles] = useState([])
-  const [filesLoading, setFilesLoading] = useState(true)
   const [projects, setProjects] = useState([])
   const [projectsLoading, setProjectsLoading] =
     useState(true)
@@ -55,6 +51,24 @@ function Project({ profile }) {
     useSigninCheck()
   const { profile: current_user_profile } =
     useContext(AppContext)
+
+  const filesQuery = useMemo(
+    () =>
+      firebase_query(
+        collection(
+          firestore,
+          'profiles',
+          profile.id,
+          'files'
+        ),
+        orderBy('createdAt', 'asc')
+      ),
+    [profile.id]
+  )
+  const { status: filesStatus, data: fileRecords } =
+    useFirestoreCollectionData(filesQuery, {
+      idField: 'id',
+    })
 
   useEffect(() => {
     async function loadProfileData() {
@@ -78,53 +92,6 @@ function Project({ profile }) {
       })
       setProjects(ps)
       setProjectsLoading(false)
-
-      const filesRef = ref(
-        storage,
-        `profiles/${profile.id}`
-      )
-      try {
-        const res = await listAll(filesRef)
-        const fetchFileBlob = async (r) => {
-          const url = await getDownloadURL(r)
-          const metadata = await getMetadata(r)
-          return new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest()
-            xhr.responseType = 'blob'
-            xhr.onload = () => {
-              if (xhr.status == 200) {
-                const blob = xhr.response
-                blob.name = metadata.name
-                resolve(blob)
-              } else {
-                reject(
-                  new Error(
-                    `Failed to fetch file: ${xhr.status}`
-                  )
-                )
-              }
-            }
-            xhr.onerror = () =>
-              reject(
-                new Error('Network error fetching file')
-              )
-            xhr.open('GET', url)
-            xhr.send()
-          })
-        }
-        const results = await Promise.allSettled(
-          res.items.map(fetchFileBlob)
-        )
-        setFiles(
-          results
-            .filter((r) => r.status === 'fulfilled')
-            .map((r) => r.value)
-        )
-      } catch (e) {
-        console.error(e)
-      } finally {
-        setFilesLoading(false)
-      }
     }
 
     loadProfileData()
@@ -249,20 +216,30 @@ function Project({ profile }) {
 
       {/* Files */}
       <div className="mx-auto mb-4 mt-12 w-5/6 md:w-2/3 lg:w-1/2">
-        {(filesLoading || files.length > 0) && (
+        {(filesStatus === 'loading' ||
+          fileRecords.length > 0) && (
           <h2 className="mb-2 text-lg font-semibold md:text-2xl">
             Files
           </h2>
         )}
         <div className="flex flex-col items-center space-y-2">
-          {filesLoading ? (
+          {filesStatus === 'loading' ? (
             <>
               <Skeleton className="h-12 w-full" />
               <Skeleton className="h-12 w-full" />
             </>
           ) : (
-            files.map((f, id) => (
-              <File file={f} id={id} key={f.name}></File>
+            fileRecords.map((record) => (
+              <File
+                file={{
+                  name: record.name,
+                  type: record.contentType,
+                  size: record.size,
+                  url: record.url,
+                }}
+                id={record.id}
+                key={record.id}
+              ></File>
             ))
           )}
         </div>

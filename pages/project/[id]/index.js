@@ -1,7 +1,10 @@
 import {
+  collection,
   doc,
   getDoc,
   getFirestore,
+  orderBy,
+  query as firestoreQuery,
 } from 'firebase/firestore'
 import {
   getApp,
@@ -9,20 +12,18 @@ import {
   initializeApp,
 } from 'firebase/app'
 import {
-  listAll,
-  ref,
-  getDownloadURL,
-  getMetadata,
-} from '@firebase/storage'
-import { useFirestoreDocData } from '../../../lib/firestoreData'
+  useFirestoreCollectionData,
+  useFirestoreDocData,
+} from '../../../lib/firestoreData'
 import { useSigninCheck } from '../../../context/AuthContext'
-import { db, storage } from '../../../lib/firebase'
+import { db } from '../../../lib/firebase'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import Image from 'next/image'
 import Error from 'next/error'
 import Link from 'next/link'
 import File from '../../../components/File'
+import { ExternalLink } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'next-i18next'
 import dynamic from 'next/dynamic'
@@ -59,7 +60,6 @@ function Project({ query, initialProject }) {
     liveProject || initialProject
   )
 
-  const [files, setFiles] = useState([])
   const [project_photo_error, setProjectPhotoError] =
     useState(false)
 
@@ -75,33 +75,18 @@ function Project({ query, initialProject }) {
 
   const { data: signInCheckResult } = useSigninCheck()
 
-  useEffect(() => {
-    async function loadFiles() {
-      const filesRef = ref(storage, `projects/${query.id}`)
-
-      try {
-        const res = await listAll(filesRef)
-        for (let r of res.items) {
-          const url = await getDownloadURL(r)
-          const metadata = await getMetadata(r)
-          const xhr = new XMLHttpRequest()
-          xhr.responseType = 'blob'
-          xhr.onload = () => {
-            const blob = xhr.response
-            if (xhr.status == 200) {
-              blob.name = metadata.name
-              setFiles((fs) => [...fs, blob])
-            }
-          }
-          xhr.open('GET', url)
-          xhr.send()
-        }
-      } catch (e) {
-        console.error(e)
-      }
-    }
-    loadFiles()
-  }, [query.id])
+  const filesQuery = useMemo(
+    () =>
+      firestoreQuery(
+        collection(db, 'projects', query.id, 'files'),
+        orderBy('createdAt', 'asc')
+      ),
+    [query.id]
+  )
+  const { status: filesStatus, data: fileRecords } =
+    useFirestoreCollectionData(filesQuery, {
+      idField: 'id',
+    })
 
   if (status === 'loading' && !project) {
     return (
@@ -234,21 +219,49 @@ function Project({ query, initialProject }) {
               )
             })}
           </div>
+          {project.links?.length > 0 && (
+            <div className="not-prose mb-2 flex flex-row flex-wrap gap-2">
+              {project.links.map((link) => (
+                <a
+                  key={link}
+                  href={link}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="border-border/60 bg-card ring-border/60 text-foreground flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium shadow-sm ring-1 hover:shadow-md"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  {new URL(link).hostname.replace(
+                    /^www\./,
+                    ''
+                  )}
+                </a>
+              ))}
+            </div>
+          )}
           <div className="mt-2 border-b-2"></div>
         </div>
       </article>
       <div className="mx-auto mb-4 max-w-prose px-4 lg:px-0">
-        {files.length > 0 && (
-          <h2 className="mb-2 text-lg font-semibold">
-            Files
-          </h2>
-        )}
+        {filesStatus === 'success' &&
+          fileRecords.length > 0 && (
+            <h2 className="mb-2 text-lg font-semibold">
+              {t('course.files')}
+            </h2>
+          )}
         <div className="flex flex-col items-center space-y-2">
-          {files.map((f, id) => {
-            return (
-              <File file={f} id={id} key={f.name}></File>
-            )
-          })}
+          {filesStatus !== 'loading' &&
+            fileRecords.map((record) => (
+              <File
+                file={{
+                  name: record.name,
+                  type: record.contentType,
+                  size: record.size,
+                  url: record.url,
+                }}
+                id={record.id}
+                key={record.id}
+              />
+            ))}
         </div>
         <Discussion type="projects" item_id={query.id} />
       </div>

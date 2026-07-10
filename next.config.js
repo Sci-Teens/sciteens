@@ -118,7 +118,9 @@ module.exports = {
               "default-src 'self'; " +
               `script-src ${scriptSrc}; ` +
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-              "img-src 'self' data: https://images.prismic.io https://source.unsplash.com https://lh3.googleusercontent.com https://firebasestorage.googleapis.com https://storage.googleapis.com https://lh3.googleusercontent.com; " +
+              // blob: — components/File.js previews dropped/loaded
+              // project files via URL.createObjectURL before upload.
+              "img-src 'self' data: blob: https://images.prismic.io https://source.unsplash.com https://lh3.googleusercontent.com https://firebasestorage.googleapis.com https://storage.googleapis.com https://lh3.googleusercontent.com; " +
               "font-src 'self' https://fonts.gstatic.com; " +
               // *.firebaseapp.com hosts the Firebase Auth helper iframe
               // (__/auth/iframe) that signInWithPopup/signInWithRedirect

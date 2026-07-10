@@ -53,19 +53,57 @@ service cloud.firestore {
       allow create, update, delete: if request.auth.uid == uid;
     }
 
+    // ---- Profile files --------------------------------------------------
+    // One doc per Storage upload under profiles/{uid}/ (see
+    // storage.rules and context/helpers.js#buildFileRecord) — the
+    // record's id is always the Storage object's own basename. Reading
+    // this collection replaces listing the Storage bucket directly.
+    // Update is restricted to flipping `isPhoto`; every other field is
+    // immutable once created (delete + recreate instead of editing a
+    // path/bucket/contentType in place).
+    match /profiles/{uid}/files/{fileId} {
+      allow read: if true;
+      allow create: if request.auth.uid == uid
+        && request.resource.data.uploadedBy == uid
+        && request.resource.data.keys().hasAll(
+          ['path', 'bucket', 'name', 'contentType', 'size', 'uploadedBy', 'isPhoto', 'createdAt']
+        );
+      allow update: if request.auth.uid == uid
+        && request.resource.data.diff(resource.data)
+            .affectedKeys().hasOnly(['isPhoto']);
+      allow delete: if request.auth.uid == uid;
+    }
+
     // ---- Projects -------------------------------------------------------
     // Public-readable. Any authenticated user may create one (they become
     // a member). Only existing members may update/delete. Mass-assignment
     // is constrained: client writes may not touch member_uids/subscribers
-    // except to add the creator on create.
+    // except to add the creator on create. `links` only gets a shape/size
+    // guard here (list, <= 10 entries) — rules can't iterate a list to
+    // check each URL's host, so the actual host allowlist is enforced at
+    // render time (context/helpers.js#isAllowedProjectLink), the same way
+    // `abstract` is sanitized at render rather than in rules.
+    function isValidLinks(data) {
+      return !('links' in data)
+        || (data.links is list && data.links.size() <= 10);
+    }
+
+    function isProjectMember(projectId) {
+      return request.auth != null
+        && request.auth.uid in
+            get(/databases/$(database)/documents/projects/$(projectId))
+              .data.member_uids;
+    }
     match /projects/{projectId} {
       allow read: if true;
       allow create: if request.auth != null
         && request.resource.data.member_uids.size() >= 1
-        && request.resource.data.member_uids[0] == request.auth.uid;
+        && request.resource.data.member_uids[0] == request.auth.uid
+        && isValidLinks(request.resource.data);
       allow update: if request.auth.uid in resource.data.member_uids
         && !request.resource.data.diff(resource.data)
-            .affectedKeys().hasAny(['member_uids', 'subscribers']);
+            .affectedKeys().hasAny(['member_uids', 'subscribers'])
+        && isValidLinks(request.resource.data);
       allow delete: if request.auth.uid in resource.data.member_uids;
 
       // ---- Project discussion ------------------------------------------
@@ -75,6 +113,24 @@ service cloud.firestore {
           && request.resource.data.uid == request.auth.uid
           && request.resource.data.keys().hasAll(['date', 'uid', 'display', 'comment']);
         allow update, delete: if request.auth.uid == resource.data.uid;
+      }
+
+      // ---- Project files ------------------------------------------------
+      // One doc per Storage upload under projects/{projectId}/ (see
+      // storage.rules and context/helpers.js#buildFileRecord) — the
+      // record's id is always the Storage object's own basename.
+      // Update is restricted to flipping `isPhoto`.
+      match /files/{fileId} {
+        allow read: if true;
+        allow create: if isProjectMember(projectId)
+          && request.resource.data.uploadedBy == request.auth.uid
+          && request.resource.data.keys().hasAll(
+            ['path', 'bucket', 'name', 'contentType', 'size', 'uploadedBy', 'isPhoto', 'createdAt']
+          );
+        allow update: if isProjectMember(projectId)
+          && request.resource.data.diff(resource.data)
+              .affectedKeys().hasOnly(['isPhoto']);
+        allow delete: if isProjectMember(projectId);
       }
     }
 

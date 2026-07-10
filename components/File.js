@@ -1,90 +1,111 @@
 import Image from 'next/image'
-import {
-  Presentation,
-  FileText,
-  File as FileIcon,
-  X,
-} from 'lucide-react'
+import dynamic from 'next/dynamic'
+import { useTranslation } from 'next-i18next'
+import { FileText, FileWarning, X } from 'lucide-react'
+import { isLegacyUnsupportedFile } from '../context/helpers'
+
+const PdfThumbnail = dynamic(
+  () => import('./PdfThumbnail'),
+  { ssr: false }
+)
+
+function RemoveButton({ id, removeFile }) {
+  if (!removeFile) return null
+  return (
+    <button
+      className="m-1 shrink-0 text-red-600"
+      onClick={(e) => removeFile(e, id)}
+    >
+      <X className="h-4 w-4" />
+    </button>
+  )
+}
+
+// Shared shell for anything that isn't safe/useful to open in place —
+// legacy Office documents and any other type this app doesn't
+// recognize. Deliberately not an <a>: no href, no click target.
+function UnsupportedFile({ file, id, removeFile, reason }) {
+  return (
+    <div className="flex w-full justify-between rounded-lg bg-white shadow-sm">
+      <FileWarning className="m-1 h-11 w-11 shrink-0 text-amber-600" />
+      <div className="ml-2 flex-1 text-left">
+        <p className="line-clamp-1">{file?.name}</p>
+        <p className="line-clamp-2 text-sm text-gray-700">
+          {reason}
+        </p>
+      </div>
+      <RemoveButton id={id} removeFile={removeFile} />
+    </div>
+  )
+}
+
+// `file` is either a real File/Blob (dropzone-picked, not yet
+// uploaded) or a plain `{ name, type, size?, url, thumbnailUrl? }`
+// descriptor (an already-uploaded Firestore file record) — the latter
+// never needs a blob download just to render a preview.
+function getPreviewUrl(file) {
+  if (file?.url) return file.url
+  if (typeof file?.arrayBuffer === 'function') {
+    return URL.createObjectURL(file)
+  }
+  return null
+}
 
 export default function RenderFile({
   file,
   id,
   removeFile,
 }) {
+  const { t } = useTranslation('common')
+
+  if (isLegacyUnsupportedFile(file?.type)) {
+    return (
+      <UnsupportedFile
+        file={file}
+        id={id}
+        removeFile={removeFile}
+        reason={t('file.unsupported_legacy')}
+      />
+    )
+  }
+
+  const previewUrl = getPreviewUrl(file)
+
   switch (file?.type) {
-    case 'application/vnd.openxmlformats-officedocument.presentationml.presentation':
-      return (
-        <a
-          className="flex w-full justify-between rounded-lg bg-white shadow-sm"
-          href={URL.createObjectURL(file)}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <Presentation className="m-1 h-11 w-11 text-orange-600" />
-          <div className="line-clamp-1 ml-2 flex-1 text-left">
-            <p className="line-clamp-1">{file?.name}</p>
-            <p className="text-sm text-gray-700">
-              application/powerpoint
-            </p>
-          </div>
-          {removeFile && (
-            <button
-              className="m-1 text-red-600"
-              onClick={(e) => removeFile(e, id)}
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </a>
-      )
-    case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-      return (
-        <a
-          className="flex w-full justify-between rounded-lg bg-white shadow-sm"
-          href={URL.createObjectURL(file)}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <FileText className="m-1 h-11 w-11 text-blue-600" />
-          <div className="line-clamp-1 ml-2 flex-1 text-left">
-            <p>{file?.name}</p>
-            <p className="text-sm text-gray-700">
-              application/word
-            </p>
-          </div>
-          {removeFile && (
-            <button
-              className="m-1 text-red-600"
-              onClick={(e) => removeFile(e, id)}
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </a>
-      )
     case 'application/pdf':
       return (
         <a
           className="flex w-full justify-between rounded-lg bg-white shadow-sm"
-          href={URL.createObjectURL(file)}
+          href={previewUrl}
           target="_blank"
           rel="noreferrer"
         >
-          <FileText className="m-1 h-11 w-11 text-red-600" />
-          <div className="line-clamp-1 ml-2 flex-1 text-left">
+          <div className="relative h-16 w-[10%] shrink-0 overflow-hidden rounded-l-lg bg-gray-100">
+            <FileText className="absolute inset-0 m-auto h-8 w-8 text-red-600" />
+            {file?.thumbnailUrl ? (
+              // Persisted at upload time — no pdfjs, no re-fetching
+              // the whole PDF just to show a preview.
+              <Image
+                src={file.thumbnailUrl}
+                alt=""
+                fill
+                unoptimized
+                className="object-cover object-top"
+              />
+            ) : (
+              <PdfThumbnail
+                file={file}
+                className="absolute inset-0 h-full w-full object-cover object-top"
+              />
+            )}
+          </div>
+          <div className="line-clamp-1 ml-2 flex-1 p-2 text-left">
             <p>{file?.name}</p>
             <p className="text-sm text-gray-700">
               application/pdf
             </p>
           </div>
-          {removeFile && (
-            <button
-              className="m-1 text-red-600"
-              onClick={(e) => removeFile(e, id)}
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
+          <RemoveButton id={id} removeFile={removeFile} />
         </a>
       )
     case 'image/jpeg':
@@ -93,12 +114,12 @@ export default function RenderFile({
       return (
         <a
           className="flex w-full justify-between rounded-lg bg-white shadow-sm transition-all duration-500"
-          href={URL.createObjectURL(file)}
+          href={previewUrl}
           target="_blank"
           rel="noreferrer"
         >
           <Image
-            src={URL.createObjectURL(file)}
+            src={previewUrl}
             alt="Project"
             width={256}
             height={256}
@@ -127,25 +148,16 @@ export default function RenderFile({
       )
     default:
       return (
-        <a className="flex w-full justify-between rounded-lg bg-white shadow-sm">
-          <FileIcon className="m-1 h-11 w-11 text-gray-500" />
-          <div className="line-clamp-1 ml-2 flex-1 text-left">
-            <p>{file?.name}</p>
-            <p className="line-clamp-1 text-sm text-gray-700">
-              {file?.type}
-            </p>
-          </div>
-          <div className="flex items-end">
-            {removeFile && (
-              <button
-                className="m-1 text-red-600"
-                onClick={(e) => removeFile(e, id)}
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-        </a>
+        <UnsupportedFile
+          file={file}
+          id={id}
+          removeFile={removeFile}
+          reason={
+            file?.type
+              ? t('file.unknown_type', { type: file.type })
+              : t('file.unknown_type_generic')
+          }
+        />
       )
   }
 }
