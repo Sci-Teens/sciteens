@@ -94,11 +94,8 @@ jobs:
       # during teardown, triggering an OOM SIGKILL after all tests pass.
       # 4GB swap gives headroom for the spike without slowing tests
       # (working set fits in RAM; only teardown touches swap).
-      - name: Add swap space
-        run: |
-          sudo fallocate -l 4G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
+      - uses: pierotofy/set-swap-space@v1
+        with:
+          swap-size-gb: 4
       # "live" project needs real Firebase secrets, not wired in CI yet.
       - run: pnpm exec playwright test --project=emulator
