@@ -181,7 +181,10 @@
     "error_first_name": "Veuillez entrer uniquement votre prénom (ou le connecter avec des traits de traits)",
     "error_last_name": "Veuillez entrer uniquement votre nom de famille (ou le connecter avec des traits de traits)",
     "valid_institution": "Veuillez fournir une institution valide",
-    "error_birthday": "Vous devez avoir 13 ans ou plus pour utiliser des sciteens"
+    "error_birthday": "Vous devez avoir 13 ans ou plus pour utiliser des sciteens",
+    "select_birthday": "Choisissez une date",
+    "show_password": "Afficher le mot de passe",
+    "hide_password": "Masquer le mot de passe"
   },
   "404": {
     "sorry": "404 - Désolé, nous n'avons pas pu trouver ça",

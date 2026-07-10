@@ -3,33 +3,39 @@ import Image from 'next/image'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
+import AuthCard from '@/components/AuthCard'
+
 export default function SignUpThanks() {
   const { t } = useTranslation('common')
   return (
-    <div className="relative z-30 mx-auto -mt-12 flex h-screen w-full max-w-prose flex-col items-center justify-center text-center">
+    <AuthCard
+      maxWidth="max-w-lg"
+      title={t('auth.thanks_for_signing_up')}
+      subtitle={
+        <>
+          {t('auth.send_confirmation')}&nbsp;
+          <Link href="/articles" className="underline">
+            {t('auth.articles')}
+          </Link>
+          &nbsp;{t('auth.or')}&nbsp;
+          <Link href="/projects" className="underline">
+            {t('auth.projects')}
+          </Link>
+          &nbsp;
+          {t('auth.for_inspiration')}
+        </>
+      }
+      className="text-center"
+    >
       <Image
         src="/assets/sciteens_logo_main.svg"
         alt="SciTeens Logo Main"
-        width={300}
-        height={93}
+        width={220}
+        height={68}
         unoptimized
+        className="mx-auto mb-6"
       />
-      <h1 className="text-bold text-2xl">
-        {t('auth.thanks_for_signing_up')}
-      </h1>
-      <p className="text-lg">
-        {t('auth.send_confirmation')}&nbsp;
-        <Link href="/articles" className="underline">
-          {t('auth.articles')}
-        </Link>
-        &nbsp;{t('auth.or')}&nbsp;
-        <Link href="/projects" className="underline">
-          {t('auth.projects')}
-        </Link>
-        &nbsp;
-        {t('auth.for_inspiration')}
-      </p>
-      <div className="bg-sciteensGreen-regular flex flex-row rounded-lg p-2">
+      <div className="bg-sciteensGreen-regular mx-auto flex w-fit flex-row rounded-lg p-2">
         <a
           href="https://www.facebook.com/SciTeensinfo"
           target="_blank"
@@ -115,7 +121,7 @@ export default function SignUpThanks() {
           />
         </a>
       </div>
-    </div>
+    </AuthCard>
   )
 }
 

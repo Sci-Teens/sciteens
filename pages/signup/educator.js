@@ -30,6 +30,8 @@ import {
   resolveRefPath,
 } from '../../context/helpers'
 
+import AuthCard from '@/components/AuthCard'
+import PasswordField from '@/components/PasswordField'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -253,138 +255,34 @@ export default function MentorSignUp() {
           content="/assets/sciteens_initials.jpg"
         />
       </Head>
-      <main>
-        <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow-sm md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
-          <h1 className="mb-2 text-center text-3xl font-semibold">
-            {t('auth.educate_on_sciteens')}
-          </h1>
-          <b className="text-red-700">
-            We currently aren&apos;t accepting new educator
-            signups.
-          </b>
-          <p className="mb-6 text-center text-gray-700">
-            {t('auth.why_educate_on_sciteens')}
-          </p>
+      <AuthCard
+        maxWidth="max-w-lg"
+        title={t('auth.educate_on_sciteens')}
+        subtitle={t('auth.why_educate_on_sciteens')}
+      >
+        <p className="text-destructive mb-6 text-center text-sm font-semibold">
+          We currently aren&apos;t accepting new educator
+          signups.
+        </p>
 
-          <form onSubmit={form.handleSubmit(emailSignUp)}>
-            <FieldGroup>
-              <div className="flex flex-row gap-2">
-                <Controller
-                  name="first_name"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field
-                      className="flex-1"
-                      data-invalid={fieldState.invalid}
-                    >
-                      <FieldLabel htmlFor="first_name">
-                        {t('auth.first_name')}
-                      </FieldLabel>
-                      <Input
-                        {...field}
-                        disabled
-                        id="first_name"
-                        type="text"
-                        maxLength={50}
-                        aria-invalid={fieldState.invalid}
-                      />
-                      {fieldState.invalid && (
-                        <FieldError
-                          errors={[fieldState.error]}
-                        />
-                      )}
-                    </Field>
-                  )}
-                />
-                <Controller
-                  name="last_name"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field
-                      className="flex-1"
-                      data-invalid={fieldState.invalid}
-                    >
-                      <FieldLabel htmlFor="last_name">
-                        {t('auth.last_name')}
-                      </FieldLabel>
-                      <Input
-                        {...field}
-                        disabled
-                        id="last_name"
-                        type="text"
-                        maxLength={50}
-                        aria-invalid={fieldState.invalid}
-                      />
-                      {fieldState.invalid && (
-                        <FieldError
-                          errors={[fieldState.error]}
-                        />
-                      )}
-                    </Field>
-                  )}
-                />
-              </div>
-
+        <form onSubmit={form.handleSubmit(emailSignUp)}>
+          <FieldGroup>
+            <div className="flex flex-row gap-2">
               <Controller
-                name="email"
+                name="first_name"
                 control={form.control}
                 render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="email">
-                      {t('auth.email')}
+                  <Field
+                    className="flex-1"
+                    data-invalid={fieldState.invalid}
+                  >
+                    <FieldLabel htmlFor="first_name">
+                      {t('auth.first_name')}
                     </FieldLabel>
                     <Input
                       {...field}
                       disabled
-                      id="email"
-                      type="email"
-                      aria-invalid={fieldState.invalid}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError
-                        errors={[fieldState.error]}
-                      />
-                    )}
-                  </Field>
-                )}
-              />
-
-              <Controller
-                name="password"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="password">
-                      {t('auth.password')}
-                    </FieldLabel>
-                    <Input
-                      {...field}
-                      disabled
-                      id="password"
-                      type="password"
-                      aria-invalid={fieldState.invalid}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError
-                        errors={[fieldState.error]}
-                      />
-                    )}
-                  </Field>
-                )}
-              />
-
-              <Controller
-                name="institution"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="institution">
-                      {t('auth.institution')}
-                    </FieldLabel>
-                    <Input
-                      {...field}
-                      disabled
-                      id="institution"
+                      id="first_name"
                       type="text"
                       maxLength={50}
                       aria-invalid={fieldState.invalid}
@@ -397,204 +295,285 @@ export default function MentorSignUp() {
                   </Field>
                 )}
               />
-
               <Controller
-                name="position"
-                control={form.control}
-                render={({ field }) => (
-                  <Field>
-                    <FieldLabel htmlFor="position">
-                      {t('auth.position')}
-                    </FieldLabel>
-                    <Select
-                      disabled
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger
-                        id="position"
-                        className="w-full"
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Educator">
-                          {t('auth.educator')}
-                        </SelectItem>
-                        <SelectItem value="Professional">
-                          {t('auth.professional')}
-                        </SelectItem>
-                        <SelectItem value="Researcher">
-                          {t('auth.researcher')}
-                        </SelectItem>
-                        <SelectItem value="Prefer not to answer">
-                          {t('auth.prefer_not_answer')}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                )}
-              />
-
-              <Controller
-                name="gender"
-                control={form.control}
-                render={({ field }) => (
-                  <Field>
-                    <FieldLabel htmlFor="gender">
-                      {t('auth.gender')}
-                    </FieldLabel>
-                    <Select
-                      disabled
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger
-                        id="gender"
-                        className="w-full"
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Male">
-                          {t('auth.male')}
-                        </SelectItem>
-                        <SelectItem value="Female">
-                          {t('auth.female')}
-                        </SelectItem>
-                        <SelectItem value="Other">
-                          {t('auth.other')}
-                        </SelectItem>
-                        <SelectItem value="Prefer not to answer">
-                          {t('auth.prefer_not_answer')}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                )}
-              />
-
-              <Controller
-                name="race"
-                control={form.control}
-                render={({ field }) => (
-                  <Field>
-                    <FieldLabel htmlFor="race">
-                      {t('auth.race')}
-                    </FieldLabel>
-                    <Select
-                      disabled
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger
-                        id="race"
-                        className="w-full"
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="American Indian or Alaska Native">
-                          {t('auth.american_indian')}
-                        </SelectItem>
-                        <SelectItem value="Asian (including Indian subcontinent and Philippines origin)">
-                          {t('auth.asian')}
-                        </SelectItem>
-                        <SelectItem value="Black or African American">
-                          {t('auth.black')}
-                        </SelectItem>
-                        <SelectItem value="Hispanic or Latino">
-                          {t('auth.hispanic')}
-                        </SelectItem>
-                        <SelectItem value="White (including Middle Eastern origin)">
-                          {t('auth.white')}
-                        </SelectItem>
-                        <SelectItem value="Native Hawaiian or Other Pacific Islander">
-                          {t('auth.native_hawaiian')}
-                        </SelectItem>
-                        <SelectItem value="Prefer not to answer">
-                          {t('auth.prefer_not_answer')}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                )}
-              />
-
-              <div
-                id="recaptcha-container"
-                className="mb-4 flex w-full justify-center"
-              ></div>
-
-              <Controller
-                name="terms"
+                name="last_name"
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field
-                    orientation="horizontal"
+                    className="flex-1"
                     data-invalid={fieldState.invalid}
                   >
-                    <Checkbox
-                      id="terms"
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
+                    <FieldLabel htmlFor="last_name">
+                      {t('auth.last_name')}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      disabled
+                      id="last_name"
+                      type="text"
+                      maxLength={50}
                       aria-invalid={fieldState.invalid}
                     />
-                    <FieldLabel
-                      htmlFor="terms"
-                      className="font-normal"
-                    >
-                      {t('auth.terms')}&nbsp;
-                      <Link
-                        href="/legal/terms"
-                        className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold"
-                      >
-                        {t('auth.terms_link')}
-                      </Link>
-                    </FieldLabel>
+                    {fieldState.invalid && (
+                      <FieldError
+                        errors={[fieldState.error]}
+                      />
+                    )}
                   </Field>
                 )}
               />
+            </div>
 
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full"
-                disabled={
-                  true ||
-                  !form.formState.isValid ||
-                  form.formState.isSubmitting ||
-                  loading ||
-                  !recaptchaSolved
-                }
-              >
-                {t('auth.create_account')}
-                {loading && <LoadingSpinner />}
-              </Button>
-            </FieldGroup>
-          </form>
-          <div className="mt-4 flex justify-center">
-            <p className="text-gray-700">
-              {t('auth.have_account')}&nbsp;
-              <Link
-                href={
-                  router.query?.ref
-                    ? {
-                        pathname: '/signin/educator',
-                        query: {
-                          ref: router.query?.ref,
-                        },
-                      }
-                    : '/signin/educator'
-                }
-                className="font-bold"
-              >
-                {t('auth.sign_in_link')}
-              </Link>
-            </p>
-          </div>
+            <Controller
+              name="email"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="email">
+                    {t('auth.email')}
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    disabled
+                    id="email"
+                    type="email"
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError
+                      errors={[fieldState.error]}
+                    />
+                  )}
+                </Field>
+              )}
+            />
+
+            <PasswordField
+              control={form.control}
+              disabled
+            />
+
+            <Controller
+              name="institution"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="institution">
+                    {t('auth.institution')}
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    disabled
+                    id="institution"
+                    type="text"
+                    maxLength={50}
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError
+                      errors={[fieldState.error]}
+                    />
+                  )}
+                </Field>
+              )}
+            />
+
+            <Controller
+              name="position"
+              control={form.control}
+              render={({ field }) => (
+                <Field>
+                  <FieldLabel htmlFor="position">
+                    {t('auth.position')}
+                  </FieldLabel>
+                  <Select
+                    disabled
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger
+                      id="position"
+                      className="w-full"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Educator">
+                        {t('auth.educator')}
+                      </SelectItem>
+                      <SelectItem value="Professional">
+                        {t('auth.professional')}
+                      </SelectItem>
+                      <SelectItem value="Researcher">
+                        {t('auth.researcher')}
+                      </SelectItem>
+                      <SelectItem value="Prefer not to answer">
+                        {t('auth.prefer_not_answer')}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              )}
+            />
+
+            <Controller
+              name="gender"
+              control={form.control}
+              render={({ field }) => (
+                <Field>
+                  <FieldLabel htmlFor="gender">
+                    {t('auth.gender')}
+                  </FieldLabel>
+                  <Select
+                    disabled
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger
+                      id="gender"
+                      className="w-full"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Male">
+                        {t('auth.male')}
+                      </SelectItem>
+                      <SelectItem value="Female">
+                        {t('auth.female')}
+                      </SelectItem>
+                      <SelectItem value="Other">
+                        {t('auth.other')}
+                      </SelectItem>
+                      <SelectItem value="Prefer not to answer">
+                        {t('auth.prefer_not_answer')}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              )}
+            />
+
+            <Controller
+              name="race"
+              control={form.control}
+              render={({ field }) => (
+                <Field>
+                  <FieldLabel htmlFor="race">
+                    {t('auth.race')}
+                  </FieldLabel>
+                  <Select
+                    disabled
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger
+                      id="race"
+                      className="w-full"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="American Indian or Alaska Native">
+                        {t('auth.american_indian')}
+                      </SelectItem>
+                      <SelectItem value="Asian (including Indian subcontinent and Philippines origin)">
+                        {t('auth.asian')}
+                      </SelectItem>
+                      <SelectItem value="Black or African American">
+                        {t('auth.black')}
+                      </SelectItem>
+                      <SelectItem value="Hispanic or Latino">
+                        {t('auth.hispanic')}
+                      </SelectItem>
+                      <SelectItem value="White (including Middle Eastern origin)">
+                        {t('auth.white')}
+                      </SelectItem>
+                      <SelectItem value="Native Hawaiian or Other Pacific Islander">
+                        {t('auth.native_hawaiian')}
+                      </SelectItem>
+                      <SelectItem value="Prefer not to answer">
+                        {t('auth.prefer_not_answer')}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              )}
+            />
+
+            <div
+              id="recaptcha-container"
+              className="flex w-full justify-center"
+            ></div>
+
+            <Controller
+              name="terms"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field
+                  orientation="horizontal"
+                  data-invalid={fieldState.invalid}
+                >
+                  <Checkbox
+                    id="terms"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    aria-invalid={fieldState.invalid}
+                  />
+                  <FieldLabel
+                    htmlFor="terms"
+                    className="font-normal"
+                  >
+                    {t('auth.terms')}&nbsp;
+                    <Link
+                      href="/legal/terms"
+                      className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold"
+                    >
+                      {t('auth.terms_link')}
+                    </Link>
+                  </FieldLabel>
+                </Field>
+              )}
+            />
+
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full"
+              disabled={
+                true ||
+                !form.formState.isValid ||
+                form.formState.isSubmitting ||
+                loading ||
+                !recaptchaSolved
+              }
+            >
+              {t('auth.create_account')}
+              {loading && <LoadingSpinner />}
+            </Button>
+          </FieldGroup>
+        </form>
+        <div className="mt-4 flex justify-center">
+          <p className="text-muted-foreground">
+            {t('auth.have_account')}&nbsp;
+            <Link
+              href={
+                router.query?.ref
+                  ? {
+                      pathname: '/signin/educator',
+                      query: {
+                        ref: router.query?.ref,
+                      },
+                    }
+                  : '/signin/educator'
+              }
+              className="font-bold"
+            >
+              {t('auth.sign_in_link')}
+            </Link>
+          </p>
         </div>
-      </main>
+      </AuthCard>
     </div>
   )
 }

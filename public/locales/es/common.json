@@ -181,7 +181,10 @@
     "error_first_name": "Solo ingrese su nombre (o conéctelo con guiones)",
     "error_last_name": "Solo ingrese su apellido (o conéctelo con guiones)",
     "valid_institution": "Proporcione una institución válida",
-    "error_birthday": "Debes tener 13 años o más para usar Sciteens"
+    "error_birthday": "Debes tener 13 años o más para usar Sciteens",
+    "select_birthday": "Elige una fecha",
+    "show_password": "Mostrar contraseña",
+    "hide_password": "Ocultar contraseña"
   },
   "404": {
     "sorry": "404 - Lo siento, no pudimos encontrar eso",
