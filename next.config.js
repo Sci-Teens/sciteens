@@ -13,6 +13,11 @@ const scriptSrc = [
   'https://images.prismic.io',
   'https://www.googletagmanager.com',
   'https://www.google.com',
+  // Firebase Auth's signInWithPopup/signInWithRedirect loads the gapi
+  // iframes helper from here to relay auth events back to the app —
+  // without it every popup sign-in (Google included) fails with
+  // auth/internal-error.
+  'https://apis.google.com',
   'https://www.gstatic.com',
   // lib/toxicityWorker.js loads @huggingface/transformers from jsDelivr
   // at runtime (`import(/* webpackIgnore: true */ …)`) instead of
@@ -30,6 +35,7 @@ const connectSrc = [
   'https://firestore.googleapis.com',
   'https://firebase.googleapis.com',
   'https://www.googleapis.com',
+  'https://apis.google.com',
   'https://identitytoolkit.googleapis.com',
   'https://securetoken.googleapis.com',
   'https://firebaseinstallations.googleapis.com',
@@ -114,7 +120,12 @@ module.exports = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
               "img-src 'self' data: https://images.prismic.io https://source.unsplash.com https://lh3.googleusercontent.com https://firebasestorage.googleapis.com https://storage.googleapis.com https://lh3.googleusercontent.com; " +
               "font-src 'self' https://fonts.gstatic.com; " +
-              'frame-src https://www.google.com; ' +
+              // *.firebaseapp.com hosts the Firebase Auth helper iframe
+              // (__/auth/iframe) that signInWithPopup/signInWithRedirect
+              // uses to relay auth events — the project id varies per
+              // deployment (dev/staging/prod) and isn't available to this
+              // config at container runtime, hence the wildcard.
+              'frame-src https://www.google.com https://*.firebaseapp.com; ' +
               `connect-src ${connectSrc}; ` +
               "frame-ancestors 'self'; " +
               "base-uri 'self'; " +
