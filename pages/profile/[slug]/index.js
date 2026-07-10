@@ -39,6 +39,7 @@ import { useSigninCheck } from '../../../context/AuthContext'
 import { AppContext } from '../../../context/context'
 import File from '../../../components/File'
 import ProjectCard from '../../../components/ProjectCard'
+import { Skeleton } from '../../../components/ui/skeleton'
 import { normalizeProject } from '../../../lib/projects'
 
 function Project({ profile }) {
@@ -46,7 +47,10 @@ function Project({ profile }) {
   const router = useRouter()
 
   const [files, setFiles] = useState([])
+  const [filesLoading, setFilesLoading] = useState(true)
   const [projects, setProjects] = useState([])
+  const [projectsLoading, setProjectsLoading] =
+    useState(true)
   const { status, data: signInCheckResult } =
     useSigninCheck()
   const { profile: current_user_profile } =
@@ -73,6 +77,7 @@ function Project({ profile }) {
         )
       })
       setProjects(ps)
+      setProjectsLoading(false)
 
       const filesRef = ref(
         storage,
@@ -80,23 +85,45 @@ function Project({ profile }) {
       )
       try {
         const res = await listAll(filesRef)
-        for (let r of res.items) {
+        const fetchFileBlob = async (r) => {
           const url = await getDownloadURL(r)
           const metadata = await getMetadata(r)
-          const xhr = new XMLHttpRequest()
-          xhr.responseType = 'blob'
-          xhr.onload = () => {
-            const blob = xhr.response
-            if (xhr.status == 200) {
-              blob.name = metadata.name
-              setFiles((fs) => [...fs, blob])
+          return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest()
+            xhr.responseType = 'blob'
+            xhr.onload = () => {
+              if (xhr.status == 200) {
+                const blob = xhr.response
+                blob.name = metadata.name
+                resolve(blob)
+              } else {
+                reject(
+                  new Error(
+                    `Failed to fetch file: ${xhr.status}`
+                  )
+                )
+              }
             }
-          }
-          xhr.open('GET', url)
-          xhr.send()
+            xhr.onerror = () =>
+              reject(
+                new Error('Network error fetching file')
+              )
+            xhr.open('GET', url)
+            xhr.send()
+          })
         }
+        const results = await Promise.allSettled(
+          res.items.map(fetchFileBlob)
+        )
+        setFiles(
+          results
+            .filter((r) => r.status === 'fulfilled')
+            .map((r) => r.value)
+        )
       } catch (e) {
         console.error(e)
+      } finally {
+        setFilesLoading(false)
       }
     }
 
@@ -163,7 +190,9 @@ function Project({ profile }) {
                 </p>
               </div>
             </div>
-            {status === 'success' &&
+            {status !== 'success' ? (
+              <Skeleton className="h-1/3 w-20 rounded-lg" />
+            ) : (
               signInCheckResult.signedIn &&
               current_user_profile?.slug ===
                 router.query?.slug && (
@@ -173,7 +202,8 @@ function Project({ profile }) {
                 >
                   Edit
                 </Link>
-              )}
+              )
+            )}
           </div>
           <h4>
             {t('index_profile.joined')}{' '}
@@ -203,7 +233,12 @@ function Project({ profile }) {
         <h2 className="mb-2 text-lg font-semibold md:text-2xl">
           Projects
         </h2>
-        {projects?.length != 0 ? (
+        {projectsLoading ? (
+          <div className="flex flex-col gap-6 md:gap-8">
+            <Skeleton className="h-24 w-full md:h-40" />
+            <Skeleton className="h-24 w-full md:h-40" />
+          </div>
+        ) : projects?.length != 0 ? (
           projectsComponent
         ) : (
           <p className="text-muted-foreground">
@@ -214,17 +249,22 @@ function Project({ profile }) {
 
       {/* Files */}
       <div className="mx-auto mb-4 mt-12 w-5/6 md:w-2/3 lg:w-1/2">
-        {files.length > 0 && (
+        {(filesLoading || files.length > 0) && (
           <h2 className="mb-2 text-lg font-semibold md:text-2xl">
             Files
           </h2>
         )}
         <div className="flex flex-col items-center space-y-2">
-          {files.map((f, id) => {
-            return (
+          {filesLoading ? (
+            <>
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </>
+          ) : (
+            files.map((f, id) => (
               <File file={f} id={id} key={f.name}></File>
-            )
-          })}
+            ))
+          )}
         </div>
       </div>
     </>

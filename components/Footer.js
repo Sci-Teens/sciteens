@@ -46,7 +46,7 @@ export default function Footer() {
           </svg>
           <div className="bg-sciteensGreen-regular px-10 pb-8 pt-4 text-gray-100 md:px-24">
             <div className="mr-0 flex flex-col justify-between md:flex-row lg:mr-12">
-              <div className="w-1/8 mb-8 md:mb-0">
+              <div className="md:w-1/8 mb-8 w-full md:mb-0">
                 <p className="mb-1 font-semibold text-white md:mb-2">
                   {i18n.t('footer.organization')}
                 </p>
@@ -86,7 +86,7 @@ export default function Footer() {
                   </li>
                 </ul>
               </div>
-              <div className="w-1/8 mb-8 md:mb-0">
+              <div className="md:w-1/8 mb-8 w-full md:mb-0">
                 <p className="mb-1 font-semibold text-white md:mb-2">
                   {i18n.t('footer.legal')}
                 </p>
@@ -108,7 +108,7 @@ export default function Footer() {
                   </li>
                 </ul>
               </div>
-              <div className="w-1/8 mb-8 md:mb-0">
+              <div className="md:w-1/8 mb-8 w-full md:mb-0">
                 <p className="mb-1 font-semibold text-white md:mb-2">
                   {i18n.t('footer.language')}
                 </p>
@@ -147,18 +147,18 @@ export default function Footer() {
                   </li>
                 </ul>
               </div>
-              <div className="w-1/8 mb-8 md:mb-0">
+              <div className="md:w-1/8 mb-8 w-full md:mb-0">
                 <p className="mb-2 font-semibold text-white">
                   {i18n.t('footer.follow_us')}
                 </p>
-                <div className="flex flex-row">
+                <div className="flex flex-row gap-4">
                   <a
                     href="https://www.facebook.com/SciTeensinfo"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     <Image
-                      className="mr-4 h-6 w-auto"
+                      className="h-6 w-auto"
                       src="/assets/icons/facebook-flat.svg"
                       alt="Facebook"
                       width={24}
@@ -172,7 +172,7 @@ export default function Footer() {
                     rel="noopener noreferrer"
                   >
                     <Image
-                      className="mr-4 h-6 w-auto"
+                      className="h-6 w-auto"
                       src="/assets/icons/instagram.svg"
                       alt="Instagram"
                       width={24}
@@ -186,7 +186,7 @@ export default function Footer() {
                     rel="noopener noreferrer"
                   >
                     <Image
-                      className="mr-4 h-6 w-auto"
+                      className="h-6 w-auto"
                       src="/assets/icons/linkedin-flat.svg"
                       alt="LinkedIn"
                       width={26}
@@ -200,7 +200,7 @@ export default function Footer() {
                     rel="noopener noreferrer"
                   >
                     <Image
-                      className="mr-4 h-6 w-auto"
+                      className="h-6 w-auto"
                       src="/assets/icons/youtube.svg"
                       alt="YouTube"
                       width={24}
@@ -214,7 +214,7 @@ export default function Footer() {
                     rel="noopener noreferrer"
                   >
                     <Image
-                      className="mr-4 h-6 w-auto"
+                      className="h-6 w-auto"
                       src="/assets/icons/tiktok.svg"
                       alt="TikTok"
                       width={24}
