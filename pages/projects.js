@@ -361,7 +361,7 @@ function Projects({ cached_projects }) {
             </h1>
             <Link
               href="/project/create"
-              className="border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark my-auto inline-flex items-center rounded-lg border-2 px-3 py-1.5 shadow-sm transition md:px-5 md:text-lg"
+              className="border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark my-auto inline-flex items-center rounded-lg border-2 px-3 py-1.5 no-underline shadow-sm transition md:px-5 md:text-lg"
               aria-label="Create Project"
             >
               <span className="hidden md:inline">

@@ -1,4 +1,4 @@
-// Regression coverage for three reported Projects bugs, seeded with
+// Regression coverage for reported Projects bugs, seeded with
 // synthetic fixtures so nothing depends on real production data:
 //   1. Member profile pictures: a dead picture URL must fall back to
 //      the user icon, never a broken-image box with raw alt text.
@@ -8,6 +8,17 @@
 //      at any viewport width (no hardcoded offset), and the project
 //      detail page's "Started on" date must actually render (it used
 //      to read a field the Firestore doc never had).
+//   4. A missing project photo must render nothing immediately, not an
+//      indefinite loading skeleton (the hero used to be gated behind an
+//      unrelated, slow Storage file listing instead of the Firestore
+//      project_photo field that's already available at first paint).
+//   5. Buttons/links inside the detail page's `prose` article (Edit,
+//      member name, field tags) must never render underlined:
+//      `@tailwindcss/typography`'s `a` styles beat a plain
+//      `no-underline` utility class here, so these need `not-prose`.
+//   6. The detail page's field tags must resolve the same Title-Case
+//      label as the listing page instead of a raw (possibly legacy
+//      lowercase) Firestore value.
 const { test, expect } = require('@playwright/test')
 const {
   seedStudent,
@@ -15,6 +26,16 @@ const {
   seedProfilePicture,
 } = require('./support/admin')
 
+const PASSWORD = 'SciTeens!23'
+
+async function signIn(page, { email, password }) {
+  await page.goto('/signin/student')
+  await page.locator('#email').fill(email)
+  await page.locator('#password').fill(password)
+  await page
+    .getByRole('button', { name: 'Sign In', exact: true })
+    .click()
+}
 test.describe('project visuals', () => {
   let brokenPhotoMember
   let missingPhotoMember
@@ -186,5 +207,122 @@ test.describe('project visuals', () => {
     await expect(
       page.getByText('Mar 15, 2024')
     ).toBeVisible()
+  })
+})
+
+test.describe('project detail page prose/typography fixes', () => {
+  let owner
+  let ownedProjectId
+  let legacyFieldProjectId
+  let noPhotoProjectId
+
+  test.beforeAll(async () => {
+    owner = await seedStudent({
+      firstName: 'Owner',
+      lastName: 'Underline',
+      password: PASSWORD,
+    })
+    ownedProjectId = await seedProject({
+      title: 'Underline Regression Project',
+      abstract: 'Checking button/link styling.',
+      fields: ['Biology'],
+      member_arr: [
+        {
+          uid: owner.uid,
+          display: owner.displayName,
+          slug: owner.slug,
+        },
+      ],
+      member_uids: [owner.uid],
+    })
+    // Real historical projects store `fields` lowercase (pre-dates the
+    // Title Case FIELD_NAMES dict) — no UI path can produce this.
+    legacyFieldProjectId = await seedProject({
+      title: 'Legacy Field Casing Project',
+      abstract: 'Has lowercase legacy field casing.',
+      fields: ['biology'],
+      member_arr: [],
+      member_uids: [],
+    })
+    noPhotoProjectId = await seedProject({
+      title: 'No Photo Instant Project',
+      abstract: 'Has no project_photo at all.',
+      fields: [],
+      member_arr: [],
+      member_uids: [],
+    })
+  })
+
+  test('Edit, member, and field-tag links on the detail page are never underlined', async ({
+    page,
+  }) => {
+    await signIn(page, {
+      email: owner.email,
+      password: PASSWORD,
+    })
+    await page.goto(`/project/${ownedProjectId}`)
+
+    const edit = page.getByRole('link', {
+      name: 'Edit',
+      exact: true,
+    })
+    const member = page.getByRole('link', {
+      name: owner.displayName,
+    })
+    const tag = page.getByRole('link', {
+      name: 'Biology',
+      exact: true,
+    })
+
+    await expect(edit).toBeVisible()
+    await expect(member).toBeVisible()
+    await expect(tag).toBeVisible()
+
+    for (const locator of [edit, member, tag]) {
+      const textDecoration = await locator.evaluate(
+        (el) => getComputedStyle(el).textDecorationLine
+      )
+      expect(textDecoration).toBe('none')
+    }
+  })
+
+  test('the detail page resolves the same Title-Case field label as the listing page for legacy lowercase data', async ({
+    page,
+  }) => {
+    await page.goto(`/project/${legacyFieldProjectId}`)
+
+    const tag = page.getByRole('link', {
+      name: 'Biology',
+      exact: true,
+    })
+    await expect(tag).toBeVisible()
+    expect(await tag.textContent()).toBe('Biology')
+  })
+
+  test('a project with no photo renders nothing immediately, never an indefinite loading skeleton', async ({
+    page,
+  }) => {
+    // Simulates a slow/unreachable Storage backend: if the hero image
+    // were still gated behind the file-listing effect, this would hang
+    // the pulsing skeleton indefinitely instead of resolving from
+    // Firestore's project_photo field.
+    await page.route(
+      '**/storage/v1/b/**',
+      () => new Promise(() => {})
+    )
+
+    await page.goto(`/project/${noPhotoProjectId}`, {
+      waitUntil: 'domcontentloaded',
+    })
+    await expect(
+      page.getByText('No Photo Instant Project')
+    ).toBeVisible()
+
+    await expect(
+      page.locator('.animate-pulse')
+    ).toHaveCount(0)
+    await expect(
+      page.locator('img[alt*="Photo"]')
+    ).toHaveCount(0)
   })
 })
