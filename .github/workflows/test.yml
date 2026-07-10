@@ -98,4 +98,4 @@ jobs:
         with:
           swap-size-gb: 4
       # "live" project needs real Firebase secrets, not wired in CI yet.
-      - run: pnpm exec playwright test --project=emulator
+      - run: npx playwright test --project=emulator

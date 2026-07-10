@@ -37,7 +37,7 @@ const webServer = [
     // GitHub-hosted runners have 7GB total RAM and no swap — the JVM,
     // next dev, and Chromium together peak above that during teardown.
     // Fixture data is a handful of docs, so 512m is generous.
-    command: `pnpm exec firebase emulators:exec --only auth,firestore --project ${EMULATOR_PROJECT_ID} "node e2e/support/hold-open.js"`,
+    command: `node_modules/.bin/firebase emulators:exec --only auth,firestore --project ${EMULATOR_PROJECT_ID} "node e2e/support/hold-open.js"`,
     url: 'http://127.0.0.1:8080',
     reuseExistingServer,
     timeout: 60_000,
@@ -50,7 +50,7 @@ const webServer = [
     // `next dev`, not build+start: build+start didn't fix the known
     // /articles hydration issue (see i18n-smoke.spec.js) and was less
     // stable overall in testing.
-    command: `pnpm exec next dev -p ${EMULATOR_APP_PORT}`,
+    command: `node_modules/.bin/next dev -p ${EMULATOR_APP_PORT}`,
     url: `http://127.0.0.1:${EMULATOR_APP_PORT}`,
     reuseExistingServer,
     timeout: 180_000,
