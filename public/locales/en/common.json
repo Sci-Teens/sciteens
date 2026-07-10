@@ -71,6 +71,12 @@
     "summary": "Summary",
     "add_members": "Add Members",
     "fields": "Fields",
+    "links": "Links",
+    "links_hint": "Only links to GitHub and YouTube are supported.",
+    "links_add": "Add",
+    "links_remove": "Remove link",
+    "links_too_many": "You can add up to 10 links",
+    "links_not_allowed": "Only links to GitHub and YouTube are supported",
     "drop_files": "Drop the files here...",
     "drag_files": "Drag and drop some files here",
     "suggest_photo": "It's suggested that you have at least one photo for display purposes",
@@ -84,6 +90,11 @@
     "update": "Update",
     "cancel": "Cancel",
     "could_not_update": "We could not update your project at this time"
+  },
+  "file": {
+    "unsupported_legacy": "This file type is no longer supported and can't be opened here. Contact us if you need it converted to a PDF.",
+    "unknown_type": "Unrecognized file type ({{type}}) — this file cannot be opened here.",
+    "unknown_type_generic": "Unrecognized file type — this file cannot be opened here."
   },
   "auth": {
     "auth_invalid_email": "Email address or password is invalid (if logging in with Gmail, try using the button below)",

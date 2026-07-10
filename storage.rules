@@ -14,25 +14,79 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // ---- Profile files --------------------------------------------------
-    // Only the profile owner may upload to their prefix.
-    match /profiles/{uid}/{fileName=**} {
+    // Mirrors context/helpers.js's ALLOWED_UPLOAD_MIME_TYPES /
+    // UPLOAD_MIME_EXTENSIONS — the client-side dropzone check is only
+    // a UX nicety; nothing stopped a member from uploading an
+    // arbitrary type/size directly via the Storage SDK or REST API
+    // before this. Rules can't import JS, so keep this list in sync
+    // by hand if the client allowlist ever changes.
+    function isValidUpload() {
+      return request.resource.size <= 8000000
+        && request.resource.contentType in
+          ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'];
+    }
+
+    // Persisted PDF-preview thumbnails (context/helpers.js#buildFileRecord's
+    // `thumbnailUrl`, generated client-side at upload time via
+    // lib/pdfThumbnail.js) — always a small PNG.
+    function isValidThumbnailUpload() {
+      return request.resource.size <= 300000
+        && request.resource.contentType == 'image/png';
+    }
+
+    // Persisted PDF-preview thumbnails under a profile's prefix.
+    match /profiles/{uid}/thumbnails/{fileName=**} {
       allow read: if true;
-      allow write, delete: if request.auth.uid == uid;
+      allow write: if request.auth.uid == uid
+        && isValidThumbnailUpload();
+      allow delete: if request.auth.uid == uid;
+    }
+
+    // ---- Profile files --------------------------------------------------
+    // Only the profile owner may upload to their prefix. Non-recursive
+    // {fileName} (one path segment) is deliberate — Storage rules grant
+    // access if ANY matching statement allows it (there's no "most
+    // specific wins"), so this must not also match thumbnails/** or its
+    // looser 8MB/any-allowlisted-type budget would swallow the tighter
+    // thumbnail rule above it.
+    match /profiles/{uid}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth.uid == uid && isValidUpload();
+      allow delete: if request.auth.uid == uid;
     }
 
     // ---- Legacy profile photo prefix ------------------------------------
     match /profilephoto/{uid}/{fileName=**} {
       allow read: if true;
-      allow write, delete: if request.auth.uid == uid;
+      allow write: if request.auth.uid == uid && isValidUpload();
+      allow delete: if request.auth.uid == uid;
     }
 
     // ---- Project files --------------------------------------------------
     // Only project members (per Firestore projects/{projectId}.member_uids)
-    // may upload to a project's prefix.
-    match /projects/{projectId}/{fileName=**} {
+    // may upload to a project's prefix. Same non-recursive {fileName}
+    // rationale as the profile files rule above.
+    match /projects/{projectId}/thumbnails/{fileName=**} {
       allow read: if true;
-      allow write, delete: if request.auth != null
+      allow write: if request.auth != null
+        && request.auth.uid in
+            firestore.get(/databases/(default)/documents/projects/$(projectId))
+              .data.member_uids
+        && isValidThumbnailUpload();
+      allow delete: if request.auth != null
+        && request.auth.uid in
+            firestore.get(/databases/(default)/documents/projects/$(projectId))
+              .data.member_uids;
+    }
+
+    match /projects/{projectId}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && request.auth.uid in
+            firestore.get(/databases/(default)/documents/projects/$(projectId))
+              .data.member_uids
+        && isValidUpload();
+      allow delete: if request.auth != null
         && request.auth.uid in
             firestore.get(/databases/(default)/documents/projects/$(projectId))
               .data.member_uids;

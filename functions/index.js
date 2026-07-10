@@ -119,11 +119,128 @@ exports.deleteProject = functions.firestore
         deleteQueryBatch(db, query, resolve)
       })
     }
-    // Delete the collection for feedback
+    // Delete the discussion subcollection
     await deleteCollection(
       admin.firestore(),
-      `/projects/${context.params.projectID}/feedback`
+      `/projects/${context.params.projectID}/discussion`,
+      500
     )
+
+    // Delete the files subcollection (Firestore records pointing
+    // at the project's Storage objects)
+    await deleteCollection(
+      admin.firestore(),
+      `/projects/${context.params.projectID}/files`,
+      500
+    )
+
+    // Delete the underlying Storage objects the files subcollection
+    // pointed at. Logged, not thrown, so a Storage-side failure never
+    // fails the trigger — the Firestore doc is already gone by now.
+    try {
+      await admin
+        .storage()
+        .bucket()
+        .deleteFiles({
+          prefix: `projects/${context.params.projectID}/`,
+        })
+    } catch (err) {
+      console.error(
+        `deleteProject: failed to delete Storage objects for projects/${context.params.projectID}/`,
+        err
+      )
+    }
+  })
+
+/*
+    Function deleteProfile()
+    
+    Handles the operations necessary when a profile is deleted,
+    such as removing its files subcollection, Storage objects,
+    and profile-pictures record.
+
+*/
+
+exports.deleteProfile = functions.firestore
+  .document('profiles/{uid}')
+  .onDelete(async (event, context) => {
+    async function deleteCollection(
+      db,
+      collectionPath,
+      batchSize
+    ) {
+      const collectionRef = db.collection(collectionPath)
+      const query = collectionRef
+        .orderBy('__name__')
+        .limit(batchSize)
+
+      return new Promise((resolve, reject) => {
+        deleteQueryBatch(db, query, resolve).catch(reject)
+      })
+    }
+
+    async function deleteQueryBatch(db, query, resolve) {
+      const snapshot = await query.get()
+
+      const batchSize = snapshot.size
+      if (batchSize === 0) {
+        // When there are no documents left, we are done
+        resolve()
+        return
+      }
+
+      // Delete documents in a batch
+      const batch = db.batch()
+      snapshot.docs.forEach((doc) => {
+        batch.delete(doc.ref)
+      })
+      await batch.commit()
+
+      // Recurse on the next process tick, to avoid
+      // exploding the stack.
+      process.nextTick(() => {
+        deleteQueryBatch(db, query, resolve)
+      })
+    }
+
+    // Delete the files subcollection (Firestore records pointing
+    // at the profile's Storage objects)
+    await deleteCollection(
+      admin.firestore(),
+      `/profiles/${context.params.uid}/files`,
+      500
+    )
+
+    // Delete the underlying Storage objects the files subcollection
+    // pointed at. Logged, not thrown, so a Storage-side failure never
+    // fails the trigger — the Firestore doc is already gone by now.
+    try {
+      await admin
+        .storage()
+        .bucket()
+        .deleteFiles({
+          prefix: `profiles/${context.params.uid}/`,
+        })
+    } catch (err) {
+      console.error(
+        `deleteProfile: failed to delete Storage objects for profiles/${context.params.uid}/`,
+        err
+      )
+    }
+
+    // Delete the corresponding profile-pictures record, if any
+    try {
+      await admin
+        .firestore()
+        .collection('profile-pictures')
+        .doc(context.params.uid)
+        .delete()
+    } catch (err) {
+      console.error(
+        `deleteProfile: failed to delete profile-pictures/${context.params.uid}`,
+        err
+      )
+    }
   })
 
 /*

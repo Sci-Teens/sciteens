@@ -28,14 +28,12 @@ import {
   doc,
   updateDoc,
   setDoc,
+  deleteDoc,
 } from '@firebase/firestore'
 import {
-  listAll,
   ref,
   getDownloadURL,
-  getMetadata,
   uploadBytes,
-  updateMetadata,
   deleteObject,
 } from '@firebase/storage'
 
@@ -44,11 +42,16 @@ import isEmail from 'validator/lib/isEmail'
 import debounce from 'lodash.debounce'
 import { useDropzone } from 'react-dropzone'
 import File from '../../../components/File'
+import LinksField from '../../../components/LinksField'
 import {
   ALLOWED_UPLOAD_MIME_TYPES,
+  buildFileRecord,
   getProjectFieldOptions,
   getSafeUploadName,
+  isAllowedProjectLink,
 } from '../../../context/helpers'
+import { generatePdfThumbnailBlob } from '../../../lib/pdfThumbnail'
+import firebaseConfig from '../../../firebaseConfig'
 
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -78,9 +81,14 @@ export default function UpdateProject({ query }) {
       Object.keys(getProjectFieldOptions(t)).length
     ).fill(false)
   )
-  const [files, setFiles] = useState([])
-  const [metadata_arr, setMetadata] = useState([])
-  const [project_photo, setProjectPhoto] = useState(null)
+  // Each entry is { key, kind: 'existing', id, record } for a
+  // Firestore file record already in Storage, or { key, kind: 'new',
+  // file } for a freshly dropped, not-yet-uploaded File. entries[0]
+  // is always the current display photo — index, not a name/flag,
+  // is the single source of truth for "which one is the photo" in
+  // this component (see setPhoto/onSubmit below).
+  const [entries, setEntries] = useState([])
+  const [links, setLinks] = useState([])
 
   const [error_member, setErrorMember] = useState('')
   const [error_file, setErrorFile] = useState('')
@@ -151,15 +159,13 @@ export default function UpdateProject({ query }) {
 
   useEffect(() => {
     async function loadProject() {
-      setFiles([])
+      setEntries([])
       const projectRef = doc(
         firestore,
         'projects',
         query.id
       )
-      const filesRef = ref(storage, `projects/${query.id}`)
 
-      // Find all the prefixes and items.
       try {
         const projectDoc = await getDoc(projectRef)
         const projectData = projectDoc.data()
@@ -180,6 +186,11 @@ export default function UpdateProject({ query }) {
             : '',
         })
         setFieldValues(projectData.fields)
+        setLinks(
+          Array.isArray(projectData.links)
+            ? projectData.links.filter(isAllowedProjectLink)
+            : []
+        )
         let temp_fields = new Array(
           Object.keys(getProjectFieldOptions(t)).length
         ).fill(false)
@@ -202,26 +213,39 @@ export default function UpdateProject({ query }) {
         }
         setFieldValues(temp_fields)
 
-        const res = await listAll(filesRef)
-        for (let r of res.items) {
-          const url = await getDownloadURL(r)
-          const metadata = await getMetadata(r)
-          const xhr = new XMLHttpRequest()
-          xhr.responseType = 'blob'
-          xhr.onload = () => {
-            const blob = xhr.response
-            if (xhr.status == 200) {
-              blob.name = metadata.name
-              setFiles((oldFiles) => [...oldFiles, blob])
-              setMetadata((oldMetadata) => [
-                ...oldMetadata,
-                metadata,
-              ])
-            }
-          }
-          xhr.open('GET', url)
-          xhr.send()
+        // One-time read, not a live subscription — this page treats
+        // the loaded files the same way it treats title/abstract/etc:
+        // load once, then edit local state until submit. A live
+        // onSnapshot here would fight with in-progress local edits
+        // (reordering the display photo, a pending removal) every
+        // time another tab wrote to this project's files.
+        const filesSnap = await getDocs(
+          firestoreQuery(
+            collection(
+              firestore,
+              'projects',
+              query.id,
+              'files'
+            ),
+            orderBy('createdAt', 'asc')
+          )
+        )
+        const loaded = filesSnap.docs.map((snap) => ({
+          key: snap.id,
+          kind: 'existing',
+          id: snap.id,
+          record: snap.data(),
+        }))
+        // The current display photo (if any) always renders first,
+        // matching the create/edit form's "Display Photo" slot.
+        const photoIndex = loaded.findIndex(
+          (entry) => entry.record.isPhoto
+        )
+        if (photoIndex > 0) {
+          const [photo] = loaded.splice(photoIndex, 1)
+          loaded.unshift(photo)
         }
+        setEntries(loaded)
       } catch (e) {
         console.error(e)
         router.push(`/project/${query.id}`)
@@ -229,14 +253,6 @@ export default function UpdateProject({ query }) {
     }
     loadProject()
   }, [])
-
-  useEffect(() => {
-    metadata_arr.map((file, index) => {
-      if (file.customMetadata?.project_photo) {
-        setPhoto(undefined, index)
-      }
-    })
-  }, [files, metadata_arr])
 
   const onSubmit = async (values) => {
     setLoading(true)
@@ -256,7 +272,7 @@ export default function UpdateProject({ query }) {
             : '',
           abstract: values.abstract.trim(),
           need_mentor: false,
-          links: [],
+          links: links.filter(isAllowedProjectLink),
           date: moment().toISOString(),
           fields: Object.keys(
             getProjectFieldOptions(t)
@@ -281,40 +297,103 @@ export default function UpdateProject({ query }) {
     }
 
     try {
-      for (const f of files) {
-        if (f) {
-          const safeName = getSafeUploadName(f)
-          if (!safeName) {
-            setErrorFile(
-              t(
-                'project_create_edit.file_format_not_accepted'
-              )
-            )
-            continue
-          }
-          const fileRef = ref(
-            storage,
-            `projects/${query.id}/${safeName}`
-          )
-          await uploadBytes(fileRef, f)
-          if (f.name == project_photo) {
-            await updateMetadata(fileRef, {
-              customMetadata: {
-                project_photo: 'true',
-              },
-            })
-            const downloadURL = await getDownloadURL(
-              fileRef
-            )
+      let newPhotoUrl = ''
+      for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i]
+        const isPhoto = i === 0
+
+        if (entry.kind === 'existing') {
+          if (entry.record.isPhoto !== isPhoto) {
             await updateDoc(
-              doc(firestore, 'projects', query.id),
-              {
-                project_photo: downloadURL,
-              }
+              doc(
+                firestore,
+                'projects',
+                query.id,
+                'files',
+                entry.id
+              ),
+              { isPhoto }
+            )
+          }
+          if (isPhoto) newPhotoUrl = entry.record.url
+          continue
+        }
+
+        const f = entry.file
+        const safeName = getSafeUploadName(f)
+        if (!safeName) {
+          setErrorFile(
+            t(
+              'project_create_edit.file_format_not_accepted'
+            )
+          )
+          continue
+        }
+        const fileRef = ref(
+          storage,
+          `projects/${query.id}/${safeName}`
+        )
+        await uploadBytes(fileRef, f)
+        const downloadURL = await getDownloadURL(fileRef)
+
+        // Best-effort: a thumbnail-generation failure (corrupt/
+        // encrypted/unrenderable PDF) must never block the upload
+        // itself — File.js just falls back to live rendering.
+        let thumbnailUrl = null
+        if (f.type === 'application/pdf') {
+          try {
+            const thumbnailBlob =
+              await generatePdfThumbnailBlob(f)
+            const thumbnailRef = ref(
+              storage,
+              `projects/${
+                query.id
+              }/thumbnails/${safeName.replace(
+                /\.pdf$/,
+                '.png'
+              )}`
+            )
+            await uploadBytes(thumbnailRef, thumbnailBlob, {
+              contentType: 'image/png',
+            })
+            thumbnailUrl = await getDownloadURL(
+              thumbnailRef
+            )
+          } catch (error) {
+            console.error(
+              'Failed to generate PDF thumbnail',
+              error
             )
           }
         }
+
+        await setDoc(
+          doc(
+            firestore,
+            'projects',
+            query.id,
+            'files',
+            safeName
+          ),
+          buildFileRecord({
+            storagePath: fileRef.fullPath,
+            bucket: firebaseConfig.storageBucket,
+            name: f.name,
+            contentType: f.type,
+            size: f.size,
+            url: downloadURL,
+            uploadedBy: signInCheckResult.user.uid,
+            isPhoto,
+            thumbnailUrl,
+          })
+        )
+        if (isPhoto) newPhotoUrl = downloadURL
       }
+
+      await updateDoc(
+        doc(firestore, 'projects', query.id),
+        { project_photo: newPhotoUrl }
+      )
 
       router.push(`/project/${query.id}`)
       setLoading(false)
@@ -347,8 +426,13 @@ export default function UpdateProject({ query }) {
         )
       } else {
         reader.readAsDataURL(f)
-        setFiles((old_files) => [
-          ...new Set([...old_files, f]),
+        setEntries((old) => [
+          ...old,
+          {
+            key: crypto.randomUUID(),
+            kind: 'new',
+            file: f,
+          },
         ])
       }
     }
@@ -420,32 +504,65 @@ export default function UpdateProject({ query }) {
 
   const removeFile = async (e, id) => {
     e.preventDefault()
-    let temp_files = [...files]
-    let temp_metadata = [...metadata_arr]
-    const removed_file = temp_files.splice(id, 1)
-    const removed_metadata = temp_metadata.splice(id, 1)
-    setFiles([...temp_files])
-    setMetadata([...temp_metadata])
-    if (removed_file[0]?.name == project_photo) {
-      setProjectPhoto(null)
-    }
+    const removed = entries[id]
+    const temp = [...entries]
+    temp.splice(id, 1)
+    setEntries(temp)
 
-    const removed_file_ref = ref(
-      storage,
-      removed_metadata[0].fullPath
-    )
-    await deleteObject(removed_file_ref)
+    // A freshly dropped, not-yet-uploaded file has nothing in Storage
+    // or Firestore to clean up.
+    if (removed.kind !== 'existing') return
+
+    try {
+      await deleteObject(ref(storage, removed.record.path))
+      if (removed.record.thumbnailUrl) {
+        // ref() accepts a full download URL directly. Best-effort —
+        // never block the main delete on thumbnail cleanup.
+        await deleteObject(
+          ref(storage, removed.record.thumbnailUrl)
+        ).catch((error) =>
+          console.error('Failed to delete thumbnail', error)
+        )
+      }
+      await deleteDoc(
+        doc(
+          firestore,
+          'projects',
+          query.id,
+          'files',
+          removed.id
+        )
+      )
+    } catch (error) {
+      console.error('Failed to remove file', error)
+    }
   }
 
   const setPhoto = (e, id) => {
     e?.preventDefault()
-    let temp_files = files
-    let new_project_photo = files[id]
-    temp_files[id] = temp_files[0]
-    temp_files[0] = new_project_photo
-    setProjectPhoto(new_project_photo?.name)
-    setFiles(temp_files)
+    const temp = [...entries]
+    const chosen = temp[id]
+    temp[id] = temp[0]
+    temp[0] = chosen
+    setEntries(temp)
     setMode(false)
+  }
+
+  // Maps an entry to the `file` shape File.js expects — a real
+  // File/Blob for a pending upload, or a plain descriptor for an
+  // already-uploaded record (no blob download needed to preview it).
+  function fileForEntry(entry) {
+    if (entry.kind === 'existing') {
+      const r = entry.record
+      return {
+        name: r.name,
+        type: r.contentType,
+        size: r.size,
+        url: r.url,
+        thumbnailUrl: r.thumbnailUrl,
+      }
+    }
+    return entry.file
   }
 
   const toggleField = (key) => {
@@ -649,6 +766,10 @@ export default function UpdateProject({ query }) {
                   )
                 })}
                 <div className="mb-4"></div>
+                <LinksField
+                  links={links}
+                  setLinks={setLinks}
+                />
                 <div
                   {...getRootProps()}
                   className={`h-40 w-full border-2 ${
@@ -671,17 +792,14 @@ export default function UpdateProject({ query }) {
                 <p className="mb-4 text-sm text-red-800">
                   {error_file}
                 </p>
-                {files.length == 0 ||
-                  (!files[0] && (
-                    <p className="text-sm">
-                      {t(
-                        'project_create_edit.suggest_photo'
-                      )}
-                    </p>
-                  ))}
-                {files.length != 0 && files[0] && (
+                {entries.length === 0 && (
+                  <p className="text-sm">
+                    {t('project_create_edit.suggest_photo')}
+                  </p>
+                )}
+                {entries.length !== 0 && (
                   <div className="mb-6">
-                    {files.length > 1 && (
+                    {entries.length > 1 && (
                       <p className="mb-2">
                         {t(
                           'project_create_edit.multiple_photos'
@@ -719,15 +837,15 @@ export default function UpdateProject({ query }) {
                       )}
                     </label>
                     <File
-                      file={files[0]}
-                      id={files[0]?.id}
+                      file={fileForEntry(entries[0])}
+                      id={0}
                       removeFile={removeFile}
                       setPhoto={setPhoto}
                     ></File>
                   </div>
                 )}
                 <div className="flex flex-col space-y-3">
-                  {files.length > 1 && (
+                  {entries.length > 1 && (
                     <>
                       <label
                         htmlFor="other_photos"
@@ -737,37 +855,33 @@ export default function UpdateProject({ query }) {
                           'project_create_edit.other_photo'
                         )}
                       </label>
-                      {files.map((f, id) => {
-                        if (
-                          (project_photo != '' &&
-                            f?.name != project_photo) ||
-                          id > 0
+                      {entries.map((entry, id) => {
+                        if (id === 0) return null
+                        return (
+                          <div
+                            className="flex w-full flex-row"
+                            key={entry.key}
+                          >
+                            <button
+                              onClick={(e) =>
+                                setPhoto(e, id)
+                              }
+                              className={`border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark rounded-lg border-2 font-semibold transition-all duration-500 hover:bg-gray-50 ${
+                                select_photo_mode
+                                  ? 'mr-4 w-28'
+                                  : 'w-0 overflow-hidden border-none'
+                              }`}
+                            >
+                              Select
+                            </button>
+                            <File
+                              file={fileForEntry(entry)}
+                              id={id}
+                              removeFile={removeFile}
+                              setPhoto={setPhoto}
+                            ></File>
+                          </div>
                         )
-                          return (
-                            f && (
-                              <div className="flex w-full flex-row">
-                                <button
-                                  onClick={(e) =>
-                                    setPhoto(e, id)
-                                  }
-                                  className={`border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark rounded-lg border-2 font-semibold transition-all duration-500 hover:bg-gray-50 ${
-                                    select_photo_mode
-                                      ? 'mr-4 w-28'
-                                      : 'w-0 overflow-hidden border-none'
-                                  }`}
-                                >
-                                  Select
-                                </button>
-                                <File
-                                  file={f}
-                                  id={id}
-                                  key={f.id}
-                                  removeFile={removeFile}
-                                  setPhoto={setPhoto}
-                                ></File>
-                              </div>
-                            )
-                          )
                       })}
                     </>
                   )}

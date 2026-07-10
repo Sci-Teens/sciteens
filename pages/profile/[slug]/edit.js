@@ -27,12 +27,12 @@ import {
   getDocs,
   doc,
   setDoc,
+  deleteDoc,
+  orderBy,
 } from '@firebase/firestore'
 import {
-  listAll,
   ref,
   getDownloadURL,
-  getMetadata,
   uploadBytes,
   deleteObject,
 } from '@firebase/storage'
@@ -43,9 +43,11 @@ import File from '../../../components/File'
 import { AppContext } from '../../../context/context'
 import {
   ALLOWED_UPLOAD_MIME_TYPES,
-  UPLOAD_MIME_EXTENSIONS,
+  buildFileRecord,
   getSafeUploadName,
 } from '../../../context/helpers'
+import { generatePdfThumbnailBlob } from '../../../lib/pdfThumbnail'
+import firebaseConfig from '../../../firebaseConfig'
 
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -66,9 +68,11 @@ export default function UpdateProfilePage({
   const { t } = useTranslation('common')
   const [loading, setLoading] = useState(false)
   const [members] = useState([])
-  const [files, setFiles] = useState([])
-  const [metadata_arr, setMetadata] = useState([])
-  const [profile_photo, setProfilePhoto] = useState(null)
+  // { key, kind: 'existing', id, record } for a Firestore file
+  // record already in Storage, or { key, kind: 'new', file } for a
+  // freshly dropped, not-yet-uploaded File.
+  const [entries, setEntries] = useState([])
+  const [select_photo_mode, setMode] = useState(false)
 
   const [error_file, setErrorFile] = useState('')
 
@@ -110,38 +114,33 @@ export default function UpdateProfilePage({
 
   useEffect(() => {
     async function loadFiles() {
-      setFiles([])
-      const filesRef = ref(
-        storage,
-        `profiles/${user_profile.id}`
-      )
-
-      // Find all the prefixes and items.
+      setEntries([])
       try {
-        const res = await listAll(filesRef)
-        for (let r of res.items) {
-          const url = await getDownloadURL(r)
-          const metadata = await getMetadata(r)
-          const xhr = new XMLHttpRequest()
-          xhr.responseType = 'blob'
-          xhr.onload = () => {
-            const blob = xhr.response
-            if (xhr.status == 200) {
-              blob.name = metadata.name
-              setFiles((oldFiles) => [...oldFiles, blob])
-              setMetadata((oldMetadata) => [
-                ...oldMetadata,
-                metadata,
-              ])
-
-              if (metadata.name.includes('profile_photo')) {
-                setProfilePhoto(metadata.name)
-              }
-            }
-          }
-          xhr.open('GET', url)
-          xhr.send()
+        const filesSnap = await getDocs(
+          firebase_query(
+            collection(
+              firestore,
+              'profiles',
+              user_profile.id,
+              'files'
+            ),
+            orderBy('createdAt', 'asc')
+          )
+        )
+        const loaded = filesSnap.docs.map((snap) => ({
+          key: snap.id,
+          kind: 'existing',
+          id: snap.id,
+          record: snap.data(),
+        }))
+        const photoIndex = loaded.findIndex(
+          (entry) => entry.record.isPhoto
+        )
+        if (photoIndex > 0) {
+          const [photo] = loaded.splice(photoIndex, 1)
+          loaded.unshift(photo)
         }
+        setEntries(loaded)
       } catch (e) {
         router.push(`/profile/${user_profile.id}`)
       }
@@ -168,13 +167,30 @@ export default function UpdateProfilePage({
     }
 
     try {
-      for (const f of files) {
-        const isProfilePhoto = f.name == profile_photo
-        const safeName = isProfilePhoto
-          ? `profile_photo.${
-              UPLOAD_MIME_EXTENSIONS[f.type] || 'img'
-            }`
-          : getSafeUploadName(f)
+      let newPhotoUrl = ''
+      for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i]
+        const isPhoto = i === 0
+
+        if (entry.kind === 'existing') {
+          if (entry.record.isPhoto !== isPhoto) {
+            await updateDoc(
+              doc(
+                firestore,
+                'profiles',
+                user_profile.id,
+                'files',
+                entry.id
+              ),
+              { isPhoto }
+            )
+          }
+          if (isPhoto) newPhotoUrl = entry.record.url
+          continue
+        }
+
+        const f = entry.file
+        const safeName = getSafeUploadName(f)
         if (!safeName) {
           setErrorFile(
             t('edit_profile.format_not_accepted')
@@ -186,24 +202,70 @@ export default function UpdateProfilePage({
           `profiles/${user_profile.id}/${safeName}`
         )
         await uploadBytes(fileRef, f)
+        const downloadURL = await getDownloadURL(fileRef)
 
-        // Set user profile photo
-        if (f.name == profile_photo) {
-          const photoURL = await getDownloadURL(fileRef)
-          const profile_photo_doc = doc(
-            firestore,
-            'profile-pictures',
-            user_profile.id
-          )
-          await setDoc(profile_photo_doc, {
-            picture: photoURL,
-          })
-          await updateFirebaseProfile(
-            signInCheckResult.user,
-            { photoURL: photoURL }
-          )
+        // Best-effort: a thumbnail-generation failure (corrupt/
+        // encrypted/unrenderable PDF) must never block the upload
+        // itself — File.js just falls back to live rendering.
+        let thumbnailUrl = null
+        if (f.type === 'application/pdf') {
+          try {
+            const thumbnailBlob =
+              await generatePdfThumbnailBlob(f)
+            const thumbnailRef = ref(
+              storage,
+              `profiles/${
+                user_profile.id
+              }/thumbnails/${safeName.replace(
+                /\.pdf$/,
+                '.png'
+              )}`
+            )
+            await uploadBytes(thumbnailRef, thumbnailBlob, {
+              contentType: 'image/png',
+            })
+            thumbnailUrl = await getDownloadURL(
+              thumbnailRef
+            )
+          } catch (error) {
+            console.error(
+              'Failed to generate PDF thumbnail',
+              error
+            )
+          }
         }
+
+        await setDoc(
+          doc(
+            firestore,
+            'profiles',
+            user_profile.id,
+            'files',
+            safeName
+          ),
+          buildFileRecord({
+            storagePath: fileRef.fullPath,
+            bucket: firebaseConfig.storageBucket,
+            name: f.name,
+            contentType: f.type,
+            size: f.size,
+            url: downloadURL,
+            uploadedBy: user_profile.id,
+            isPhoto,
+            thumbnailUrl,
+          })
+        )
+        if (isPhoto) newPhotoUrl = downloadURL
       }
+
+      await setDoc(
+        doc(firestore, 'profile-pictures', user_profile.id),
+        { picture: newPhotoUrl }
+      )
+      await updateFirebaseProfile(signInCheckResult.user, {
+        photoURL: newPhotoUrl,
+      })
+
       router.push(`/profile/${user_profile.slug}`)
       setLoading(false)
     } catch (error) {
@@ -234,8 +296,13 @@ export default function UpdateProfilePage({
         )
       } else {
         reader.readAsDataURL(f)
-        setFiles((oldfiles) => [
-          ...new Set([...oldfiles, f]),
+        setEntries((old) => [
+          ...old,
+          {
+            key: crypto.randomUUID(),
+            kind: 'new',
+            file: f,
+          },
         ])
       }
     }
@@ -249,22 +316,61 @@ export default function UpdateProfilePage({
 
   const removeFile = async (e, id) => {
     e.preventDefault()
-    let temp_files = [...files]
-    let temp_metadata = [...metadata_arr]
-    temp_files.splice(id, 1)
-    const removed_metadata = temp_metadata.splice(id, 1)
-    setFiles([...temp_files])
-    setMetadata([...temp_metadata])
-    const removed_file_ref = ref(
-      storage,
-      removed_metadata[0].fullPath
-    )
-    await deleteObject(removed_file_ref)
+    const removed = entries[id]
+    const temp = [...entries]
+    temp.splice(id, 1)
+    setEntries(temp)
+
+    if (removed.kind !== 'existing') return
+
+    try {
+      await deleteObject(ref(storage, removed.record.path))
+      if (removed.record.thumbnailUrl) {
+        await deleteObject(
+          ref(storage, removed.record.thumbnailUrl)
+        ).catch((error) =>
+          console.error('Failed to delete thumbnail', error)
+        )
+      }
+      await deleteDoc(
+        doc(
+          firestore,
+          'profiles',
+          user_profile.id,
+          'files',
+          removed.id
+        )
+      )
+    } catch (error) {
+      console.error('Failed to remove file', error)
+    }
   }
 
-  const setPhoto = (e, file) => {
-    e.preventDefault()
-    setProfilePhoto(file.name)
+  const setPhoto = (e, id) => {
+    e?.preventDefault()
+    const temp = [...entries]
+    const chosen = temp[id]
+    temp[id] = temp[0]
+    temp[0] = chosen
+    setEntries(temp)
+    setMode(false)
+  }
+
+  // Maps an entry to the `file` shape File.js expects — a real
+  // File/Blob for a pending upload, or a plain descriptor for an
+  // already-uploaded record (no blob download needed to preview it).
+  function fileForEntry(entry) {
+    if (entry.kind === 'existing') {
+      const r = entry.record
+      return {
+        name: r.name,
+        type: r.contentType,
+        size: r.size,
+        url: r.url,
+        thumbnailUrl: r.thumbnailUrl,
+      }
+    }
+    return entry.file
   }
 
   if (status == 'success' && signInCheckResult.signedIn) {
@@ -332,41 +438,88 @@ export default function UpdateProfilePage({
             <p className="mb-4 text-sm text-red-800">
               {error_file}
             </p>
-            <div className="flex flex-col items-center space-y-2">
-              {files.map((f, id) => {
-                return (
-                  <File
-                    file={f}
-                    id={id}
-                    key={f.name}
-                    removeFile={removeFile}
-                    setPhoto={setPhoto}
-                  ></File>
-                )
-              })}
-            </div>
-            {profile_photo && (
-              <label
-                htmlFor="project_photo"
-                className="mt-2 uppercase text-gray-600"
-              >
-                {t('edit_profile.profile_photo')}
-              </label>
+            {entries.length !== 0 && (
+              <div className="mb-6">
+                {entries.length > 1 && (
+                  <p className="mb-2">
+                    {t(
+                      'project_create_edit.multiple_photos'
+                    )}{' '}
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      onClick={() =>
+                        setMode(!select_photo_mode)
+                      }
+                      onKeyDown={(e) => {
+                        if (
+                          e.key === 'Enter' ||
+                          e.key === ' '
+                        ) {
+                          e.preventDefault()
+                          setMode(!select_photo_mode)
+                        }
+                      }}
+                      className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark cursor-pointer font-semibold"
+                    >
+                      {t(
+                        'project_create_edit.set_display_photo'
+                      )}
+                    </span>
+                    .
+                  </p>
+                )}
+                <label
+                  htmlFor="project_photo"
+                  className="mt-2 uppercase text-gray-600"
+                >
+                  {t('edit_profile.profile_photo')}
+                </label>
+                <File
+                  file={fileForEntry(entries[0])}
+                  id={0}
+                  removeFile={removeFile}
+                  setPhoto={setPhoto}
+                ></File>
+              </div>
             )}
-            <div>
-              {files.map((f, id) => {
-                if (f.name == profile_photo) {
-                  return (
-                    <File
-                      file={f}
-                      id={id}
-                      key={f.name}
-                      removeFile={removeFile}
-                      setPhoto={setPhoto}
-                    ></File>
-                  )
-                }
-              })}
+            <div className="flex flex-col space-y-3">
+              {entries.length > 1 && (
+                <>
+                  <label
+                    htmlFor="other_files"
+                    className="-mb-3 mt-2 text-left uppercase text-gray-600"
+                  >
+                    {t('project_create_edit.other_photo')}
+                  </label>
+                  {entries.map((entry, id) => {
+                    if (id === 0) return null
+                    return (
+                      <div
+                        className="flex w-full flex-row"
+                        key={entry.key}
+                      >
+                        <button
+                          onClick={(e) => setPhoto(e, id)}
+                          className={`border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark rounded-lg border-2 font-semibold transition-all duration-500 hover:bg-gray-50 ${
+                            select_photo_mode
+                              ? 'mr-4 w-28'
+                              : 'w-0 overflow-hidden border-none'
+                          }`}
+                        >
+                          Select
+                        </button>
+                        <File
+                          file={fileForEntry(entry)}
+                          id={id}
+                          removeFile={removeFile}
+                          setPhoto={setPhoto}
+                        ></File>
+                      </div>
+                    )
+                  })}
+                </>
+              )}
             </div>
 
             <div className="flex w-full justify-end">

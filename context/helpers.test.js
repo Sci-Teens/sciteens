@@ -8,13 +8,19 @@ import {
 } from 'vitest'
 import { doc, getDoc } from '@firebase/firestore'
 import {
+  ALLOWED_LINK_HOSTS,
   ALLOWED_UPLOAD_MIME_TYPES,
+  LEGACY_UNSUPPORTED_MIME_TYPES,
+  MAX_PROJECT_LINKS,
   UPLOAD_MIME_EXTENSIONS,
+  buildFileRecord,
   createUniqueSlug,
   getFieldLabel,
   getProjectFieldOptions,
   getSafeUploadName,
   getTranslatedFieldsDict,
+  isAllowedProjectLink,
+  isLegacyUnsupportedFile,
   resolveRefPath,
   validatePassword,
 } from './helpers'
@@ -188,6 +194,65 @@ describe('resolveRefPath', () => {
   })
 })
 
+describe('isLegacyUnsupportedFile', () => {
+  it.each(LEGACY_UNSUPPORTED_MIME_TYPES)(
+    'flags %s as legacy/unsupported',
+    (type) => {
+      expect(isLegacyUnsupportedFile(type)).toBe(true)
+    }
+  )
+
+  it.each([
+    'application/pdf',
+    'image/png',
+    'text/plain',
+    '',
+    undefined,
+  ])('does not flag %j', (type) => {
+    expect(isLegacyUnsupportedFile(type)).toBe(false)
+  })
+})
+
+describe('isAllowedProjectLink', () => {
+  it.each([
+    'https://github.com/sciteens/sciteens',
+    'https://www.github.com/sciteens',
+    'https://gist.github.com/sciteens',
+    'https://youtube.com/watch?v=1',
+    'https://www.youtube.com/watch?v=1',
+    'https://youtu.be/abc123',
+  ])('accepts an allowlisted host (%s)', (url) => {
+    expect(isAllowedProjectLink(url)).toBe(true)
+  })
+
+  it.each([
+    'https://evil.com',
+    'https://notgithub.com',
+    // Substring/suffix tricks that must not match the allowlist.
+    'https://github.com.evil.com',
+    'https://evilgithub.com',
+    'http://github.com',
+    'javascript:alert(1)',
+    'data:text/html,<script>alert(1)</script>',
+    'ftp://github.com',
+    '',
+    null,
+    undefined,
+    'not a url',
+  ])(
+    'rejects a disallowed or malformed link (%j)',
+    (url) => {
+      expect(isAllowedProjectLink(url)).toBe(false)
+    }
+  )
+
+  it('exposes the allowlist and cap as plain constants', () => {
+    expect(ALLOWED_LINK_HOSTS).toContain('github.com')
+    expect(ALLOWED_LINK_HOSTS).toContain('youtube.com')
+    expect(MAX_PROJECT_LINKS).toBeGreaterThan(0)
+  })
+})
+
 describe('getTranslatedFieldsDict / getProjectFieldOptions', () => {
   it('translates every known field key, including "All"', () => {
     const dict = getTranslatedFieldsDict(t)
@@ -320,5 +385,59 @@ describe('createUniqueSlug', () => {
     await expect(
       createUniqueSlug({}, 'user2000', 'profile-slugs', 1)
     ).resolves.toBe('user2000-2')
+  })
+})
+
+describe('buildFileRecord', () => {
+  const base = {
+    storagePath: 'projects/p1/abc123.png',
+    bucket: 'sciteens.appspot.com',
+    name: 'my photo.png',
+    contentType: 'image/png',
+    size: 4096,
+    url: 'https://firebasestorage.googleapis.com/x',
+    uploadedBy: 'uid1',
+  }
+
+  it('carries every field through under its Firestore name', () => {
+    const record = buildFileRecord(base)
+    expect(record.path).toBe(base.storagePath)
+    expect(record.bucket).toBe(base.bucket)
+    expect(record.name).toBe(base.name)
+    expect(record.contentType).toBe(base.contentType)
+    expect(record.size).toBe(base.size)
+    expect(record.url).toBe(base.url)
+    expect(record.uploadedBy).toBe(base.uploadedBy)
+  })
+
+  it('defaults isPhoto to false', () => {
+    expect(buildFileRecord(base).isPhoto).toBe(false)
+  })
+
+  it('honors an explicit isPhoto', () => {
+    expect(
+      buildFileRecord({ ...base, isPhoto: true }).isPhoto
+    ).toBe(true)
+  })
+
+  it('defaults thumbnailUrl to null, never undefined (Firestore rejects undefined)', () => {
+    expect(buildFileRecord(base).thumbnailUrl).toBeNull()
+  })
+
+  it('honors an explicit thumbnailUrl', () => {
+    expect(
+      buildFileRecord({
+        ...base,
+        thumbnailUrl: 'https://example.com/t.png',
+      }).thumbnailUrl
+    ).toBe('https://example.com/t.png')
+  })
+
+  it('stamps createdAt with a valid ISO timestamp', () => {
+    const record = buildFileRecord(base)
+    expect(record.createdAt).toEqual(expect.any(String))
+    expect(Number.isNaN(Date.parse(record.createdAt))).toBe(
+      false
+    )
   })
 })

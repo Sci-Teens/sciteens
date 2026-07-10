@@ -145,6 +145,127 @@ describe('/profiles/{uid}', () => {
   })
 })
 
+describe('/profiles/{uid}/files/{fileId}', () => {
+  const validRecord = (overrides = {}) => ({
+    path: 'profiles/alice/f1.png',
+    bucket: 'sciteens.appspot.com',
+    name: 'photo.png',
+    contentType: 'image/png',
+    size: 1024,
+    uploadedBy: 'alice',
+    isPhoto: false,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    ...overrides,
+  })
+
+  it('owner can create a well-formed record', async () => {
+    const db = ctxFirestore('alice')
+    await assertSucceeds(
+      setDoc(
+        doc(db, 'profiles/alice/files/f1'),
+        validRecord()
+      )
+    )
+  })
+
+  it('rejects create for a different uid', async () => {
+    const db = ctxFirestore('mallory')
+    await assertFails(
+      setDoc(
+        doc(db, 'profiles/alice/files/f1'),
+        validRecord()
+      )
+    )
+  })
+
+  it('rejects create when uploadedBy does not match the caller', async () => {
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(
+        doc(db, 'profiles/alice/files/f1'),
+        validRecord({ uploadedBy: 'mallory' })
+      )
+    )
+  })
+
+  it('rejects create missing a required field', async () => {
+    const db = ctxFirestore('alice')
+    const { size, ...incomplete } = validRecord()
+    await assertFails(
+      setDoc(doc(db, 'profiles/alice/files/f1'), incomplete)
+    )
+  })
+
+  it('owner can flip isPhoto', async () => {
+    await seed((db) =>
+      setDoc(
+        doc(db, 'profiles/alice/files/f1'),
+        validRecord()
+      )
+    )
+    const db = ctxFirestore('alice')
+    await assertSucceeds(
+      updateDoc(doc(db, 'profiles/alice/files/f1'), {
+        isPhoto: true,
+      })
+    )
+  })
+
+  it('rejects an update touching any field besides isPhoto', async () => {
+    await seed((db) =>
+      setDoc(
+        doc(db, 'profiles/alice/files/f1'),
+        validRecord()
+      )
+    )
+    const db = ctxFirestore('alice')
+    await assertFails(
+      updateDoc(doc(db, 'profiles/alice/files/f1'), {
+        name: 'renamed.png',
+      })
+    )
+  })
+
+  it('only the owner can delete', async () => {
+    await seed((db) =>
+      setDoc(
+        doc(db, 'profiles/alice/files/f1'),
+        validRecord()
+      )
+    )
+    await assertFails(
+      deleteDoc(
+        doc(
+          ctxFirestore('mallory'),
+          'profiles/alice/files/f1'
+        )
+      )
+    )
+    await assertSucceeds(
+      deleteDoc(
+        doc(
+          ctxFirestore('alice'),
+          'profiles/alice/files/f1'
+        )
+      )
+    )
+  })
+
+  it('is publicly readable', async () => {
+    await seed((db) =>
+      setDoc(
+        doc(db, 'profiles/alice/files/f1'),
+        validRecord()
+      )
+    )
+    await assertSucceeds(
+      getDoc(
+        doc(ctxFirestore(null), 'profiles/alice/files/f1')
+      )
+    )
+  })
+})
+
 describe('/emails/{uid}', () => {
   it('owner can create their own email row', async () => {
     const db = ctxFirestore('alice')
@@ -331,6 +452,57 @@ describe('/projects/{projectId}', () => {
       getDoc(doc(ctxFirestore(null), 'projects/p1'))
     )
   })
+
+  it('accepts create with a valid links list', async () => {
+    const db = ctxFirestore('alice')
+    await assertSucceeds(
+      setDoc(doc(db, 'projects/p1'), {
+        member_uids: ['alice'],
+        title: 'x',
+        links: ['https://github.com/sciteens'],
+      })
+    )
+  })
+
+  it('rejects create when links is not a list', async () => {
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(doc(db, 'projects/p1'), {
+        member_uids: ['alice'],
+        title: 'x',
+        links: 'https://github.com/sciteens',
+      })
+    )
+  })
+
+  it('rejects create when links has more than 10 entries', async () => {
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(doc(db, 'projects/p1'), {
+        member_uids: ['alice'],
+        title: 'x',
+        links: new Array(11).fill(
+          'https://github.com/sciteens'
+        ),
+      })
+    )
+  })
+
+  it('rejects an update that turns links into an invalid shape', async () => {
+    await seed((db) =>
+      setDoc(doc(db, 'projects/p1'), {
+        member_uids: ['alice'],
+        title: 'x',
+        links: [],
+      })
+    )
+    const db = ctxFirestore('alice')
+    await assertFails(
+      updateDoc(doc(db, 'projects/p1'), {
+        links: 'not-a-list',
+      })
+    )
+  })
 })
 
 describe('/projects/{id}/discussion/{feedbackId}', () => {
@@ -419,6 +591,116 @@ describe('/projects/{id}/discussion/{feedbackId}', () => {
           ctxFirestore('bob'),
           'projects/p1/discussion/c1'
         )
+      )
+    )
+  })
+})
+
+describe('/projects/{projectId}/files/{fileId}', () => {
+  const seedProject = (member_uids = ['alice']) =>
+    seed((db) =>
+      setDoc(doc(db, 'projects/p1'), { member_uids })
+    )
+
+  const validRecord = (overrides = {}) => ({
+    path: 'projects/p1/f1.pdf',
+    bucket: 'sciteens.appspot.com',
+    name: 'report.pdf',
+    contentType: 'application/pdf',
+    size: 2048,
+    uploadedBy: 'alice',
+    isPhoto: false,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    ...overrides,
+  })
+
+  it('a member can create a well-formed record', async () => {
+    await seedProject()
+    const db = ctxFirestore('alice')
+    await assertSucceeds(
+      setDoc(doc(db, 'projects/p1/files/f1'), validRecord())
+    )
+  })
+
+  it('rejects create from a non-member', async () => {
+    await seedProject()
+    const db = ctxFirestore('mallory')
+    await assertFails(
+      setDoc(doc(db, 'projects/p1/files/f1'), validRecord())
+    )
+  })
+
+  it('rejects create when uploadedBy does not match the caller', async () => {
+    await seedProject()
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(
+        doc(db, 'projects/p1/files/f1'),
+        validRecord({ uploadedBy: 'mallory' })
+      )
+    )
+  })
+
+  it('rejects create missing a required field', async () => {
+    await seedProject()
+    const db = ctxFirestore('alice')
+    const { contentType, ...incomplete } = validRecord()
+    await assertFails(
+      setDoc(doc(db, 'projects/p1/files/f1'), incomplete)
+    )
+  })
+
+  it('a member can flip isPhoto', async () => {
+    await seedProject()
+    await seed((db) =>
+      setDoc(doc(db, 'projects/p1/files/f1'), validRecord())
+    )
+    const db = ctxFirestore('alice')
+    await assertSucceeds(
+      updateDoc(doc(db, 'projects/p1/files/f1'), {
+        isPhoto: true,
+      })
+    )
+  })
+
+  it('rejects an update touching any field besides isPhoto', async () => {
+    await seedProject()
+    await seed((db) =>
+      setDoc(doc(db, 'projects/p1/files/f1'), validRecord())
+    )
+    const db = ctxFirestore('alice')
+    await assertFails(
+      updateDoc(doc(db, 'projects/p1/files/f1'), {
+        contentType: 'application/msword',
+      })
+    )
+  })
+
+  it('only a member can delete', async () => {
+    await seedProject()
+    await seed((db) =>
+      setDoc(doc(db, 'projects/p1/files/f1'), validRecord())
+    )
+    await assertFails(
+      deleteDoc(
+        doc(ctxFirestore('mallory'), 'projects/p1/files/f1')
+      )
+    )
+    await assertSucceeds(
+      deleteDoc(
+        doc(ctxFirestore('alice'), 'projects/p1/files/f1')
+      )
+    )
+  })
+
+  it('is publicly readable', async () => {
+    await seedProject()
+    await seed((db) =>
+      setDoc(doc(db, 'projects/p1/files/f1'), validRecord())
+    )
+    await assertSucceeds(
+      getDoc(
+        doc(ctxFirestore(null), 'projects/p1/files/f1')
       )
     )
   })

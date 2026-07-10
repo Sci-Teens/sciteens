@@ -33,7 +33,6 @@ import {
 import {
   ref,
   uploadBytes,
-  updateMetadata,
   getDownloadURL,
 } from '@firebase/storage'
 
@@ -43,11 +42,16 @@ import moment from 'moment'
 import { useDropzone } from 'react-dropzone'
 import {
   ALLOWED_UPLOAD_MIME_TYPES,
+  buildFileRecord,
   getProjectFieldOptions,
   getSafeUploadName,
+  isAllowedProjectLink,
 } from '../../context/helpers'
+import { generatePdfThumbnailBlob } from '../../lib/pdfThumbnail'
 import { AppContext } from '../../context/context'
 import File from '../../components/File'
+import LinksField from '../../components/LinksField'
+import firebaseConfig from '../../firebaseConfig'
 
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -77,6 +81,7 @@ export default function CreateProject() {
   )
 
   const [files, setFiles] = useState([])
+  const [links, setLinks] = useState([])
   const [project_photo, setProjectPhoto] = useState('')
   const [error_member, setErrorMember] = useState('')
   const [error_file, setErrorFile] = useState('')
@@ -154,7 +159,7 @@ export default function CreateProject() {
             : '',
           abstract: values.abstract.trim(),
           need_mentor: false,
-          links: [],
+          links: links.filter(isAllowedProjectLink),
           date: moment().toISOString(),
           subscribers: [],
           fields: Object.keys(
@@ -192,13 +197,62 @@ export default function CreateProject() {
           `projects/${res.id}/${safeName}`
         )
         await uploadBytes(fileRef, f)
-        if (f.name == project_photo) {
-          await updateMetadata(fileRef, {
-            customMetadata: {
-              project_photo: 'true',
-            },
+        const downloadURL = await getDownloadURL(fileRef)
+        const isPhoto = f.name == project_photo
+
+        // Best-effort: a thumbnail-generation failure (corrupt/
+        // encrypted/unrenderable PDF) must never block the upload
+        // itself — File.js just falls back to live rendering.
+        let thumbnailUrl = null
+        if (f.type === 'application/pdf') {
+          try {
+            const thumbnailBlob =
+              await generatePdfThumbnailBlob(f)
+            const thumbnailRef = ref(
+              storage,
+              `projects/${
+                res.id
+              }/thumbnails/${safeName.replace(
+                /\.pdf$/,
+                '.png'
+              )}`
+            )
+            await uploadBytes(thumbnailRef, thumbnailBlob, {
+              contentType: 'image/png',
+            })
+            thumbnailUrl = await getDownloadURL(
+              thumbnailRef
+            )
+          } catch (error) {
+            console.error(
+              'Failed to generate PDF thumbnail',
+              error
+            )
+          }
+        }
+
+        await setDoc(
+          doc(
+            firestore,
+            'projects',
+            res.id,
+            'files',
+            safeName
+          ),
+          buildFileRecord({
+            storagePath: fileRef.fullPath,
+            bucket: firebaseConfig.storageBucket,
+            name: f.name,
+            contentType: f.type,
+            size: f.size,
+            url: downloadURL,
+            uploadedBy: signInCheckResult.user.uid,
+            isPhoto,
+            thumbnailUrl,
           })
-          const downloadURL = await getDownloadURL(fileRef)
+        )
+
+        if (isPhoto) {
           await updateDoc(res, {
             project_photo: downloadURL,
           })
@@ -525,6 +579,10 @@ export default function CreateProject() {
                   )
                 })}
                 <div className="mb-4"></div>
+                <LinksField
+                  links={links}
+                  setLinks={setLinks}
+                />
                 <div
                   {...getRootProps()}
                   className={`h-40 w-full border-2 ${
