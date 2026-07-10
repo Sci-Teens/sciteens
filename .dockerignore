@@ -1,5 +1,36 @@
 .dockerignore
+.gitignore
+.gcloudignore
+
+# dependencies
 node_modules
-npm-debug.log
-pnpm-debug.log
 .pnpm-store
+
+# next.js build output
+.next
+.next-e2e-*
+out
+
+# testing
+coverage
+test-results
+playwright-report
+playwright/.cache
+
+# misc
+.DS_Store
+*.pem
+*.log
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# firebase
+.firebaserc
+.firebase
+
+# vercel
+.vercel
+
+# ide
+.vscode

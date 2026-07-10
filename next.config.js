@@ -55,6 +55,7 @@ const connectSrc = [
 ].join(' ')
 
 module.exports = {
+  output: 'standalone',
   // Isolates webpack's persistent cache per Firebase config —
   // without this, two `next dev` processes sharing distDir can leak
   // a client bundle compiled under the other config (see
