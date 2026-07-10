@@ -24,10 +24,19 @@ import Error from 'next/error'
 import Link from 'next/link'
 import File from '../../../components/File'
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'next-i18next'
 import dynamic from 'next/dynamic'
 import ProfilePhoto from '../../../components/ProfilePhoto'
+import { Button } from '@/components/ui/button'
+import {
+  getTranslatedFieldsDict,
+  getFieldLabel,
+} from '../../../context/helpers'
 import firebaseConfig from '../../../firebaseConfig'
-import { normalizeProject } from '../../../lib/projects'
+import {
+  normalizeProject,
+  formatProjectDate,
+} from '../../../lib/projects'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 
 const Discussion = dynamic(
@@ -37,6 +46,8 @@ const Discussion = dynamic(
 
 function Project({ query, initialProject }) {
   const router = useRouter()
+  const { t } = useTranslation('common')
+  const translatedFields = getTranslatedFieldsDict(t)
 
   const projectRef = useMemo(
     () => doc(db, 'projects', query.id),
@@ -49,8 +60,16 @@ function Project({ query, initialProject }) {
   )
 
   const [files, setFiles] = useState([])
-  const [loading_files, setLoadingFiles] = useState(true)
-  const [project_photo, setProjectPhoto] = useState('')
+  const [project_photo_error, setProjectPhotoError] =
+    useState(false)
+
+  // Firestore is the source of truth for the photo (create/edit
+  // write project_photo there directly, same as ProjectCard); reset
+  // any stale error flag whenever the doc hands us a new URL rather
+  // than re-deriving the photo from a Storage listing.
+  useEffect(() => {
+    setProjectPhotoError(false)
+  }, [project.project_photo])
 
   // const { profile } = useContext(AppContext)
 
@@ -71,12 +90,6 @@ function Project({ query, initialProject }) {
             const blob = xhr.response
             if (xhr.status == 200) {
               blob.name = metadata.name
-              if (
-                metadata?.customMetadata?.project_photo ==
-                'true'
-              ) {
-                setProjectPhoto(url)
-              }
               setFiles((fs) => [...fs, blob])
             }
           }
@@ -86,8 +99,6 @@ function Project({ query, initialProject }) {
       } catch (e) {
         console.error(e)
       }
-
-      setLoadingFiles(false)
     }
     loadFiles()
   }, [query.id])
@@ -107,12 +118,10 @@ function Project({ query, initialProject }) {
     return <Error statusCode={404} />
   }
 
-  let start_date
-  if (project.start_date === undefined) {
-    start_date = <p></p>
-  } else {
-    start_date = <p> Started on {project.start_date}</p>
-  }
+  const startDate = formatProjectDate(
+    project.start,
+    router?.locale
+  )
 
   return (
     <>
@@ -145,20 +154,20 @@ function Project({ query, initialProject }) {
             ) && (
               <Link
                 href={`/project/${router?.query?.id}/edit`}
-                className="border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark h-1/3 cursor-pointer rounded-lg border-2 px-6 py-1.5 text-center text-xl font-semibold shadow-sm"
+                className="border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark not-prose h-1/3 cursor-pointer rounded-lg border-2 px-6 py-1.5 text-center text-xl font-semibold no-underline shadow-sm"
               >
                 Edit
               </Link>
             )}
           </div>
           {project.member_arr?.length > 0 && (
-            <div className="mb-3 flex flex-row items-center">
+            <div className="not-prose mb-3 flex flex-row items-center">
               <div className="flex -space-x-2 overflow-hidden">
                 {project.member_arr.map((member) => {
                   return (
                     <div
                       key={member.uid}
-                      className="prose inline-block h-6 w-6 rounded-full ring-2 ring-white lg:h-8 lg:w-8"
+                      className="not-prose inline-block h-6 w-6 rounded-full ring-2 ring-white lg:h-8 lg:w-8"
                     >
                       <ProfilePhoto
                         uid={member.uid}
@@ -185,38 +194,43 @@ function Project({ query, initialProject }) {
               </p>
             </div>
           )}
-          <div>{start_date}</div>
-          <div>
-            {project_photo ? (
-              <div className="bg-muted relative my-8 aspect-video w-full overflow-hidden rounded-xl">
+          {startDate && (
+            <p className="text-muted-foreground">
+              {t('projects.started_on')} {startDate}
+            </p>
+          )}
+          {project.project_photo &&
+            !project_photo_error && (
+              <div className="bg-muted not-prose relative my-8 aspect-video w-full overflow-hidden rounded-xl">
                 <Image
-                  src={project_photo}
+                  src={project.project_photo}
                   alt={project.title}
                   fill
                   sizes="(min-width: 1024px) 768px, 100vw"
                   className="object-contain"
+                  onError={() => setProjectPhotoError(true)}
                 />
               </div>
-            ) : loading_files ? (
-              <div className="bg-muted my-8 h-64 w-full animate-pulse rounded-xl" />
-            ) : (
-              <></>
             )}
-          </div>
           <p>{project.abstract}</p>
-          <div className="flex flex-row flex-wrap">
+          <div className="not-prose flex flex-row flex-wrap">
             {(project.fields || []).map((tag) => {
               return (
-                <Link
+                <Button
                   key={tag}
-                  href={{
-                    pathname: '/projects',
-                    query: { field: tag },
-                  }}
-                  className="bg-card ring-border/60 my-1 mr-4 cursor-pointer rounded-full px-5 py-1.5 text-base no-underline shadow-sm ring-1 hover:shadow-md"
-                >
-                  {tag}
-                </Link>
+                  variant="secondary"
+                  className="bg-card ring-border/60 my-1 mr-4 rounded-full px-5 py-1.5 text-base shadow-sm ring-1 hover:shadow-md"
+                  render={
+                    <Link
+                      href={{
+                        pathname: '/projects',
+                        query: { field: tag },
+                      }}
+                    >
+                      {getFieldLabel(translatedFields, tag)}
+                    </Link>
+                  }
+                />
               )
             })}
           </div>

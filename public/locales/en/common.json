@@ -276,7 +276,8 @@
     "sorry": "Sorry, we couldn't find any searches related to",
     "search_projects": "Search for Projects",
     "search": "Search",
-    "topics": "Topics"
+    "topics": "Topics",
+    "started_on": "Started on"
   },
   "fields": {
     "all": "All",

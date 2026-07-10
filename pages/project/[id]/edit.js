@@ -789,7 +789,7 @@ export default function UpdateProject({ query }) {
                   </Button>
                   <Link
                     href={`/project/${query.id}`}
-                    className="ml-2 mt-4 w-full rounded-lg border-2 border-gray-200 bg-gray-100 p-2 text-center text-lg font-semibold text-black shadow-sm hover:border-gray-300 hover:bg-gray-200 disabled:opacity-50"
+                    className="ml-2 mt-4 w-full rounded-lg border-2 border-gray-200 bg-gray-100 p-2 text-center text-lg font-semibold text-black no-underline shadow-sm hover:border-gray-300 hover:bg-gray-200 disabled:opacity-50"
                   >
                     {t('project_create_edit.cancel')}
                   </Link>
