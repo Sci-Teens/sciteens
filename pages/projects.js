@@ -356,15 +356,17 @@ function Projects({ cached_projects }) {
             </PageHeading>
             <Button
               variant="outline"
-              render={<Link href="/project/create" />}
-              className="my-auto md:px-5 md:text-lg"
-              aria-label="Create Project"
-            >
-              <span className="hidden md:inline">
-                Create Project
-              </span>
-              <PlusCircle className="h-6 w-6 md:hidden" />
-            </Button>
+              render={
+                <Link href="/project/create">
+                  <PlusCircle
+                    className="h-4 w-4"
+                    aria-hidden="true"
+                  />
+                  {t('projects.create')}
+                </Link>
+              }
+              className="shrink-0"
+            />
           </div>
           {loading && projects.length === 0
             ? loadingComponent

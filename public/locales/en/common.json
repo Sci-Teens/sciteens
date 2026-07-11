@@ -315,7 +315,8 @@
     "search": "Search",
     "topics": "Topics",
     "started_on": "Started on",
-    "by": "By"
+    "by": "By",
+    "create": "Create Project"
   },
   "fields": {
     "all": "All",
