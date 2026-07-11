@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-hidden="true">
+  <rect width="640" height="360" fill="#f5fff5" />
+  <g fill="#2d8a5b">
+    <circle cx="60" cy="60" r="7" opacity="0.5" />
+    <circle cx="140" cy="60" r="7" opacity="0.3" />
+    <circle cx="220" cy="60" r="7" opacity="0.5" />
+    <circle cx="300" cy="60" r="7" opacity="0.2" />
+    <circle cx="380" cy="60" r="7" opacity="0.5" />
+    <circle cx="460" cy="60" r="7" opacity="0.3" />
+    <circle cx="540" cy="60" r="7" opacity="0.5" />
+    <circle cx="100" cy="140" r="7" opacity="0.3" />
+    <circle cx="180" cy="140" r="7" opacity="0.5" />
+    <circle cx="260" cy="140" r="7" opacity="0.2" />
+    <circle cx="340" cy="140" r="7" opacity="0.5" />
+    <circle cx="420" cy="140" r="7" opacity="0.3" />
+    <circle cx="500" cy="140" r="7" opacity="0.5" />
+    <circle cx="580" cy="140" r="7" opacity="0.2" />
+    <circle cx="60" cy="220" r="7" opacity="0.2" />
+    <circle cx="140" cy="220" r="7" opacity="0.5" />
+    <circle cx="220" cy="220" r="7" opacity="0.3" />
+    <circle cx="300" cy="220" r="7" opacity="0.5" />
+    <circle cx="380" cy="220" r="7" opacity="0.2" />
+    <circle cx="460" cy="220" r="7" opacity="0.5" />
+    <circle cx="540" cy="220" r="7" opacity="0.3" />
+    <circle cx="100" cy="300" r="7" opacity="0.5" />
+    <circle cx="180" cy="300" r="7" opacity="0.2" />
+    <circle cx="260" cy="300" r="7" opacity="0.5" />
+    <circle cx="340" cy="300" r="7" opacity="0.3" />
+    <circle cx="420" cy="300" r="7" opacity="0.5" />
+    <circle cx="500" cy="300" r="7" opacity="0.2" />
+    <circle cx="580" cy="300" r="7" opacity="0.5" />
+  </g>
+</svg>
