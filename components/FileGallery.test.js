@@ -189,4 +189,30 @@ describe('FileGallery', () => {
     )
     expect(link).toHaveAttribute('target', '_blank')
   })
+
+  it('opens a PDF directly in a new tab on coarse-pointer (touch/mobile) devices instead of the iframe dialog', () => {
+    const matchMediaSpy = vi
+      .spyOn(window, 'matchMedia')
+      .mockReturnValue({ matches: true })
+    const openSpy = vi
+      .spyOn(window, 'open')
+      .mockImplementation(() => {})
+
+    render(<FileGallery files={[pdfFile()]} />)
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /report\.pdf/,
+      })
+    )
+
+    expect(openSpy).toHaveBeenCalledWith(
+      'https://example.com/report.pdf',
+      '_blank',
+      'noopener,noreferrer'
+    )
+    expect(screen.queryByRole('dialog')).toBeNull()
+
+    matchMediaSpy.mockRestore()
+    openSpy.mockRestore()
+  })
 })
