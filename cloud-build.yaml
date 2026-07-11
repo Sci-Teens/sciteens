@@ -31,10 +31,6 @@ steps:
         'NEXT_PUBLIC_FB_APP_ID=${_NEXT_PUBLIC_FB_APP_ID}',
         '--build-arg',
         'NEXT_PUBLIC_FB_MEASUREMENT_ID=${_NEXT_PUBLIC_FB_MEASUREMENT_ID}',
-        '--build-arg',
-        'NEXT_PUBLIC_AL_APP_ID=${_NEXT_PUBLIC_AL_APP_ID}',
-        '--build-arg',
-        'NEXT_PUBLIC_AL_SEARCH_KEY=${_NEXT_PUBLIC_AL_SEARCH_KEY}',
       ]
   - name: 'gcr.io/cloud-builders/docker'
     args:
@@ -69,6 +65,10 @@ steps:
         '80',
         '--timeout',
         '300',
+        '--set-env-vars',
+        'MEILI_HOST=${_MEILI_HOST}',
+        '--set-secrets',
+        'MEILI_SEARCH_KEY=meilisearch-search-key:latest',
         '--allow-unauthenticated',
       ]
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'

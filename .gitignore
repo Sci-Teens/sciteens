@@ -37,6 +37,13 @@ pnpm-debug.log*
 .env.production.local
 .env*
 
+# ...except functions/.env — Firebase CLI dotenv config loaded into every
+# deployed Cloud Function's process.env at deploy time. Deliberately
+# committed: it only ever holds non-secret values (currently MEILI_HOST,
+# a Cloud Run URL, not a credential). Real secrets stay in Secret Manager
+# via defineSecret(), never here.
+!functions/.env
+
 # vercel
 .vercel
 
@@ -59,3 +66,21 @@ public/sitemap.xml
 # pdfjs-dist worker, copied from node_modules at build/dev time
 # (scripts/copy-pdf-worker.js) — see components/PdfThumbnail.js
 public/pdf.worker.min.mjs
+
+# Terraform — local execution artifacts only. .terraform.lock.hcl (the
+# provider version lock) IS committed on purpose; state itself has no
+# configured remote backend yet, so it only ever exists locally per
+# operator and must never land in git (see infra/meilisearch/README.md).
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc

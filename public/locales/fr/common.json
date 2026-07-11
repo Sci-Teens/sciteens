@@ -257,14 +257,19 @@
     "articles": "Des articles",
     "sorry": "Désolé, nous n'avons pas trouvé de recherches liées à",
     "search_articles": "Rechercher des articles",
-    "search": "Chercher"
+    "search": "Chercher",
+    "topics": "Les sujets",
+    "filters": "Filtres",
+    "clear_filters": "Effacer les filtres"
   },
   "courses": {
     "courses": "Cours",
     "sorry": "Désolé, nous n'avons pas trouvé de recherches liées à",
     "search_courses": "Cours de recherche",
     "search": "Chercher",
-    "topics": "Les sujets"
+    "topics": "Les sujets",
+    "filters": "Filtres",
+    "clear_filters": "Effacer les filtres"
   },
   "donate": {
     "annual_donation_appeal": "Appel de don annuel",
@@ -322,7 +327,19 @@
     "topics": "Les sujets",
     "started_on": "Commencé le",
     "by": "Par",
-    "create": "Créer un projet"
+    "create": "Créer un projet",
+    "filters": "Filtres",
+    "clear_filters": "Effacer les filtres",
+    "date_range": "Plage de dates",
+    "date_from": "Du",
+    "date_to": "Au",
+    "sort_by": "Trier par",
+    "sort_relevance": "Pertinence",
+    "sort_newest": "Plus récents",
+    "sort_oldest": "Plus anciens",
+    "search_unavailable": "La recherche est temporairement indisponible. Affichage des projets récents.",
+    "results_count": "{{count}} résultats",
+    "apply_dates": "Appliquer"
   },
   "fields": {
     "all": "Tout",

@@ -12,22 +12,14 @@ var Prismic = require('@prismicio/client')
 import { RichText } from 'prismic-reactjs'
 
 import moment from 'moment'
-import { Search } from 'lucide-react'
 import { getTranslatedFieldsDict } from '../context/helpers'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import SearchToolbar from '@/components/search/SearchToolbar'
+import FilterAside from '@/components/search/FilterAside'
+import TopicsList from '@/components/search/TopicsList'
 
 const ARTICLES_PAGE_SIZE = 10
 
@@ -85,7 +77,8 @@ async function fetchArticlesPage({
 function Articles({ cached_articles }) {
   const router = useRouter()
   const [search, setSearch] = useState('')
-  const [field, setField] = useState('All')
+  const [field, setField] = useState('')
+  const [filtersOpen, setFiltersOpen] = useState(false)
   // useWindowVirtualizer computes getTotalSize() from window
   // dimensions, which are absent during SSR — rendering it on the
   // server produces height:0px vs the client's real height, a
@@ -103,6 +96,8 @@ function Articles({ cached_articles }) {
     Number.isFinite(queryPage) && queryPage > 0
       ? queryPage
       : 1
+
+  const hasActiveFilters = Boolean(search || field)
 
   const initialData = useMemo(() => {
     if (
@@ -194,18 +189,11 @@ function Articles({ cached_articles }) {
 
   useEffect(() => {
     if (router?.isReady) {
-      setSearch(
-        router.query?.search ? router.query.search : ''
-      )
-      setField(
-        router.query?.field ? router.query.field : ''
-      )
+      setSearch(searchParam)
+      setField(fieldParam)
     }
-  }, [
-    router.isReady,
-    router.query.search,
-    router.query.field,
-  ])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.isReady, searchParam, fieldParam])
 
   const imageLoader = ({ src, width, height }) => {
     return `${src}?fit=crop&crop=faces&w=${
@@ -213,37 +201,34 @@ function Articles({ cached_articles }) {
     }&h=${height || 256}`
   }
 
-  async function handleChange(e, target) {
-    e.preventDefault()
-    switch (target) {
-      case 'searchbar':
-        setSearch(e.target.value)
-    }
+  // Merges into whatever's already active instead of replacing the
+  // whole query — picking a topic used to drop an in-progress search
+  // term (and vice versa).
+  function pushFilters(overrides = {}) {
+    const next = { search, field, ...overrides }
+    const query = {}
+    if (next.search) query.search = next.search
+    if (next.field) query.field = next.field
+    router.push({ pathname: '/articles', query })
   }
 
-  async function handleSearch(e) {
+  function handleSearch(e) {
     e.preventDefault()
-    let q = {}
-    if (search) {
-      q.search = search
-    }
-    if (field) {
-      q.field = field
-    }
-    router.push({
-      pathname: '/articles',
-      query: q,
-    })
+    pushFilters({})
   }
 
-  async function handleFieldSearch(field) {
-    let q = {}
-    q.field = field
-    router.push({
-      pathname: '/articles',
-      query: q,
-    })
-    setField(field)
+  function handleFieldSearch(nextField) {
+    const value = nextField === 'All' ? '' : nextField
+    setField(value)
+    pushFilters({ field: value })
+    setFiltersOpen(false)
+  }
+
+  function handleClearFilters() {
+    setSearch('')
+    setField('')
+    setFiltersOpen(false)
+    router.push({ pathname: '/articles' })
   }
 
   function readingTime(article) {
@@ -391,6 +376,18 @@ function Articles({ cached_articles }) {
       )
     })
 
+  const filterPanel = (
+    <TopicsList
+      topicsLabel={t('articles.topics')}
+      fields={getTranslatedFieldsDict(t)}
+      field={field}
+      onFieldSelect={handleFieldSearch}
+      hasActiveFilters={hasActiveFilters}
+      clearLabel={t('articles.clear_filters')}
+      onClear={handleClearFilters}
+    />
+  )
+
   return (
     <>
       <SocialMeta
@@ -404,142 +401,46 @@ function Articles({ cached_articles }) {
         badge={field && field !== 'All' ? field : undefined}
         path="/articles"
       />
-      <div className="text-foreground mx-auto mb-24 mt-8 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
-        <div className="w-full px-4 md:mx-auto md:w-[85%] md:px-0 lg:mx-0 lg:w-[60%]">
-          <PageHeading className="ml-4 py-4 text-left">
-            {t('articles.articles')} 📰
-          </PageHeading>
-          <form
-            onSubmit={(e) => handleSearch(e)}
-            className="flex flex-col gap-2 lg:hidden"
-          >
-            <div className="flex flex-row gap-2">
-              <Button
-                type="submit"
-                size="icon"
-                onClick={(e) => handleSearch(e)}
-              >
-                <Search
-                  aria-hidden="true"
-                  className="h-5 w-5"
-                />
-              </Button>
-              <Input
-                onChange={(e) =>
-                  handleChange(e, 'searchbar')
-                }
-                value={search}
-                name="search"
-                placeholder="Search..."
-                required
-                type="text"
-                aria-label="search"
-                maxLength="100"
-                className="bg-card shadow-sm"
-              />
-            </div>
-            <Select
-              name="field"
-              value={field}
-              onValueChange={(value) =>
-                handleFieldSearch(value)
-              }
-            >
-              <SelectTrigger
-                id="field"
-                className="bg-card w-full shadow-sm"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(
-                  getTranslatedFieldsDict(t)
-                ).map(([key, value]) => {
-                  return (
-                    <SelectItem key={key} value={key}>
-                      {value}
-                    </SelectItem>
-                  )
-                })}
-              </SelectContent>
-            </Select>
-          </form>
-          {loading ? loadingComponent : articlesComponent}
-          {articlesQuery.isFetchingNextPage &&
-            loadingComponent.slice(0, 2)}
-          {articles.length === 0 && !loading && (
-            <div className="mx-auto mt-20 text-center">
-              <i className="text-xl font-semibold">
-                {t('articles.sorry')}{' '}
-                {router?.query.search == undefined
-                  ? router?.query.field
-                  : router?.query.search}
-              </i>
-            </div>
-          )}
-          <div
-            ref={ref}
-            style={{ width: '100%', height: '20px' }}
-          ></div>
-        </div>
-        <div className="hidden w-0 lg:ml-32 lg:block lg:w-[30%]">
-          <div className="sticky top-1/2 w-full -translate-y-1/2 transform">
-            <h2 className="text-muted-foreground mb-2 text-xl">
-              {t('articles.search_articles')}
-            </h2>
-            <form
-              onSubmit={(e) => handleSearch(e)}
-              className="flex flex-row"
-            >
-              <Input
-                onChange={(e) =>
-                  handleChange(e, 'searchbar')
-                }
-                value={search}
-                name="search"
-                required
-                className="bg-card mr-3 shadow-sm"
-                type="text"
-                aria-label="search"
-                maxLength="100"
-              />
-              <Button
-                type="submit"
-                onClick={(e) => handleSearch(e)}
-              >
-                {t('articles.search')}
-              </Button>
-            </form>
+      <div className="text-foreground mx-auto mb-24 mt-8 min-h-screen px-4 md:px-0 lg:mx-16 xl:mx-32">
+        <PageHeading className="ml-0 py-4 text-left">
+          {t('articles.articles')} 📰
+        </PageHeading>
 
-            <Separator className="my-8" />
+        <div className="flex flex-row items-start gap-8 xl:gap-12">
+          <div className="min-w-0 flex-1">
+            <SearchToolbar
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onSubmit={handleSearch}
+              placeholder={t('articles.search_articles')}
+              searchLabel={t('articles.search')}
+              submitLabel={t('articles.search')}
+              filtersLabel={t('articles.filters')}
+              hasActiveFilters={hasActiveFilters}
+              filtersOpen={filtersOpen}
+              onFiltersOpenChange={setFiltersOpen}
+              filterPanel={filterPanel}
+            />
 
-            <h2 className="text-muted-foreground mb-2 text-xl">
-              {t('courses.topics')}
-            </h2>
-            <div className="flex flex-row flex-wrap">
-              {Object.entries(
-                getTranslatedFieldsDict(t)
-              ).map(([key, value]) => {
-                return (
-                  <Button
-                    key={value}
-                    type="button"
-                    variant={
-                      key == field ? 'default' : 'secondary'
-                    }
-                    onClick={() => handleFieldSearch(key)}
-                    className={
-                      key == field
-                        ? 'mb-4 mr-4 rounded-full'
-                        : 'bg-card hover:bg-muted mb-4 mr-4 rounded-full border shadow-sm'
-                    }
-                  >
-                    {value}
-                  </Button>
-                )
-              })}
-            </div>
+            {loading ? loadingComponent : articlesComponent}
+            {articlesQuery.isFetchingNextPage &&
+              loadingComponent.slice(0, 2)}
+            {articles.length === 0 && !loading && (
+              <div className="mx-auto mt-20 text-center">
+                <i className="text-xl font-semibold">
+                  {search
+                    ? `${t('articles.sorry')} ${search}`
+                    : t('articles.sorry')}
+                </i>
+              </div>
+            )}
+            <div
+              ref={ref}
+              style={{ width: '100%', height: '20px' }}
+            ></div>
           </div>
+
+          <FilterAside>{filterPanel}</FilterAside>
         </div>
       </div>
     </>
@@ -551,6 +452,7 @@ export async function getStaticProps({ locale }) {
     locale,
     ['common']
   )
+
   try {
     const apiEndpoint =
       'https://sciteens.cdn.prismic.io/api/v2'
@@ -568,9 +470,7 @@ export async function getStaticProps({ locale }) {
     }
   } catch (e) {
     console.error(e)
-    return {
-      notFound: true,
-    }
+    return { notFound: true }
   }
 }
 

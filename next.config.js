@@ -49,8 +49,6 @@ const connectSrc = [
   'https://*.hf.co',
   'https://cdn.jsdelivr.net',
   'https://sciteens.cdn.prismic.io',
-  'https://*.algolia.net',
-  'https://*.algolianet.com',
   'https://www.google-analytics.com',
   'https://region1.google-analytics.com',
   'https://analytics.google.com',

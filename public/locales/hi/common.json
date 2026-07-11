@@ -257,14 +257,19 @@
     "articles": "सामग्री",
     "sorry": "क्षमा करें, हम किसी भी खोज से संबंधित नहीं पा सकते हैं",
     "search_articles": "खोज लेख",
-    "search": "खोज"
+    "search": "खोज",
+    "topics": "विषय",
+    "filters": "फ़िल्टर",
+    "clear_filters": "फ़िल्टर हटाएं"
   },
   "courses": {
     "courses": "पाठ्यक्रम",
     "sorry": "क्षमा करें, हम किसी भी खोज से संबंधित नहीं पा सकते हैं",
     "search_courses": "कोर्स खोजें",
     "search": "खोज",
-    "topics": "विषय"
+    "topics": "विषय",
+    "filters": "फ़िल्टर",
+    "clear_filters": "फ़िल्टर हटाएं"
   },
   "donate": {
     "annual_donation_appeal": "वार्षिक दान अपील",
@@ -322,7 +327,19 @@
     "topics": "विषय",
     "started_on": "आरंभ तिथि",
     "by": "द्वारा",
-    "create": "प्रोजेक्ट बनाएं"
+    "create": "प्रोजेक्ट बनाएं",
+    "filters": "फ़िल्टर",
+    "clear_filters": "फ़िल्टर हटाएं",
+    "date_range": "दिनांक सीमा",
+    "date_from": "से",
+    "date_to": "तक",
+    "sort_by": "इसके अनुसार क्रमबद्ध करें",
+    "sort_relevance": "प्रासंगिकता",
+    "sort_newest": "नवीनतम",
+    "sort_oldest": "सबसे पुराने",
+    "search_unavailable": "खोज अस्थायी रूप से अनुपलब्ध है। हाल की परियोजनाएं दिखाई जा रही हैं।",
+    "results_count": "{{count}} परिणाम",
+    "apply_dates": "लागू करें"
   },
   "fields": {
     "all": "सभी",
