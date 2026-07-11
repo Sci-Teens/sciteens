@@ -9,6 +9,7 @@ import SocialMeta from '../../../components/SocialMeta'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import ProfilePhoto from '../../../components/ProfilePhoto'
+import { CalendarDays, Pencil } from 'lucide-react'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
@@ -36,6 +37,10 @@ import { useSigninCheck } from '../../../context/AuthContext'
 import { AppContext } from '../../../context/context'
 import FileGallery from '../../../components/FileGallery'
 import ProjectCard from '../../../components/ProjectCard'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '../../../components/ui/skeleton'
 import { normalizeProject } from '../../../lib/projects'
 import { useFirestoreCollectionData } from '../../../lib/firestoreData'
@@ -121,65 +126,84 @@ function Project({ profile }) {
         path={router.asPath}
       />
       <div className="text-foreground mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
-        <div>
-          <div className="m-0 flex flex-row justify-between p-0 leading-none">
-            <div className="mb-8 flex flex-row items-center">
-              <div className="h-18 w-18 mr-5">
-                <ProfilePhoto
-                  uid={profile.id}
-                ></ProfilePhoto>
-              </div>
-              <div>
-                <h1 className="text-3xl">
+        <Card className="animate-in border-border/60 fade-in slide-in-from-bottom-4 overflow-hidden duration-300">
+          <CardContent className="flex flex-col gap-6 p-6 sm:flex-row sm:items-center md:p-8">
+            <div className="ring-background size-20 md:size-28 shrink-0 self-start rounded-full shadow-sm ring-4 sm:self-center">
+              <ProfilePhoto
+                uid={profile.id}
+                alt={profile.display}
+                sizes="(min-width: 768px) 112px, 80px"
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                <h1 className="text-2xl font-semibold md:text-3xl">
                   {profile.display}
                 </h1>
-                <p className="text-muted-foreground text-base">
-                  {profile.mentor ? 'Educator' : 'Student'}
-                </p>
+                <Badge variant="secondary">
+                  {profile.mentor
+                    ? t('index_profile.educator')
+                    : t('index_profile.student')}
+                </Badge>
               </div>
+              <p className="text-muted-foreground mt-2 flex items-center gap-1.5 text-sm">
+                <CalendarDays
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
+                {t('index_profile.joined')}{' '}
+                {moment(profile.joined).calendar(null, {
+                  sameElse: 'MMMM DD, YYYY',
+                })}
+              </p>
             </div>
             {status !== 'success' ? (
-              <Skeleton className="h-1/3 w-20 rounded-lg" />
+              <Skeleton className="h-8 w-24 shrink-0 self-start rounded-lg sm:self-center" />
             ) : (
               signInCheckResult.signedIn &&
               current_user_profile?.slug ===
                 router.query?.slug && (
-                <Link
-                  href={`/profile/${router?.query?.slug}/edit`}
-                  className="border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark h-1/3 cursor-pointer rounded-lg border-2 px-6 py-1.5 text-center text-xl font-semibold shadow-sm"
-                >
-                  Edit
-                </Link>
+                <Button
+                  render={
+                    <Link
+                      href={`/profile/${router?.query?.slug}/edit`}
+                    >
+                      <Pencil
+                        className="h-4 w-4"
+                        aria-hidden="true"
+                      />
+                      {t('index_profile.edit')}
+                    </Link>
+                  }
+                  variant="outline"
+                  className="shrink-0 self-start sm:self-center"
+                />
               )
             )}
-          </div>
-          <h4>
-            {t('index_profile.joined')}{' '}
-            {moment(profile.joined).calendar(null, {
-              sameElse: 'MMMM DD, YYYY',
-            })}
-          </h4>
-          <p></p>
-          <hr className="py-1" />
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* About */}
-      <div className="mx-auto mb-4 mt-12 w-5/6 md:w-2/3 lg:w-1/2">
+      <div className="mx-auto mb-4 mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         <h2 className="mb-2 text-lg font-semibold md:text-2xl">
-          About
+          {t('index_profile.about')}
         </h2>
         <p className="text-muted-foreground">
-          {profile.about == ''
-            ? "This user hasn't written about themselves yet"
-            : profile.about}
+          {profile.about
+            ? profile.about
+            : t('index_profile.about_empty')}
         </p>
       </div>
 
+      <div className="mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+        <Separator />
+      </div>
+
       {/* Projects */}
-      <div className="mx-auto mb-4 mt-12 w-5/6 md:w-2/3 lg:w-1/2">
+      <div className="mx-auto mb-4 mt-8 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         <h2 className="mb-2 text-lg font-semibold md:text-2xl">
-          Projects
+          {t('index_profile.projects')}
         </h2>
         {projectsLoading ? (
           <div className="flex flex-col gap-6 md:gap-8">
@@ -190,17 +214,21 @@ function Project({ profile }) {
           projectsComponent
         ) : (
           <p className="text-muted-foreground">
-            This user hasn&apos;t created any projects yet
+            {t('index_profile.projects_empty')}
           </p>
         )}
       </div>
 
+      <div className="mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+        <Separator />
+      </div>
+
       {/* Files */}
-      <div className="mx-auto mb-4 mt-12 w-5/6 md:w-2/3 lg:w-1/2">
+      <div className="mx-auto mb-4 mt-8 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         {(filesStatus === 'loading' ||
           fileRecords.length > 0) && (
           <h2 className="mb-2 text-lg font-semibold md:text-2xl">
-            Files
+            {t('index_profile.files')}
           </h2>
         )}
         <div className="flex flex-col items-center space-y-2">

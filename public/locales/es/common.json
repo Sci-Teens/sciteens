@@ -47,7 +47,15 @@
     "fill_out_about": "Por favor complete su sección Acerca de"
   },
   "index_profile": {
-    "joined": "Unido"
+    "joined": "Unido",
+    "student": "Estudiante",
+    "educator": "Educador",
+    "edit": "Editar",
+    "about": "Acerca de",
+    "about_empty": "Este usuario aún no ha escrito sobre sí mismo",
+    "projects": "Proyectos",
+    "projects_empty": "Este usuario aún no ha creado ningún proyecto",
+    "files": "Archivos"
   },
   "project_create_edit": {
     "could_not_create": "No pudimos crear su proyecto en este momento",

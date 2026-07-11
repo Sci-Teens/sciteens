@@ -47,7 +47,15 @@
     "fill_out_about": "Please fill out your about section"
   },
   "index_profile": {
-    "joined": "Joined"
+    "joined": "Joined",
+    "student": "Student",
+    "educator": "Educator",
+    "edit": "Edit",
+    "about": "About",
+    "about_empty": "This user hasn't written about themselves yet",
+    "projects": "Projects",
+    "projects_empty": "This user hasn't created any projects yet",
+    "files": "Files"
   },
   "project_create_edit": {
     "could_not_create": "We couldn't create your project at this time",

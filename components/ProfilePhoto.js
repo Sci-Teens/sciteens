@@ -4,7 +4,11 @@ import { useEffect, useState } from 'react'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 
-export default function ProfilePhoto({ uid, alt }) {
+export default function ProfilePhoto({
+  uid,
+  alt,
+  sizes = '96px',
+}) {
   const [img_src, setImgSrc] = useState(null)
   const [img_error, setImgError] = useState(false)
 
@@ -44,13 +48,13 @@ export default function ProfilePhoto({ uid, alt }) {
   const showImage = Boolean(img_src) && !img_error
 
   return (
-    <span className="bg-muted relative block h-full w-full overflow-hidden rounded-full">
+    <span className="bg-muted ring-border/60 size-full relative isolate block aspect-square overflow-hidden rounded-full ring-1 ring-inset">
       {showImage ? (
         <Image
           src={img_src}
           alt={alt || 'Profile'}
           fill
-          sizes="96px"
+          sizes={sizes}
           className="object-cover"
           onError={() => setImgError(true)}
         />
@@ -58,7 +62,7 @@ export default function ProfilePhoto({ uid, alt }) {
         <UserRound
           strokeWidth={1.5}
           aria-hidden="true"
-          className="text-muted-foreground/60 h-full w-full p-[15%]"
+          className="text-muted-foreground/60 size-full p-[15%]"
         />
       )}
     </span>
