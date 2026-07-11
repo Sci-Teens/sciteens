@@ -3,7 +3,8 @@
 SciTeens is the open-source platform behind [sciteens.com](https://sciteens.com):
 a Next.js site (SSR + SSG) on React, backed by Firebase v9 modular SDK
 (Auth, Firestore, Cloud Storage, Cloud Functions). Content lives in Prismic,
-search in Algolia, i18n in four locales (en/es/fr/hi). Deployed on Google
+project search runs on self-hosted Meilisearch, i18n in four locales
+(en/es/fr/hi). Deployed on Google
 Cloud Run. Security, ownership checks, and secret hygiene matter most.
 
 SciTeens' platform-lift migration (Next 14 Pages Router, React 18,
@@ -90,12 +91,21 @@ shadcn tokens.
   function, not the client. Client triggers side effects by writing a doc the
   function watches (e.g. `project-invites`).
 - Content (courses/articles) is authored in Prismic and synced into Firestore
-  by the `newCourse` webhook. Prefer Prismic + Algolia over duplicating
-  storage in Firestore.
+  by the `newCourse` webhook. Prefer Prismic over duplicating storage in
+  Firestore.
+- Project search runs on a self-hosted Meilisearch instance (Cloud Run,
+  `infra/meilisearch/`) instead of the old Algolia Firebase Extension.
+  `functions/search.js` keeps the `projects` index in sync via Firestore
+  triggers (`newProject`/`updateProject`/`deleteProject` in
+  `functions/index.js`); `pages/api/search/projects.js` is the only thing
+  that ever talks to Meilisearch — the client never sees `MEILI_HOST` or an
+  API key. Plain browsing and single-topic filtering stay on Firestore
+  directly (see `lib/search.js#requiresSearchIndex`); only free-text search
+  and date-range filtering hit the index.
 - API routes (`pages/api/*`) are Next serverless functions, distinct from
   `functions/` (Firebase Cloud Functions). Keep server-only work (e.g. the
-  Algolia admin key) in API routes or `functions/`, never in client
-  bundles.
+  Meilisearch admin/search keys) in API routes or `functions/`, never in
+  client bundles.
 - Toxicity detection (`components/Discussion.js`) runs fully client-side:
   `lib/toxicityWorker.js` loads Xenova/toxic-bert with
   `@huggingface/transformers`, fetched at runtime from jsDelivr (pinned
@@ -118,8 +128,9 @@ shadcn tokens.
   `firestore.rules`.
 - **Server-only secrets stay server-side.** Anything prefixed `NEXT_PUBLIC_`
   is inlined into the client bundle. Keys that must not leak
-  (`AL_ADMIN_KEY`) are never `NEXT_PUBLIC_` and only read in API routes or
-  Cloud Functions. Never hardcode keys or webhooks; the repo is public.
+  (`MEILI_MASTER_KEY`, `MEILI_SEARCH_KEY`) are never `NEXT_PUBLIC_` and only
+  read in API routes or Cloud Functions. Never hardcode keys or webhooks;
+  the repo is public.
 - **Filename and ref validation.** User uploads never trust `File#name`.
   `getSafeUploadName` (`context/helpers.js`) derives the stored object
   name from an owned MIME allowlist (`UPLOAD_MIME_EXTENSIONS`; images and

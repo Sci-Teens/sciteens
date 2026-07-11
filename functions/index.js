@@ -6,6 +6,16 @@ const {
 const admin = require('firebase-admin')
 admin.initializeApp()
 
+// Meilisearch — self-hosted replacement for the Algolia Firebase Extension
+// (see functions/search.js, infra/meilisearch/). MEILI_HOST is a plain
+// non-secret env var (functions/.env); the master key is Secret Manager,
+// like the other third-party credentials below.
+const {
+  indexProject,
+  deleteProjectFromIndex,
+} = require('./search')
+const meiliMasterKey = defineSecret('MEILI_MASTER_KEY')
+
 // Google
 const vision = require('@google-cloud/vision')
 
@@ -66,20 +76,35 @@ let slugify
     and notify user's subscribed to the project of its update.
 
 */
-exports.newProject = functions.firestore
-  .document('projects/{projectID}')
-  .onCreate((event) => {})
+exports.newProject = functions
+  .runWith({ secrets: [meiliMasterKey] })
+  .firestore.document('projects/{projectID}')
+  .onCreate((snap) => indexProject(snap.id, snap.data()))
+
+/*
+    Function updateProject()
+
+    Keeps the Meilisearch `projects` index in sync whenever a
+    project's fields are edited.
+*/
+exports.updateProject = functions
+  .runWith({ secrets: [meiliMasterKey] })
+  .firestore.document('projects/{projectID}')
+  .onUpdate((change) =>
+    indexProject(change.after.id, change.after.data())
+  )
 
 /*
     Function deleteProject()
     
     Handles the operations necessary when a project is deleted,
-    such as removing its index from Algolia
+    such as removing it from the Meilisearch index.
 
 */
 
-exports.deleteProject = functions.firestore
-  .document('projects/{projectID}')
+exports.deleteProject = functions
+  .runWith({ secrets: [meiliMasterKey] })
+  .firestore.document('projects/{projectID}')
   .onDelete(async (event, context) => {
     async function deleteCollection(
       db,
@@ -150,6 +175,8 @@ exports.deleteProject = functions.firestore
         err
       )
     }
+
+    await deleteProjectFromIndex(context.params.projectID)
   })
 
 /*

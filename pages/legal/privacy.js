@@ -540,10 +540,6 @@ export default function privacy() {
                   Google Cloud Services
                 </li>
                 <li>
-                  <b>Content Optimization </b>
-                  Algolia
-                </li>
-                <li>
                   <b>
                     Functionality and Infrastructure
                     Optimization{' '}
