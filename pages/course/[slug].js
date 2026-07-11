@@ -155,7 +155,7 @@ function Course({ course }) {
           {t('course.lessons')}
         </h2>
         <table className="mb-4 w-full table-auto rounded-sm shadow-sm">
-          <tr className="rounded-t-md border-b border-gray-400 bg-gray-200 text-center">
+          <tr className="border-border bg-muted rounded-t-md border-b text-center">
             <th className="p-2">{t('course.date')}</th>
             <th className="p-2">{t('course.lesson')}</th>
             <th className="p-2">{t('course.notebook')}</th>

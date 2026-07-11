@@ -223,7 +223,7 @@ export default function terms() {
           </div>
           <div className="mx-8 md:mx-12 lg:mx-0 lg:w-2/3">
             <PageHeading>TERMS OF USE</PageHeading>
-            <p className="mb-8 mt-1 whitespace-pre-line text-gray-700">
+            <p className="text-muted-foreground mb-8 mt-1 whitespace-pre-line">
               Last Updated 9/30/2021
             </p>
 
@@ -232,7 +232,7 @@ export default function terms() {
               <h2 id="term1" className="mb-2 text-2xl">
                 AGREEMENT TO TERMS
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 These Terms of Use constitute a legally
                 binding agreement made between you, whether
                 personally or on behalf of an entity (“you”)
@@ -308,7 +308,7 @@ export default function terms() {
               <h2 id="term2" className="mb-2 text-2xl">
                 INTELLECTUAL PROPERTY RIGHTS
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 Unless otherwise indicated, the Site is our
                 proprietary property and all source code,
                 databases, functionality, software, website
@@ -350,11 +350,11 @@ export default function terms() {
               <h2 id="term3" className="mb-2 text-2xl">
                 USER REPRESENTATIONS
               </h2>
-              <p className="mb-2 text-gray-700">
+              <p className="text-muted-foreground mb-2">
                 By using the Site, you represent and warrant
                 that:
               </p>
-              <ul className="mb-10 ml-4 list-inside list-decimal text-gray-700">
+              <ul className="text-muted-foreground mb-10 ml-4 list-inside list-decimal">
                 <li>
                   All registration information you submit
                   will be true, accurate, current, and
@@ -403,7 +403,7 @@ export default function terms() {
               <h2 id="term4" className="mb-2 text-2xl">
                 USER REGISTRATION
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 You may be required to register with the
                 Site. You agree to keep your password
                 confidential and will be responsible for all
@@ -421,7 +421,7 @@ export default function terms() {
               <h2 id="term5" className="mb-2 text-2xl">
                 PROHIBITED ACTIVITIES
               </h2>
-              <p className="mb-4 text-gray-700">
+              <p className="text-muted-foreground mb-4">
                 You may not access or use the Site for any
                 purpose other than that for which we make
                 the Site available. The Site may not be used
@@ -430,7 +430,7 @@ export default function terms() {
                 or approved by us. As a user of the Site,
                 you agree not to:
               </p>
-              <ul className="mb-10 ml-4 list-inside list-decimal text-gray-700">
+              <ul className="text-muted-foreground mb-10 ml-4 list-inside list-decimal">
                 <li>
                   Systematically retrieve data or other
                   content from the Site to create or
@@ -583,7 +583,7 @@ export default function terms() {
               <h2 id="term6" className="mb-2 text-2xl">
                 USER GENERATED CONTRIBUTIONS
               </h2>
-              <p className="mb-4 text-gray-700">
+              <p className="text-muted-foreground mb-4">
                 The Site may invite you to chat, contribute
                 to, or participate in blogs, message boards,
                 online forums, and other functionality, and
@@ -604,7 +604,7 @@ export default function terms() {
                 available any Contributions, you thereby
                 represent and warrant that:
               </p>
-              <ul className="mb-4 ml-4 list-inside list-decimal text-gray-700">
+              <ul className="text-muted-foreground mb-4 ml-4 list-inside list-decimal">
                 <li>
                   The creation, distribution, transmission,
                   public display, or performance, and the
@@ -699,7 +699,7 @@ export default function terms() {
                   preference, or physical handicap.
                 </li>
               </ul>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 Any use of the Site in violation of the
                 foregoing violates these Terms of Use and
                 may result in, among other things,
@@ -713,7 +713,7 @@ export default function terms() {
               <h2 id="term7" className="mb-2 text-2xl">
                 CONTRIBUTION LICENSE
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 By posting your Contributions to any part of
                 the Site, you automatically grant, and you
                 represent and warrant that you have the
@@ -776,7 +776,7 @@ export default function terms() {
               <h2 id="term8" className="mb-2 text-2xl">
                 SUBMISSIONS
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 You acknowledge and agree that any
                 questions, comments, suggestions, ideas,
                 feedback, or other information regarding the
@@ -805,7 +805,7 @@ export default function terms() {
               <h2 id="term9" className="mb-2 text-2xl">
                 THIRD-PARTY WEBSITE AND CONTENT
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 The Site may contain (or you may be sent via
                 the Site) links to other websites
                 (&quot;Third-Party Websites&quot;) as well
@@ -865,11 +865,11 @@ export default function terms() {
               <h2 id="term10" className="mb-2 text-2xl">
                 SITE MANAGEMENT
               </h2>
-              <p className="mb-4 text-gray-700">
+              <p className="text-muted-foreground mb-4">
                 We reserve the right, but not the
                 obligation, to:
               </p>
-              <ul className="mb-10 ml-4 list-inside list-decimal text-gray-700">
+              <ul className="text-muted-foreground mb-10 ml-4 list-inside list-decimal">
                 <li>
                   Monitor the Site for violations of these
                   Terms of Use.
@@ -911,7 +911,7 @@ export default function terms() {
               <h2 id="term11" className="mb-2 text-2xl">
                 PRIVACY POLICY
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 We care about data privacy and security.
                 Please review our Privacy Policy:
                 https://sciteens.com/legal/privacy. By using
@@ -947,7 +947,7 @@ export default function terms() {
               <h2 id="term12" className="mb-2 text-2xl">
                 COPYRIGHT INFRINGEMENTS
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 We respect the intellectual property rights
                 of others. If you believe that any material
                 available on or through the Site infringes
@@ -973,7 +973,7 @@ export default function terms() {
               <h2 id="term13" className="mb-2 text-2xl">
                 TERM AND TERMINATION
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 These Terms of Use shall remain in full
                 force and effect while you use the Site.
                 WITHOUT LIMITING ANY OTHER PROVISION OF
@@ -1009,7 +1009,7 @@ export default function terms() {
               <h2 id="term14" className="mb-2 text-2xl">
                 MODIFICATIONS AND INTERRUPTIONS
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 We reserve the right to change, modify, or
                 remove the contents of the Site at any time
                 or for any reason at our sole discretion
@@ -1047,7 +1047,7 @@ export default function terms() {
               <h2 id="term15" className="mb-2 text-2xl">
                 GOVERNING LAW
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 These Terms of Use and your use of the Site
                 are governed by and construed in accordance
                 with the laws of the State of Florida
@@ -1066,7 +1066,7 @@ export default function terms() {
               <p className="mb-2 text-lg">
                 Informal Negotiations
               </p>
-              <p className="mb-6 text-gray-700">
+              <p className="text-muted-foreground mb-6">
                 To expedite resolution and control the cost
                 of any dispute, controversy, or claim
                 related to these Terms of Use (each a
@@ -1084,7 +1084,7 @@ export default function terms() {
               <p className="mb-2 text-lg">
                 Binding Arbitration
               </p>
-              <p className="mb-6 text-gray-700">
+              <p className="text-muted-foreground mb-6">
                 If the Parties are unable to resolve a
                 Dispute through informal negotiations, the
                 Dispute (except those Disputes expressly
@@ -1150,7 +1150,7 @@ export default function terms() {
                 the personal jurisdiction of that court.
               </p>
               <p className="mb-2 text-lg">Restrictions</p>
-              <p className="mb-6 text-gray-700">
+              <p className="text-muted-foreground mb-6">
                 The Parties agree that any arbitration shall
                 be limited to the Dispute between the
                 Parties individually. To the full extent
@@ -1168,7 +1168,7 @@ export default function terms() {
                 Exceptions to Informal Negotiations and
                 Arbitration
               </p>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 The Parties agree that the following
                 Disputes are not subject to the above
                 provisions concerning informal negotiations
@@ -1197,7 +1197,7 @@ export default function terms() {
               <h2 id="term17" className="mb-2 text-2xl">
                 CORRECTIONS
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 There may be information on the Site that
                 contains typographical errors, inaccuracies,
                 or omissions, including descriptions,
@@ -1214,7 +1214,7 @@ export default function terms() {
               <h2 id="term18" className="mb-2 text-2xl">
                 DISCLAIMER
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 THE SITE IS PROVIDED ON AN AS-IS AND
                 AS-AVAILABLE BASIS. YOU AGREE THAT YOUR USE
                 OF THE SITE AND OUR SERVICES WILL BE AT YOUR
@@ -1270,7 +1270,7 @@ export default function terms() {
               <h2 id="term19" className="mb-2 text-2xl">
                 LIMITATIONS OF LIABILITY
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 IN NO EVENT WILL WE OR OUR DIRECTORS,
                 EMPLOYEES, OR AGENTS BE LIABLE TO YOU OR ANY
                 THIRD PARTY FOR ANY DIRECT, INDIRECT,
@@ -1300,7 +1300,7 @@ export default function terms() {
               <h2 id="term20" className="mb-2 text-2xl">
                 INDEMNIFICATION
               </h2>
-              <p className="mb-4 text-gray-700">
+              <p className="text-muted-foreground mb-4">
                 You agree to defend, indemnify, and hold us
                 harmless, including our subsidiaries,
                 affiliates, and all of our respective
@@ -1311,7 +1311,7 @@ export default function terms() {
                 made by any third party due to or arising
                 out of:
               </p>
-              <ul className="mb-4 ml-4 list-inside list-decimal text-gray-700">
+              <ul className="text-muted-foreground mb-4 ml-4 list-inside list-decimal">
                 <li>Your Contributions.</li>
                 <li>Use of the Site.</li>
                 <li>Breach of these Terms of Use.</li>
@@ -1331,7 +1331,7 @@ export default function terms() {
                   via the Site.
                 </li>
               </ul>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 Notwithstanding the foregoing, we reserve
                 the right, at your expense, to assume the
                 exclusive defense and control of any matter
@@ -1350,7 +1350,7 @@ export default function terms() {
               <h2 id="term21" className="mb-2 text-2xl">
                 USER DATA
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 We will maintain certain data that you
                 transmit to the Site for the purpose of
                 managing the performance of the Site, as
@@ -1374,7 +1374,7 @@ export default function terms() {
                 ELECTRONIC COMMUNICATIONS, TRANSACTIONS, AND
                 SIGNATURES
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 Visiting the Site, sending us emails, and
                 completing online forms constitute
                 electronic communications. You consent to
@@ -1405,7 +1405,7 @@ export default function terms() {
               <h2 id="term23" className="mb-2 text-2xl">
                 CALIFORNIA USERS AND RESIDENTS
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 If any complaint with us is not
                 satisfactorily resolved, you can contact the
                 Complaint Assistance Unit of the Division of
@@ -1422,7 +1422,7 @@ export default function terms() {
               <h2 id="term24" className="mb-2 text-2xl">
                 MISCELLANEOUS
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 These Terms of Use and any policies or
                 operating rules posted by us on the Site or
                 in respect to the Site constitute the entire
@@ -1463,7 +1463,7 @@ export default function terms() {
               <h2 id="term25" className="mb-2 text-2xl">
                 CONTACT US
               </h2>
-              <p className="mb-4 text-gray-700">
+              <p className="text-muted-foreground mb-4">
                 In order to resolve a complaint regarding
                 the Site or to receive further information
                 regarding use of the Site, please contact us

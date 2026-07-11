@@ -88,10 +88,10 @@ export default function gdpr() {
           </div>
           <div className="mx-8 md:mx-12 lg:mx-0 lg:w-2/3">
             <PageHeading>COOKIE POLICY</PageHeading>
-            <p className="mb-8 mt-1 whitespace-pre-line text-gray-700">
+            <p className="text-muted-foreground mb-8 mt-1 whitespace-pre-line">
               Last Updated 9/30/2021
             </p>
-            <p className="mb-10 text-gray-700">
+            <p className="text-muted-foreground mb-10">
               This Cookie Policy explains how SciTeens Inc.
               (&quot;Company&quot;, &quot;we&quot;,
               &quot;us&quot;, and &quot;our&quot;) uses
@@ -111,7 +111,7 @@ export default function gdpr() {
               <h2 id="policy1" className="mb-2 text-2xl">
                 WHAT ARE COOKIES?
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 Cookies are small data files that are placed
                 on your computer or mobile device when you
                 visit a website. Cookies are widely used by
@@ -139,7 +139,7 @@ export default function gdpr() {
               <h2 id="policy2" className="mb-2 text-2xl">
                 WHY DO WE USE COOKIES?
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 We use first and third party cookies for
                 several reasons. Some cookies are required
                 for technical reasons in order for our
@@ -166,7 +166,7 @@ export default function gdpr() {
               <h2 id="policy3" className="mb-2 text-2xl">
                 HOW CAN I CONTROL COOKIES?
               </h2>
-              <p className="mb-4 text-gray-700">
+              <p className="text-muted-foreground mb-4">
                 You have the right to decide whether to
                 accept or reject cookies. You can exercise
                 your cookie rights by setting your
@@ -203,13 +203,13 @@ export default function gdpr() {
               <p className="mb-2 text-lg">
                 Essential website cookies:
               </p>
-              <p className="mb-4 text-gray-700">
+              <p className="text-muted-foreground mb-4">
                 These cookies are strictly necessary to
                 provide you with services available through
                 our Websites and to use some of its
                 features, such as access to secure areas.
               </p>
-              <p className="mb-10 ml-4 text-gray-700">
+              <p className="text-muted-foreground mb-10 ml-4">
                 <b>__tlbcpv:</b>
                 <br />
                 Used to record unique visitor views of the
@@ -233,7 +233,7 @@ export default function gdpr() {
                 WHAT ABOUT OTHER TRACKING TECHNOLOGES, LIKE
                 WEB BEACONS?
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 Cookies are not the only way to recognize or
                 track visitors to a website. We may use
                 other, similar technologies from time to
@@ -265,7 +265,7 @@ export default function gdpr() {
                 DO WE USE FLASH COOKIES OR LOCAL SHARED
                 OBJECTS?
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 Websites may also use so-called &quot;Flash
                 Cookies&quot; (also known as Local Shared
                 Objects or &quot;LSOs&quot;) to, among other
@@ -303,7 +303,7 @@ export default function gdpr() {
               <h2 id="policy6" className="mb-2 text-2xl">
                 DO WE SERVE TARGETED ADVERTISING?
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 Third parties may serve cookies on your
                 computer or mobile device to serve
                 advertising through our Websites. These
@@ -332,7 +332,7 @@ export default function gdpr() {
               <h2 id="policy7" className="mb-2 text-2xl">
                 HOW OFTEN WILL WE UPDATE THIS COOKIE POLICY?
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 We may update this Cookie Policy from time
                 to time in order to reflect, for example,
                 changes to the cookies we use or for other
@@ -350,7 +350,7 @@ export default function gdpr() {
               <h2 id="policy8" className="mb-2 text-2xl">
                 CONTACT US
               </h2>
-              <p className="mb-4 text-gray-700">
+              <p className="text-muted-foreground mb-4">
                 If you have any questions about our use of
                 cookies or other technologies, please email
                 us at support@sciteens.com or by post to:

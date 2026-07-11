@@ -308,7 +308,7 @@ export default function Home() {
             </p>
             <div>
               <Link
-                href="/signup"
+                href="/signup/student"
                 className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark mr-2 rounded-lg p-3 text-base text-white shadow-md md:p-4 md:text-xl"
               >
                 {t('index.get_started')}
@@ -546,7 +546,7 @@ export default function Home() {
             <animated.a
               style={mediaSpring1}
               href="https://www.neonscience.org/impact/observatory-blog/sciteens-data-science-and-ecology-gen-z"
-              className="border-border/60 group col-span-1 row-span-1 mb-4 mr-0 overflow-hidden rounded-xl border bg-white shadow-sm lg:row-span-2 lg:mb-0 lg:mr-4"
+              className="border-border/60 bg-card group col-span-1 row-span-1 mb-4 mr-0 overflow-hidden rounded-xl border shadow-sm lg:row-span-2 lg:mb-0 lg:mr-4"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -560,11 +560,11 @@ export default function Home() {
                     className="object-cover transition duration-700 group-hover:scale-105"
                   />
                 </div>
-                <div className="z-10 w-full bg-white p-4 md:w-1/2 md:p-10 lg:w-auto">
+                <div className="bg-card z-10 w-full p-4 md:w-1/2 md:p-10 lg:w-auto">
                   <p className="mb-1 text-base font-semibold md:text-2xl">
                     {t('index.data_science_and_ecology')}
                   </p>
-                  <p className="text-sm text-gray-700 md:text-lg">
+                  <p className="text-muted-foreground text-sm md:text-lg">
                     February 10, 2021
                   </p>
                 </div>
@@ -573,7 +573,7 @@ export default function Home() {
             <animated.a
               style={mediaSpring2}
               href="https://news.mit.edu/2019/ideas-challenge-social-ventures-0430"
-              className="border-border/60 group col-span-1 row-span-1 mb-4 ml-0 mt-4 overflow-hidden rounded-xl border bg-white shadow-sm lg:ml-4 lg:mt-0"
+              className="border-border/60 bg-card group col-span-1 row-span-1 mb-4 ml-0 mt-4 overflow-hidden rounded-xl border shadow-sm lg:ml-4 lg:mt-0"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -587,11 +587,11 @@ export default function Home() {
                     className="object-cover transition duration-700 group-hover:scale-105"
                   />
                 </div>
-                <div className="z-10 w-full bg-white p-4 md:w-1/2 md:p-10">
+                <div className="bg-card z-10 w-full p-4 md:w-1/2 md:p-10">
                   <p className="mb-1 text-base font-semibold md:text-2xl">
                     {t('index.ideas_challenge')}
                   </p>
-                  <p className="text-sm text-gray-700 md:text-lg">
+                  <p className="text-muted-foreground text-sm md:text-lg">
                     April 30, 2019
                   </p>
                 </div>
@@ -600,7 +600,7 @@ export default function Home() {
             <animated.a
               style={mediaSpring3}
               href="https://news.fsu.edu/multimedia/radio/2020/08/03/young-scholars-online-program-turns-students-into-scientists/"
-              className="border-border/60 group col-span-1 row-span-1 ml-0 mt-4 h-72 overflow-hidden rounded-xl border bg-white shadow-sm md:h-auto lg:ml-4"
+              className="border-border/60 bg-card group col-span-1 row-span-1 ml-0 mt-4 h-72 overflow-hidden rounded-xl border shadow-sm md:h-auto lg:ml-4"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -614,11 +614,11 @@ export default function Home() {
                     className="object-cover transition duration-700 group-hover:scale-105"
                   />
                 </div>
-                <div className="z-10 w-full bg-white p-4 md:w-1/2 md:p-10">
+                <div className="bg-card z-10 w-full p-4 md:w-1/2 md:p-10">
                   <p className="mb-1 text-base font-semibold md:text-2xl">
                     {t('index.young_scholars_program')}
                   </p>
-                  <p className="pb-5 text-sm text-gray-700 md:text-lg">
+                  <p className="text-muted-foreground pb-5 text-sm md:text-lg">
                     August 3, 2020
                   </p>
                 </div>

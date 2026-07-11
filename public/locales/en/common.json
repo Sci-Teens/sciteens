@@ -4,7 +4,9 @@
     "interview": "Interview",
     "by": "By",
     "rate": "Did you enjoy this article?",
-    "related": "More on this topic..."
+    "related": "More on this topic...",
+    "submit_own": "Want to submit your own article?",
+    "reach_out": "Reach out!"
   },
   "course": {
     "starts": "Starts",
@@ -51,11 +53,19 @@
     "student": "Student",
     "educator": "Educator",
     "edit": "Edit",
-    "about": "About",
-    "about_empty": "This user hasn't written about themselves yet",
     "projects": "Projects",
     "projects_empty": "This user hasn't created any projects yet",
     "files": "Files"
+  },
+  "discussion": {
+    "title": "Discussion",
+    "comment_label": "Comment",
+    "placeholder": "Start the conversation...",
+    "cancel": "Cancel",
+    "post": "Post",
+    "reply": "Reply",
+    "reply_label": "Reply",
+    "reply_placeholder": "Reply..."
   },
   "project_create_edit": {
     "could_not_create": "We couldn't create your project at this time",
@@ -304,7 +314,8 @@
     "search_projects": "Search for Projects",
     "search": "Search",
     "topics": "Topics",
-    "started_on": "Started on"
+    "started_on": "Started on",
+    "by": "By"
   },
   "fields": {
     "all": "All",

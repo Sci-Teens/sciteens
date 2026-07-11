@@ -31,7 +31,7 @@ export default function Donate() {
             </a>
             <Link
               href="/about"
-              className="ml-2 p-2 text-gray-700 hover:underline"
+              className="text-muted-foreground ml-2 p-2 hover:underline"
             >
               {t('donate.read_our_mission')}
             </Link>

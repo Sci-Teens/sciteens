@@ -44,7 +44,7 @@ export default function Footer() {
               fill="#2d8a5b"
             />
           </svg>
-          <div className="bg-sciteensGreen-regular px-10 pb-8 pt-4 text-gray-100 md:px-24">
+          <div className="bg-sciteensGreen-regular text-primary-foreground/80 px-10 pb-8 pt-4 md:px-24">
             <div className="mr-0 flex flex-col justify-between md:flex-row lg:mr-12">
               <div className="md:w-1/8 mb-8 w-full md:mb-0">
                 <p className="mb-1 font-semibold text-white md:mb-2">
@@ -57,7 +57,7 @@ export default function Footer() {
                     </Link>
                   </li>
                   <li>
-                    <Link href="/get-started">
+                    <Link href="/signup/student">
                       {i18n.t('footer.get_started')}
                     </Link>
                   </li>
@@ -71,7 +71,7 @@ export default function Footer() {
                     </a>
                   </li>
                   <li>
-                    <Link href="/getinvolved">
+                    <Link href="/get-involved">
                       {i18n.t('footer.get_involved')}
                     </Link>
                   </li>
@@ -239,7 +239,7 @@ export default function Footer() {
                 </div>
               </div>
             </div>
-            <div className="mx-auto mt-8 border-t-2 border-gray-100">
+            <div className="border-primary-foreground/20 mx-auto mt-8 border-t-2">
               <p className="mt-4 text-left">
                 &copy; SciTeens Inc.{' '}
                 {new Date().getFullYear()}

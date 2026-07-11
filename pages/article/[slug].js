@@ -181,7 +181,7 @@ function Article({ article, recommendations }) {
         >
           <Link
             href={`/article/${a.uid}`}
-            className="block cursor-pointer rounded-lg bg-white p-4 shadow-sm hover:shadow-md"
+            className="bg-card block cursor-pointer rounded-lg p-4 shadow-sm hover:shadow-md"
           >
             <div className="relative aspect-video w-full overflow-hidden rounded-lg">
               <Image
@@ -237,10 +237,10 @@ function Article({ article, recommendations }) {
               <div>
                 <div className="mb-4 flex items-center">
                   {author_image}
-                  <p className="ml-6 text-lg text-black ">
+                  <p className="text-foreground ml-6 text-lg ">
                     {t('article.by')} {article.data.author}{' '}
                     <br />
-                    <span className="text-gray-700">
+                    <span className="text-muted-foreground">
                       {' '}
                       {moment(article.data.date).format(
                         'MMMM DD, YYYY'
@@ -255,7 +255,7 @@ function Article({ article, recommendations }) {
                       <Button
                         key={tag}
                         variant="secondary"
-                        className="bg-card hover:bg-muted mb-1 mr-4 rounded-full border border-gray-300 shadow-sm"
+                        className="bg-card hover:bg-muted border-border mb-1 mr-4 rounded-full border shadow-sm"
                         render={
                           <Link
                             href={{
@@ -293,8 +293,8 @@ function Article({ article, recommendations }) {
                 {interviews}
 
                 {/* Thumbs Up / Thumbs Down Element */}
-                <div className="flex flex-col place-items-center justify-between rounded-lg bg-white shadow-sm md:flex-row md:rounded-full">
-                  <p className="ml-0 text-sm font-semibold text-black md:ml-14 md:text-lg lg:text-xl">
+                <div className="bg-card flex flex-col place-items-center justify-between rounded-lg shadow-sm md:flex-row md:rounded-full">
+                  <p className="text-foreground ml-0 text-sm font-semibold md:ml-14 md:text-lg lg:text-xl">
                     {t('article.rate')}
                   </p>
                   <div className="my-auto mr-0 h-auto pb-4 md:mr-14 md:pb-0">
@@ -302,7 +302,7 @@ function Article({ article, recommendations }) {
                       className={`mr-12 rounded-lg border-2 p-2 hover:border-green-500 hover:bg-green-50 hover:text-green-500 ${
                         vote === 'positive'
                           ? 'border-green-500 text-green-500'
-                          : 'border-gray-600 text-gray-600'
+                          : 'border-border text-muted-foreground'
                       }`}
                       onClick={() => handleRate('positive')}
                     >
@@ -318,7 +318,7 @@ function Article({ article, recommendations }) {
                       className={`rounded-lg border-2 p-2 hover:border-red-500 hover:bg-red-50 hover:text-red-500 ${
                         vote === 'negative'
                           ? 'border-red-500 text-red-500'
-                          : 'border-gray-600 text-gray-600'
+                          : 'border-border text-muted-foreground'
                       }`}
                       onClick={() => handleRate('negative')}
                     >
@@ -333,6 +333,21 @@ function Article({ article, recommendations }) {
                   </div>
                 </div>
 
+                {/* Submit an article CTA */}
+                <div className="bg-card mt-4 rounded-lg p-4 text-center shadow-sm">
+                  <p className="text-foreground text-sm md:text-lg">
+                    {t('article.submit_own')}{' '}
+                    <a
+                      href="mailto:info@sciteens.com"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-bold"
+                    >
+                      {t('article.reach_out')}
+                    </a>
+                  </p>
+                </div>
+
                 {about_the_author}
               </div>
               {typeof window !== 'undefined' && (
@@ -341,7 +356,7 @@ function Article({ article, recommendations }) {
                   item_id={router.query.slug}
                 />
               )}
-              <div className="my-2 h-px bg-gray-300" />
+              <div className="bg-border my-2 h-px" />
             </article>
             <h3 className="mt-8 text-center text-2xl font-semibold md:text-5xl">
               {t('article.related')}

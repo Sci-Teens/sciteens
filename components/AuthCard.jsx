@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils'
 
 // Shared visual shell for every sign-in/sign-up page: a centered card
 // on the app's card/border/shadow tokens, matching the rest of the
-// site (NavBar, /signup, /getinvolved, /about, ...) instead of the
+// site (NavBar, /signup, /get-involved, /about, ...) instead of the
 // hardcoded bg-white/text-gray-700 styling the auth forms drifted to.
 export default function AuthCard({
   title,

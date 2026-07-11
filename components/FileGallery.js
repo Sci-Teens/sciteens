@@ -75,7 +75,7 @@ function ImageLightbox({ images, startIndex }) {
               key={key}
               className="flex items-center justify-center pl-0"
             >
-              <div className="relative flex h-[65vh] w-full items-center justify-center overflow-hidden rounded-lg bg-white">
+              <div className="bg-muted relative flex h-[65vh] w-full items-center justify-center overflow-hidden rounded-lg">
                 <img
                   src={getPreviewUrl(file)}
                   alt=""
@@ -185,7 +185,7 @@ export default function FileGallery({ files }) {
                 aria-label={file?.name}
                 className="focus-visible:ring-ring group block"
               >
-                <Card className="relative aspect-square overflow-hidden bg-white p-0">
+                <Card className="relative aspect-square overflow-hidden p-0">
                   <Image
                     src={getPreviewUrl(file)}
                     alt=""
@@ -223,7 +223,7 @@ export default function FileGallery({ files }) {
                 className="group block text-left"
               >
                 <Card className="overflow-hidden p-0 transition hover:shadow-md">
-                  <div className="relative aspect-[3/4] w-full overflow-hidden bg-gray-100">
+                  <div className="bg-muted relative aspect-[3/4] w-full overflow-hidden">
                     <FileText className="absolute inset-0 m-auto h-10 w-10 text-red-600" />
                     {file?.thumbnailUrl ? (
                       <Image
@@ -272,7 +272,7 @@ export default function FileGallery({ files }) {
       >
         <DialogContent
           showCloseButton
-          className="max-w-3xl border-none bg-white p-0 shadow-none sm:max-w-3xl"
+          className="max-w-3xl border-none p-0 shadow-none sm:max-w-3xl"
         >
           {lightboxIndex !== null && (
             <ImageLightbox

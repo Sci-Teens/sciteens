@@ -4,7 +4,9 @@
     "interview": "Entrevista",
     "by": "Por",
     "rate": "Disfrutaste este artículo?",
-    "related": "Más sobre este tema ..."
+    "related": "Más sobre este tema ...",
+    "submit_own": "¿Quieres enviar tu propio artículo?",
+    "reach_out": "¡Contáctanos!"
   },
   "course": {
     "starts": "Empieza",
@@ -51,11 +53,19 @@
     "student": "Estudiante",
     "educator": "Educador",
     "edit": "Editar",
-    "about": "Acerca de",
-    "about_empty": "Este usuario aún no ha escrito sobre sí mismo",
     "projects": "Proyectos",
     "projects_empty": "Este usuario aún no ha creado ningún proyecto",
     "files": "Archivos"
+  },
+  "discussion": {
+    "title": "Discusión",
+    "comment_label": "Comentario",
+    "placeholder": "Inicia la conversación...",
+    "cancel": "Cancelar",
+    "post": "Publicar",
+    "reply": "Responder",
+    "reply_label": "Responder",
+    "reply_placeholder": "Responder..."
   },
   "project_create_edit": {
     "could_not_create": "No pudimos crear su proyecto en este momento",
@@ -304,7 +314,8 @@
     "search_projects": "Buscar proyectos",
     "search": "Búsqueda",
     "topics": "Temas",
-    "started_on": "Comenzó el"
+    "started_on": "Comenzó el",
+    "by": "Por"
   },
   "fields": {
     "all": "Todos",

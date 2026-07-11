@@ -404,7 +404,7 @@ function Projects({ cached_projects }) {
                 value={search}
                 name="search"
                 required
-                className="bg-card mr-3 border-gray-300 shadow-sm"
+                className="bg-card mr-3 shadow-sm"
                 type="text"
                 aria-label="search"
                 maxLength="100"
@@ -437,7 +437,7 @@ function Projects({ cached_projects }) {
                     className={
                       key == field
                         ? 'mb-4 mr-4 rounded-full'
-                        : 'bg-card hover:bg-muted mb-4 mr-4 rounded-full border border-gray-300 shadow-sm'
+                        : 'bg-card hover:bg-muted mb-4 mr-4 rounded-full border shadow-sm'
                     }
                   >
                     {value}

@@ -23,12 +23,14 @@ import Image from 'next/image'
 import Error from 'next/error'
 import Link from 'next/link'
 import FileGallery from '../../../components/FileGallery'
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, Pencil } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'next-i18next'
 import dynamic from 'next/dynamic'
 import ProfilePhoto from '../../../components/ProfilePhoto'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
 import {
   getTranslatedFieldsDict,
   getFieldLabel,
@@ -90,13 +92,10 @@ function Project({ query, initialProject }) {
 
   if (status === 'loading' && !project) {
     return (
-      <div className="prose-sm lg:prose mx-auto mb-24 mt-4 animate-pulse">
-        <div className="bg-muted h-12 w-full rounded-lg" />
-        <div className="bg-muted mt-8 h-8 w-full rounded-lg" />
-        <div className="bg-muted mt-8 h-8 w-full rounded-lg" />
-        <div className="bg-muted mt-8 h-64 w-full rounded-lg" />
-        <div className="bg-muted mt-8 h-8 w-full rounded-lg" />
-        <div className="bg-muted mt-8 h-24 w-full rounded-lg" />
+      <div className="mx-auto mt-12 w-5/6 animate-pulse px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+        <div className="bg-muted h-40 w-full rounded-xl" />
+        <div className="bg-muted mt-12 h-24 w-full rounded-xl" />
+        <div className="bg-muted mt-12 h-24 w-full rounded-xl" />
       </div>
     )
   } else if (status === 'error' || !project) {
@@ -107,6 +106,9 @@ function Project({ query, initialProject }) {
     project.start,
     router?.locale
   )
+
+  const hasTopicsOrLinks =
+    project.fields?.length > 0 || project.links?.length > 0
 
   return (
     <>
@@ -128,121 +130,181 @@ function Project({ query, initialProject }) {
         }
         path={router.asPath}
       />
-      <article className="prose-sm lg:prose text-foreground mx-auto mt-8 px-4 lg:px-0">
-        <div>
-          <div className="m-0 flex flex-row justify-between p-0 leading-none">
-            <h1>{project.title}</h1>
-            {project.member_uids?.includes(
-              signInCheckResult?.user?.uid
-            ) && (
-              <Link
-                href={`/project/${router?.query?.id}/edit`}
-                className="border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark not-prose h-1/3 cursor-pointer rounded-lg border-2 px-6 py-1.5 text-center text-xl font-semibold no-underline shadow-sm"
-              >
-                Edit
-              </Link>
-            )}
-          </div>
-          {project.member_arr?.length > 0 && (
-            <div className="not-prose mb-3 flex flex-row items-center">
-              <div className="flex -space-x-2 overflow-hidden">
-                {project.member_arr.map((member) => {
-                  return (
-                    <div
-                      key={member.uid}
-                      className="not-prose inline-block h-6 w-6 rounded-full ring-2 ring-white lg:h-8 lg:w-8"
-                    >
-                      <ProfilePhoto
-                        uid={member.uid}
-                      ></ProfilePhoto>
-                    </div>
-                  )
-                })}
-              </div>
-              <p className="ml-2">
-                By&nbsp;
-                {project.member_arr.map((member) => {
-                  return (
-                    <a
-                      key={member.uid}
-                      href={`/profile/${
-                        member.slug || member.uid
-                      }`}
-                      className="text-sciteensGreen-regular hover:text-sciteensGreen-dark font-bold no-underline"
-                    >
-                      {member.display + ' '}
-                    </a>
-                  )
-                })}
-              </p>
-            </div>
-          )}
-          {startDate && (
-            <p className="text-muted-foreground">
-              {t('projects.started_on')} {startDate}
-            </p>
-          )}
-          {project.project_photo &&
-            !project_photo_error && (
-              <div className="bg-muted not-prose relative my-8 aspect-video w-full overflow-hidden rounded-xl">
-                <Image
-                  src={project.project_photo}
-                  alt={project.title}
-                  fill
-                  sizes="(min-width: 1024px) 768px, 100vw"
-                  className="object-contain"
-                  onError={() => setProjectPhotoError(true)}
-                />
-              </div>
-            )}
-          <p>{project.abstract}</p>
-          <div className="not-prose flex flex-row flex-wrap">
-            {(project.fields || []).map((tag) => {
-              return (
+      <div className="text-foreground mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+        <Card className="border-border/60 overflow-hidden">
+          <CardContent className="flex flex-col gap-4 p-6 md:p-8">
+            <div className="flex flex-row items-start justify-between gap-4">
+              <h1 className="text-2xl font-semibold md:text-3xl">
+                {project.title}
+              </h1>
+              {project.member_uids?.includes(
+                signInCheckResult?.user?.uid
+              ) && (
                 <Button
-                  key={tag}
-                  variant="secondary"
-                  className="bg-card ring-border/60 my-1 mr-4 rounded-full px-5 py-1.5 text-base shadow-sm ring-1 hover:shadow-md"
                   render={
                     <Link
-                      href={{
-                        pathname: '/projects',
-                        query: { field: tag },
-                      }}
+                      href={`/project/${router?.query?.id}/edit`}
                     >
-                      {getFieldLabel(translatedFields, tag)}
+                      <Pencil
+                        className="h-4 w-4"
+                        aria-hidden="true"
+                      />
+                      {t('index_profile.edit')}
                     </Link>
                   }
+                  variant="outline"
+                  className="shrink-0"
                 />
-              )
-            })}
-          </div>
-          {project.links?.length > 0 && (
-            <div className="not-prose mb-2 flex flex-row flex-wrap gap-2">
-              {project.links.map((link) => (
-                <a
-                  key={link}
-                  href={link}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="border-border/60 bg-card ring-border/60 text-foreground flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium shadow-sm ring-1 hover:shadow-md"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  {new URL(link).hostname.replace(
-                    /^www\./,
-                    ''
-                  )}
-                </a>
-              ))}
+              )}
             </div>
-          )}
-          <div className="mt-2 border-b-2"></div>
-        </div>
-      </article>
-      <div className="mx-auto mb-4 max-w-prose px-4 lg:px-0">
+            {project.member_arr?.length > 0 && (
+              <div className="flex flex-row items-center">
+                <div className="flex -space-x-2 overflow-hidden">
+                  {project.member_arr.map((member) => {
+                    return (
+                      <div
+                        key={member.uid}
+                        className="ring-background inline-block h-6 w-6 rounded-full ring-2 lg:h-8 lg:w-8"
+                      >
+                        <ProfilePhoto
+                          uid={member.uid}
+                        ></ProfilePhoto>
+                      </div>
+                    )
+                  })}
+                </div>
+                <p className="ml-2 text-sm">
+                  {t('projects.by')}&nbsp;
+                  {project.member_arr.map((member) => {
+                    return (
+                      <a
+                        key={member.uid}
+                        href={`/profile/${
+                          member.slug || member.uid
+                        }`}
+                        className="text-sciteensGreen-regular hover:text-sciteensGreen-dark font-bold"
+                      >
+                        {member.display + ' '}
+                      </a>
+                    )
+                  })}
+                </p>
+              </div>
+            )}
+            {startDate && (
+              <p className="text-muted-foreground text-sm">
+                {t('projects.started_on')} {startDate}
+              </p>
+            )}
+            {project.project_photo &&
+              !project_photo_error && (
+                <div className="bg-muted relative aspect-video w-full overflow-hidden rounded-xl">
+                  <Image
+                    src={project.project_photo}
+                    alt={project.title}
+                    fill
+                    sizes="(min-width: 1024px) 768px, 100vw"
+                    className="object-contain"
+                    onError={() =>
+                      setProjectPhotoError(true)
+                    }
+                  />
+                </div>
+              )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+        <Separator />
+      </div>
+
+      {/* Abstract */}
+      <div className="mx-auto mb-4 mt-8 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+        <h2 className="mb-2 text-lg font-semibold md:text-2xl">
+          {t('project_create_edit.summary')}
+        </h2>
+        <Card className="border-border/60">
+          <CardContent>
+            <p className="text-muted-foreground">
+              {project.abstract}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {hasTopicsOrLinks && (
+        <>
+          <div className="mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+            <Separator />
+          </div>
+          <div className="mx-auto mb-4 mt-8 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+            {project.fields?.length > 0 && (
+              <>
+                <h2 className="mb-2 text-lg font-semibold md:text-2xl">
+                  {t('projects.topics')}
+                </h2>
+                <div className="mb-4 flex flex-row flex-wrap">
+                  {project.fields.map((tag) => (
+                    <Button
+                      key={tag}
+                      variant="secondary"
+                      className="bg-card ring-border/60 my-1 mr-4 rounded-full px-5 py-1.5 text-base shadow-sm ring-1 hover:shadow-md"
+                      render={
+                        <Link
+                          href={{
+                            pathname: '/projects',
+                            query: { field: tag },
+                          }}
+                        >
+                          {getFieldLabel(
+                            translatedFields,
+                            tag
+                          )}
+                        </Link>
+                      }
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+            {project.links?.length > 0 && (
+              <>
+                <h2 className="mb-2 text-lg font-semibold md:text-2xl">
+                  {t('project_create_edit.links')}
+                </h2>
+                <div className="flex flex-row flex-wrap gap-2">
+                  {project.links.map((link) => (
+                    <a
+                      key={link}
+                      href={link}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="border-border/60 bg-card ring-border/60 text-foreground flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium shadow-sm ring-1 hover:shadow-md"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      {new URL(link).hostname.replace(
+                        /^www\./,
+                        ''
+                      )}
+                    </a>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </>
+      )}
+
+      <div className="mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+        <Separator />
+      </div>
+
+      {/* Files */}
+      <div className="mx-auto mb-4 mt-8 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         {filesStatus === 'success' &&
           fileRecords.length > 0 && (
-            <h2 className="mb-2 text-lg font-semibold">
+            <h2 className="mb-2 text-lg font-semibold md:text-2xl">
               {t('course.files')}
             </h2>
           )}
@@ -258,6 +320,14 @@ function Project({ query, initialProject }) {
             }))}
           />
         )}
+      </div>
+
+      <div className="mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+        <Separator />
+      </div>
+
+      {/* Discussion */}
+      <div className="mx-auto mb-4 mt-8 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         <Discussion type="projects" item_id={query.id} />
       </div>
     </>

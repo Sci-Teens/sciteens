@@ -69,10 +69,10 @@ const NAV_LINKS = [
     active: (p) => p.includes('courses'),
   },
   {
-    href: '/getinvolved',
+    href: '/get-involved',
     label: 'get_involved',
     Icon: Users,
-    active: (p) => p.includes('getinvolved'),
+    active: (p) => p.includes('get-involved'),
   },
   {
     href: '/donate',
@@ -239,7 +239,7 @@ export default function NavBar() {
                   </DropdownMenu>
                 ) : (
                   <Link
-                    href="/signup"
+                    href="/signup/student"
                     className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark mr-2 hidden whitespace-nowrap rounded-lg p-2 text-white shadow-sm lg:block"
                   >
                     {i18n.t('navigation.sign_up')}
@@ -283,7 +283,7 @@ export default function NavBar() {
                 <SheetClose
                   render={
                     <Link
-                      href="/signup"
+                      href="/signup/student"
                       className={`mb-4 flex flex-row items-center rounded-lg px-6 py-3 ${
                         router.pathname.includes('signup')
                           ? 'bg-muted underline'
@@ -336,7 +336,7 @@ export default function NavBar() {
                               router.pathname.includes(
                                 'profile'
                               )
-                                ? 'bg-sciteensLightGreen-regular'
+                                ? 'bg-primary'
                                 : 'bg-muted-foreground/50'
                             }`}
                           />

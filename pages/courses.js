@@ -204,7 +204,7 @@ function Courses({ cached_courses }) {
                 value={search}
                 name="search"
                 required
-                className="mr-3"
+                className="bg-card mr-3 shadow-sm"
                 type="text"
                 aria-label="search"
                 maxLength="100"
@@ -237,7 +237,7 @@ function Courses({ cached_courses }) {
                     className={
                       key == field
                         ? 'mb-4 mr-4 rounded-full'
-                        : 'bg-card hover:bg-muted mb-4 mr-4 rounded-full border border-gray-300 shadow-sm'
+                        : 'bg-card hover:bg-muted border-border mb-4 mr-4 rounded-full border shadow-sm'
                     }
                   >
                     {value}

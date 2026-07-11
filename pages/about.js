@@ -254,7 +254,7 @@ export default function About() {
                         {member.name}
                       </p>
                       <p
-                        className={`hidden text-center text-gray-700 md:block
+                        className={`text-muted-foreground hidden text-center md:block
                                     ${
                                       member.name ===
                                         'Angelica Castillejos' ||
@@ -296,7 +296,7 @@ export default function About() {
                       {member.name}
                     </p>
                     <p
-                      className={`hidden text-center text-gray-700 md:block
+                      className={`text-muted-foreground hidden text-center md:block
                                     ${
                                       member.name ===
                                         'Angelica Castillejos' ||

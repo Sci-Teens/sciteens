@@ -181,19 +181,17 @@ function Project({ profile }) {
               )
             )}
           </CardContent>
+          {profile.about && (
+            <>
+              <Separator />
+              <CardContent className="p-6 md:p-8">
+                <p className="text-muted-foreground">
+                  {profile.about}
+                </p>
+              </CardContent>
+            </>
+          )}
         </Card>
-      </div>
-
-      {/* About */}
-      <div className="mx-auto mb-4 mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
-        <h2 className="mb-2 text-lg font-semibold md:text-2xl">
-          {t('index_profile.about')}
-        </h2>
-        <p className="text-muted-foreground">
-          {profile.about
-            ? profile.about
-            : t('index_profile.about_empty')}
-        </p>
       </div>
 
       <div className="mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
