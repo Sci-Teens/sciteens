@@ -315,7 +315,8 @@
     "search": "Chercher",
     "topics": "Les sujets",
     "started_on": "Commencé le",
-    "by": "Par"
+    "by": "Par",
+    "create": "Créer un projet"
   },
   "fields": {
     "all": "Tout",

@@ -248,12 +248,12 @@ export default function About() {
               <h2 className="mb-6 text-center text-2xl font-bold md:text-3xl">
                 {t('about.current_members')}
               </h2>
-              <div className="mb-8 inline-grid h-full w-full grid-cols-2 place-items-center lg:grid-cols-3">
+              <div className="mb-8 grid h-full w-full grid-cols-2 place-items-center gap-4 lg:grid-cols-3 lg:gap-6">
                 {currentMembers.map((member) => {
                   return (
                     <Card
                       key={member.name}
-                      className="member relative mb-6 h-[90%] w-full scale-0 transition-all duration-500"
+                      className="member relative h-[90%] w-full scale-0 transition-all duration-500"
                     >
                       <CardContent className="p-4 md:p-8">
                         <Image
@@ -290,14 +290,14 @@ export default function About() {
           <h2 className="mb-6 text-center text-2xl font-bold md:text-3xl">
             {t('about.previous_members')}
           </h2>
-          <div className="mb-8 inline-grid h-full w-full grid-cols-2 place-items-center lg:grid-cols-3">
+          <div className="mb-8 grid h-full w-full grid-cols-2 place-items-center gap-4 lg:grid-cols-3 lg:gap-6">
             {members
               .filter((m) => m.current == false)
               .map((member) => {
                 return (
                   <Card
                     key={member.name}
-                    className="member relative mb-6 h-[90%] w-full scale-0 transition-all duration-500"
+                    className="member relative h-[90%] w-full scale-0 transition-all duration-500"
                   >
                     <CardContent className="p-4 md:p-8">
                       <Image

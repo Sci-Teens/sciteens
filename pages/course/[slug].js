@@ -19,7 +19,7 @@ function Course({ course }) {
   const [files, setFiles] = useState([])
   const { t } = useTranslation('common')
 
-  const imageLoader = createCropImageLoader(582, 386)
+  const imageLoader = createCropImageLoader(670, 400)
 
   useEffect(() => {
     async function loadFiles() {
@@ -54,21 +54,26 @@ function Course({ course }) {
       )
       let lessonDateDisplay = <p></p>
       if (lessonDate == 'Invalid date') {
-        lessonDateDisplay = <td className="p-2">N/A</td>
+        lessonDateDisplay = (
+          <td className="p-3 text-center">N/A</td>
+        )
       } else {
         lessonDateDisplay = (
-          <td className="p-2">{lessonDate}</td>
+          <td className="p-3 text-center">{lessonDate}</td>
         )
       }
 
       if (slice.slice_type == 'lesson') {
         return (
-          <tr key={index}>
+          <tr
+            key={index}
+            className="hover:bg-muted/50 transition-colors"
+          >
             {lessonDateDisplay}
-            <td className="p-2">
+            <td className="p-3 font-medium">
               {RichText.asText(slice.primary.title)}
             </td>
-            <td className="p-2">
+            <td className="p-3 text-center">
               <Button
                 variant="link"
                 size="sm"
@@ -129,72 +134,70 @@ function Course({ course }) {
         eyebrow="Course"
         path={router.asPath}
       />
-      <article className="prose-sm wrap-break-word lg:prose mx-auto mt-8 overflow-hidden px-4">
-        <div>
+      <main>
+        <article className="prose wrap-break-word lg:prose-lg mx-auto mt-8 overflow-hidden px-4">
           <h1>{RichText.asText(course.data.name)}</h1>
           {courseDateDisplay}
           <i>{RichText.asText(course.data.description)}</i>
           <Separator className="mt-2" />
-          {/* <div className="flex items-center">
-                                    {author_image}
-                                    <p className="font-semibold ml-4">
-                                        Written by {article.data.author} <br /> {moment(article.data.date).format('MMMM DD, YYYY')}
-                                    </p>
-                                </div> */}
-        </div>
-        <div>
-          {/* Image Slider */}
           <Image
             loader={imageLoader}
             src={course.data.image_main.url}
-            width="582"
-            height="250"
-            className="mt-0 w-full object-contain"
+            alt={RichText.asText(course.data.name)}
+            width={670}
+            height={400}
+            sizes="(min-width: 1024px) 670px, 100vw"
+            className="mt-6 h-auto w-full rounded-lg object-cover"
           />
-
           <div>
             <RichText
               render={course.data.about}
               htmlSerializer={htmlSerializer}
             />
           </div>
+        </article>
+        <div className="mx-auto w-full max-w-prose px-4">
+          <h2 className="mb-2 text-lg font-semibold">
+            {t('course.lessons')}
+          </h2>
+          <Card className="border-border/60 mb-8 overflow-hidden">
+            <CardContent className="p-0">
+              <table className="w-full table-auto text-sm">
+                <thead>
+                  <tr className="border-border bg-muted text-muted-foreground border-b text-center text-xs font-semibold uppercase tracking-wide">
+                    <th className="p-3">
+                      {t('course.date')}
+                    </th>
+                    <th className="p-3">
+                      {t('course.lesson')}
+                    </th>
+                    <th className="p-3">
+                      {t('course.notebook')}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-border divide-y">
+                  {lessonComponent}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+          {files?.length > 0 && (
+            <>
+              <h2 className="mb-2 text-lg font-semibold">
+                {t('course.files')}
+              </h2>
+              <FileGallery files={files} />
+            </>
+          )}
+          {typeof window !== 'undefined' && (
+            <Discussion
+              type={'course'}
+              item_id={router.query.slug}
+            />
+          )}
         </div>
-      </article>
-      <div className="mx-auto w-full max-w-prose px-4">
-        <h2 className="mb-2 text-lg font-semibold">
-          {t('course.lessons')}
-        </h2>
-        <Card className="mb-4 overflow-hidden">
-          <CardContent className="p-0">
-            <table className="w-full table-auto">
-              <tr className="border-border bg-muted border-b text-center">
-                <th className="p-2">{t('course.date')}</th>
-                <th className="p-2">
-                  {t('course.lesson')}
-                </th>
-                <th className="p-2">
-                  {t('course.notebook')}
-                </th>
-              </tr>
-              {lessonComponent}
-            </table>
-          </CardContent>
-        </Card>
-        {files?.length > 0 && (
-          <>
-            <h2 className="mb-2 text-lg font-semibold">
-              {t('course.files')}
-            </h2>
-            <FileGallery files={files} />
-          </>
-        )}
-        {typeof window !== 'undefined' && (
-          <Discussion
-            type={'course'}
-            item_id={router.query.slug}
-          />
-        )}
-      </div>
+      </main>
     </>
   )
 }
