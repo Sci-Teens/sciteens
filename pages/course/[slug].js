@@ -182,42 +182,37 @@ function Course({ course }) {
 }
 
 export async function getStaticPaths() {
-  let paths = []
   const apiEndpoint =
     'https://sciteens.cdn.prismic.io/api/v2'
   const client = Prismic.client(apiEndpoint)
   const res = await client.query(
     Prismic.Predicates.at('document.type', 'course')
   )
-  for (let i = 1; i <= res.total_pages; i++) {
-    const courses = await client.query(
-      Prismic.Predicates.at('document.type', 'course'),
-      { pageSize: 20, page: i }
+  const pages = await Promise.all(
+    Array.from({ length: res.total_pages }, (_, i) =>
+      client.query(
+        Prismic.Predicates.at('document.type', 'course'),
+        { pageSize: 20, page: i + 1 }
+      )
     )
-    for (let course of courses.results) {
-      paths.push({
-        params: { slug: course.uid },
-      })
-    }
-  }
-  return { paths: paths, fallback: false }
+  )
+  const paths = pages.flatMap((page) =>
+    page.results.map((course) => ({
+      params: { slug: course.uid },
+    }))
+  )
+  return { paths, fallback: false }
 }
 
 export async function getStaticProps({ params, locale }) {
-  // Fetch data from external API
-  const translations = await serverSideTranslations(
-    locale,
-    ['common']
-  )
-
   try {
     const apiEndpoint =
       'https://sciteens.cdn.prismic.io/api/v2'
     const client = Prismic.client(apiEndpoint)
-    const course = await client.getByUID(
-      'course',
-      params?.slug
-    )
+    const [translations, course] = await Promise.all([
+      serverSideTranslations(locale, ['common']),
+      client.getByUID('course', params?.slug),
+    ])
     return {
       props: { course, ...translations },
     }

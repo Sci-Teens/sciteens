@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import Banner from '../components/Banner'
 import MyPageViewLogger from './Analytics'
+import { useScrollDirection } from '../lib/useScrollDirection'
 
 const NavBar = dynamic(() => import('./NavBar'), {
   ssr: false,
@@ -16,12 +17,13 @@ const Footer = dynamic(() => import('./Footer'), {
 const DEFAULT_NAV_HEIGHT = 76
 
 export default function Layout({ children }) {
-  const [visibleNav, setVisibleNav] = useState(true)
   const [visibleBanner, setVisibleBanner] = useState(true)
   const navWrapRef = useRef(null)
   const [navHeight, setNavHeight] = useState(
     DEFAULT_NAV_HEIGHT
   )
+  const scrollDirection = useScrollDirection()
+  const visibleNav = scrollDirection !== 'down'
 
   useEffect(() => {
     const node = navWrapRef.current
@@ -37,36 +39,8 @@ export default function Layout({ children }) {
     return () => observer.disconnect()
   }, [])
   useEffect(() => {
-    let previousY = document.documentElement.scrollTop
-
-    function handleScroll() {
-      let currentY = document.documentElement.scrollTop
-
-      if (currentY <= 350) {
-        setVisibleNav(true)
-        previousY = currentY
-      } else {
-        if (currentY - previousY >= 200) {
-          setVisibleNav(false)
-          previousY = currentY
-        }
-        if (previousY - currentY >= 200) {
-          setVisibleNav(true)
-          previousY = currentY
-        }
-      }
-    }
-
-    document.addEventListener('scroll', handleScroll, {
-      passive: true,
-    })
-
     if (sessionStorage.getItem('visibleBanner')) {
       setVisibleBanner(false)
-    }
-
-    return () => {
-      document.removeEventListener('scroll', handleScroll)
     }
   }, [])
 
