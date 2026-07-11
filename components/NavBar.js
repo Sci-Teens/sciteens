@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useSigninCheck } from '../context/AuthContext'
 import { auth } from '../lib/firebase'
+import { useScrollDirection } from '../lib/useScrollDirection'
 import { useContext, useState, useEffect } from 'react'
 import { AppContext } from '../context/context'
 import { signOut } from '@firebase/auth'
@@ -114,31 +115,12 @@ export default function NavBar() {
       i18n.addResourceBundle(router.locale, 'common')
   }, [router, i18n])
 
+  const scrollDirection = useScrollDirection()
   useEffect(() => {
-    let previousY = document.documentElement.scrollTop
-    function handleScroll() {
-      let currentY = document.documentElement.scrollTop
-
-      if (currentY <= 350) {
-        previousY = currentY
-      } else {
-        if (currentY - previousY >= 200) {
-          setShowMobileNav(false)
-          previousY = currentY
-        }
-        if (previousY - currentY >= 200) {
-          previousY = currentY
-        }
-      }
+    if (scrollDirection === 'down') {
+      setShowMobileNav(false)
     }
-    document.addEventListener('scroll', handleScroll, {
-      passive: true,
-    })
-
-    return () => {
-      document.removeEventListener('scroll', handleScroll)
-    }
-  }, [])
+  }, [scrollDirection])
 
   return (
     <nav suppressHydrationWarning={true}>

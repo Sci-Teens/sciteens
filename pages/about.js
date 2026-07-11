@@ -180,9 +180,20 @@ export default function About() {
   ])
 
   useEffect(() => {
-    // Randomize the order of the members
+    // Randomize the order of the members via Fisher-Yates
+    // (sort-based shuffles are biased and non-uniform)
     let randomized_members = [...members]
-    randomized_members.sort(() => Math.random() - 0.5)
+    for (
+      let i = randomized_members.length - 1;
+      i > 0;
+      i--
+    ) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[randomized_members[i], randomized_members[j]] = [
+        randomized_members[j],
+        randomized_members[i],
+      ]
+    }
     setMembers(randomized_members)
   }, [])
 

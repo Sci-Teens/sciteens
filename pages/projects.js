@@ -454,7 +454,7 @@ function Projects({ cached_projects }) {
 
 export async function getStaticProps({ locale }) {
   let projects = []
-  const translations = await serverSideTranslations(
+  const translationsPromise = serverSideTranslations(
     locale,
     ['common']
   )
@@ -472,7 +472,10 @@ export async function getStaticProps({ locale }) {
     orderBy('date', 'desc'),
     limit(10)
   )
-  const projectsRef = await getDocs(projectsQuery)
+  const [translations, projectsRef] = await Promise.all([
+    translationsPromise,
+    getDocs(projectsQuery),
+  ])
   projectsRef.forEach((p) => {
     projects.push(
       normalizeProject({
