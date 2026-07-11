@@ -39,6 +39,36 @@ args; without them `pnpm dev` errors at runtime, not install.
   Strings in `public/locales/{en,es,fr,hi}/common.json`. No hardcoded English
   user-facing copy.
 
+## Design philosophy
+
+SciTeens follows a **Minimalist / Swiss-style** design system:
+flat surfaces, borders as the primary visual separator, and
+restrained shadows (`shadow-sm`, never large soft-UI shadows).
+Color comes from the brand green palette
+(`sciteensGreen`, `sciteensLightGreen`, `backgroundGreen` in
+`styles/globals.css`); everything else is neutral grayscale via
+shadcn tokens.
+
+- **Prefer shadcn primitives** (`components/ui/*`) over hand-rolled
+  equivalents. If a `Card`, `Button`, `Badge`, `Input`, `Skeleton`,
+  or `Separator` fits, use it instead of recreating the styles with
+  raw `<div>`/`<a>` + ad-hoc Tailwind. Only deviate when a
+  component genuinely needs behavior the primitive doesn't provide.
+- **Card pattern**: `Card` + `CardContent` with `border-border/60`
+  and `shadow-sm`, matching `ProjectCard`. Listing items (projects,
+  articles, courses) should share this shape.
+- **Mobile gutter consistency**: the nav bar sits at `mx-4`; page
+  content on mobile must use `px-4` to align with it. Differing
+  widths (e.g. `w-11/12`, `w-5/6`, `lg:w-1/2`) should only apply
+  at `md:` and above, never on the base/mobile layer.
+- **Consistent radius**: use the theme radius scale
+  (`rounded-xl` for cards, `rounded-lg` for nested media). Do not
+  mix `rounded-sm`, `rounded-md`, or bare corners on content
+  surfaces.
+- **Loading states**: use `Skeleton` (`components/ui/skeleton.jsx`)
+  for shimmer placeholders, not ad-hoc `bg-muted animate-pulse`
+  divs.
+
 ## Architecture
 
 - One Next.js app: `pages/`, `components/`, `context/` + `lib/` (client

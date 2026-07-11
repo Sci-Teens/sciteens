@@ -130,7 +130,7 @@ function Project({ query, initialProject }) {
         }
         path={router.asPath}
       />
-      <div className="text-foreground mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+      <div className="text-foreground mx-auto mt-12 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         <Card className="border-border/60 overflow-hidden">
           <CardContent className="flex flex-col gap-4 p-6 md:p-8">
             <div className="flex flex-row items-start justify-between gap-4">
@@ -215,12 +215,12 @@ function Project({ query, initialProject }) {
         </Card>
       </div>
 
-      <div className="mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+      <div className="mx-auto mt-12 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         <Separator />
       </div>
 
       {/* Abstract */}
-      <div className="mx-auto mb-4 mt-8 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+      <div className="mx-auto mb-4 mt-8 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         <h2 className="mb-2 text-lg font-semibold md:text-2xl">
           {t('project_create_edit.summary')}
         </h2>
@@ -235,10 +235,10 @@ function Project({ query, initialProject }) {
 
       {hasTopicsOrLinks && (
         <>
-          <div className="mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+          <div className="mx-auto mt-12 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
             <Separator />
           </div>
-          <div className="mx-auto mb-4 mt-8 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+          <div className="mx-auto mb-4 mt-8 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
             {project.fields?.length > 0 && (
               <>
                 <h2 className="mb-2 text-lg font-semibold md:text-2xl">
@@ -296,12 +296,12 @@ function Project({ query, initialProject }) {
         </>
       )}
 
-      <div className="mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+      <div className="mx-auto mt-12 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         <Separator />
       </div>
 
       {/* Files */}
-      <div className="mx-auto mb-4 mt-8 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+      <div className="mx-auto mb-4 mt-8 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         {filesStatus === 'success' &&
           fileRecords.length > 0 && (
             <h2 className="mb-2 text-lg font-semibold md:text-2xl">
@@ -322,12 +322,12 @@ function Project({ query, initialProject }) {
         )}
       </div>
 
-      <div className="mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+      <div className="mx-auto mt-12 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         <Separator />
       </div>
 
       {/* Discussion */}
-      <div className="mx-auto mb-4 mt-8 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+      <div className="mx-auto mb-4 mt-8 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         <Discussion type="projects" item_id={query.id} />
       </div>
     </>

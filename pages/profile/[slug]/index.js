@@ -125,7 +125,7 @@ function Project({ profile }) {
         eyebrow="Profile"
         path={router.asPath}
       />
-      <div className="text-foreground mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+      <div className="text-foreground mx-auto mt-12 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         <Card className="animate-in border-border/60 fade-in slide-in-from-bottom-4 overflow-hidden duration-300">
           <CardContent className="flex flex-col gap-6 p-6 sm:flex-row sm:items-center md:p-8">
             <div className="ring-background size-20 md:size-28 shrink-0 self-start rounded-full shadow-sm ring-4 sm:self-center">
@@ -194,12 +194,12 @@ function Project({ profile }) {
         </Card>
       </div>
 
-      <div className="mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+      <div className="mx-auto mt-12 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         <Separator />
       </div>
 
       {/* Projects */}
-      <div className="mx-auto mb-4 mt-8 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+      <div className="mx-auto mb-4 mt-8 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         <h2 className="mb-2 text-lg font-semibold md:text-2xl">
           {t('index_profile.projects')}
         </h2>
@@ -217,12 +217,12 @@ function Project({ profile }) {
         )}
       </div>
 
-      <div className="mx-auto mt-12 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+      <div className="mx-auto mt-12 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         <Separator />
       </div>
 
       {/* Files */}
-      <div className="mx-auto mb-4 mt-8 w-5/6 px-4 md:w-2/3 lg:w-1/2 lg:px-0">
+      <div className="mx-auto mb-4 mt-8 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         {(filesStatus === 'loading' ||
           fileRecords.length > 0) && (
           <h2 className="mb-2 text-lg font-semibold md:text-2xl">

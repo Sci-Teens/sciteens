@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import PageHeading from '@/components/PageHeading'
+import { Card, CardContent } from '@/components/ui/card'
 
 export default function About() {
   const { t } = useTranslation('common')
@@ -250,10 +251,55 @@ export default function About() {
               <div className="mb-8 inline-grid h-full w-full grid-cols-2 place-items-center lg:grid-cols-3">
                 {currentMembers.map((member) => {
                   return (
-                    <div
+                    <Card
                       key={member.name}
-                      className="member border-border/60 bg-card relative mb-6 h-[90%] w-11/12 scale-0 rounded-xl border p-4 shadow-sm transition-all duration-500 md:p-8"
+                      className="member relative mb-6 h-[90%] w-full scale-0 transition-all duration-500"
                     >
+                      <CardContent className="p-4 md:p-8">
+                        <Image
+                          src={`/assets/headshots/${member.image}`}
+                          alt={member.name}
+                          width={112}
+                          height={112}
+                          className="m-auto mb-4 h-20 w-20 rounded-full object-cover shadow-sm lg:h-28 lg:w-28"
+                        />
+                        <p className="mb-2 text-center text-base font-semibold md:text-2xl">
+                          {member.name}
+                        </p>
+                        <p
+                          className={`text-muted-foreground hidden text-center md:block
+                                      ${
+                                        member.name ===
+                                          'Angelica Castillejos' ||
+                                        member.name ===
+                                          'Tasman Rosenfeld'
+                                          ? 'text-sm'
+                                          : 'text-base'
+                                      }`}
+                        >
+                          {member.about}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+            </>
+          )}
+
+          <h2 className="mb-6 text-center text-2xl font-bold md:text-3xl">
+            {t('about.previous_members')}
+          </h2>
+          <div className="mb-8 inline-grid h-full w-full grid-cols-2 place-items-center lg:grid-cols-3">
+            {members
+              .filter((m) => m.current == false)
+              .map((member) => {
+                return (
+                  <Card
+                    key={member.name}
+                    className="member relative mb-6 h-[90%] w-full scale-0 transition-all duration-500"
+                  >
+                    <CardContent className="p-4 md:p-8">
                       <Image
                         src={`/assets/headshots/${member.image}`}
                         alt={member.name}
@@ -277,49 +323,8 @@ export default function About() {
                       >
                         {member.about}
                       </p>
-                    </div>
-                  )
-                })}
-              </div>
-            </>
-          )}
-
-          <h2 className="mb-6 text-center text-2xl font-bold md:text-3xl">
-            {t('about.previous_members')}
-          </h2>
-          <div className="mb-8 inline-grid h-full w-full grid-cols-2 place-items-center lg:grid-cols-3">
-            {members
-              .filter((m) => m.current == false)
-              .map((member) => {
-                return (
-                  <div
-                    key={member.name}
-                    className="member border-border/60 bg-card relative mb-6 h-[90%] w-11/12 scale-0 rounded-xl border p-4 shadow-sm transition-all duration-500 md:p-8"
-                  >
-                    <Image
-                      src={`/assets/headshots/${member.image}`}
-                      alt={member.name}
-                      width={112}
-                      height={112}
-                      className="m-auto mb-4 h-20 w-20 rounded-full object-cover shadow-sm lg:h-28 lg:w-28"
-                    />
-                    <p className="mb-2 text-center text-base font-semibold md:text-2xl">
-                      {member.name}
-                    </p>
-                    <p
-                      className={`text-muted-foreground hidden text-center md:block
-                                    ${
-                                      member.name ===
-                                        'Angelica Castillejos' ||
-                                      member.name ===
-                                        'Tasman Rosenfeld'
-                                        ? 'text-sm'
-                                        : 'text-base'
-                                    }`}
-                    >
-                      {member.about}
-                    </p>
-                  </div>
+                    </CardContent>
+                  </Card>
                 )
               })}
           </div>
