@@ -75,13 +75,11 @@ function ImageLightbox({ images, startIndex }) {
               key={key}
               className="flex items-center justify-center pl-0"
             >
-              <div className="relative h-[65vh] w-full">
-                <Image
+              <div className="relative flex h-[65vh] w-full items-center justify-center overflow-hidden rounded-lg bg-white">
+                <img
                   src={getPreviewUrl(file)}
                   alt=""
-                  fill
-                  unoptimized
-                  className="object-contain"
+                  className="max-h-full max-w-full object-contain"
                 />
               </div>
             </CarouselItem>
@@ -100,12 +98,12 @@ function ImageLightbox({ images, startIndex }) {
           </>
         )}
       </Carousel>
-      <div className="flex items-center justify-between px-6 pb-6 text-white">
+      <div className="flex items-center justify-between px-6 pb-6">
         <p className="truncate text-sm" title={file?.name}>
           {file?.name}
         </p>
         {images.length > 1 && (
-          <span className="shrink-0 pl-2 text-xs text-white/70">
+          <span className="text-muted-foreground shrink-0 pl-2 text-xs">
             {current + 1} / {images.length}
           </span>
         )}
@@ -146,6 +144,29 @@ export default function FileGallery({ files }) {
   const [lightboxIndex, setLightboxIndex] = useState(null)
   const [openPdf, setOpenPdf] = useState(null)
 
+  // Embedding a PDF in an <iframe> is unreliable on touch/mobile
+  // browsers — iOS Safari and Android Chrome frequently render a
+  // blank frame or force a download prompt instead of the page,
+  // since neither has a consistent built-in PDF plugin usable
+  // *inside* a frame (only for a top-level navigation). Coarse-
+  // pointer devices skip the in-dialog viewer and get the same
+  // reliable "open in the browser's own PDF handling" behavior as
+  // the new-tab link inside that dialog.
+  function openPdfFile(file) {
+    if (
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(pointer: coarse)')?.matches
+    ) {
+      window.open(
+        getPreviewUrl(file),
+        '_blank',
+        'noopener,noreferrer'
+      )
+      return
+    }
+    setOpenPdf(file)
+  }
+
   return (
     <div className="space-y-4">
       {images.length > 0 && (
@@ -164,7 +185,7 @@ export default function FileGallery({ files }) {
                 aria-label={file?.name}
                 className="focus-visible:ring-ring group block"
               >
-                <Card className="relative aspect-square overflow-hidden p-0">
+                <Card className="relative aspect-square overflow-hidden bg-white p-0">
                   <Image
                     src={getPreviewUrl(file)}
                     alt=""
@@ -198,7 +219,7 @@ export default function FileGallery({ files }) {
               <button
                 key={key}
                 type="button"
-                onClick={() => setOpenPdf(file)}
+                onClick={() => openPdfFile(file)}
                 className="group block text-left"
               >
                 <Card className="overflow-hidden p-0 transition hover:shadow-md">
@@ -251,7 +272,7 @@ export default function FileGallery({ files }) {
       >
         <DialogContent
           showCloseButton
-          className="[&_button]:text-white max-w-3xl border-none bg-transparent p-0 shadow-none sm:max-w-3xl"
+          className="max-w-3xl border-none bg-white p-0 shadow-none sm:max-w-3xl"
         >
           {lightboxIndex !== null && (
             <ImageLightbox

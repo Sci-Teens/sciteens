@@ -31,8 +31,11 @@ const {
   deriveConvertedObjectPath,
   deriveLocalConvertedFilename,
   buildSofficeConvertArgv,
-  LEGACY_MIME_EXTENSIONS,
+  buildConvertedFileRecord,
 } = require('./lib/legacyFileConversion')
+const {
+  classifyObjectOwner,
+} = require('./lib/fileRecordBackfill')
 
 const SOFFICE_TIMEOUT_MS = 120_000
 
@@ -108,12 +111,12 @@ function resolveAndVerifySofficeBin(sofficeBinArg) {
 
 async function convertOneFile({
   bucket,
+  db,
   file,
   contentType,
+  sourceExtension,
   sofficeBin,
 }) {
-  const sourceExtension =
-    LEGACY_MIME_EXTENSIONS[contentType]
   const tmpDir = fs.mkdtempSync(
     path.join(os.tmpdir(), 'legacy-convert-')
   )
@@ -169,8 +172,51 @@ async function convertOneFile({
         },
       },
     })
+
+    // The `files` Firestore subcollection is now the sole source of
+    // truth the app reads from (see scripts/lib/fileRecordBackfill.js)
+    // — a Storage-only swap would leave the converted PDF invisible
+    // (no record) and, if the legacy object had already been
+    // backfilled, a dead record behind pointing at nothing. Anything
+    // outside a projects/{id}/ or profiles/{uid}/ prefix never had a
+    // record to begin with, so there's nothing to sync.
+    const owner = classifyObjectOwner(file.name)
+    let firestoreSynced = false
+    if (owner.kind) {
+      const ownerCollection =
+        owner.kind === 'project' ? 'projects' : 'profiles'
+      const oldBasename = path.posix.basename(file.name)
+      const oldDocRef = db
+        .collection(ownerCollection)
+        .doc(owner.ownerId)
+        .collection('files')
+        .doc(oldBasename)
+      const oldSnap = await oldDocRef.get()
+      const previousRecord = oldSnap.exists
+        ? oldSnap.data()
+        : null
+
+      const record = buildConvertedFileRecord({
+        newPath,
+        bucketName: bucket.name,
+        size: pdfBuffer.length,
+        previousRecord,
+      })
+
+      const newDocRef = db
+        .collection(ownerCollection)
+        .doc(owner.ownerId)
+        .collection('files')
+        .doc(path.posix.basename(newPath))
+      await newDocRef.set(record)
+      if (oldSnap.exists) {
+        await oldDocRef.delete()
+      }
+      firestoreSynced = true
+    }
+
     await file.delete()
-    return newPath
+    return { newPath, firestoreSynced }
   } finally {
     fs.rmSync(tmpDir, {
       recursive: true,
@@ -271,6 +317,7 @@ async function main() {
     storageBucket: bucketName,
   })
   const bucket = admin.storage().bucket()
+  const db = admin.firestore()
 
   console.log(
     `${
@@ -285,6 +332,7 @@ async function main() {
   const counts = {
     scanned: 0,
     converted: 0,
+    firestoreSynced: 0,
     skippedUnknown: 0,
     failed: 0,
   }
@@ -321,24 +369,35 @@ async function main() {
 
     // classification.action === 'convert'
     if (!args.execute) {
+      const owner = classifyObjectOwner(file.name)
+      const firestoreNote = owner.kind
+        ? `, syncing its ${owner.kind} Firestore file record`
+        : ' (no owned projects/profiles prefix — no Firestore record to sync)'
       console.log(
-        `[DRY RUN] would convert: ${file.name} (${contentType}) -> new PDF in same directory, then delete original`
+        `[DRY RUN] would convert: ${file.name} (${contentType}) -> new PDF in same directory, then delete original${firestoreNote}`
       )
       counts.converted++
       continue
     }
 
     try {
-      const newPath = await convertOneFile({
-        bucket,
-        file,
-        contentType,
-        sofficeBin,
-      })
+      const { newPath, firestoreSynced } =
+        await convertOneFile({
+          bucket,
+          db,
+          file,
+          contentType,
+          sourceExtension: classification.sourceExtension,
+          sofficeBin,
+        })
       console.log(
-        `converted: ${file.name} (${contentType}) -> ${newPath} (original deleted)`
+        `converted: ${file.name} (${contentType}) -> ${newPath} (original deleted` +
+          (firestoreSynced
+            ? ', Firestore file record synced)'
+            : ', no Firestore record to sync)')
       )
       counts.converted++
+      if (firestoreSynced) counts.firestoreSynced++
     } catch (err) {
       counts.failed++
       console.error(
@@ -349,6 +408,7 @@ async function main() {
 
   console.log(
     `\nSummary: scanned=${counts.scanned} converted=${counts.converted} ` +
+      `firestore-synced=${counts.firestoreSynced} ` +
       `skipped-unknown-type=${counts.skippedUnknown} failed=${counts.failed}` +
       (args.execute ? '' : ' (dry run — no writes made)')
   )

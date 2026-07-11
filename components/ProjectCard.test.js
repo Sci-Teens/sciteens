@@ -147,17 +147,38 @@ describe('ProjectCard', () => {
 
   // Regression guard: a missing project photo used to fall back to the
   // sciteens logo stretched over a gray box (`sciteens_initials.jpg`),
-  // which looked broken. It should render a neutral image placeholder
-  // icon instead, and never request the logo asset.
-  it('renders an icon placeholder instead of the sciteens logo when there is no project photo', () => {
+  // which looked broken. It now renders one of the abstract default
+  // project images (deterministic per id, see lib/defaultProjectImage),
+  // never the logo and never a bare icon-only placeholder.
+  it('renders a deterministic default image instead of the sciteens logo when there is no project photo', () => {
     const { container } = render(
       <ProjectCard
         project={{ id: 'p8', title: 'No Photo Project' }}
       />
     )
 
-    expect(container.querySelector('img')).toBeNull()
-    expect(container.querySelector('svg')).not.toBeNull()
+    const img = container.querySelector('img')
+    expect(img).not.toBeNull()
+    expect(img.getAttribute('alt')).toBe('')
+    expect(img.getAttribute('src')).not.toContain(
+      'sciteens'
+    )
+    expect(img.getAttribute('src')).toContain(
+      '/assets/project-defaults/default-'
+    )
+  })
+
+  it('renders the same default image across renders for the same project id', () => {
+    const { container: first } = render(
+      <ProjectCard project={{ id: 'p8', title: 'A' }} />
+    )
+    const { container: second } = render(
+      <ProjectCard project={{ id: 'p8', title: 'A' }} />
+    )
+
+    expect(
+      first.querySelector('img').getAttribute('src')
+    ).toBe(second.querySelector('img').getAttribute('src'))
   })
 
   it('renders the real photo when present', () => {

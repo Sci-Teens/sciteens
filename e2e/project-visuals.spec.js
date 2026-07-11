@@ -2,8 +2,9 @@
 // synthetic fixtures so nothing depends on real production data:
 //   1. Member profile pictures: a dead picture URL must fall back to
 //      the user icon, never a broken-image box with raw alt text.
-//   2. Missing project photos: must fall back to a neutral icon
-//      placeholder, never the stretched sciteens logo on a gray box.
+//   2. Missing/broken project photos: must fall back to one of the
+//      bundled abstract default illustrations, never the stretched
+//      sciteens logo on a gray box.
 //   3. Dates: the project card's date must align under the "By" label
 //      at any viewport width (no hardcoded offset), and the project
 //      detail page's "Started on" date must actually render (it used
@@ -101,7 +102,7 @@ test.describe('project visuals', () => {
     })
   })
 
-  test('project cards show icon placeholders instead of broken images or the stretched logo', async ({
+  test('project cards show a default illustration instead of broken images or the stretched logo', async ({
     page,
   }) => {
     await page.goto('/projects')
@@ -133,11 +134,16 @@ test.describe('project visuals', () => {
       expect(hasBrokenImg).toBe(0)
     }).toPass({ timeout: 5000 })
 
-    // The photo-less project must render an icon, not an <img>.
-    await expect(noPhotoCard.locator('img')).toHaveCount(0)
+    // Both a missing and a failed photo fall back to one of the
+    // bundled abstract default illustrations (deterministic per
+    // project id, see lib/defaultProjectImage), never a bare
+    // icon-only placeholder and never the broken <img>.
     await expect(
-      noPhotoCard.locator('svg')
-    ).not.toHaveCount(0)
+      noPhotoCard.locator('img[src*="project-defaults"]')
+    ).toHaveCount(1)
+    await expect(
+      brokenCard.locator('img[src*="project-defaults"]')
+    ).toHaveCount(1)
   })
 
   test('member profile pictures fall back to a user icon, never raw alt text', async ({

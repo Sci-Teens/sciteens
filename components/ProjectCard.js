@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import Image from 'next/image'
-import { Image as ImageIcon } from 'lucide-react'
 import { useTranslation } from 'next-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -9,6 +8,7 @@ import {
   getFieldLabel,
 } from '../context/helpers'
 import { normalizeProject } from '../lib/projects'
+import { getDefaultProjectImage } from '../lib/defaultProjectImage'
 import ProfilePhoto from './ProfilePhoto'
 
 function getProfileHref(member) {
@@ -78,13 +78,15 @@ export default function ProjectCard({
               onError={() => setPhotoError(true)}
             />
           ) : (
-            <div className="text-muted-foreground/50 flex h-full w-full items-center justify-center">
-              <ImageIcon
-                strokeWidth={1.5}
-                aria-hidden="true"
-                className="h-8 w-8 md:h-12 md:w-12"
-              />
-            </div>
+            <Image
+              src={getDefaultProjectImage(
+                normalizedProject.id
+              )}
+              alt=""
+              fill
+              unoptimized
+              className="object-cover"
+            />
           )}
         </div>
         <div className="ml-4 min-w-0 flex-1">
