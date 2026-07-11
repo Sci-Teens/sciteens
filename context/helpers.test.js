@@ -221,6 +221,7 @@ describe('isAllowedProjectLink', () => {
     'https://youtube.com/watch?v=1',
     'https://www.youtube.com/watch?v=1',
     'https://youtu.be/abc123',
+    'https://colab.research.google.com/drive/abc123',
   ])('accepts an allowlisted host (%s)', (url) => {
     expect(isAllowedProjectLink(url)).toBe(true)
   })
@@ -235,6 +236,11 @@ describe('isAllowedProjectLink', () => {
     'javascript:alert(1)',
     'data:text/html,<script>alert(1)</script>',
     'ftp://github.com',
+    // Colab lives at a specific subdomain — the bare/broader Google
+    // hosts must not be swept in by it.
+    'https://google.com',
+    'https://research.google.com',
+    'https://drive.google.com',
     '',
     null,
     undefined,
@@ -249,6 +255,9 @@ describe('isAllowedProjectLink', () => {
   it('exposes the allowlist and cap as plain constants', () => {
     expect(ALLOWED_LINK_HOSTS).toContain('github.com')
     expect(ALLOWED_LINK_HOSTS).toContain('youtube.com')
+    expect(ALLOWED_LINK_HOSTS).toContain(
+      'colab.research.google.com'
+    )
     expect(MAX_PROJECT_LINKS).toBeGreaterThan(0)
   })
 })

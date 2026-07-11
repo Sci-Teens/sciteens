@@ -254,6 +254,7 @@ export const ALLOWED_LINK_HOSTS = [
   'github.com',
   'youtube.com',
   'youtu.be',
+  'colab.research.google.com',
 ]
 
 export const MAX_PROJECT_LINKS = 10
