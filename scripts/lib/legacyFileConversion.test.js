@@ -9,6 +9,8 @@ import {
   deriveConvertedObjectPath,
   deriveLocalConvertedFilename,
   buildSofficeConvertArgv,
+  deriveConvertedDisplayName,
+  buildConvertedFileRecord,
 } from './legacyFileConversion'
 
 describe('isLegacyOfficeMimeType', () => {
@@ -209,5 +211,83 @@ describe('buildSofficeConvertArgv', () => {
         outputDir: '/tmp/out',
       })
     ).toThrow()
+  })
+})
+
+describe('deriveConvertedDisplayName', () => {
+  it('swaps a legacy Office extension for .pdf', () => {
+    expect(
+      deriveConvertedDisplayName(
+        'Slides.pptx',
+        'fallback.pdf'
+      )
+    ).toBe('Slides.pdf')
+  })
+
+  it('appends .pdf to a name with no extension', () => {
+    expect(
+      deriveConvertedDisplayName('Slides', 'fallback.pdf')
+    ).toBe('Slides.pdf')
+  })
+
+  it('falls back to the converted basename when there is no previous name', () => {
+    expect(
+      deriveConvertedDisplayName(null, 'a1b2.pdf')
+    ).toBe('a1b2.pdf')
+    expect(
+      deriveConvertedDisplayName(undefined, 'a1b2.pdf')
+    ).toBe('a1b2.pdf')
+  })
+})
+
+describe('buildConvertedFileRecord', () => {
+  it('carries the previous record name (extension swapped) and uploader over', () => {
+    const record = buildConvertedFileRecord({
+      newPath: 'projects/p1/newid123.pdf',
+      bucketName: 'sciteens-5b706.appspot.com',
+      size: 4096,
+      previousRecord: {
+        name: 'Slides.pptx',
+        uploadedBy: 'uid-1',
+      },
+    })
+
+    expect(record).toMatchObject({
+      path: 'projects/p1/newid123.pdf',
+      bucket: 'sciteens-5b706.appspot.com',
+      name: 'Slides.pdf',
+      contentType: 'application/pdf',
+      size: 4096,
+      uploadedBy: 'uid-1',
+      isPhoto: false,
+      thumbnailUrl: null,
+    })
+    expect(record.url).toBe(
+      'https://firebasestorage.googleapis.com/v0/b/sciteens-5b706.appspot.com/o/projects%2Fp1%2Fnewid123.pdf?alt=media'
+    )
+    expect(typeof record.createdAt).toBe('string')
+  })
+
+  it('falls back to a generated name and null uploader when there is no previous record', () => {
+    const record = buildConvertedFileRecord({
+      newPath: 'profiles/u1/newid456.pdf',
+      bucketName: 'sciteens-5b706.appspot.com',
+      size: 2048,
+      previousRecord: null,
+    })
+
+    expect(record.name).toBe('newid456.pdf')
+    expect(record.uploadedBy).toBeNull()
+  })
+
+  it('never marks a converted PDF as a project/profile photo', () => {
+    const record = buildConvertedFileRecord({
+      newPath: 'projects/p1/newid789.pdf',
+      bucketName: 'sciteens-5b706.appspot.com',
+      size: 10,
+      previousRecord: { isPhoto: true },
+    })
+
+    expect(record.isPhoto).toBe(false)
   })
 })

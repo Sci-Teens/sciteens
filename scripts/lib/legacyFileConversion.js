@@ -8,6 +8,8 @@
 // legacy/allowed MIME lists this script cares about are copied locally
 // instead of shared.
 
+const path = require('node:path')
+
 // Uploads used to accept these Office formats before the dropzones
 // were restricted to images + PDF; any object still stored under one
 // of these content types predates that restriction and is a
@@ -127,6 +129,68 @@ function buildSofficeConvertArgv({
   ]
 }
 
+// The commit that made a Firestore `files` subcollection the sole
+// source of truth for "what files does this project/profile have"
+// (see scripts/lib/fileRecordBackfill.js) means a converted PDF needs
+// a Firestore record of its own, and the legacy object's old record
+// (if one exists) needs to go — otherwise the conversion either
+// leaves the file invisible in the app (no record) or leaves a dead
+// record pointing at a Storage object that no longer exists. These
+// two helpers build that swap's contents without touching
+// Storage/Firestore themselves, so they stay unit-testable like the
+// rest of this file.
+
+// Keeps the original display filename recognizable after conversion —
+// "Slides.pptx" becomes "Slides.pdf" rather than a random UUID — by
+// swapping only the extension. Falls back to the converted object's
+// own generated basename when there's no previous record to carry a
+// name over from (the legacy object predates the file-record model
+// and was never backfilled).
+function deriveConvertedDisplayName(
+  previousName,
+  fallbackBasename
+) {
+  if (!previousName) return fallbackBasename
+  const dot = previousName.lastIndexOf('.')
+  const base =
+    dot === -1 ? previousName : previousName.slice(0, dot)
+  return `${base}.pdf`
+}
+
+// Mirrors context/helpers.js's buildFileRecord shape exactly (that
+// file isn't imported here — see the file header — but the schema is
+// a contract shared with firestore.rules and every reader of the
+// `files` subcollection). `previousRecord` is the old Firestore doc
+// for the legacy object being replaced, if one existed (from a prior
+// backfill run or the original upload flow) — its `uploadedBy`/`name`
+// carry over so converting a file doesn't strip who uploaded it or
+// rename it out from under them.
+function buildConvertedFileRecord({
+  newPath,
+  bucketName,
+  size,
+  previousRecord,
+}) {
+  const basename = path.posix.basename(newPath)
+  return {
+    path: newPath,
+    bucket: bucketName,
+    name: deriveConvertedDisplayName(
+      previousRecord?.name,
+      basename
+    ),
+    contentType: 'application/pdf',
+    size,
+    url: `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodeURIComponent(
+      newPath
+    )}?alt=media`,
+    uploadedBy: previousRecord?.uploadedBy ?? null,
+    isPhoto: false,
+    thumbnailUrl: null,
+    createdAt: new Date().toISOString(),
+  }
+}
+
 module.exports = {
   LEGACY_MIME_EXTENSIONS,
   LEGACY_OFFICE_MIME_TYPES,
@@ -139,4 +203,6 @@ module.exports = {
   deriveConvertedObjectPath,
   deriveLocalConvertedFilename,
   buildSofficeConvertArgv,
+  deriveConvertedDisplayName,
+  buildConvertedFileRecord,
 }
