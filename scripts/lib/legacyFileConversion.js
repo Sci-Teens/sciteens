@@ -27,6 +27,29 @@ const LEGACY_OFFICE_MIME_TYPES = Object.keys(
   LEGACY_MIME_EXTENSIONS
 )
 
+// Some legacy uploads predate reliable Storage content-type
+// detection and sit under a generic type (application/octet-stream)
+// instead of the real Office MIME type — confirmed against
+// production, where the surviving legacy files are .pptx objects
+// stored as application/octet-stream. A project/profile upload named
+// *.doc, *.docx, *.ppt, or *.pptx is unambiguous, so the extension
+// alone is trusted as a conversion candidate even when the content
+// type doesn't say so.
+const LEGACY_OFFICE_EXTENSIONS = Object.values(
+  LEGACY_MIME_EXTENSIONS
+)
+
+function extensionOf(objectPath) {
+  const basename =
+    typeof objectPath === 'string'
+      ? path.posix.basename(objectPath)
+      : ''
+  const dot = basename.lastIndexOf('.')
+  return dot === -1
+    ? ''
+    : basename.slice(dot + 1).toLowerCase()
+}
+
 // Mirrors context/helpers.js's current UPLOAD_MIME_EXTENSIONS keys —
 // objects already in one of these types are the expected post-restriction
 // shape and are left alone (not "found but not converted").
@@ -67,6 +90,13 @@ function classifyObject({ path: objectPath, contentType }) {
       action: 'convert',
       sourceExtension: LEGACY_MIME_EXTENSIONS[contentType],
     }
+  }
+  const extension = extensionOf(objectPath)
+  if (
+    LEGACY_OFFICE_EXTENSIONS.includes(extension) &&
+    !isAllowedMimeType(contentType)
+  ) {
+    return { action: 'convert', sourceExtension: extension }
   }
   if (isAllowedMimeType(contentType)) {
     return { action: 'skip-allowed' }

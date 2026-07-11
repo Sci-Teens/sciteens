@@ -123,6 +123,63 @@ describe('classifyObject', () => {
       })
     ).toEqual({ action: 'excluded' })
   })
+
+  it('trusts a .pptx extension when content type is a generic octet-stream (matches production)', () => {
+    expect(
+      classifyObject({
+        path: 'projects/p1/Fluid Dynamics Presentation.pptx',
+        contentType: 'application/octet-stream',
+      })
+    ).toEqual({
+      action: 'convert',
+      sourceExtension: 'pptx',
+    })
+  })
+
+  it('trusts a .doc/.docx/.ppt extension when content type is missing entirely', () => {
+    expect(
+      classifyObject({
+        path: 'profiles/u1/report.doc',
+        contentType: undefined,
+      })
+    ).toEqual({ action: 'convert', sourceExtension: 'doc' })
+    expect(
+      classifyObject({
+        path: 'profiles/u1/report.docx',
+        contentType: '',
+      })
+    ).toEqual({
+      action: 'convert',
+      sourceExtension: 'docx',
+    })
+    expect(
+      classifyObject({
+        path: 'projects/p1/old.ppt',
+        contentType: 'application/octet-stream',
+      })
+    ).toEqual({ action: 'convert', sourceExtension: 'ppt' })
+  })
+
+  it('does not let a legacy-looking extension override an already-allowed content type', () => {
+    expect(
+      classifyObject({
+        path: 'projects/p1/renamed.pptx',
+        contentType: 'application/pdf',
+      })
+    ).toEqual({ action: 'skip-allowed' })
+  })
+
+  it('is case-insensitive on the extension', () => {
+    expect(
+      classifyObject({
+        path: 'projects/p1/Slides.PPTX',
+        contentType: 'application/octet-stream',
+      })
+    ).toEqual({
+      action: 'convert',
+      sourceExtension: 'pptx',
+    })
+  })
 })
 
 describe('deriveConvertedObjectPath', () => {

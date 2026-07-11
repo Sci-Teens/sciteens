@@ -32,7 +32,6 @@ const {
   deriveLocalConvertedFilename,
   buildSofficeConvertArgv,
   buildConvertedFileRecord,
-  LEGACY_MIME_EXTENSIONS,
 } = require('./lib/legacyFileConversion')
 const {
   classifyObjectOwner,
@@ -115,10 +114,9 @@ async function convertOneFile({
   db,
   file,
   contentType,
+  sourceExtension,
   sofficeBin,
 }) {
-  const sourceExtension =
-    LEGACY_MIME_EXTENSIONS[contentType]
   const tmpDir = fs.mkdtempSync(
     path.join(os.tmpdir(), 'legacy-convert-')
   )
@@ -389,6 +387,7 @@ async function main() {
           db,
           file,
           contentType,
+          sourceExtension: classification.sourceExtension,
           sofficeBin,
         })
       console.log(
