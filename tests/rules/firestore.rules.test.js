@@ -136,6 +136,53 @@ describe('/profiles/{uid}', () => {
     await assertFails(deleteDoc(doc(db, 'profiles/alice')))
   })
 
+  it('accepts create with a valid links list', async () => {
+    const db = ctxFirestore('alice')
+    await assertSucceeds(
+      setDoc(doc(db, 'profiles/alice'), {
+        uid: 'alice',
+        links: ['https://github.com/sciteens'],
+      })
+    )
+  })
+
+  it('rejects create when links is not a list', async () => {
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(doc(db, 'profiles/alice'), {
+        uid: 'alice',
+        links: 'https://github.com/sciteens',
+      })
+    )
+  })
+
+  it('rejects create when links has more than 10 entries', async () => {
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(doc(db, 'profiles/alice'), {
+        uid: 'alice',
+        links: new Array(11).fill(
+          'https://github.com/sciteens'
+        ),
+      })
+    )
+  })
+
+  it('rejects an update that turns links into an invalid shape', async () => {
+    await seed((db) =>
+      setDoc(doc(db, 'profiles/alice'), {
+        uid: 'alice',
+        links: [],
+      })
+    )
+    const db = ctxFirestore('alice')
+    await assertFails(
+      updateDoc(doc(db, 'profiles/alice'), {
+        links: 'not-a-list',
+      })
+    )
+  })
+
   it('is publicly readable, including unauthenticated', async () => {
     await seed((db) =>
       setDoc(doc(db, 'profiles/alice'), { uid: 'alice' })

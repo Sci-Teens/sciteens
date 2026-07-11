@@ -45,7 +45,7 @@ import {
   buildFileRecord,
   getProjectFieldOptions,
   getSafeUploadName,
-  isAllowedProjectLink,
+  isAllowedLink,
 } from '../../context/helpers'
 import { generatePdfThumbnailBlob } from '../../lib/pdfThumbnail'
 import { AppContext } from '../../context/context'
@@ -159,7 +159,7 @@ export default function CreateProject() {
             : '',
           abstract: values.abstract.trim(),
           need_mentor: false,
-          links: links.filter(isAllowedProjectLink),
+          links: links.filter(isAllowedLink),
           date: moment().toISOString(),
           subscribers: [],
           fields: Object.keys(

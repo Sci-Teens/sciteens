@@ -18,12 +18,29 @@ import {
   storage,
 } from '../../../lib/firebase'
 import {
+  getApp,
+  getApps,
+  initializeApp,
+} from 'firebase/app'
+// getServerSideProps below deliberately imports its own
+// firestore accessors from the top-level 'firebase/firestore'
+// package rather than reusing the '@firebase/firestore' ones the
+// client component uses — mixing the two around the same app
+// instance throws "Expected first argument to collection() to be
+// a CollectionReference..." (they resolve to distinct app
+// registries in the server bundle).
+import {
+  collection as collectionSSR,
+  getDocs as getDocsSSR,
+  getFirestore as getFirestoreSSR,
+  limit as limitSSR,
+  query as querySSR,
+  where as whereSSR,
+} from 'firebase/firestore'
+import {
   collection,
   updateDoc,
-  limit,
-  getFirestore,
   query as firebase_query,
-  where,
   getDocs,
   doc,
   setDoc,
@@ -40,11 +57,14 @@ import { updateProfile as updateFirebaseProfile } from '@firebase/auth'
 
 import { useDropzone } from 'react-dropzone'
 import File from '../../../components/File'
+import LinksField from '../../../components/LinksField'
 import { AppContext } from '../../../context/context'
 import {
   ALLOWED_UPLOAD_MIME_TYPES,
   buildFileRecord,
   getSafeUploadName,
+  isAllowedLink,
+  MAX_LINKS,
 } from '../../../context/helpers'
 import { generatePdfThumbnailBlob } from '../../../lib/pdfThumbnail'
 import firebaseConfig from '../../../firebaseConfig'
@@ -75,6 +95,20 @@ export default function UpdateProfilePage({
   const [select_photo_mode, setMode] = useState(false)
 
   const [error_file, setErrorFile] = useState('')
+
+  const [links, setLinks] = useState(
+    Array.isArray(user_profile.links)
+      ? user_profile.links.filter(isAllowedLink)
+      : []
+  )
+
+  // Resume is a single-slot Firestore file record (isResume: true),
+  // kept out of `entries` (the photo/gallery list) so it never gets
+  // swept into the "set display photo" reorder logic. Removing an
+  // existing resume deletes it immediately (mirrors removeFile
+  // below); only a freshly picked replacement waits for submit.
+  const [resume, setResume] = useState(null)
+  const [errorResume, setErrorResume] = useState('')
 
   const { status, data: signInCheckResult } =
     useSigninCheck()
@@ -115,6 +149,7 @@ export default function UpdateProfilePage({
   useEffect(() => {
     async function loadFiles() {
       setEntries([])
+      setResume(null)
       try {
         const filesSnap = await getDocs(
           firebase_query(
@@ -133,6 +168,16 @@ export default function UpdateProfilePage({
           id: snap.id,
           record: snap.data(),
         }))
+        const resumeIndex = loaded.findIndex(
+          (entry) => entry.record.isResume
+        )
+        if (resumeIndex !== -1) {
+          const [resumeEntry] = loaded.splice(
+            resumeIndex,
+            1
+          )
+          setResume(resumeEntry)
+        }
         const photoIndex = loaded.findIndex(
           (entry) => entry.record.isPhoto
         )
@@ -155,7 +200,9 @@ export default function UpdateProfilePage({
         doc(firestore, 'profiles', user_profile.id),
         {
           about: values.about.trim(),
-          links: [],
+          links: links
+            .filter(isAllowedLink)
+            .slice(0, MAX_LINKS),
         }
       )
     } catch (e) {
@@ -258,6 +305,44 @@ export default function UpdateProfilePage({
         if (isPhoto) newPhotoUrl = downloadURL
       }
 
+      // A new resume is uploaded on submit, like any other pending
+      // file; removing an existing one already deleted it
+      // immediately (see removeResume below), so there's nothing
+      // left to clean up here.
+      if (resume?.kind === 'new') {
+        const resumeFile = resume.file
+        const safeResumeName = getSafeUploadName(resumeFile)
+        if (safeResumeName) {
+          const resumeRef = ref(
+            storage,
+            `profiles/${user_profile.id}/${safeResumeName}`
+          )
+          await uploadBytes(resumeRef, resumeFile)
+          const resumeDownloadURL = await getDownloadURL(
+            resumeRef
+          )
+          await setDoc(
+            doc(
+              firestore,
+              'profiles',
+              user_profile.id,
+              'files',
+              safeResumeName
+            ),
+            buildFileRecord({
+              storagePath: resumeRef.fullPath,
+              bucket: firebaseConfig.storageBucket,
+              name: resumeFile.name,
+              contentType: resumeFile.type,
+              size: resumeFile.size,
+              url: resumeDownloadURL,
+              uploadedBy: user_profile.id,
+              isResume: true,
+            })
+          )
+        }
+      }
+
       await setDoc(
         doc(firestore, 'profile-pictures', user_profile.id),
         { picture: newPhotoUrl }
@@ -356,6 +441,54 @@ export default function UpdateProfilePage({
     setMode(false)
   }
 
+  const onResumeChange = (e) => {
+    const f = e.target.files?.[0]
+    e.target.value = ''
+    if (!f) return
+    if (f.type !== 'application/pdf') {
+      setErrorResume(
+        t('edit_profile.resume_format_not_accepted')
+      )
+      return
+    }
+    if (f.size > 8000000) {
+      setErrorResume(
+        t('project_create_edit.file_too_large')
+      )
+      return
+    }
+    setErrorResume('')
+    setResume({
+      key: crypto.randomUUID(),
+      kind: 'new',
+      file: f,
+    })
+  }
+
+  const removeResume = async (e) => {
+    e?.preventDefault()
+    const removed = resume
+    setResume(null)
+    setErrorResume('')
+
+    if (removed?.kind !== 'existing') return
+
+    try {
+      await deleteObject(ref(storage, removed.record.path))
+      await deleteDoc(
+        doc(
+          firestore,
+          'profiles',
+          user_profile.id,
+          'files',
+          removed.id
+        )
+      )
+    } catch (error) {
+      console.error('Failed to remove resume', error)
+    }
+  }
+
   // Maps an entry to the `file` shape File.js expects — a real
   // File/Blob for a pending upload, or a plain descriptor for an
   // already-uploaded record (no blob download needed to preview it).
@@ -376,176 +509,229 @@ export default function UpdateProfilePage({
   if (status == 'success' && signInCheckResult.signedIn) {
     return (
       <>
-        <div className="bg-card relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg px-4 py-8 text-left shadow-sm md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
-          <h1 className="mb-2 text-center text-3xl font-semibold">
-            {t('edit_profile.update_your_profile')}
-          </h1>
-          <p className="text-muted-foreground mb-6 text-center">
-            {t('edit_profile.why_update_your_profile')}
-          </p>
-          <form onSubmit={form.handleSubmit(updateProfile)}>
-            <FieldGroup>
-              <Controller
-                name="about"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="about">
-                      {t('edit_profile.about')}
-                    </FieldLabel>
-                    <Textarea
-                      {...field}
-                      id="about"
-                      rows={7}
-                      maxLength={1000}
-                      placeholder={t(
-                        'edit_profile.tell_us_about'
-                      )}
-                      aria-invalid={fieldState.invalid}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError
-                        errors={[fieldState.error]}
-                      />
-                    )}
-                  </Field>
-                )}
-              />
-            </FieldGroup>
-
-            {members.map((m, index) => (
-              <p key={index} className="p-2">
-                {m}
-              </p>
-            ))}
-
-            <div className="mb-4"></div>
-            <div
-              {...getRootProps()}
-              className={`h-40 w-full border-2 ${
-                error_file
-                  ? 'bg-red-200 hover:bg-red-300'
-                  : 'bg-muted hover:bg-accent'
-              }  text-muted-foreground flex items-center justify-center rounded-lg border-dashed border-gray-600 text-center`}
-            >
-              <input {...getInputProps()} />
-              {isDragActive ? (
-                <p>{t('edit_profile.drop_files')}</p>
-              ) : (
-                <p>{t('edit_profile.drag_files')}</p>
-              )}
-            </div>
-            <p className="mb-4 text-sm text-red-800">
-              {error_file}
+        <main>
+          <div className="bg-card relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg px-4 py-8 text-left shadow-sm md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
+            <h1 className="mb-2 text-center text-3xl font-semibold">
+              {t('edit_profile.update_your_profile')}
+            </h1>
+            <p className="text-muted-foreground mb-6 text-center">
+              {t('edit_profile.why_update_your_profile')}
             </p>
-            {entries.length !== 0 && (
-              <div className="mb-6">
-                {entries.length > 1 && (
-                  <p className="mb-2">
-                    {t(
-                      'project_create_edit.multiple_photos'
-                    )}{' '}
-                    <span
-                      role="button"
-                      tabIndex={0}
-                      onClick={() =>
-                        setMode(!select_photo_mode)
-                      }
-                      onKeyDown={(e) => {
-                        if (
-                          e.key === 'Enter' ||
-                          e.key === ' '
-                        ) {
-                          e.preventDefault()
+            <form
+              onSubmit={form.handleSubmit(updateProfile)}
+            >
+              <FieldGroup>
+                <Controller
+                  name="about"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field
+                      data-invalid={fieldState.invalid}
+                    >
+                      <FieldLabel htmlFor="about">
+                        {t('edit_profile.about')}
+                      </FieldLabel>
+                      <Textarea
+                        {...field}
+                        id="about"
+                        rows={7}
+                        maxLength={1000}
+                        placeholder={t(
+                          'edit_profile.tell_us_about'
+                        )}
+                        aria-invalid={fieldState.invalid}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError
+                          errors={[fieldState.error]}
+                        />
+                      )}
+                    </Field>
+                  )}
+                />
+              </FieldGroup>
+
+              {members.map((m, index) => (
+                <p key={index} className="p-2">
+                  {m}
+                </p>
+              ))}
+
+              <div className="mb-4"></div>
+              <LinksField
+                links={links}
+                setLinks={setLinks}
+              />
+              <div
+                {...getRootProps()}
+                className={`h-40 w-full border-2 ${
+                  error_file
+                    ? 'bg-red-200 hover:bg-red-300'
+                    : 'bg-muted hover:bg-accent'
+                }  text-muted-foreground flex items-center justify-center rounded-lg border-dashed border-gray-600 text-center`}
+              >
+                <input {...getInputProps()} />
+                {isDragActive ? (
+                  <p>{t('edit_profile.drop_files')}</p>
+                ) : (
+                  <p>{t('edit_profile.drag_files')}</p>
+                )}
+              </div>
+              <p className="mb-4 text-sm text-red-800">
+                {error_file}
+              </p>
+              {entries.length !== 0 && (
+                <div className="mb-6">
+                  {entries.length > 1 && (
+                    <p className="mb-2">
+                      {t(
+                        'project_create_edit.multiple_photos'
+                      )}{' '}
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={() =>
                           setMode(!select_photo_mode)
                         }
-                      }}
-                      className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark cursor-pointer font-semibold"
+                        onKeyDown={(e) => {
+                          if (
+                            e.key === 'Enter' ||
+                            e.key === ' '
+                          ) {
+                            e.preventDefault()
+                            setMode(!select_photo_mode)
+                          }
+                        }}
+                        className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark cursor-pointer font-semibold"
+                      >
+                        {t(
+                          'project_create_edit.set_display_photo'
+                        )}
+                      </span>
+                      .
+                    </p>
+                  )}
+                  <label
+                    htmlFor="project_photo"
+                    className="text-muted-foreground mt-2 uppercase"
+                  >
+                    {t('edit_profile.profile_photo')}
+                  </label>
+                  <File
+                    file={fileForEntry(entries[0])}
+                    id={0}
+                    removeFile={removeFile}
+                    setPhoto={setPhoto}
+                  ></File>
+                </div>
+              )}
+              <div className="flex flex-col space-y-3">
+                {entries.length > 1 && (
+                  <>
+                    <label
+                      htmlFor="other_files"
+                      className="text-muted-foreground -mb-3 mt-2 text-left uppercase"
                     >
-                      {t(
-                        'project_create_edit.set_display_photo'
-                      )}
-                    </span>
-                    .
-                  </p>
+                      {t('project_create_edit.other_photo')}
+                    </label>
+                    {entries.map((entry, id) => {
+                      if (id === 0) return null
+                      return (
+                        <div
+                          className="flex w-full flex-row"
+                          key={entry.key}
+                        >
+                          <button
+                            onClick={(e) => setPhoto(e, id)}
+                            className={`border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark hover:bg-accent rounded-lg border-2 font-semibold transition-all duration-500 ${
+                              select_photo_mode
+                                ? 'mr-4 w-28'
+                                : 'w-0 overflow-hidden border-none'
+                            }`}
+                          >
+                            Select
+                          </button>
+                          <File
+                            file={fileForEntry(entry)}
+                            id={id}
+                            removeFile={removeFile}
+                            setPhoto={setPhoto}
+                          ></File>
+                        </div>
+                      )
+                    })}
+                  </>
                 )}
+              </div>
+
+              <div className="mb-6">
                 <label
-                  htmlFor="project_photo"
+                  htmlFor="resume"
                   className="text-muted-foreground mt-2 uppercase"
                 >
-                  {t('edit_profile.profile_photo')}
+                  {t('edit_profile.resume')}
                 </label>
-                <File
-                  file={fileForEntry(entries[0])}
-                  id={0}
-                  removeFile={removeFile}
-                  setPhoto={setPhoto}
-                ></File>
-              </div>
-            )}
-            <div className="flex flex-col space-y-3">
-              {entries.length > 1 && (
-                <>
+                <p className="text-muted-foreground mb-2 text-sm">
+                  {t('edit_profile.resume_hint')}
+                </p>
+                {resume ? (
+                  <File
+                    file={fileForEntry(resume)}
+                    id="resume"
+                    removeFile={removeResume}
+                  ></File>
+                ) : (
                   <label
-                    htmlFor="other_files"
-                    className="text-muted-foreground -mb-3 mt-2 text-left uppercase"
+                    htmlFor="resume-input"
+                    className={`h-16 w-full border-2 ${
+                      errorResume
+                        ? 'bg-red-200 hover:bg-red-300'
+                        : 'bg-muted hover:bg-accent'
+                    } text-muted-foreground flex cursor-pointer items-center justify-center rounded-lg border-dashed border-gray-600 text-center`}
                   >
-                    {t('project_create_edit.other_photo')}
+                    {t('edit_profile.resume_upload')}
+                    <input
+                      id="resume-input"
+                      type="file"
+                      accept="application/pdf"
+                      className="hidden"
+                      onChange={onResumeChange}
+                    />
                   </label>
-                  {entries.map((entry, id) => {
-                    if (id === 0) return null
-                    return (
-                      <div
-                        className="flex w-full flex-row"
-                        key={entry.key}
-                      >
-                        <button
-                          onClick={(e) => setPhoto(e, id)}
-                          className={`border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark hover:bg-accent rounded-lg border-2 font-semibold transition-all duration-500 ${
-                            select_photo_mode
-                              ? 'mr-4 w-28'
-                              : 'w-0 overflow-hidden border-none'
-                          }`}
-                        >
-                          Select
-                        </button>
-                        <File
-                          file={fileForEntry(entry)}
-                          id={id}
-                          removeFile={removeFile}
-                          setPhoto={setPhoto}
-                        ></File>
-                      </div>
-                    )
-                  })}
-                </>
-              )}
-            </div>
+                )}
+                {errorResume && (
+                  <p className="mt-2 text-sm text-red-800">
+                    {errorResume}
+                  </p>
+                )}
+              </div>
 
-            <div className="flex w-full justify-end">
-              <Button
-                type="submit"
-                size="lg"
-                disabled={
-                  !form.formState.isValid ||
-                  form.formState.isSubmitting ||
-                  loading ||
-                  error_file
-                }
-                className="mr-2 mt-4 w-full"
-              >
-                {t('edit_profile.update')}
-                {loading && <LoadingSpinner />}
-              </Button>
-              <Link
-                href={`/profile/${user_profile.slug}`}
-                className="border-border bg-muted text-foreground hover:border-border hover:bg-accent ml-2 mt-4 w-full rounded-lg border-2 p-2 text-center text-lg font-semibold shadow-sm disabled:opacity-50"
-              >
-                {t('edit_profile.cancel')}
-              </Link>
-            </div>
-          </form>
-        </div>
+              <div className="flex w-full justify-end">
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={
+                    !form.formState.isValid ||
+                    form.formState.isSubmitting ||
+                    loading ||
+                    error_file ||
+                    errorResume
+                  }
+                  className="mr-2 mt-4 w-full"
+                >
+                  {t('edit_profile.update')}
+                  {loading && <LoadingSpinner />}
+                </Button>
+                <Link
+                  href={`/profile/${user_profile.slug}`}
+                  className="border-border bg-muted text-foreground hover:border-border hover:bg-accent ml-2 mt-4 w-full rounded-lg border-2 p-2 text-center text-lg font-semibold shadow-sm disabled:opacity-50"
+                >
+                  {t('edit_profile.cancel')}
+                </Link>
+              </div>
+            </form>
+          </div>
+        </main>
       </>
     )
   } else if (status == 'error') {
@@ -563,18 +749,25 @@ export async function getServerSideProps({
     locale,
     ['common']
   )
-  const firestore = getFirestore()
-  const profilesRef = collection(firestore, 'profiles')
-  const profileQuery = firebase_query(
+  // getServerSideProps runs in a webpack-split server bundle that
+  // doesn't carry over lib/firebase.js's app-init side effect (only
+  // the React component below references `db`/`storage`) — without
+  // this, getFirestore() throws "No Firebase App '[DEFAULT]'".
+  const app = getApps().length
+    ? getApp()
+    : initializeApp(firebaseConfig)
+  const firestore = getFirestoreSSR(app)
+  const profilesRef = collectionSSR(firestore, 'profiles')
+  const profileQuery = querySSR(
     profilesRef,
-    where('slug', '==', query.slug),
-    limit(1)
+    whereSSR('slug', '==', query.slug),
+    limitSSR(1)
   )
-  const profileRes = await getDocs(profileQuery)
+  const profileRes = await getDocsSSR(profileQuery)
   if (!profileRes.empty) {
     let profile
     profileRes.forEach((p) => {
-      if (p.exists) {
+      if (p.exists()) {
         profile = {
           ...p.data(),
           id: p.id,

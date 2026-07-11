@@ -245,26 +245,28 @@ export function isLegacyUnsupportedFile(type) {
   return LEGACY_UNSUPPORTED_MIME_TYPES.includes(type)
 }
 
-// Hosts a project's "Links" field may point to. Kept intentionally
-// small — this is the only thing standing between a project page and
-// hosting an arbitrary (phishing/malware) outbound link, since anyone
-// who owns a project can otherwise write anything to its `links` array
-// directly through the Firestore SDK. Extend deliberately.
+// Hosts a project's or profile's "Links" field may point to. Kept
+// intentionally small — this is the only thing standing between a
+// project/profile page and hosting an arbitrary (phishing/malware)
+// outbound link, since anyone who owns the document can otherwise
+// write anything to its `links` array directly through the
+// Firestore SDK. Extend deliberately.
 export const ALLOWED_LINK_HOSTS = [
   'github.com',
   'youtube.com',
   'youtu.be',
+  'linkedin.com',
   'colab.research.google.com',
 ]
 
-export const MAX_PROJECT_LINKS = 10
+export const MAX_LINKS = 10
 
 // True only for an https URL whose hostname is, or is a subdomain of,
 // an entry in ALLOWED_LINK_HOSTS. This is the single point of
 // enforcement — called both when a link is added in the create/edit
 // forms and again right before it's rendered as an anchor on the
 // project page, since stored data can never be trusted on its own.
-export function isAllowedProjectLink(url) {
+export function isAllowedLink(url) {
   if (typeof url !== 'string' || !url) return false
   let parsed
   try {
@@ -278,6 +280,28 @@ export function isAllowedProjectLink(url) {
     (allowed) =>
       host === allowed || host.endsWith(`.${allowed}`)
   )
+}
+
+// Human-readable platform name for an allowlisted link, for display
+// (e.g. next to a profile's outbound links). Returns null for
+// anything isAllowedLink rejects — never trust the URL enough to
+// invent a label for a host that isn't on the allowlist.
+const LINK_HOST_LABELS = {
+  'github.com': 'GitHub',
+  'youtube.com': 'YouTube',
+  'youtu.be': 'YouTube',
+  'linkedin.com': 'LinkedIn',
+  'colab.research.google.com': 'Colab',
+}
+
+export function getLinkPlatformLabel(url) {
+  if (!isAllowedLink(url)) return null
+  const host = new URL(url).hostname.toLowerCase()
+  const matchedHost = Object.keys(LINK_HOST_LABELS).find(
+    (allowed) =>
+      host === allowed || host.endsWith(`.${allowed}`)
+  )
+  return matchedHost ? LINK_HOST_LABELS[matchedHost] : null
 }
 
 function generateUploadId() {
@@ -315,6 +339,7 @@ export function buildFileRecord({
   url,
   uploadedBy,
   isPhoto = false,
+  isResume = false,
   thumbnailUrl = null,
 }) {
   return {
@@ -326,6 +351,7 @@ export function buildFileRecord({
     url,
     uploadedBy,
     isPhoto,
+    isResume,
     // Firestore rejects `undefined` field values outright, so this is
     // explicitly nullable rather than an omitted key — a PDF whose
     // thumbnail generation failed (or any non-PDF upload, which never

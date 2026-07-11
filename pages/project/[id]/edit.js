@@ -48,7 +48,7 @@ import {
   buildFileRecord,
   getProjectFieldOptions,
   getSafeUploadName,
-  isAllowedProjectLink,
+  isAllowedLink,
 } from '../../../context/helpers'
 import { generatePdfThumbnailBlob } from '../../../lib/pdfThumbnail'
 import firebaseConfig from '../../../firebaseConfig'
@@ -188,7 +188,7 @@ export default function UpdateProject({ query }) {
         setFieldValues(projectData.fields)
         setLinks(
           Array.isArray(projectData.links)
-            ? projectData.links.filter(isAllowedProjectLink)
+            ? projectData.links.filter(isAllowedLink)
             : []
         )
         let temp_fields = new Array(
@@ -272,7 +272,7 @@ export default function UpdateProject({ query }) {
             : '',
           abstract: values.abstract.trim(),
           need_mentor: false,
-          links: links.filter(isAllowedProjectLink),
+          links: links.filter(isAllowedLink),
           date: moment().toISOString(),
           fields: Object.keys(
             getProjectFieldOptions(t)
