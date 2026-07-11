@@ -5,15 +5,15 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Field, FieldLabel } from '@/components/ui/field'
 import {
-  isAllowedProjectLink,
-  MAX_PROJECT_LINKS,
+  isAllowedLink,
+  MAX_LINKS,
 } from '../context/helpers'
 
-// Controlled list of allowlisted outbound links for a project. `links`/
-// `setLinks` are owned by the parent form (create/edit) so they submit
-// alongside the rest of the fields; every add is re-validated against
-// isAllowedProjectLink even though the input has type="url" — HTML
-// validation doesn't check the host.
+// Controlled list of allowlisted outbound links for a project or
+// profile. `links`/`setLinks` are owned by the parent form
+// (create/edit) so they submit alongside the rest of the fields;
+// every add is re-validated against isAllowedLink even though the
+// input has type="url" — HTML validation doesn't check the host.
 export default function LinksField({ links, setLinks }) {
   const { t } = useTranslation('common')
   const [value, setValue] = useState('')
@@ -23,11 +23,11 @@ export default function LinksField({ links, setLinks }) {
     e.preventDefault()
     const url = value.trim()
     if (!url) return
-    if (links.length >= MAX_PROJECT_LINKS) {
+    if (links.length >= MAX_LINKS) {
       setError(t('project_create_edit.links_too_many'))
       return
     }
-    if (!isAllowedProjectLink(url)) {
+    if (!isAllowedLink(url)) {
       setError(t('project_create_edit.links_not_allowed'))
       return
     }

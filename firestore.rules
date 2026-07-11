@@ -11,6 +11,17 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Shared by /profiles/{uid} and /projects/{projectId}: `links`
+    // only gets a shape/size guard here (list, <= 10 entries) —
+    // rules can't iterate a list to check each URL's host, so the
+    // actual host allowlist is enforced at render time
+    // (context/helpers.js#isAllowedLink), the same way `about`/
+    // `abstract` are sanitized at render rather than in rules.
+    function isValidLinks(data) {
+      return !('links' in data)
+        || (data.links is list && data.links.size() <= 10);
+    }
+
     // ---- Profiles -------------------------------------------------------
     // Public-readable (shown on /profile/[slug]); writable only by owner.
     // create must include uid == auth.uid; update only requires ownership
@@ -19,8 +30,10 @@ service cloud.firestore {
       allow read: if true;
       allow create: if request.auth != null
         && request.auth.uid == uid
-        && request.resource.data.uid == uid;
-      allow update: if request.auth.uid == uid;
+        && request.resource.data.uid == uid
+        && isValidLinks(request.resource.data);
+      allow update: if request.auth.uid == uid
+        && isValidLinks(request.resource.data);
       allow delete: if request.auth.uid == uid;
     }
 
@@ -78,15 +91,8 @@ service cloud.firestore {
     // Public-readable. Any authenticated user may create one (they become
     // a member). Only existing members may update/delete. Mass-assignment
     // is constrained: client writes may not touch member_uids/subscribers
-    // except to add the creator on create. `links` only gets a shape/size
-    // guard here (list, <= 10 entries) — rules can't iterate a list to
-    // check each URL's host, so the actual host allowlist is enforced at
-    // render time (context/helpers.js#isAllowedProjectLink), the same way
-    // `abstract` is sanitized at render rather than in rules.
-    function isValidLinks(data) {
-      return !('links' in data)
-        || (data.links is list && data.links.size() <= 10);
-    }
+    // except to add the creator on create. `links` validity is enforced
+    // by isValidLinks above (shared with /profiles/{uid}).
 
     function isProjectMember(projectId) {
       return request.auth != null

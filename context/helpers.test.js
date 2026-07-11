@@ -11,15 +11,16 @@ import {
   ALLOWED_LINK_HOSTS,
   ALLOWED_UPLOAD_MIME_TYPES,
   LEGACY_UNSUPPORTED_MIME_TYPES,
-  MAX_PROJECT_LINKS,
+  MAX_LINKS,
   UPLOAD_MIME_EXTENSIONS,
   buildFileRecord,
   createUniqueSlug,
   getFieldLabel,
+  getLinkPlatformLabel,
   getProjectFieldOptions,
   getSafeUploadName,
   getTranslatedFieldsDict,
-  isAllowedProjectLink,
+  isAllowedLink,
   isLegacyUnsupportedFile,
   resolveRefPath,
   validatePassword,
@@ -213,7 +214,7 @@ describe('isLegacyUnsupportedFile', () => {
   })
 })
 
-describe('isAllowedProjectLink', () => {
+describe('isAllowedLink', () => {
   it.each([
     'https://github.com/sciteens/sciteens',
     'https://www.github.com/sciteens',
@@ -221,9 +222,11 @@ describe('isAllowedProjectLink', () => {
     'https://youtube.com/watch?v=1',
     'https://www.youtube.com/watch?v=1',
     'https://youtu.be/abc123',
+    'https://linkedin.com/in/sciteens',
+    'https://www.linkedin.com/company/sciteens',
     'https://colab.research.google.com/drive/abc123',
   ])('accepts an allowlisted host (%s)', (url) => {
-    expect(isAllowedProjectLink(url)).toBe(true)
+    expect(isAllowedLink(url)).toBe(true)
   })
 
   it.each([
@@ -248,17 +251,42 @@ describe('isAllowedProjectLink', () => {
   ])(
     'rejects a disallowed or malformed link (%j)',
     (url) => {
-      expect(isAllowedProjectLink(url)).toBe(false)
+      expect(isAllowedLink(url)).toBe(false)
     }
   )
 
   it('exposes the allowlist and cap as plain constants', () => {
     expect(ALLOWED_LINK_HOSTS).toContain('github.com')
     expect(ALLOWED_LINK_HOSTS).toContain('youtube.com')
+    expect(ALLOWED_LINK_HOSTS).toContain('linkedin.com')
     expect(ALLOWED_LINK_HOSTS).toContain(
       'colab.research.google.com'
     )
-    expect(MAX_PROJECT_LINKS).toBeGreaterThan(0)
+    expect(MAX_LINKS).toBeGreaterThan(0)
+  })
+})
+
+describe('getLinkPlatformLabel', () => {
+  it.each([
+    ['https://github.com/sciteens', 'GitHub'],
+    ['https://gist.github.com/sciteens', 'GitHub'],
+    ['https://youtube.com/watch?v=1', 'YouTube'],
+    ['https://youtu.be/abc123', 'YouTube'],
+    ['https://linkedin.com/in/sciteens', 'LinkedIn'],
+    [
+      'https://colab.research.google.com/drive/abc',
+      'Colab',
+    ],
+  ])('labels %s as %s', (url, label) => {
+    expect(getLinkPlatformLabel(url)).toBe(label)
+  })
+
+  it('returns null for a disallowed or malformed link', () => {
+    expect(getLinkPlatformLabel('https://evil.com')).toBe(
+      null
+    )
+    expect(getLinkPlatformLabel('not a url')).toBe(null)
+    expect(getLinkPlatformLabel(null)).toBe(null)
   })
 })
 
@@ -426,6 +454,16 @@ describe('buildFileRecord', () => {
   it('honors an explicit isPhoto', () => {
     expect(
       buildFileRecord({ ...base, isPhoto: true }).isPhoto
+    ).toBe(true)
+  })
+
+  it('defaults isResume to false', () => {
+    expect(buildFileRecord(base).isResume).toBe(false)
+  })
+
+  it('honors an explicit isResume', () => {
+    expect(
+      buildFileRecord({ ...base, isResume: true }).isResume
     ).toBe(true)
   })
 

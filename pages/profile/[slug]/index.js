@@ -9,7 +9,12 @@ import SocialMeta from '../../../components/SocialMeta'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import ProfilePhoto from '../../../components/ProfilePhoto'
-import { CalendarDays, Pencil } from 'lucide-react'
+import {
+  CalendarDays,
+  FileText,
+  Link2,
+  Pencil,
+} from 'lucide-react'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
@@ -35,6 +40,10 @@ import { db as firestore } from '../../../lib/firebase'
 import moment from 'moment'
 import { useSigninCheck } from '../../../context/AuthContext'
 import { AppContext } from '../../../context/context'
+import {
+  getLinkPlatformLabel,
+  isAllowedLink,
+} from '../../../context/helpers'
 import FileGallery from '../../../components/FileGallery'
 import ProjectCard from '../../../components/ProjectCard'
 import { Badge } from '@/components/ui/badge'
@@ -74,6 +83,30 @@ function Project({ profile }) {
     useFirestoreCollectionData(filesQuery, {
       idField: 'id',
     })
+
+  // Resume is a single-slot file record (isResume: true) — kept out
+  // of the gallery below and surfaced as its own CTA instead.
+  const resumeRecord = useMemo(
+    () =>
+      fileRecords.find((record) => record.isResume) || null,
+    [fileRecords]
+  )
+  const galleryFiles = useMemo(
+    () => fileRecords.filter((record) => !record.isResume),
+    [fileRecords]
+  )
+  // Re-validated at render, not just trusted from Firestore — same
+  // reasoning as isAllowedLink's other call sites.
+  const profileLinks = useMemo(
+    () =>
+      (Array.isArray(profile.links) ? profile.links : [])
+        .filter(isAllowedLink)
+        .map((url) => ({
+          url,
+          label: getLinkPlatformLabel(url),
+        })),
+    [profile.links]
+  )
 
   useEffect(() => {
     async function loadProfileData() {
@@ -156,30 +189,72 @@ function Project({ profile }) {
                   sameElse: 'MMMM DD, YYYY',
                 })}
               </p>
+              {profileLinks.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {profileLinks.map(({ url, label }) => (
+                    <a
+                      key={url}
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={t(
+                        'index_profile.visit_platform',
+                        { platform: label }
+                      )}
+                      className="border-border/60 text-muted-foreground hover:text-foreground hover:bg-accent flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm shadow-sm"
+                    >
+                      <Link2
+                        className="h-3.5 w-3.5"
+                        aria-hidden="true"
+                      />
+                      {label}
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
-            {status !== 'success' ? (
-              <Skeleton className="h-8 w-24 shrink-0 self-start rounded-lg sm:self-center" />
-            ) : (
-              signInCheckResult.signedIn &&
-              current_user_profile?.slug ===
-                router.query?.slug && (
+            <div className="flex shrink-0 items-center gap-2 self-start sm:self-center">
+              {resumeRecord && (
                 <Button
                   render={
-                    <Link
-                      href={`/profile/${router?.query?.slug}/edit`}
+                    <a
+                      href={resumeRecord.url}
+                      target="_blank"
+                      rel="noreferrer"
                     >
-                      <Pencil
+                      <FileText
                         className="h-4 w-4"
                         aria-hidden="true"
                       />
-                      {t('index_profile.edit')}
-                    </Link>
+                      {t('index_profile.view_resume')}
+                    </a>
                   }
                   variant="outline"
-                  className="shrink-0 self-start sm:self-center"
                 />
-              )
-            )}
+              )}
+              {status !== 'success' ? (
+                <Skeleton className="h-8 w-24 rounded-lg" />
+              ) : (
+                signInCheckResult.signedIn &&
+                current_user_profile?.slug ===
+                  router.query?.slug && (
+                  <Button
+                    render={
+                      <Link
+                        href={`/profile/${router?.query?.slug}/edit`}
+                      >
+                        <Pencil
+                          className="h-4 w-4"
+                          aria-hidden="true"
+                        />
+                        {t('index_profile.edit')}
+                      </Link>
+                    }
+                    variant="outline"
+                  />
+                )
+              )}
+            </div>
           </CardContent>
           {profile.about && (
             <>
@@ -224,7 +299,7 @@ function Project({ profile }) {
       {/* Files */}
       <div className="mx-auto mb-4 mt-8 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
         {(filesStatus === 'loading' ||
-          fileRecords.length > 0) && (
+          galleryFiles.length > 0) && (
           <h2 className="mb-2 text-lg font-semibold md:text-2xl">
             {t('index_profile.files')}
           </h2>
@@ -237,7 +312,7 @@ function Project({ profile }) {
             </>
           ) : (
             <FileGallery
-              files={fileRecords.map((record) => ({
+              files={galleryFiles.map((record) => ({
                 id: record.id,
                 name: record.name,
                 type: record.contentType,
