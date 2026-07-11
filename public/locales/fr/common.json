@@ -4,7 +4,9 @@
     "interview": "Interview",
     "by": "Par",
     "rate": "Avez-vous apprécié cet article?",
-    "related": "Plus sur ce sujet ..."
+    "related": "Plus sur ce sujet ...",
+    "submit_own": "Vous voulez soumettre votre propre article ?",
+    "reach_out": "Contactez-nous !"
   },
   "course": {
     "starts": "Départs",
@@ -51,11 +53,19 @@
     "student": "Étudiant",
     "educator": "Éducateur",
     "edit": "Modifier",
-    "about": "À propos",
-    "about_empty": "Cet utilisateur n'a pas encore écrit à son sujet",
     "projects": "Projets",
     "projects_empty": "Cet utilisateur n'a pas encore créé de projet",
     "files": "Fichiers"
+  },
+  "discussion": {
+    "title": "Discussion",
+    "comment_label": "Commentaire",
+    "placeholder": "Démarrez la conversation...",
+    "cancel": "Annuler",
+    "post": "Publier",
+    "reply": "Répondre",
+    "reply_label": "Répondre",
+    "reply_placeholder": "Répondre..."
   },
   "project_create_edit": {
     "could_not_create": "Nous ne pouvions pas créer votre projet pour le moment",
@@ -304,7 +314,8 @@
     "search_projects": "Rechercher des projets",
     "search": "Chercher",
     "topics": "Les sujets",
-    "started_on": "Commencé le"
+    "started_on": "Commencé le",
+    "by": "Par"
   },
   "fields": {
     "all": "Tout",

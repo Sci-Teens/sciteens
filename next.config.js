@@ -85,6 +85,20 @@ module.exports = {
   experimental: {
     esmExternals: false,
   },
+  async redirects() {
+    return [
+      {
+        source: '/getinvolved',
+        destination: '/get-involved',
+        permanent: true,
+      },
+      {
+        source: '/signup',
+        destination: '/signup/student',
+        permanent: true,
+      },
+    ]
+  },
   async headers() {
     return [
       {

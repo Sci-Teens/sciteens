@@ -376,11 +376,11 @@ export default function UpdateProfilePage({
   if (status == 'success' && signInCheckResult.signedIn) {
     return (
       <>
-        <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow-sm md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
+        <div className="bg-card relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg px-4 py-8 text-left shadow-sm md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
           <h1 className="mb-2 text-center text-3xl font-semibold">
             {t('edit_profile.update_your_profile')}
           </h1>
-          <p className="mb-6 text-center text-gray-700">
+          <p className="text-muted-foreground mb-6 text-center">
             {t('edit_profile.why_update_your_profile')}
           </p>
           <form onSubmit={form.handleSubmit(updateProfile)}>
@@ -425,8 +425,8 @@ export default function UpdateProfilePage({
               className={`h-40 w-full border-2 ${
                 error_file
                   ? 'bg-red-200 hover:bg-red-300'
-                  : 'bg-gray-100 hover:bg-gray-200'
-              }  flex items-center justify-center rounded-lg border-dashed border-gray-600 text-center text-gray-700`}
+                  : 'bg-muted hover:bg-accent'
+              }  text-muted-foreground flex items-center justify-center rounded-lg border-dashed border-gray-600 text-center`}
             >
               <input {...getInputProps()} />
               {isDragActive ? (
@@ -471,7 +471,7 @@ export default function UpdateProfilePage({
                 )}
                 <label
                   htmlFor="project_photo"
-                  className="mt-2 uppercase text-gray-600"
+                  className="text-muted-foreground mt-2 uppercase"
                 >
                   {t('edit_profile.profile_photo')}
                 </label>
@@ -488,7 +488,7 @@ export default function UpdateProfilePage({
                 <>
                   <label
                     htmlFor="other_files"
-                    className="-mb-3 mt-2 text-left uppercase text-gray-600"
+                    className="text-muted-foreground -mb-3 mt-2 text-left uppercase"
                   >
                     {t('project_create_edit.other_photo')}
                   </label>
@@ -501,7 +501,7 @@ export default function UpdateProfilePage({
                       >
                         <button
                           onClick={(e) => setPhoto(e, id)}
-                          className={`border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark rounded-lg border-2 font-semibold transition-all duration-500 hover:bg-gray-50 ${
+                          className={`border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark hover:bg-accent rounded-lg border-2 font-semibold transition-all duration-500 ${
                             select_photo_mode
                               ? 'mr-4 w-28'
                               : 'w-0 overflow-hidden border-none'
@@ -539,7 +539,7 @@ export default function UpdateProfilePage({
               </Button>
               <Link
                 href={`/profile/${user_profile.slug}`}
-                className="ml-2 mt-4 w-full rounded-lg border-2 border-gray-200 bg-gray-100 p-2 text-center text-lg font-semibold text-black shadow-sm hover:border-gray-300 hover:bg-gray-200 disabled:opacity-50"
+                className="border-border bg-muted text-foreground hover:border-border hover:bg-accent ml-2 mt-4 w-full rounded-lg border-2 p-2 text-center text-lg font-semibold shadow-sm disabled:opacity-50"
               >
                 {t('edit_profile.cancel')}
               </Link>

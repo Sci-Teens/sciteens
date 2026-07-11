@@ -81,7 +81,7 @@ function respond(worker, code, payload) {
 
 function typeComment(text) {
   const textarea = screen.getByRole('textbox', {
-    name: 'comment',
+    name: 'discussion.comment_label',
   })
   fireEvent.change(textarea, { target: { value: text } })
 }
@@ -181,7 +181,9 @@ describe('Discussion toxicity worker wiring', () => {
       )
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: /Post/ })
+      screen.getByRole('button', {
+        name: /discussion\.post/,
+      })
     ).toBeDisabled()
   })
 
@@ -208,7 +210,9 @@ describe('Discussion toxicity worker wiring', () => {
       )
     ).not.toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: /Post/ })
+      screen.getByRole('button', {
+        name: /discussion\.post/,
+      })
     ).not.toBeDisabled()
   })
 
@@ -237,7 +241,9 @@ describe('Discussion toxicity worker wiring', () => {
         )
       ).not.toBeInTheDocument()
       expect(
-        screen.getByRole('button', { name: /Post/ })
+        screen.getByRole('button', {
+          name: /discussion\.post/,
+        })
       ).not.toBeDisabled()
     }
   )

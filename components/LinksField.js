@@ -48,7 +48,7 @@ export default function LinksField({ links, setLinks }) {
       <FieldLabel htmlFor="project-link">
         {t('project_create_edit.links')}
       </FieldLabel>
-      <p className="text-sm text-gray-600">
+      <p className="text-muted-foreground text-sm">
         {t('project_create_edit.links_hint')}
       </p>
       <div className="flex gap-2">
@@ -75,7 +75,7 @@ export default function LinksField({ links, setLinks }) {
           {links.map((link, index) => (
             <li
               key={link}
-              className="flex items-center justify-between rounded-lg bg-gray-100 px-3 py-2"
+              className="bg-muted flex items-center justify-between rounded-lg px-3 py-2"
             >
               <a
                 href={link}

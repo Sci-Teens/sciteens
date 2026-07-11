@@ -156,10 +156,10 @@ export default function privacy() {
           </div>
           <div className="mx-8 md:mx-12 lg:mx-0 lg:w-2/3">
             <PageHeading>PRIVACY POLICY</PageHeading>
-            <p className="mb-8 mt-1 whitespace-pre-line text-gray-700">
+            <p className="text-muted-foreground mb-8 mt-1 whitespace-pre-line">
               Last Updated 9/30/2021
             </p>
-            <p className="mb-10 text-gray-700">
+            <p className="text-muted-foreground mb-10">
               Thank you for choosing to be part of our
               community at SciTeens Inc., doing business as
               SciTeens (“SciTeens”, “we”, “us”, or “our”).
@@ -200,7 +200,7 @@ export default function privacy() {
               <p className="mb-2 text-lg">
                 Personal information you disclose to us
               </p>
-              <p className="mb-6 text-gray-700">
+              <p className="text-muted-foreground mb-6">
                 In Short: We collect personal information
                 that you provide to us. We collect personal
                 information that you voluntarily provide to
@@ -249,7 +249,7 @@ export default function privacy() {
               <p className="mb-2 text-lg">
                 Information automatically collected
               </p>
-              <p className="mb-6 text-gray-700">
+              <p className="text-muted-foreground mb-6">
                 In Short: Some information — such as IP
                 address and/or browser and device
                 characteristics — is collected automatically
@@ -283,7 +283,7 @@ export default function privacy() {
               <p className="mb-2 text-lg">
                 Information collected from other sources
               </p>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 In Short: We may collect limited data from
                 public databases, marketing partners, social
                 media platforms, and other outside sources.
@@ -315,7 +315,7 @@ export default function privacy() {
               <h2 id="privacy2" className="mb-2 text-2xl">
                 HOW DO WE USE YOUR INFORMATION?
               </h2>
-              <p className="mb-4 text-gray-700">
+              <p className="text-muted-foreground mb-4">
                 In Short: We process your information for
                 purposes based on legitimate business
                 interests, the fulfillment of our contract
@@ -334,7 +334,7 @@ export default function privacy() {
                 We use the information we collect or
                 receive:
               </p>
-              <ul className="mb-10 ml-4 list-inside list-decimal text-gray-700">
+              <ul className="text-muted-foreground mb-10 ml-4 list-inside list-decimal">
                 <li>
                   To facilitate account creation and logon
                   process. If you choose to link your
@@ -394,7 +394,7 @@ export default function privacy() {
               <h2 id="privacy3" className="mb-2 text-2xl">
                 WILL YOUR INFORMATION BE SHARED WITH ANYONE?
               </h2>
-              <p className="mb-4 text-gray-700">
+              <p className="text-muted-foreground mb-4">
                 In Short: We only share information with
                 your consent, to comply with laws, to
                 provide you with services, to protect your
@@ -402,7 +402,7 @@ export default function privacy() {
                 We may process or share data based on the
                 following legal basis:
               </p>
-              <ul className="mb-4 ml-4 list-inside list-decimal text-gray-700">
+              <ul className="text-muted-foreground mb-4 ml-4 list-inside list-decimal">
                 <li>
                   Consent: We may process your data if you
                   have given us specific consent to use your
@@ -443,12 +443,12 @@ export default function privacy() {
                   involved.
                 </li>
               </ul>
-              <p className="mb-4 text-gray-700">
+              <p className="text-muted-foreground mb-4">
                 More specifically, we may need to process
                 your data or share your personal information
                 in the following situations:
               </p>
-              <ul className="mb-10 ml-4 list-inside list-decimal text-gray-700">
+              <ul className="text-muted-foreground mb-10 ml-4 list-inside list-decimal">
                 <li>
                   Vendors, Consultants and Other Third-Party
                   Service Providers. We may share your data
@@ -516,7 +516,7 @@ export default function privacy() {
               <h2 id="privacy4" className="mb-2 text-2xl">
                 WHO WILL YOUR INFORMATION BE SHARED WITH?
               </h2>
-              <p className="mb-4 text-gray-700">
+              <p className="text-muted-foreground mb-4">
                 In Short: We only share information with the
                 following third parties. We only share and
                 disclose your information with the following
@@ -527,7 +527,7 @@ export default function privacy() {
                 your data based on your consent and you wish
                 to revoke your consent, please contact us.
               </p>
-              <ul className="mb-10 ml-4 list-inside list-decimal text-gray-700">
+              <ul className="text-muted-foreground mb-10 ml-4 list-inside list-decimal">
                 <li>
                   <b>
                     Allow Users to Connect to their
@@ -572,7 +572,7 @@ export default function privacy() {
                 DO WE USE COOKIES AND OTHER TRACKING
                 TECHNOLOGIES?
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 In Short: We may use cookies and other
                 tracking technologies to collect and store
                 your information. We may use cookies and
@@ -590,7 +590,7 @@ export default function privacy() {
               <h2 id="privacy6" className="mb-2 text-2xl">
                 DO WE USE GOOGLE MAPS?
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 In Short: Yes, we use Google Maps for the
                 purpose of providing better service. This
                 website, mobile application, or Facebook
@@ -624,7 +624,7 @@ export default function privacy() {
               <h2 id="privacy7" className="mb-2 text-2xl">
                 HOW DO WE HANDLE YOUR SOCIAL LOGINS?
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 In Short: If you choose to register or log
                 in to our services using a social media
                 account, we may have access to certain
@@ -661,7 +661,7 @@ export default function privacy() {
               <h2 id="privacy8" className="mb-2 text-2xl">
                 HOW LONG DO WE KEEP YOUR INFORMATION?
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 In Short: We keep your information for as
                 long as necessary to fulfill the purposes
                 outlined in this privacy policy unless
@@ -692,7 +692,7 @@ export default function privacy() {
               <h2 id="privacy9" className="mb-2 text-2xl">
                 HOW DO WE KEEP YOUR INFORMATION SAFE?
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 In Short: We aim to protect your personal
                 information through a system of
                 organizational and technical security
@@ -716,7 +716,7 @@ export default function privacy() {
               <h2 id="privacy10" className="mb-2 text-2xl">
                 WHAT ARE YOUR PRIVACY RIGHTS?
               </h2>
-              <p className="mb-4 text-gray-700">
+              <p className="text-muted-foreground mb-4">
                 In Short: You may review, change, or
                 terminate your account at any time.If you
                 are resident in the European Economic Area
@@ -733,12 +733,12 @@ export default function privacy() {
               <p className="mb-2 text-lg">
                 Account Information
               </p>
-              <p className="mb-2 text-gray-700">
+              <p className="text-muted-foreground mb-2">
                 If you would at any time like to review or
                 change the information in your account or
                 terminate your account, you can:
               </p>
-              <ul className="mb-6 list-inside list-decimal text-gray-700">
+              <ul className="text-muted-foreground mb-6 list-inside list-decimal">
                 <li>
                   Log into your account settings and update
                   your user account.
@@ -748,7 +748,7 @@ export default function privacy() {
                   provided.
                 </li>
               </ul>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 Upon your request to terminate your account,
                 we will deactivate or delete your account
                 and information from our active databases.
@@ -787,7 +787,7 @@ export default function privacy() {
               <h2 id="privacy11" className="mb-2 text-2xl">
                 DATA BREACH
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 A privacy breach occurs when there is
                 unauthorized access to or collection, use,
                 disclosure or disposal of personal
@@ -816,7 +816,7 @@ export default function privacy() {
               <h2 id="privacy12" className="mb-2 text-2xl">
                 CONTROLS FOR DO-NOT-TRACK FEATURES
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 Most web browsers and some mobile operating
                 systems and mobile applications include a
                 Do-Not-Track (“DNT”) feature or setting you
@@ -842,7 +842,7 @@ export default function privacy() {
                 DO CALIFORNIA RESIDENTS HAVE SPECIFIC
                 PRIVACY RIGHTS?
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 In Short: Yes, if you are a resident of
                 California, you are granted specific rights
                 regarding access to your personal
@@ -883,7 +883,7 @@ export default function privacy() {
               <h2 id="privacy14" className="mb-2 text-2xl">
                 DO WE MAKE UPDATES TO THIS POLICY?
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 In Short: Yes, we will update this policy as
                 necessary to stay compliant with relevant
                 laws. We may update this privacy policy from
@@ -907,7 +907,7 @@ export default function privacy() {
                 HOW CAN YOU REVIEW, UPDATE, OR DELETE THE
                 DATA WE COLLECT FROM YOU?
               </h2>
-              <p className="mb-10 text-gray-700">
+              <p className="text-muted-foreground mb-10">
                 Based on the laws of some countries, you may
                 have the right to request access to the
                 personal information we collect from you,
@@ -925,7 +925,7 @@ export default function privacy() {
               <h2 id="privacy16" className="mb-2 text-2xl">
                 HOW CAN YOU CONTACT US ABOUT THIS POLICY?
               </h2>
-              <p className="mb-4 text-gray-700">
+              <p className="text-muted-foreground mb-4">
                 If you have questions or comments about this
                 policy, you may contact our Data Protection
                 Officer (DPO), John Sutor, by email at

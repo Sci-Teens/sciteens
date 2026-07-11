@@ -27,7 +27,7 @@ export default function GetInvolved() {
         title="Get Involved | SciTeens"
         description="Volunteer, mentor, or partner with SciTeens to bring free STEM opportunities to more students."
         eyebrow="Get Involved"
-        path="/getinvolved"
+        path="/get-involved"
       />
       <div>
         <div className="mx-auto w-full px-4 py-8 text-left md:p-8 lg:w-5/6">
@@ -37,7 +37,7 @@ export default function GetInvolved() {
           <div className="flex flex-col">
             <animated.div
               style={cardsTrail[0]}
-              className="border-border/60 bg-card relative mb-10 mr-0 overflow-hidden rounded-xl border p-12 shadow-md md:mb-8 md:mr-8"
+              className="border-border/60 bg-card relative mb-10 mr-0 overflow-hidden rounded-xl border p-12 shadow-sm md:mb-8 md:mr-8"
             >
               <h2 className="mb-3 text-2xl font-semibold md:text-3xl">
                 {t('get_involved.students')}
@@ -70,7 +70,7 @@ export default function GetInvolved() {
 
             <animated.div
               style={cardsTrail[1]}
-              className="border-border/60 bg-card relative mb-10 mr-0 overflow-hidden rounded-xl border p-12 shadow-md md:mr-8 md:mt-8"
+              className="border-border/60 bg-card relative mb-10 mr-0 overflow-hidden rounded-xl border p-12 shadow-sm md:mr-8 md:mt-8"
             >
               <h2 className="mb-3 mr-6 text-2xl font-semibold md:text-3xl">
                 {t('get_involved.outreach')}
@@ -105,7 +105,7 @@ export default function GetInvolved() {
 
             <animated.div
               style={cardsTrail[2]}
-              className="border-border/60 bg-card relative mb-10 ml-0 overflow-hidden rounded-xl border p-12 shadow-md md:ml-8 md:mt-8"
+              className="border-border/60 bg-card relative mb-10 ml-0 overflow-hidden rounded-xl border p-12 shadow-sm md:ml-8 md:mt-8"
             >
               <h2 className="mb-3 text-2xl font-semibold md:text-3xl">
                 {t('get_involved.funding')}

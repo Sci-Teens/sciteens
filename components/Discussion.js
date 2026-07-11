@@ -23,12 +23,19 @@ import {
 import ProfilePhoto from './ProfilePhoto'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { FieldLabel } from '@/components/ui/field'
+import {
+  Field,
+  FieldLabel,
+  FieldError,
+} from '@/components/ui/field'
+import { Card, CardContent } from '@/components/ui/card'
+import { useTranslation } from 'next-i18next'
 import debounce from 'lodash.debounce'
 import moment from 'moment'
 
 export default function Discussion({ type, item_id }) {
   const { data: signInCheckResult } = useSigninCheck()
+  const { t } = useTranslation('common')
 
   const discussionQuery = useMemo(
     () =>
@@ -184,7 +191,7 @@ export default function Discussion({ type, item_id }) {
     e.preventDefault()
     if (!signInCheckResult?.signedIn) {
       router.push({
-        pathname: '/signup',
+        pathname: '/signup/student',
         query: { ref: `${type}|${item_id}` },
       })
       return
@@ -223,42 +230,38 @@ export default function Discussion({ type, item_id }) {
 
   return (
     <div className="mb-12 mt-6 w-full">
+      <h2 className="mb-4 text-2xl font-semibold md:text-3xl">
+        {t('discussion.title')}
+      </h2>
       <form
         onSubmit={(e) => postComment(e)}
         className="mb-6"
       >
-        <h2 className="mb-4 text-3xl font-bold text-black">
-          Discussion
-        </h2>
-        <FieldLabel
-          htmlFor="comment"
-          className="uppercase text-gray-600"
-        >
-          Comment
-        </FieldLabel>
-        <Textarea
-          onChange={(e) => onChange(e, true, -1)}
-          value={comment}
-          name="comment"
-          id="comment"
-          required
-          rows={3}
-          className={`mr-3 w-full appearance-none rounded-lg border-2 border-transparent bg-white p-2 leading-tight shadow focus:bg-white focus:placeholder-gray-700 focus:shadow-lg ${
-            error_comment
-              ? 'border-red-700 text-red-800 placeholder-red-700'
-              : 'focus:border-sciteensLightGreen-regular text-gray-700'
-          }`}
-          placeholder={
-            discussion?.length
-              ? ''
-              : 'Start the conversation...'
-          }
-          aria-label="comment"
-          maxLength={1000}
-        />
-        <p className="text-sm text-red-800">
-          {error_comment}
-        </p>
+        <Field data-invalid={!!error_comment}>
+          <FieldLabel htmlFor="comment" className="sr-only">
+            {t('discussion.comment_label')}
+          </FieldLabel>
+          <Textarea
+            onChange={(e) => onChange(e, true, -1)}
+            value={comment}
+            name="comment"
+            id="comment"
+            required
+            rows={3}
+            className="bg-card"
+            aria-invalid={!!error_comment}
+            placeholder={
+              discussion?.length
+                ? ''
+                : t('discussion.placeholder')
+            }
+            aria-label={t('discussion.comment_label')}
+            maxLength={1000}
+          />
+          {error_comment && (
+            <FieldError>{error_comment}</FieldError>
+          )}
+        </Field>
         <div
           className={`mt-2 flex w-full justify-end ${
             comment === '' ? 'hidden' : ''
@@ -274,15 +277,14 @@ export default function Discussion({ type, item_id }) {
             variant="outline"
             className="mr-2"
           >
-            Cancel
+            {t('discussion.cancel')}
           </Button>
           <Button
             type="submit"
             disabled={loading || error_comment}
-            className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark rounded-lg p-2 text-white shadow-sm disabled:opacity-50"
             onClick={(e) => postComment(e)}
           >
-            Post
+            {t('discussion.post')}
             {loading && <LoadingSpinner />}
           </Button>
         </div>
@@ -292,67 +294,69 @@ export default function Discussion({ type, item_id }) {
           if (comment.reply_to_id == '')
             return (
               <div key={comment.id}>
-                <div
+                <Card
                   id={comment.id}
                   key={comment.date}
-                  className={`relative bg-white p-4 shadow ${
+                  className={`relative ${
                     router.isReady &&
-                    router.basePath.includes(comment.id) &&
-                    'bg-gray-200'
+                    router.basePath.includes(comment.id)
+                      ? 'ring-primary/50 ring-2'
+                      : ''
                   } ${
                     replyingToId === comment.id
-                      ? 'rounded-t-lg'
-                      : 'rounded-lg'
+                      ? 'rounded-b-none'
+                      : ''
                   }`}
                 >
-                  <div className="mb-2 flex flex-row items-center">
-                    <div className="mr-2 h-10 w-10">
-                      <ProfilePhoto
-                        uid={comment.uid}
-                      ></ProfilePhoto>
+                  <CardContent>
+                    <div className="mb-2 flex flex-row items-center">
+                      <div className="mr-2 h-10 w-10">
+                        <ProfilePhoto
+                          uid={comment.uid}
+                        ></ProfilePhoto>
+                      </div>
+                      <p className="font-semibold">
+                        {comment.display}
+                      </p>
                     </div>
-                    <p className="font-semibold">
-                      {comment.display}
+                    <p className="text-muted-foreground absolute right-4 top-4 text-xs">
+                      {moment(comment.date)
+                        .locale(router?.locale || 'en')
+                        .calendar(null, {
+                          sameElse: 'MMMM DD, YYYY',
+                        })}
                     </p>
-                  </div>
-                  <p className="absolute right-4 top-4 text-xs text-gray-700">
-                    {moment(comment.date)
-                      .locale(router?.locale || 'en')
-                      .calendar(null, {
-                        sameElse: 'MMMM DD, YYYY',
-                      })}
-                  </p>
-                  <p>{comment.comment}</p>
-                  <div className="flex justify-end">
-                    <Button
-                      variant="ghost"
-                      className="text-gray-700 hover:text-black"
-                      onClick={() =>
-                        handleReplyTo(comment, key)
-                      }
-                    >
-                      Reply
-                    </Button>
-                  </div>
-                </div>
+                    <p>{comment.comment}</p>
+                    <div className="flex justify-end">
+                      <Button
+                        variant="ghost"
+                        onClick={() =>
+                          handleReplyTo(comment, key)
+                        }
+                      >
+                        {t('discussion.reply')}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
                 <div
-                  className={`flex flex-row bg-white  ${
-                    error_reply && error_reply_index === key
-                      ? 'border-red-700'
-                      : 'border-sciteensLightGreen-regular'
-                  }
-                            ${
-                              replyingToId === comment.id
-                                ? 'rounded-b-lg border-2'
-                                : 'h-0 overflow-hidden rounded-lg'
-                            }`}
+                  className={`border-border/60 bg-card flex flex-row ${
+                    replyingToId === comment.id
+                      ? `rounded-b-xl border border-t-0 ${
+                          error_reply &&
+                          error_reply_index === key
+                            ? 'border-destructive'
+                            : ''
+                        }`
+                      : 'h-0 overflow-hidden rounded-lg'
+                  }`}
                 >
-                  <div className="flex w-full flex-col">
+                  <div className="flex w-full flex-col p-2">
                     <FieldLabel
                       htmlFor={`reply${key}`}
                       className="sr-only"
                     >
-                      Reply
+                      {t('discussion.reply_label')}
                     </FieldLabel>
                     <Textarea
                       onChange={(e) =>
@@ -362,46 +366,46 @@ export default function Discussion({ type, item_id }) {
                       id={`reply${key}`}
                       required
                       rows={3}
-                      className={`w-full resize-none appearance-none border-transparent bg-white p-2 leading-tight shadow focus:shadow-lg 
-                                ${
-                                  replyingToId == comment.id
-                                    ? 'rounded-lg'
-                                    : 'rounded-lg border-none'
-                                } focus:bg-white focus:placeholder-gray-700 
-                                ${
-                                  error_reply &&
-                                  error_reply_index === key
-                                    ? 'text-red-800 placeholder-red-700'
-                                    : 'border-sciteensLightGreen-regular text-gray-700'
-                                }`}
-                      placeholder="Reply..."
-                      aria-label="reply"
+                      className="border-none shadow-none"
+                      aria-invalid={
+                        !!(
+                          error_reply &&
+                          error_reply_index === key
+                        )
+                      }
+                      placeholder={t(
+                        'discussion.reply_placeholder'
+                      )}
+                      aria-label={t(
+                        'discussion.reply_label'
+                      )}
                       maxLength={1000}
                     />
                   </div>
-                  <div className="flex w-min flex-col">
+                  <div className="flex w-min flex-col gap-1 p-2">
                     <Button
                       type="reset"
+                      variant="outline"
+                      size="sm"
                       onClick={() => {
                         setReplyingToName('')
                         setReplyingToId('')
                         setComment('')
                       }}
-                      className="mr-2 h-full w-full bg-gray-200 px-2 py-2 hover:bg-gray-300 disabled:opacity-50 md:px-4"
                     >
-                      Cancel
+                      {t('discussion.cancel')}
                     </Button>
                     <Button
                       type="submit"
+                      size="sm"
                       disabled={
                         loading ||
                         error_reply ||
                         !signInCheckResult?.signedIn
                       }
-                      className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark h-full rounded-br-lg p-2 text-white disabled:opacity-50"
                       onClick={(e) => postComment(e)}
                     >
-                      Post
+                      {t('discussion.post')}
                       {loading && <LoadingSpinner />}
                     </Button>
                   </div>
@@ -410,9 +414,7 @@ export default function Discussion({ type, item_id }) {
                   {reply &&
                     error_reply_index === key &&
                     replyingToId === comment.id && (
-                      <p className="text-sm text-red-800">
-                        {error_reply}
-                      </p>
+                      <FieldError>{error_reply}</FieldError>
                     )}
                 </div>
                 <div className="-mt-4">
@@ -423,35 +425,37 @@ export default function Discussion({ type, item_id }) {
                           key={reply.id}
                           className="flex w-full flex-row"
                         >
-                          <div className="ml-5 mr-5 w-[2px] bg-gray-200 md:ml-8 md:mr-8" />
+                          <div className="bg-border ml-5 mr-5 w-[2px] md:ml-8 md:mr-8" />
                           <div className="w-full">
-                            <div
+                            <Card
                               id={reply.id}
                               key={reply.date}
-                              className={`relative mb-2 ml-auto rounded-lg bg-white p-4  shadow-sm`}
+                              className="relative mb-2 ml-auto"
                             >
-                              <div className="mb-2 flex flex-row items-center">
-                                <div className="mr-2 h-10 w-10">
-                                  <ProfilePhoto
-                                    uid={reply.uid}
-                                  ></ProfilePhoto>
+                              <CardContent>
+                                <div className="mb-2 flex flex-row items-center">
+                                  <div className="mr-2 h-10 w-10">
+                                    <ProfilePhoto
+                                      uid={reply.uid}
+                                    ></ProfilePhoto>
+                                  </div>
+                                  <p className="font-semibold">
+                                    {reply.display}
+                                  </p>
                                 </div>
-                                <p className="font-semibold">
-                                  {reply.display}
+                                <p>{reply.comment}</p>
+                                <p className="text-muted-foreground absolute right-4 top-4 text-xs">
+                                  {moment(reply.date)
+                                    .locale(
+                                      router?.locale || 'en'
+                                    )
+                                    .calendar(null, {
+                                      sameElse:
+                                        'MMMM DD, YYYY',
+                                    })}
                                 </p>
-                              </div>
-                              <p>{reply.comment}</p>
-                              <p className="absolute right-4 top-4 text-xs text-gray-700">
-                                {moment(reply.date)
-                                  .locale(
-                                    router?.locale || 'en'
-                                  )
-                                  .calendar(null, {
-                                    sameElse:
-                                      'MMMM DD, YYYY',
-                                  })}
-                              </p>
-                            </div>
+                              </CardContent>
+                            </Card>
                           </div>
                         </div>
                       )

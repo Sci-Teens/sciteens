@@ -26,13 +26,13 @@ function RemoveButton({ id, removeFile }) {
 // recognize. Deliberately not an <a>: no href, no click target.
 function UnsupportedFile({ file, id, removeFile, reason }) {
   return (
-    <div className="flex w-full justify-between rounded-lg bg-white shadow-sm">
+    <div className="bg-card flex w-full justify-between rounded-lg shadow-sm">
       <FileWarning className="m-1 h-11 w-11 shrink-0 text-amber-600" />
       <div className="ml-2 flex-1 text-left">
         <p className="line-clamp-1" title={file?.name}>
           {file?.name}
         </p>
-        <p className="line-clamp-2 text-sm text-gray-700">
+        <p className="line-clamp-2 text-muted-foreground text-sm">
           {reason}
         </p>
       </div>
@@ -77,12 +77,12 @@ export default function RenderFile({
     case 'application/pdf':
       return (
         <a
-          className="flex w-full justify-between rounded-lg bg-white shadow-sm"
+          className="bg-card flex w-full justify-between rounded-lg shadow-sm"
           href={previewUrl}
           target="_blank"
           rel="noreferrer"
         >
-          <div className="relative h-16 w-[10%] shrink-0 overflow-hidden rounded-l-lg bg-gray-100">
+          <div className="bg-muted relative h-16 w-[10%] shrink-0 overflow-hidden rounded-l-lg">
             <FileText className="absolute inset-0 m-auto h-8 w-8 text-red-600" />
             {file?.thumbnailUrl ? (
               // Persisted at upload time — no pdfjs, no re-fetching
@@ -103,7 +103,7 @@ export default function RenderFile({
           </div>
           <div className="line-clamp-1 ml-2 flex-1 p-2 text-left">
             <p title={file?.name}>{file?.name}</p>
-            <p className="text-sm text-gray-700">
+            <p className="text-muted-foreground text-sm">
               application/pdf
             </p>
           </div>
@@ -115,7 +115,7 @@ export default function RenderFile({
     case 'image/jpg':
       return (
         <a
-          className="flex w-full justify-between rounded-lg bg-white shadow-sm transition-all duration-500"
+          className="bg-card flex w-full justify-between rounded-lg shadow-sm transition-all duration-500"
           href={previewUrl}
           target="_blank"
           rel="noreferrer"
@@ -130,7 +130,9 @@ export default function RenderFile({
           />
           <div className="line-clamp-1 ml-2 flex-1 p-2 text-left">
             <p title={file?.name}>{file?.name}</p>
-            <p className="text-sm text-gray-700">image</p>
+            <p className="text-muted-foreground text-sm">
+              image
+            </p>
           </div>
           {removeFile && (
             <button

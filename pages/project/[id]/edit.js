@@ -578,11 +578,11 @@ export default function UpdateProject({ query }) {
     return (
       <>
         <main>
-          <div className="relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg bg-white px-4 py-8 text-left shadow-sm md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
+          <div className="bg-card relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg px-4 py-8 text-left shadow-sm md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
             <h1 className="mb-2 text-center text-3xl font-semibold">
               {t('project_create_edit.update_project')}
             </h1>
-            <p className="mb-6 text-center text-gray-700">
+            <p className="text-muted-foreground mb-6 text-center">
               {t('project_create_edit.why_update_project')}{' '}
               <span className="italic">
                 {form.watch('title')}
@@ -738,7 +738,7 @@ export default function UpdateProject({ query }) {
                   </p>
                 ))}
 
-                <label className="uppercase text-gray-600">
+                <label className="text-muted-foreground uppercase">
                   {t('project_create_edit.fields')}
                 </label>
                 {Object.entries(
@@ -758,7 +758,7 @@ export default function UpdateProject({ query }) {
                       />
                       <FieldLabel
                         htmlFor={key}
-                        className="font-normal text-gray-700"
+                        className="text-muted-foreground font-normal"
                       >
                         {value}
                       </FieldLabel>
@@ -775,8 +775,8 @@ export default function UpdateProject({ query }) {
                   className={`h-40 w-full border-2 ${
                     error_file
                       ? 'bg-red-200 hover:bg-red-300'
-                      : 'bg-gray-100 hover:bg-gray-200'
-                  }  flex items-center justify-center rounded-lg border-dashed border-gray-600 text-center text-gray-700`}
+                      : 'bg-muted hover:bg-accent'
+                  }  text-muted-foreground flex items-center justify-center rounded-lg border-dashed border-gray-600 text-center`}
                 >
                   <input {...getInputProps()} />
                   {isDragActive ? (
@@ -830,7 +830,7 @@ export default function UpdateProject({ query }) {
                     )}
                     <label
                       htmlFor="project_photo"
-                      className="mt-2 uppercase text-gray-600"
+                      className="text-muted-foreground mt-2 uppercase"
                     >
                       {t(
                         'project_create_edit.display_photo'
@@ -849,7 +849,7 @@ export default function UpdateProject({ query }) {
                     <>
                       <label
                         htmlFor="other_photos"
-                        className="-mb-3 mt-2 text-left uppercase text-gray-600"
+                        className="text-muted-foreground -mb-3 mt-2 text-left uppercase"
                       >
                         {t(
                           'project_create_edit.other_photo'
@@ -866,7 +866,7 @@ export default function UpdateProject({ query }) {
                               onClick={(e) =>
                                 setPhoto(e, id)
                               }
-                              className={`border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark rounded-lg border-2 font-semibold transition-all duration-500 hover:bg-gray-50 ${
+                              className={`border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark hover:bg-accent rounded-lg border-2 font-semibold transition-all duration-500 ${
                                 select_photo_mode
                                   ? 'mr-4 w-28'
                                   : 'w-0 overflow-hidden border-none'
@@ -903,7 +903,7 @@ export default function UpdateProject({ query }) {
                   </Button>
                   <Link
                     href={`/project/${query.id}`}
-                    className="ml-2 mt-4 w-full rounded-lg border-2 border-gray-200 bg-gray-100 p-2 text-center text-lg font-semibold text-black no-underline shadow-sm hover:border-gray-300 hover:bg-gray-200 disabled:opacity-50"
+                    className="border-border bg-muted text-foreground hover:border-border hover:bg-accent ml-2 mt-4 w-full rounded-lg border-2 p-2 text-center text-lg font-semibold no-underline shadow-sm disabled:opacity-50"
                   >
                     {t('project_create_edit.cancel')}
                   </Link>

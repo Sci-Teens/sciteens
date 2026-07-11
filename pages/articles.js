@@ -425,7 +425,7 @@ function Articles({ cached_articles }) {
                 type="text"
                 aria-label="search"
                 maxLength="100"
-                className="bg-card border-gray-300 shadow-sm"
+                className="bg-card shadow-sm"
               />
             </div>
             <Select
@@ -437,7 +437,7 @@ function Articles({ cached_articles }) {
             >
               <SelectTrigger
                 id="field"
-                className="bg-card w-full border-gray-300 shadow-sm"
+                className="bg-card w-full shadow-sm"
               >
                 <SelectValue />
               </SelectTrigger>
@@ -474,7 +474,7 @@ function Articles({ cached_articles }) {
         </div>
         <div className="hidden w-0 lg:ml-32 lg:block lg:w-[30%]">
           <div className="sticky top-1/2 w-full -translate-y-1/2 transform">
-            <h2 className="mb-2 text-xl text-gray-700">
+            <h2 className="text-muted-foreground mb-2 text-xl">
               {t('articles.search_articles')}
             </h2>
             <form
@@ -488,7 +488,7 @@ function Articles({ cached_articles }) {
                 value={search}
                 name="search"
                 required
-                className="bg-card mr-3 border-gray-300 shadow-sm"
+                className="bg-card mr-3 shadow-sm"
                 type="text"
                 aria-label="search"
                 maxLength="100"
@@ -501,9 +501,9 @@ function Articles({ cached_articles }) {
               </Button>
             </form>
 
-            <hr className="my-8 bg-gray-300" />
+            <hr className="bg-border my-8" />
 
-            <h2 className="mb-2 text-xl text-gray-700">
+            <h2 className="text-muted-foreground mb-2 text-xl">
               {t('courses.topics')}
             </h2>
             <div className="flex flex-row flex-wrap">
@@ -521,7 +521,7 @@ function Articles({ cached_articles }) {
                     className={
                       key == field
                         ? 'mb-4 mr-4 rounded-full'
-                        : 'bg-card hover:bg-muted mb-4 mr-4 rounded-full border border-gray-300 shadow-sm'
+                        : 'bg-card hover:bg-muted mb-4 mr-4 rounded-full border shadow-sm'
                     }
                   >
                     {value}
