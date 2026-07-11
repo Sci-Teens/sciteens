@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import Link from 'next/link'
 import SocialMeta from '@/components/SocialMeta'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
@@ -18,6 +17,9 @@ import { getTranslatedFieldsDict } from '../context/helpers'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
 import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -288,42 +290,50 @@ function Articles({ cached_articles }) {
 
     return (
       <div key={article.id} className="w-full pt-6 md:pt-8">
-        <Link
-          href={`/article/${article.uid}`}
-          className="animate-in bg-card text-card-foreground ring-border/60 fade-in slide-in-from-right-8 z-50 flex cursor-pointer flex-row items-center rounded-xl p-4 shadow-sm ring-1 transition duration-300 hover:-translate-y-0.5 hover:shadow-md"
-        >
-          <div className="relative h-full max-w-[100px] md:max-w-[200px]">
-            <Image
-              alt={RichText.asText(article.data.title)}
-              className="shrink-0 rounded-lg object-cover"
-              loader={imageLoader}
-              src={article.data.image.url}
-              width={256}
-              height={256}
-            />
-          </div>
-          <div className="ml-4 w-3/4 lg:w-11/12">
-            <div className="mb-3 flex flex-row items-center">
-              {author_image}
-              <p className="ml-3">{article.data.author}</p>
+        <Card className="animate-in border-border/60 fade-in slide-in-from-right-8 relative isolate overflow-hidden transition duration-300 hover:-translate-y-0.5 hover:shadow-md">
+          <a
+            href={`/article/${article.uid}`}
+            aria-label={RichText.asText(article.data.title)}
+            className="focus-visible:ring-3 focus-visible:ring-ring/50 absolute inset-0 z-10 rounded-xl"
+          />
+          <CardContent className="flex items-center">
+            <div className="bg-muted relative h-24 w-24 shrink-0 overflow-hidden rounded-lg md:h-40 md:w-40">
+              <Image
+                alt={RichText.asText(article.data.title)}
+                fill
+                sizes="(min-width: 768px) 160px, 96px"
+                className="object-cover"
+                loader={imageLoader}
+                src={article.data.image.url}
+              />
             </div>
-            <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">
-              {RichText.asText(article.data.title)}
-            </h3>
-            <p className="line-clamp-none md:line-clamp-2 mb-2 hidden text-sm md:flex lg:text-base">
-              {article.data.description}
-            </p>
-            <p className="flex text-xs">
-              {(mounted
-                ? moment(article.data.date)
-                    .locale(router?.locale || 'en')
-                    .format('ll')
-                : moment(article.data.date).format('ll')) +
-                ' · ' +
-                readingTime(article.data.text)}
-            </p>
-          </div>
-        </Link>
+            <div className="ml-4 min-w-0 flex-1">
+              <div className="mb-3 flex flex-row items-center">
+                {author_image}
+                <p className="ml-3">
+                  {article.data.author}
+                </p>
+              </div>
+              <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">
+                {RichText.asText(article.data.title)}
+              </h3>
+              <p className="line-clamp-none md:line-clamp-2 mb-2 hidden text-sm md:flex lg:text-base">
+                {article.data.description}
+              </p>
+              <p className="flex text-xs">
+                {(mounted
+                  ? moment(article.data.date)
+                      .locale(router?.locale || 'en')
+                      .format('ll')
+                  : moment(article.data.date).format(
+                      'll'
+                    )) +
+                  ' · ' +
+                  readingTime(article.data.text)}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     )
   }
@@ -374,10 +384,10 @@ function Articles({ cached_articles }) {
     .fill(1)
     .map((index) => {
       return (
-        <div
+        <Skeleton
           key={index}
-          className="bg-muted z-50 mt-4 h-16 rounded-xl p-4 shadow-sm"
-        ></div>
+          className="mt-4 h-16 rounded-xl"
+        />
       )
     })
 
@@ -395,7 +405,7 @@ function Articles({ cached_articles }) {
         path="/articles"
       />
       <div className="text-foreground mx-auto mb-24 mt-8 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
-        <div className="mx-auto w-11/12 md:w-[85%] lg:mx-0 lg:w-[60%]">
+        <div className="w-full px-4 md:mx-auto md:w-[85%] md:px-0 lg:mx-0 lg:w-[60%]">
           <PageHeading className="ml-4 py-4 text-left">
             {t('articles.articles')} 📰
           </PageHeading>
@@ -501,7 +511,7 @@ function Articles({ cached_articles }) {
               </Button>
             </form>
 
-            <hr className="bg-border my-8" />
+            <Separator className="my-8" />
 
             <h2 className="text-muted-foreground mb-2 text-xl">
               {t('courses.topics')}

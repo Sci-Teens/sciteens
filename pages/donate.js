@@ -4,6 +4,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import SocialMeta from '@/components/SocialMeta'
 import PageHeading from '@/components/PageHeading'
+import { Button } from '@/components/ui/button'
 
 export default function Donate() {
   const { t } = useTranslation('common')
@@ -21,20 +22,26 @@ export default function Donate() {
             {t('donate.annual_donation_appeal')}
           </PageHeading>
           <div className="mb-8 mt-4 flex w-full flex-row">
-            <a
-              href="https://www.paypal.com/donate?hosted_button_id=7B8QACYV83ACA"
-              target="_blank"
-              className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark mr-2 rounded-lg p-2 text-white shadow-md"
-              rel="noreferrer"
+            <Button
+              render={
+                <a
+                  href="https://www.paypal.com/donate?hosted_button_id=7B8QACYV83ACA"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={t('donate.donate_now')}
+                />
+              }
+              className="mr-2"
             >
               {t('donate.donate_now')}
-            </a>
-            <Link
-              href="/about"
-              className="text-muted-foreground ml-2 p-2 hover:underline"
+            </Button>
+            <Button
+              variant="ghost"
+              render={<Link href="/about" />}
+              className="ml-2"
             >
               {t('donate.read_our_mission')}
-            </Link>
+            </Button>
           </div>
           <p>{t('donate.dear_supporter')}</p>
           <p className="my-2">

@@ -38,6 +38,8 @@ import {
   formatProjectDate,
 } from '../lib/projects'
 import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Input } from '@/components/ui/input'
 
 const PROJECTS_PAGE_SIZE = 10
@@ -326,10 +328,10 @@ function Projects({ cached_projects }) {
     .fill(1)
     .map((index) => {
       return (
-        <div
+        <Skeleton
           key={index}
-          className="bg-muted z-50 mt-4 h-16 rounded-xl p-4 shadow-sm"
-        ></div>
+          className="mt-4 h-16 rounded-xl"
+        />
       )
     })
 
@@ -347,21 +349,22 @@ function Projects({ cached_projects }) {
         path="/projects"
       />
       <div className="text-foreground mx-auto mb-24 mt-8 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
-        <div className="mx-auto w-11/12 md:w-[85%] lg:mx-0 lg:w-[60%]">
+        <div className="w-full px-4 md:mx-auto md:w-[85%] md:px-0 lg:mx-0 lg:w-[60%]">
           <div className="flex flex-row justify-between">
             <PageHeading className="ml-0 py-4 text-left md:ml-4">
               {t('projects.projects')} 🔬
             </PageHeading>
-            <Link
-              href="/project/create"
-              className="border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark my-auto inline-flex items-center rounded-lg border-2 px-3 py-1.5 no-underline shadow-sm transition md:px-5 md:text-lg"
+            <Button
+              variant="outline"
+              render={<Link href="/project/create" />}
+              className="my-auto md:px-5 md:text-lg"
               aria-label="Create Project"
             >
               <span className="hidden md:inline">
                 Create Project
               </span>
               <PlusCircle className="h-6 w-6 md:hidden" />
-            </Link>
+            </Button>
           </div>
           {loading && projects.length === 0
             ? loadingComponent
@@ -417,7 +420,7 @@ function Projects({ cached_projects }) {
               </Button>
             </form>
 
-            <hr className="bg-border my-8" />
+            <Separator className="my-8" />
 
             <h2 className="text-muted-foreground mb-2 text-xl">
               {t('projects.topics')}

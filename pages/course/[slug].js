@@ -11,6 +11,9 @@ import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import { createCropImageLoader } from '../../lib/prismicImageLoader'
+import { Card, CardContent } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import { Button } from '@/components/ui/button'
 
 function Course({ course }) {
   const [files, setFiles] = useState([])
@@ -66,13 +69,20 @@ function Course({ course }) {
               {RichText.asText(slice.primary.title)}
             </td>
             <td className="p-2">
-              <a
-                href={slice.primary.lesson_link.url}
-                target="_blank"
-                rel="noreferrer"
+              <Button
+                variant="link"
+                size="sm"
+                render={
+                  <a
+                    href={slice.primary.lesson_link.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="View"
+                  />
+                }
               >
                 View
-              </a>
+              </Button>
             </td>
           </tr>
         )
@@ -124,7 +134,7 @@ function Course({ course }) {
           <h1>{RichText.asText(course.data.name)}</h1>
           {courseDateDisplay}
           <i>{RichText.asText(course.data.description)}</i>
-          <div className="mt-2 border-b-2"></div>
+          <Separator className="mt-2" />
           {/* <div className="flex items-center">
                                     {author_image}
                                     <p className="font-semibold ml-4">
@@ -150,18 +160,26 @@ function Course({ course }) {
           </div>
         </div>
       </article>
-      <div className="mx-auto w-full max-w-prose">
+      <div className="mx-auto w-full max-w-prose px-4">
         <h2 className="mb-2 text-lg font-semibold">
           {t('course.lessons')}
         </h2>
-        <table className="mb-4 w-full table-auto rounded-sm shadow-sm">
-          <tr className="border-border bg-muted rounded-t-md border-b text-center">
-            <th className="p-2">{t('course.date')}</th>
-            <th className="p-2">{t('course.lesson')}</th>
-            <th className="p-2">{t('course.notebook')}</th>
-          </tr>
-          {lessonComponent}
-        </table>
+        <Card className="mb-4 overflow-hidden">
+          <CardContent className="p-0">
+            <table className="w-full table-auto">
+              <tr className="border-border bg-muted border-b text-center">
+                <th className="p-2">{t('course.date')}</th>
+                <th className="p-2">
+                  {t('course.lesson')}
+                </th>
+                <th className="p-2">
+                  {t('course.notebook')}
+                </th>
+              </tr>
+              {lessonComponent}
+            </table>
+          </CardContent>
+        </Card>
         {files?.length > 0 && (
           <>
             <h2 className="mb-2 text-lg font-semibold">

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 
-import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import SocialMeta from '@/components/SocialMeta'
@@ -13,6 +12,8 @@ import moment from 'moment'
 
 import { getTranslatedFieldsDict } from '../context/helpers'
 import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import PageHeading from '@/components/PageHeading'
 
@@ -131,30 +132,37 @@ function Courses({ cached_courses }) {
     }
 
     return (
-      <Link
+      <Card
         key={course.uid}
-        href={`/course/${course.uid}`}
-        className="animate-in bg-card text-card-foreground ring-border/60 fade-in slide-in-from-right-8 z-50 mt-6 flex cursor-pointer items-center rounded-xl p-4 shadow-sm ring-1 transition duration-300 hover:-translate-y-0.5 hover:shadow-md md:mt-8"
+        className="animate-in border-border/60 fade-in slide-in-from-right-8 relative isolate mt-6 overflow-hidden transition duration-300 hover:-translate-y-0.5 hover:shadow-md md:mt-8"
       >
-        <div className="relative h-full max-w-[100px] md:max-w-[200px]">
-          <Image
-            className="shrink-0 rounded-lg object-cover"
-            loader={imageLoader}
-            src={course.data.image_main.url}
-            width={256}
-            height={256}
-          />
-        </div>
-        <div className="ml-4 w-3/4 lg:w-11/12">
-          <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">
-            {RichText.asText(course.data.name)}
-          </h3>
-          <p className="line-clamp-none md:line-clamp-2 lg:line-clamp-3 mb-2 hidden md:block">
-            {RichText.asText(course.data.description)}
-          </p>
-          {dateDisplay}
-        </div>
-      </Link>
+        <a
+          href={`/course/${course.uid}`}
+          aria-label={RichText.asText(course.data.name)}
+          className="focus-visible:ring-3 focus-visible:ring-ring/50 absolute inset-0 z-10 rounded-xl"
+        />
+        <CardContent className="flex items-center">
+          <div className="bg-muted relative h-24 w-24 shrink-0 overflow-hidden rounded-lg md:h-40 md:w-40">
+            <Image
+              alt={RichText.asText(course.data.name)}
+              fill
+              sizes="(min-width: 768px) 160px, 96px"
+              className="object-cover"
+              loader={imageLoader}
+              src={course.data.image_main.url}
+            />
+          </div>
+          <div className="ml-4 min-w-0 flex-1">
+            <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">
+              {RichText.asText(course.data.name)}
+            </h3>
+            <p className="line-clamp-none md:line-clamp-2 lg:line-clamp-3 mb-2 hidden md:block">
+              {RichText.asText(course.data.description)}
+            </p>
+            {dateDisplay}
+          </div>
+        </CardContent>
+      </Card>
     )
   })
   return (
@@ -171,7 +179,7 @@ function Courses({ cached_courses }) {
         path="/courses"
       />
       <div className="text-foreground mx-auto mb-24 mt-8 flex min-h-screen flex-row overflow-x-hidden md:overflow-visible lg:mx-16 xl:mx-32">
-        <div className="mx-auto w-11/12 md:w-[85%] lg:mx-0 lg:w-[60%]">
+        <div className="w-full px-4 md:mx-auto md:w-[85%] md:px-0 lg:mx-0 lg:w-[60%]">
           <PageHeading className="ml-4 py-4 text-left">
             {t('courses.courses')} 📖
           </PageHeading>
@@ -217,7 +225,7 @@ function Courses({ cached_courses }) {
               </Button>
             </form>
 
-            <hr className="bg-border my-8" />
+            <Separator className="my-8" />
 
             <h2 className="text-muted-foreground mb-2 text-xl">
               {t('courses.topics')}
