@@ -2,6 +2,10 @@ const { i18n } = require('./next-i18next.config')
 const CompressionPlugin = require('compression-webpack-plugin')
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
+// Only set once a custom Firebase Auth domain (e.g. auth.sciteens.org) is
+// wired up — see firebaseConfig.js's authDomain override — so the CSP can
+// allowlist it alongside the default *.firebaseapp.com wildcard below.
+const authDomain = process.env.NEXT_PUBLIC_FB_AUTH_DOMAIN
 const scriptSrc = [
   "'self'",
   "'unsafe-inline'",
@@ -144,7 +148,9 @@ module.exports = {
               // firebasestorage.googleapis.com/storage.googleapis.com —
               // components/FileGallery.js embeds an uploaded PDF's own
               // download URL in an <iframe> for in-page viewing.
-              'frame-src https://www.google.com https://*.firebaseapp.com https://firebasestorage.googleapis.com https://storage.googleapis.com; ' +
+              `frame-src https://www.google.com https://*.firebaseapp.com ${
+                authDomain ? `https://${authDomain} ` : ''
+              }https://firebasestorage.googleapis.com https://storage.googleapis.com; ` +
               `connect-src ${connectSrc}; ` +
               "frame-ancestors 'self'; " +
               "base-uri 'self'; " +

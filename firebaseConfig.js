@@ -1,8 +1,13 @@
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FB_API_KEY,
+  // Overridable so a custom Firebase Auth domain (e.g. auth.sciteens.org)
+  // can replace the default `<project-id>.firebaseapp.com` shown during
+  // Google/OAuth sign-in — see next.config.js's frame-src comment for the
+  // matching CSP allowance this requires.
   authDomain:
+    process.env.NEXT_PUBLIC_FB_AUTH_DOMAIN ||
     process.env.NEXT_PUBLIC_FB_PROJECT_ID +
-    '.firebaseapp.com',
+      '.firebaseapp.com',
   databaseURL:
     'https://' +
     process.env.NEXT_PUBLIC_FB_PROJECT_ID +
