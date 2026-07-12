@@ -1,11 +1,16 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 
 import Link from 'next/link'
 import SocialMeta from '@/components/SocialMeta'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
-import { format } from 'date-fns'
 import { useIntersectionObserver } from '../context/helpers'
 import { getTranslatedFieldsDict } from '../context/helpers'
 import PageHeading from '@/components/PageHeading'
@@ -34,10 +39,7 @@ import {
 } from '@tanstack/react-query'
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
 
-import {
-  Calendar as CalendarIcon,
-  PlusCircle,
-} from 'lucide-react'
+import { PlusCircle } from 'lucide-react'
 import ProjectCard from '../components/ProjectCard'
 import {
   normalizeProject,
@@ -46,14 +48,9 @@ import {
 import { requiresSearchIndex } from '../lib/search'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Calendar } from '@/components/ui/calendar'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -190,19 +187,6 @@ async function fetchProjectFacets() {
   return data.facets || []
 }
 
-function formatDateRangeLabel(dateRange, t) {
-  if (dateRange.from && dateRange.to) {
-    return `${format(
-      dateRange.from,
-      'MMM d, yyyy'
-    )} – ${format(dateRange.to, 'MMM d, yyyy')}`
-  }
-  if (dateRange.from) {
-    return format(dateRange.from, 'MMM d, yyyy')
-  }
-  return t('projects.date_range')
-}
-
 // Shared between the always-visible desktop sidebar and the mobile filter
 // Sheet — one implementation, two places it's mounted.
 function FilterPanel({
@@ -210,44 +194,26 @@ function FilterPanel({
   field,
   onFieldSelect,
   dateRange,
-  onDateRangeCommit,
+  onDateRangeChange,
   facets,
   hasActiveFilters,
   onClear,
 }) {
-  // Calendar range-mode fires onSelect on every click, including the
-  // first (single-day) click of a two-click range — committing straight
-  // to the URL on each of those would navigate mid-selection and blow
-  // away whatever the user was in the middle of picking. Buffer the
-  // in-progress selection locally and only commit (push to the URL)
-  // once the popover closes.
-  const [pendingRange, setPendingRange] =
-    useState(dateRange)
-  const [datePopoverOpen, setDatePopoverOpen] =
-    useState(false)
+  const fromId = useId()
+  const toId = useId()
 
-  useEffect(() => {
-    setPendingRange(dateRange)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dateRange.from, dateRange.to])
-
-  function commitIfChanged(range) {
-    const changed =
-      range.from?.getTime() !== dateRange.from?.getTime() ||
-      range.to?.getTime() !== dateRange.to?.getTime()
-    if (changed) onDateRangeCommit(range)
+  function handleFromChange(e) {
+    onDateRangeChange({
+      from: e.target.value,
+      to: dateRange.to,
+    })
   }
 
-  function handlePopoverOpenChange(open) {
-    setDatePopoverOpen(open)
-    if (!open) commitIfChanged(pendingRange)
-  }
-
-  function handleClearDates() {
-    const cleared = { from: undefined, to: undefined }
-    setPendingRange(cleared)
-    commitIfChanged(cleared)
-    setDatePopoverOpen(false)
+  function handleToChange(e) {
+    onDateRangeChange({
+      from: dateRange.from,
+      to: e.target.value,
+    })
   }
 
   return (
@@ -269,56 +235,53 @@ function FilterPanel({
         <h2 className="text-foreground mb-3 text-sm font-semibold">
           {t('projects.date_range')}
         </h2>
-        <Popover
-          open={datePopoverOpen}
-          onOpenChange={handlePopoverOpenChange}
-        >
-          <PopoverTrigger
-            render={
-              <Button
-                variant="outline"
-                className="bg-card w-full justify-start shadow-sm"
-              >
-                <CalendarIcon
-                  className="h-4 w-4"
-                  aria-hidden="true"
-                />
-                {formatDateRangeLabel(pendingRange, t)}
-              </Button>
-            }
-          />
-          <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="range"
-              numberOfMonths={1}
-              selected={pendingRange}
-              defaultMonth={pendingRange.from}
-              onSelect={setPendingRange}
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label
+              htmlFor={fromId}
+              className="text-muted-foreground mb-1 block text-xs"
+            >
+              {t('projects.date_from')}
+            </label>
+            <Input
+              id={fromId}
+              type="date"
+              value={dateRange.from}
+              max={dateRange.to || undefined}
+              onChange={handleFromChange}
+              className="bg-card shadow-sm"
             />
-            <div className="border-border/60 flex items-center justify-between gap-2 border-t p-2">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={handleClearDates}
-                disabled={
-                  !pendingRange.from && !pendingRange.to
-                }
-              >
-                {t('projects.clear_filters')}
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                onClick={() =>
-                  handlePopoverOpenChange(false)
-                }
-              >
-                {t('projects.apply_dates')}
-              </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
+          </div>
+          <div>
+            <label
+              htmlFor={toId}
+              className="text-muted-foreground mb-1 block text-xs"
+            >
+              {t('projects.date_to')}
+            </label>
+            <Input
+              id={toId}
+              type="date"
+              value={dateRange.to}
+              min={dateRange.from || undefined}
+              onChange={handleToChange}
+              className="bg-card shadow-sm"
+            />
+          </div>
+        </div>
+        {(dateRange.from || dateRange.to) && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="mt-2"
+            onClick={() =>
+              onDateRangeChange({ from: '', to: '' })
+            }
+          >
+            {t('projects.clear_filters')}
+          </Button>
+        )}
       </div>
     </div>
   )
@@ -332,8 +295,8 @@ function Projects({ cached_projects }) {
   const [field, setField] = useState('')
   const [sort, setSort] = useState('')
   const [dateRange, setDateRange] = useState({
-    from: undefined,
-    to: undefined,
+    from: '',
+    to: '',
   })
   const [filtersOpen, setFiltersOpen] = useState(false)
 
@@ -352,10 +315,8 @@ function Projects({ cached_projects }) {
     setField(fieldParam)
     setSort(sortParam)
     setDateRange({
-      from: dateFromParam
-        ? new Date(dateFromParam)
-        : undefined,
-      to: dateToParam ? new Date(dateToParam) : undefined,
+      from: dateFromParam,
+      to: dateToParam,
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -504,10 +465,8 @@ function Projects({ cached_projects }) {
     const query = {}
     if (next.search) query.search = next.search
     if (next.field) query.field = next.field
-    if (next.dateFrom)
-      query.dateFrom = format(next.dateFrom, 'yyyy-MM-dd')
-    if (next.dateTo)
-      query.dateTo = format(next.dateTo, 'yyyy-MM-dd')
+    if (next.dateFrom) query.dateFrom = next.dateFrom
+    if (next.dateTo) query.dateTo = next.dateTo
     if (next.sort) query.sort = next.sort
     router.push({ pathname: '/projects', query })
   }
@@ -524,10 +483,10 @@ function Projects({ cached_projects }) {
     setFiltersOpen(false)
   }
 
-  function handleDateRangeSelect(range) {
-    const next = range || {
-      from: undefined,
-      to: undefined,
+  function handleDateRangeChange(range) {
+    const next = {
+      from: range.from || '',
+      to: range.to || '',
     }
     setDateRange(next)
     pushFilters({ dateFrom: next.from, dateTo: next.to })
@@ -543,7 +502,7 @@ function Projects({ cached_projects }) {
     setSearch('')
     setField('')
     setSort('')
-    setDateRange({ from: undefined, to: undefined })
+    setDateRange({ from: '', to: '' })
     setFiltersOpen(false)
     router.push({ pathname: '/projects' })
   }
@@ -606,7 +565,7 @@ function Projects({ cached_projects }) {
     field,
     onFieldSelect: handleFieldSelect,
     dateRange,
-    onDateRangeCommit: handleDateRangeSelect,
+    onDateRangeChange: handleDateRangeChange,
     facets,
     hasActiveFilters,
     onClear: handleClearFilters,

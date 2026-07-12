@@ -6,7 +6,6 @@ import {
 } from 'react'
 import LoadingSpinner from '../../components/LoadingSpinner'
 
-import Head from 'next/head'
 import Error from 'next/error'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
@@ -43,8 +42,10 @@ import {
 } from '../../context/helpers'
 import { generatePdfThumbnailBlob } from '../../lib/pdfThumbnail'
 import { AppContext } from '../../context/context'
-import File from '../../components/File'
 import LinksField from '../../components/LinksField'
+import FileUploadField from '../../components/FileUploadField'
+import MemberInviteField from '../../components/MemberInviteField'
+import AuthCard from '../../components/AuthCard'
 import firebaseConfig from '../../firebaseConfig'
 
 import { useForm, Controller } from 'react-hook-form'
@@ -60,6 +61,8 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
+  FieldLegend,
+  FieldSet,
 } from '@/components/ui/field'
 
 export default function CreateProject() {
@@ -67,7 +70,6 @@ export default function CreateProject() {
   const [loading, setLoading] = useState(false)
   const [member, setMember] = useState('')
   const [members, setMembers] = useState([])
-  const [select_photo_mode, setMode] = useState(false)
   const [field_values, setFieldValues] = useState(
     new Array(
       Object.keys(getProjectFieldOptions(t)).length
@@ -330,12 +332,10 @@ export default function CreateProject() {
     []
   )
 
-  const removeMember = (e) => {
-    e.preventDefault()
-    let temp = [...members]
-    const ix = e.target.getAttribute('name')
-    temp.splice(ix, 1)
-    setMembers([...temp])
+  const removeMember = (index) => {
+    const temp = [...members]
+    temp.splice(index, 1)
+    setMembers(temp)
   }
 
   const removeFile = (e, id) => {
@@ -353,7 +353,6 @@ export default function CreateProject() {
     temp_files[0] = new_project_photo
     setProjectPhoto(new_project_photo.name)
     setFiles(temp_files)
-    setMode(false)
   }
 
   const toggleField = (key) => {
@@ -367,341 +366,200 @@ export default function CreateProject() {
 
   if (status == 'success' && signInCheckResult.signedIn) {
     return (
-      <>
-        <Head></Head>
-        <main>
-          <div className="bg-card relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg px-4 py-8 text-left shadow-sm md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
-            <h1 className="mb-2 text-center text-3xl font-semibold">
-              {t('project_create_edit.create_project')}
-            </h1>
-            <p className="text-muted-foreground mb-6 text-center">
-              {t('project_create_edit.why_create_project')}
-            </p>
-            <form
-              noValidate
-              onSubmit={form.handleSubmit(onSubmit)}
-            >
-              <FieldGroup>
-                <Controller
-                  name="title"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field
-                      data-invalid={fieldState.invalid}
-                    >
-                      <FieldLabel htmlFor="title">
-                        {t('project_create_edit.title')}
-                      </FieldLabel>
-                      <Input
-                        {...field}
-                        id="title"
-                        type="text"
-                        aria-label="title"
-                        maxLength="100"
-                        aria-invalid={fieldState.invalid}
-                      />
-                      {fieldState.invalid && (
-                        <FieldError
-                          errors={[fieldState.error]}
-                        />
-                      )}
-                    </Field>
-                  )}
-                />
-
-                <Controller
-                  name="start_date"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field
-                      data-invalid={fieldState.invalid}
-                    >
-                      <FieldLabel htmlFor="start-date">
-                        {t(
-                          'project_create_edit.start_date'
-                        )}
-                      </FieldLabel>
-                      <Input
-                        {...field}
-                        id="start-date"
-                        type="date"
-                        placeholder="Not Required..."
-                        aria-invalid={fieldState.invalid}
-                      />
-                      {fieldState.invalid && (
-                        <FieldError
-                          errors={[fieldState.error]}
-                        />
-                      )}
-                    </Field>
-                  )}
-                />
-
-                <Controller
-                  name="end_date"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field
-                      data-invalid={fieldState.invalid}
-                    >
-                      <FieldLabel htmlFor="end-date">
-                        {t('project_create_edit.end_date')}
-                      </FieldLabel>
-                      <Input
-                        {...field}
-                        id="end-date"
-                        type="date"
-                        placeholder="Not Required..."
-                        aria-invalid={fieldState.invalid}
-                      />
-                      {fieldState.invalid && (
-                        <FieldError
-                          errors={[fieldState.error]}
-                        />
-                      )}
-                    </Field>
-                  )}
-                />
-
-                <Controller
-                  name="abstract"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field
-                      data-invalid={fieldState.invalid}
-                    >
-                      <FieldLabel htmlFor="abstract">
-                        {t('project_create_edit.summary')}
-                      </FieldLabel>
-                      <Textarea
-                        {...field}
-                        id="abstract"
-                        rows={5}
-                        aria-label="summary"
-                        maxLength="1000"
-                        aria-invalid={fieldState.invalid}
-                      />
-                      {fieldState.invalid && (
-                        <FieldError
-                          errors={[fieldState.error]}
-                        />
-                      )}
-                    </Field>
-                  )}
-                />
-
-                <Field>
-                  <FieldLabel htmlFor="member">
-                    {t('project_create_edit.add_members')}
+      <AuthCard
+        maxWidth="max-w-2xl"
+        title={t('project_create_edit.create_project')}
+        subtitle={t(
+          'project_create_edit.why_create_project'
+        )}
+      >
+        <form
+          noValidate
+          onSubmit={form.handleSubmit(onSubmit)}
+        >
+          <FieldGroup>
+            <Controller
+              name="title"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="title">
+                    {t('project_create_edit.title')}
                   </FieldLabel>
                   <Input
-                    id="member"
-                    name="member"
-                    value={member}
-                    onChange={(e) => onChange(e, 'member')}
-                    type="email"
+                    {...field}
+                    id="title"
+                    type="text"
                     aria-label="title"
                     maxLength="100"
+                    aria-invalid={fieldState.invalid}
                   />
-                  {error_member && (
-                    <p className="text-sm text-red-800">
-                      {error_member}
-                    </p>
+                  {fieldState.invalid && (
+                    <FieldError
+                      errors={[fieldState.error]}
+                    />
                   )}
                 </Field>
-                {members.map((m, index) => (
-                  <p key={index} className="p-2">
-                    <button
-                      name={index}
-                      className="mr-2 h-3 w-3 fill-current hover:text-red-900"
-                      onClick={(e) => removeMember(e)}
-                    >
-                      <svg
-                        name={index}
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M10 8.586L2.929 1.515 1.515 2.929 8.586 10l-7.071 7.071 1.414 1.414L10 11.414l7.071 7.071 1.414-1.414L11.414 10l7.071-7.071-1.414-1.414L10 8.586z" />
-                      </svg>
-                    </button>
-                    {m}
-                  </p>
-                ))}
+              )}
+            />
 
-                <label className="text-muted-foreground uppercase">
-                  {t('project_create_edit.fields')}
-                </label>
+            <div className="flex flex-col gap-4 sm:flex-row">
+              <Controller
+                name="start_date"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field
+                    className="flex-1"
+                    data-invalid={fieldState.invalid}
+                  >
+                    <FieldLabel htmlFor="start-date">
+                      {t('project_create_edit.start_date')}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="start-date"
+                      type="date"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError
+                        errors={[fieldState.error]}
+                      />
+                    )}
+                  </Field>
+                )}
+              />
 
+              <Controller
+                name="end_date"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field
+                    className="flex-1"
+                    data-invalid={fieldState.invalid}
+                  >
+                    <FieldLabel htmlFor="end-date">
+                      {t('project_create_edit.end_date')}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="end-date"
+                      type="date"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError
+                        errors={[fieldState.error]}
+                      />
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
+
+            <Controller
+              name="abstract"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="abstract">
+                    {t('project_create_edit.summary')}
+                  </FieldLabel>
+                  <Textarea
+                    {...field}
+                    id="abstract"
+                    rows={5}
+                    aria-label="summary"
+                    maxLength="1000"
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError
+                      errors={[fieldState.error]}
+                    />
+                  )}
+                </Field>
+              )}
+            />
+
+            <MemberInviteField
+              value={member}
+              onChange={(e) => onChange(e, 'member')}
+              error={error_member}
+              members={members}
+              onRemoveMember={removeMember}
+            />
+
+            <FieldSet>
+              <FieldLegend variant="label">
+                {t('project_create_edit.fields')}
+              </FieldLegend>
+              <div className="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
                 {Object.entries(
                   getProjectFieldOptions(t)
-                ).map(([key, value], index) => {
-                  return (
-                    <Field
-                      key={key}
-                      orientation="horizontal"
+                ).map(([key, value], index) => (
+                  <Field key={key} orientation="horizontal">
+                    <Checkbox
+                      id={key}
+                      checked={field_values[index]}
+                      onCheckedChange={() =>
+                        toggleField(key)
+                      }
+                    />
+                    <FieldLabel
+                      htmlFor={key}
+                      className="text-muted-foreground font-normal"
                     >
-                      <Checkbox
-                        id={key}
-                        checked={field_values[index]}
-                        onCheckedChange={() =>
-                          toggleField(key)
-                        }
-                      />
-                      <FieldLabel
-                        htmlFor={key}
-                        className="text-muted-foreground font-normal"
-                      >
-                        {value}
-                      </FieldLabel>
-                    </Field>
-                  )
-                })}
-                <div className="mb-4"></div>
-                <LinksField
-                  links={links}
-                  setLinks={setLinks}
-                />
-                <div
-                  {...getRootProps()}
-                  className={`h-40 w-full border-2 ${
-                    error_file
-                      ? 'bg-red-200 hover:bg-red-300'
-                      : 'bg-muted hover:bg-accent'
-                  }  text-muted-foreground flex items-center justify-center rounded-lg border-dashed border-gray-600 text-center`}
-                >
-                  <input {...getInputProps()} />
-                  {isDragActive ? (
-                    <p>
-                      {t('project_create_edit.drop_files')}
-                    </p>
-                  ) : (
-                    <p>
-                      {t('project_create_edit.drag_files')}
-                    </p>
-                  )}
-                </div>
-                <p className="mb-4 text-sm text-red-800">
-                  {error_file}
-                </p>
-                {files.length == 0 && (
-                  <p className="text-sm">
-                    {t('project_create_edit.suggest_photo')}
-                  </p>
-                )}
-                {files.length != 0 && (
-                  <div className="mb-6">
-                    {files.length > 1 && (
-                      <p className="mb-2">
-                        {t(
-                          'project_create_edit.multiple_photos'
-                        )}{' '}
-                        <span
-                          role="button"
-                          tabIndex={0}
-                          onKeyDown={(e) => {
-                            if (
-                              e.key === 'Enter' ||
-                              e.key === ' '
-                            ) {
-                              e.preventDefault()
-                              setMode(!select_photo_mode)
-                            }
-                          }}
-                          onClick={() =>
-                            setMode(!select_photo_mode)
-                          }
-                          className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark cursor-pointer font-semibold"
-                        >
-                          {t(
-                            'project_create_edit.set_display_photo'
-                          )}
-                        </span>
-                        .
-                      </p>
-                    )}
-                    <label
-                      htmlFor="project_photo"
-                      className="text-muted-foreground mt-2 uppercase"
-                    >
-                      {t(
-                        'project_create_edit.display_photo'
-                      )}
-                    </label>
-                    <File
-                      file={files[0]}
-                      id={files[0].id}
-                      removeFile={removeFile}
-                      setPhoto={setPhoto}
-                    ></File>
-                  </div>
-                )}
-                <div className="flex flex-col space-y-3">
-                  {files.length > 1 && (
-                    <>
-                      <label
-                        htmlFor="other_photos"
-                        className="text-muted-foreground -mb-3 mt-2 text-left uppercase"
-                      >
-                        Other Photo
-                        {files.length > 1 ? 's' : ''}
-                      </label>
-                      {files.map((f, id) => {
-                        if (
-                          (project_photo != '' &&
-                            f.name != project_photo) ||
-                          id > 0
-                        )
-                          return (
-                            <div
-                              key={f.id}
-                              className="flex w-full flex-row"
-                            >
-                              <button
-                                onClick={(e) =>
-                                  setPhoto(e, id)
-                                }
-                                className={`border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark hover:bg-accent rounded-lg border-2 font-semibold transition-all duration-500 ${
-                                  select_photo_mode
-                                    ? 'mr-4 px-3'
-                                    : 'w-0 overflow-hidden border-none'
-                                }`}
-                              >
-                                Select
-                              </button>
-                              <File
-                                file={f}
-                                id={id}
-                                key={f.id}
-                                removeFile={removeFile}
-                                setPhoto={setPhoto}
-                              ></File>
-                            </div>
-                          )
-                      })}
-                    </>
-                  )}
-                </div>
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="mt-4 w-full"
-                  disabled={
-                    !form.formState.isValid ||
-                    form.formState.isSubmitting ||
-                    loading ||
-                    error_file
-                  }
-                >
-                  {t('project_create_edit.create')}
-                  {loading && (
-                    <LoadingSpinner className="ml-2" />
-                  )}
-                </Button>
-              </FieldGroup>
-            </form>
-          </div>
-        </main>
-      </>
+                      {value}
+                    </FieldLabel>
+                  </Field>
+                ))}
+              </div>
+            </FieldSet>
+
+            <LinksField links={links} setLinks={setLinks} />
+
+            <FileUploadField
+              dropzone={{
+                getRootProps,
+                getInputProps,
+                isDragActive,
+              }}
+              error={error_file}
+              entries={files}
+              getFile={(f) => f}
+              getKey={(f, index) =>
+                `${f.name}_${f.size}_${f.lastModified}_${index}`
+              }
+              onRemove={removeFile}
+              onSetPhoto={setPhoto}
+              photoLabel={t(
+                'project_create_edit.display_photo'
+              )}
+              emptyHint={t(
+                'project_create_edit.suggest_photo'
+              )}
+            />
+
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full"
+              disabled={
+                !form.formState.isValid ||
+                form.formState.isSubmitting ||
+                loading ||
+                error_file
+              }
+            >
+              {t('project_create_edit.create')}
+              {loading && (
+                <LoadingSpinner className="ml-2" />
+              )}
+            </Button>
+          </FieldGroup>
+        </form>
+      </AuthCard>
     )
   } else if (status == 'error') {
     return <Error statusCode={404}></Error>
