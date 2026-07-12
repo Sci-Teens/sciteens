@@ -26,7 +26,6 @@
     "@squoosh/lib": "^0.5.3",
     "@tailwindcss/typography": "^0.5.15",
     "@tanstack/react-query": "^5.101.2",
-    "@tanstack/react-virtual": "^3.14.5",
     "@vercel/og": "^0.11.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

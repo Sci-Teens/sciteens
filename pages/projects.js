@@ -5,10 +5,7 @@ import SocialMeta from '@/components/SocialMeta'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
-import {
-  useAdaptiveWindowVirtualizer,
-  getTranslatedFieldsDict,
-} from '../context/helpers'
+import { getTranslatedFieldsDict } from '../context/helpers'
 import PageHeading from '@/components/PageHeading'
 
 import { db as firestore } from '../lib/firebase'
@@ -36,7 +33,7 @@ import {
 
 import { PlusCircle } from 'lucide-react'
 import ProjectCard from '../components/ProjectCard'
-import LoadingSpinner from '@/components/LoadingSpinner'
+import InfiniteScrollTrigger from '@/components/InfiniteScrollTrigger'
 import {
   normalizeProject,
   formatProjectDate,
@@ -59,12 +56,6 @@ import FilterAside from '@/components/search/FilterAside'
 import TopicsList from '@/components/search/TopicsList'
 
 const PROJECTS_PAGE_SIZE = 10
-// Rough guess used only before the first row has been measured (and
-// for the "fetching next page" skeleton, so it doesn't visibly jump
-// once the real card replaces it) — the virtualizer self-corrects
-// from real measured heights after that. See
-// useAdaptiveWindowVirtualizer in context/helpers.js.
-const PROJECT_CARD_ESTIMATE = 220
 
 function mapProjectSnapshot(snapshot) {
   const projects = []
@@ -340,7 +331,6 @@ function Projects({ cached_projects }) {
 
   const initialData = useMemo(() => {
     if (
-      !router.isReady ||
       searchParam ||
       fieldParam ||
       dateFromParam ||
@@ -365,7 +355,6 @@ function Projects({ cached_projects }) {
       pageParams: [null],
     }
   }, [
-    router.isReady,
     searchParam,
     fieldParam,
     dateFromParam,
@@ -487,45 +476,22 @@ function Projects({ cached_projects }) {
     router.push({ pathname: '/projects' })
   }
 
-  const projectVirtualizer = useAdaptiveWindowVirtualizer({
-    count: projects.length,
-    initialEstimate: PROJECT_CARD_ESTIMATE,
-    overscan: 5,
-  })
-
   const projectsComponent = (
-    <div
-      className="relative w-full"
-      style={{
-        height: `${projectVirtualizer.getTotalSize()}px`,
-      }}
-    >
-      {projectVirtualizer
-        .getVirtualItems()
-        .map((virtualRow) => {
-          const project = projects[virtualRow.index]
-          if (!project) return null
-
-          return (
-            <div
-              key={project.id}
-              ref={projectVirtualizer.measureElement}
-              data-index={virtualRow.index}
-              className="absolute left-0 top-0 w-full pt-6 md:pt-8"
-              style={{
-                transform: `translateY(${virtualRow.start}px)`,
-              }}
-            >
-              <ProjectCard
-                project={project}
-                date={formatProjectDate(
-                  project.date,
-                  router?.locale
-                )}
-              />
-            </div>
-          )
-        })}
+    <div className="w-full">
+      {projects.map((project) => (
+        <div
+          key={project.id}
+          className="w-full pt-6 md:pt-8"
+        >
+          <ProjectCard
+            project={project}
+            date={formatProjectDate(
+              project.date,
+              router?.locale
+            )}
+          />
+        </div>
+      ))}
     </div>
   )
 
@@ -540,16 +506,12 @@ function Projects({ cached_projects }) {
       )
     })
 
-  // Sized to PROJECT_CARD_ESTIMATE (not the short generic skeleton
-  // above) so the page's height barely changes when these are swapped
-  // for the real cards that follow.
   const nextPageLoadingComponent = new Array(2)
     .fill(1)
     .map((index) => (
       <Skeleton
         key={index}
-        className="mt-6 w-full rounded-xl md:mt-8"
-        style={{ height: PROJECT_CARD_ESTIMATE }}
+        className="mt-6 h-32 w-full rounded-xl md:mt-8 md:h-48"
       />
     ))
 
@@ -681,22 +643,12 @@ function Projects({ cached_projects }) {
                   </i>
                 </div>
               )}
-            {hasNextPage && (
-              <div className="mt-6 flex justify-center md:mt-8">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="bg-card shadow-sm"
-                  disabled={isFetchingNextPage}
-                  onClick={() => fetchNextPage()}
-                >
-                  {t('projects.load_more')}
-                  {isFetchingNextPage && (
-                    <LoadingSpinner className="ml-2" />
-                  )}
-                </Button>
-              </div>
-            )}
+            <InfiniteScrollTrigger
+              hasNextPage={hasNextPage}
+              isLoading={isFetchingNextPage}
+              onLoadMore={fetchNextPage}
+              label={t('projects.load_more')}
+            />
           </div>
 
           <FilterAside>

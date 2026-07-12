@@ -5,10 +5,8 @@ import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
-import { useAdaptiveWindowVirtualizer } from '../context/helpers'
+import InfiniteScrollTrigger from '@/components/InfiniteScrollTrigger'
 import PageHeading from '@/components/PageHeading'
-import { Button } from '@/components/ui/button'
-import LoadingSpinner from '@/components/LoadingSpinner'
 
 var Prismic = require('@prismicio/client')
 import { RichText } from 'prismic-reactjs'
@@ -23,12 +21,6 @@ import FilterAside from '@/components/search/FilterAside'
 import TopicsList from '@/components/search/TopicsList'
 
 const ARTICLES_PAGE_SIZE = 10
-// Rough guess used only before the first row has been measured (and
-// for the "fetching next page" skeleton, so it doesn't visibly jump
-// once the real card replaces it) — the virtualizer self-corrects
-// from real measured heights after that. See
-// useAdaptiveWindowVirtualizer in context/helpers.js.
-const ARTICLE_CARD_ESTIMATE = 220
 
 async function fetchArticlesPage({
   search,
@@ -86,10 +78,6 @@ function Articles({ cached_articles }) {
   const [search, setSearch] = useState('')
   const [field, setField] = useState('')
   const [filtersOpen, setFiltersOpen] = useState(false)
-  // useWindowVirtualizer computes getTotalSize() from window
-  // dimensions, which are absent during SSR — rendering it on the
-  // server produces height:0px vs the client's real height, a
-  // hydration mismatch. Defer virtualized rendering to after mount.
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
 
@@ -260,7 +248,7 @@ function Articles({ cached_articles }) {
 
     return (
       <div key={article.id} className="w-full pt-6 md:pt-8">
-        <Card className="animate-in border-border/60 fade-in slide-in-from-right-8 relative isolate overflow-hidden transition duration-300 hover:-translate-y-0.5 hover:shadow-md">
+        <Card className="border-border/60 relative isolate overflow-hidden transition duration-300 hover:-translate-y-0.5 hover:shadow-md">
           <a
             href={`/article/${article.uid}`}
             aria-label={RichText.asText(article.data.title)}
@@ -308,42 +296,8 @@ function Articles({ cached_articles }) {
     )
   }
 
-  const articleVirtualizer = useAdaptiveWindowVirtualizer({
-    count: articles.length,
-    initialEstimate: ARTICLE_CARD_ESTIMATE,
-    overscan: 5,
-  })
-
-  const articlesComponent = mounted ? (
-    <div
-      className="relative w-full"
-      style={{
-        height: `${articleVirtualizer.getTotalSize()}px`,
-      }}
-    >
-      {articleVirtualizer
-        .getVirtualItems()
-        .map((virtualRow) => {
-          const article = articles[virtualRow.index]
-          if (!article) return null
-
-          return (
-            <div
-              key={article.id}
-              ref={articleVirtualizer.measureElement}
-              data-index={virtualRow.index}
-              className="absolute left-0 top-0 w-full"
-              style={{
-                transform: `translateY(${virtualRow.start}px)`,
-              }}
-            >
-              {renderArticleCard(article)}
-            </div>
-          )
-        })}
-    </div>
-  ) : (
-    <div className="relative w-full">
+  const articlesComponent = (
+    <div className="w-full">
       {articles.map((article) =>
         renderArticleCard(article)
       )}
@@ -361,16 +315,12 @@ function Articles({ cached_articles }) {
       )
     })
 
-  // Sized to ARTICLE_CARD_ESTIMATE (not the short generic skeleton
-  // above) so the page's height barely changes when these are swapped
-  // for the real cards that follow.
   const nextPageLoadingComponent = new Array(2)
     .fill(1)
     .map((index) => (
       <Skeleton
         key={index}
-        className="mt-4 w-full rounded-xl"
-        style={{ height: ARTICLE_CARD_ESTIMATE }}
+        className="mt-6 h-32 w-full rounded-xl md:mt-8 md:h-48"
       />
     ))
 
@@ -432,22 +382,12 @@ function Articles({ cached_articles }) {
                 </i>
               </div>
             )}
-            {hasNextPage && (
-              <div className="mt-6 flex justify-center md:mt-8">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="bg-card shadow-sm"
-                  disabled={isFetchingNextPage}
-                  onClick={() => fetchNextPage()}
-                >
-                  {t('articles.load_more')}
-                  {isFetchingNextPage && (
-                    <LoadingSpinner className="ml-2" />
-                  )}
-                </Button>
-              </div>
-            )}
+            <InfiniteScrollTrigger
+              hasNextPage={hasNextPage}
+              isLoading={isFetchingNextPage}
+              onLoadMore={fetchNextPage}
+              label={t('articles.load_more')}
+            />
           </div>
 
           <FilterAside>{filterPanel}</FilterAside>
