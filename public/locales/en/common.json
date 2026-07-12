@@ -85,7 +85,6 @@
     "error_dates": "End date must come after the start date",
     "error_abstract": "Please provide a brief overview of your project (or what you plan to complete for your project)",
     "error_email": "Please enter a valid email",
-    "could_not_find_email": "We could not find that address",
     "create_project": "Create a Project",
     "why_create_project": "Create a project to share your work and gain feedback from your peers and professional mentors.",
     "title": "Title",

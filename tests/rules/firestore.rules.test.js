@@ -386,6 +386,105 @@ describe('/emails/{uid}', () => {
   })
 })
 
+describe('/profiles-private/{uid}', () => {
+  const validPii = {
+    race: 'Asian',
+    gender: 'Female',
+    birthday: '2000-01-01T00:00:00.000Z',
+  }
+
+  it('owner can create their own race/gender/birthday row', async () => {
+    const db = ctxFirestore('alice')
+    await assertSucceeds(
+      setDoc(doc(db, 'profiles-private/alice'), validPii)
+    )
+  })
+
+  it('rejects create for a uid other than the caller', async () => {
+    const db = ctxFirestore('mallory')
+    await assertFails(
+      setDoc(doc(db, 'profiles-private/alice'), validPii)
+    )
+  })
+
+  it('rejects create with an extra field beyond race/gender/birthday', async () => {
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(doc(db, 'profiles-private/alice'), {
+        ...validPii,
+        ssn: '000-00-0000',
+      })
+    )
+  })
+
+  it('rejects create when a field is not a string', async () => {
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(doc(db, 'profiles-private/alice'), {
+        ...validPii,
+        race: 42,
+      })
+    )
+  })
+
+  it('owner can read their own row', async () => {
+    await seed((db) =>
+      setDoc(doc(db, 'profiles-private/alice'), validPii)
+    )
+    const db = ctxFirestore('alice')
+    await assertSucceeds(
+      getDoc(doc(db, 'profiles-private/alice'))
+    )
+  })
+
+  it('no other client, authenticated or not, can read the row', async () => {
+    await seed((db) =>
+      setDoc(doc(db, 'profiles-private/alice'), validPii)
+    )
+    await assertFails(
+      getDoc(
+        doc(
+          ctxFirestore('mallory'),
+          'profiles-private/alice'
+        )
+      )
+    )
+    await assertFails(
+      getDoc(doc(ctxFirestore(), 'profiles-private/alice'))
+    )
+  })
+
+  it('no client can query/list the collection', async () => {
+    await seed((db) =>
+      setDoc(doc(db, 'profiles-private/alice'), validPii)
+    )
+    const db = ctxFirestore('alice')
+    await assertFails(
+      getDocs(
+        query(
+          collection(db, 'profiles-private'),
+          where('race', '==', 'Asian')
+        )
+      )
+    )
+  })
+
+  it('update and delete are always rejected, even for the owner', async () => {
+    await seed((db) =>
+      setDoc(doc(db, 'profiles-private/alice'), validPii)
+    )
+    const db = ctxFirestore('alice')
+    await assertFails(
+      updateDoc(doc(db, 'profiles-private/alice'), {
+        race: 'Black or African American',
+      })
+    )
+    await assertFails(
+      deleteDoc(doc(db, 'profiles-private/alice'))
+    )
+  })
+})
+
 describe('/projects/{projectId}', () => {
   it('creator can create with themselves as member_uids[0]', async () => {
     const db = ctxFirestore('alice')

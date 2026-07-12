@@ -85,7 +85,6 @@
     "error_dates": "La fecha de finalización debe llegar después de la fecha de inicio",
     "error_abstract": "Proporcione una breve descripción general de su proyecto (o lo que planea completar para su proyecto)",
     "error_email": "Por favor introduzca una dirección de correo electrónico válida",
-    "could_not_find_email": "No pudimos encontrar esa dirección",
     "create_project": "Crea un proyecto",
     "why_create_project": "Cree un proyecto para compartir su trabajo y obtener comentarios de sus compañeros y mentores profesionales.",
     "title": "Título",

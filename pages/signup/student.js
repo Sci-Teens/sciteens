@@ -200,11 +200,8 @@ export default function StudentSignUp() {
       programs: [],
       links: [],
       joined: moment().toISOString(),
-      birthday: moment(values.birthday).toISOString(),
       institution: '',
       position: '',
-      race: values.race,
-      gender: values.gender,
       subs_p: [],
       subs_e: [],
       mentor: false,
@@ -220,6 +217,16 @@ export default function StudentSignUp() {
       await setDoc(
         doc(firestore, 'profiles', res.user.uid),
         profile
+      )
+      // race/gender/birthday are PII; kept off the public profiles
+      // doc (see firestore.rules#profiles-private).
+      await setDoc(
+        doc(firestore, 'profiles-private', res.user.uid),
+        {
+          race: values.race,
+          gender: values.gender,
+          birthday: moment(values.birthday).toISOString(),
+        }
       )
       await setDoc(
         doc(firestore, 'profile-slugs', unique_slug),

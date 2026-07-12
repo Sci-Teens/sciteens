@@ -146,11 +146,8 @@ export default function FinishSignUp() {
       programs: [],
       links: [],
       joined: moment().toISOString(),
-      birthday: moment(values.birthday).toISOString(),
       institution: '',
       position: '',
-      race: values.race,
-      gender: values.gender,
       subs_p: [],
       subs_e: [],
       mentor: false,
@@ -161,6 +158,16 @@ export default function FinishSignUp() {
       await setDoc(
         doc(firestore, 'profiles', user.uid),
         profile
+      )
+      // race/gender/birthday are PII; kept off the public profiles
+      // doc (see firestore.rules#profiles-private).
+      await setDoc(
+        doc(firestore, 'profiles-private', user.uid),
+        {
+          race: values.race,
+          gender: values.gender,
+          birthday: moment(values.birthday).toISOString(),
+        }
       )
       await setDoc(
         doc(firestore, 'profile-slugs', unique_slug),
