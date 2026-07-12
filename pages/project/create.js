@@ -19,12 +19,6 @@ import {
 import { useSigninCheck } from '../../context/AuthContext'
 import {
   collection,
-  query,
-  startAt,
-  endAt,
-  orderBy,
-  limit,
-  getDocs,
   addDoc,
   setDoc,
   doc,
@@ -318,36 +312,20 @@ export default function CreateProject() {
     }
   }
 
+  // The `emails` collection is intentionally unreadable from the
+  // client (firestore.rules: leaking it would make email existence
+  // a queryable oracle). The real existence check happens
+  // server-side, in functions/index.js#newProjectInvite, when the
+  // invite is actually processed via the Admin SDK — an unknown
+  // email is just silently skipped there. So here we only format-
+  // validate (already done by the isEmail() gate in onChange above)
+  // and add to the local list; setMembers uses the updater form so
+  // rapid additions never race a stale closure.
   const validateEmail = useCallback(
-    debounce(async (email) => {
-      try {
-        const emails = collection(firestore, 'emails')
-        const q = query(
-          emails,
-          orderBy('email'),
-          startAt(email),
-          endAt(email + '\u{f8ff}'),
-          limit(3)
-        )
-        const res = await getDocs(q)
-        if (res.empty) {
-          setErrorMember(
-            t('project_create_edit.could_not_find_email')
-          )
-        } else {
-          setErrorMember('')
-          res.forEach((snap) => {
-            if (snap.data().email == email) {
-              setMembers([...new Set([...members, email])])
-              setMember('')
-            }
-          })
-        }
-      } catch (e) {
-        setErrorMember(
-          t('project_create_edit.could_not_find_email')
-        )
-      }
+    debounce((email) => {
+      setErrorMember('')
+      setMembers((prev) => [...new Set([...prev, email])])
+      setMember('')
     }, 500),
     []
   )

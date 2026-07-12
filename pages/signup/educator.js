@@ -199,11 +199,8 @@ export default function MentorSignUp() {
         programs: [],
         links: [],
         joined: moment().toISOString(),
-        birthday: '',
         institution: institution,
         position: values.position,
-        race: values.race,
-        gender: values.gender,
         subs_p: [],
         subs_e: [],
         mentor: true,
@@ -212,6 +209,17 @@ export default function MentorSignUp() {
       await setDoc(
         doc(firestore, 'profiles', res.user.uid),
         profile
+      )
+      // race/gender are PII; kept off the public profiles doc (see
+      // firestore.rules#profiles-private). Educators don't collect a
+      // birthday.
+      await setDoc(
+        doc(firestore, 'profiles-private', res.user.uid),
+        {
+          race: values.race,
+          gender: values.gender,
+          birthday: '',
+        }
       )
       await setDoc(
         doc(firestore, 'profile-slugs', unique_slug),

@@ -59,6 +59,25 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // ---- Profile PII (private) ------------------------------------------
+    // { race, gender, birthday } — collected at signup (pages/signup/*.js)
+    // but never rendered on any page and never re-read by the client.
+    // Split out of /profiles/{uid} (which is public-readable) so this
+    // demographic/DOB data isn't exposed to anyone via a plain client
+    // read; only the owner may read their own row. Write-once at create,
+    // matching prior behavior where these fields were set once on the
+    // public doc and never edited afterward.
+    match /profiles-private/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['race', 'gender', 'birthday'])
+        && request.resource.data.race is string
+        && request.resource.data.gender is string
+        && request.resource.data.birthday is string;
+      allow update, delete: if false;
+    }
+
     // ---- Profile pictures ----------------------------------------------
     // { picture: <url> }. Public-readable; owner or server writes.
     match /profile-pictures/{uid} {

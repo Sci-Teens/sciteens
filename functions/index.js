@@ -268,6 +268,21 @@ exports.deleteProfile = functions.firestore
         err
       )
     }
+
+    // Delete the corresponding profiles-private record (race/gender/
+    // birthday), if any
+    try {
+      await admin
+        .firestore()
+        .collection('profiles-private')
+        .doc(context.params.uid)
+        .delete()
+    } catch (err) {
+      console.error(
+        `deleteProfile: failed to delete profiles-private/${context.params.uid}`,
+        err
+      )
+    }
   })
 
 /*
@@ -1091,7 +1106,7 @@ exports.updateUserStats = functions
 
           await admin
             .firestore()
-            .collection('profiles')
+            .collection('profiles-private')
             .doc(user.uid)
             .get()
             .then((student) => {
