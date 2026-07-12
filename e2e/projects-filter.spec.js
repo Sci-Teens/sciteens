@@ -4,16 +4,20 @@
 // once in e2e/global-setup.js to avoid racing project-flow.spec.js.
 const { test, expect } = require('@playwright/test')
 
-// The list is virtualized and paginated — scroll in small steps so
-// fetchNextPage keeps firing until the target shows up.
-async function scrollUntilVisible(
+// The list is virtualized and paginated behind a "Load more" button —
+// click it until the target shows up or there's nothing left to load.
+async function loadUntilVisible(
   page,
   locator,
   { maxAttempts = 20 } = {}
 ) {
+  const loadMore = page.getByRole('button', {
+    name: /Load more/i,
+  })
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     if (await locator.isVisible()) return
-    await page.mouse.wheel(0, 900)
+    if (!(await loadMore.isVisible())) break
+    await loadMore.click()
     await page.waitForTimeout(250)
   }
   await expect(locator).toBeVisible({ timeout: 5_000 })
@@ -38,8 +42,8 @@ test.describe('projects field filtering', () => {
       name: 'E2E Modern Biology Project',
     })
 
-    await scrollUntilVisible(page, legacyLink)
-    await scrollUntilVisible(page, modernLink)
+    await loadUntilVisible(page, legacyLink)
+    await loadUntilVisible(page, modernLink)
 
     // Both cards show the same translated badge regardless of storage
     // casing (getFieldLabel's case-insensitive fallback).

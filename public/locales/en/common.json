@@ -256,7 +256,8 @@
     "search": "Search",
     "topics": "Topics",
     "filters": "Filters",
-    "clear_filters": "Clear filters"
+    "clear_filters": "Clear filters",
+    "load_more": "Load more articles"
   },
   "courses": {
     "courses": "Courses",
@@ -334,7 +335,8 @@
     "sort_newest": "Newest",
     "sort_oldest": "Oldest",
     "search_unavailable": "Search is temporarily unavailable. Showing recent projects instead.",
-    "results_count": "{{count}} results"
+    "results_count": "{{count}} results",
+    "load_more": "Load more projects"
   },
   "fields": {
     "all": "All",

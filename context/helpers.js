@@ -5,12 +5,7 @@ import {
   GoogleAuthProvider,
   getAdditionalUserInfo,
 } from '@firebase/auth'
-import {
-  useState,
-  useRef,
-  useEffect,
-  useCallback,
-} from 'react'
+import { useRef, useCallback } from 'react'
 import {
   useWindowVirtualizer,
   measureElement as virtualMeasureElement,
@@ -168,67 +163,23 @@ export function validatePassword(password, t) {
   }
 }
 
-export function useIntersectionObserver(
-  ref,
-  options,
-  forward = true
-) {
-  const [element, setElement] = useState(null)
-  const [isIntersecting, setIsIntersecting] =
-    useState(false)
-  const observer = useRef(null)
-
-  const cleanOb = () => {
-    if (observer.current) {
-      observer.current.disconnect()
-    }
-  }
-
-  useEffect(() => {
-    setElement(ref.current)
-  }, [ref])
-
-  useEffect(() => {
-    if (!element) return
-    cleanOb()
-    const ob = (observer.current = new IntersectionObserver(
-      ([entry]) => {
-        const isElementIntersecting = entry.isIntersecting
-        if (!forward) {
-          setIsIntersecting(isElementIntersecting)
-        } else if (
-          forward &&
-          !isIntersecting &&
-          isElementIntersecting
-        ) {
-          setIsIntersecting(isElementIntersecting)
-          cleanOb()
-        }
-      },
-      { ...options }
-    ))
-    ob.observe(element)
-    return () => {
-      cleanOb()
-    }
-  }, [element, options])
-
-  return isIntersecting
-}
-
 // A fixed estimateSize forces the virtualizer to keep correcting the
 // scroll offset every time a newly-mounted row's real measured height
 // turns out to differ from the guess — and these listing cards render
 // at very different heights depending on viewport (smaller thumbnail,
 // no description paragraph below the `md` breakpoint), so any single
 // hardcoded number is wrong for most rows on one side of that
-// breakpoint. Each of those corrections is a programmatic scroll
-// write, which is exactly what cuts a momentum-scroll fling short on
-// mobile. Instead of hand-tuning per-breakpoint constants (which goes
-// stale the moment the card markup changes), estimate every
-// not-yet-measured row from the most recently measured one — after
-// the first row or two mounts, the estimate is self-correcting and
-// stays within a few pixels of reality at any viewport size.
+// breakpoint. @tanstack/react-virtual >=3.14 defers these
+// scroll-offset corrections on iOS WebKit until a touch/momentum
+// gesture settles (writing scrollTop mid-gesture is what used to cut
+// scrolling short there), but a wildly wrong estimate still means a
+// big correction lands the moment it flushes, and it costs an extra
+// re-render either way. Instead of hand-tuning per-breakpoint
+// constants (which goes stale the moment the card markup changes),
+// estimate every not-yet-measured row from the most recently measured
+// one — after the first row or two mounts, the estimate is
+// self-correcting and stays within a few pixels of reality at any
+// viewport size.
 export function useAdaptiveWindowVirtualizer({
   count,
   initialEstimate,
