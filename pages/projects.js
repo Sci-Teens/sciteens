@@ -63,6 +63,13 @@ import FilterAside from '@/components/search/FilterAside'
 import TopicsList from '@/components/search/TopicsList'
 
 const PROJECTS_PAGE_SIZE = 10
+// Matches the virtualized row's estimateSize/measured height closely
+// enough that the "fetching next page" skeleton and the real card it's
+// replaced by are roughly the same height. A generic short skeleton
+// here would make the page grow the instant the fetch resolves, which
+// is exactly the kind of layout shift that kills momentum scrolling
+// on mobile.
+const PROJECT_CARD_ESTIMATE = 320
 
 function mapProjectSnapshot(snapshot) {
   const projects = []
@@ -434,7 +441,12 @@ function Projects({ cached_projects }) {
   const ref = useRef(null)
   const isBottomVisible = useIntersectionObserver(
     ref,
-    { threshold: 0 },
+    // Fires well before the sentinel is actually on screen so the next
+    // page has time to fetch and render while the user is still
+    // scrolling through existing content, instead of appending new
+    // rows right as they hit the bottom edge (which is what made
+    // scrolling feel like it "halted" on mobile).
+    { threshold: 0, rootMargin: '600px 0px' },
     false
   )
 
@@ -509,7 +521,7 @@ function Projects({ cached_projects }) {
 
   const projectVirtualizer = useWindowVirtualizer({
     count: projects.length,
-    estimateSize: () => 320,
+    estimateSize: () => PROJECT_CARD_ESTIMATE,
     overscan: 5,
   })
 
@@ -559,6 +571,19 @@ function Projects({ cached_projects }) {
         />
       )
     })
+
+  // Sized to PROJECT_CARD_ESTIMATE (not the short generic skeleton
+  // above) so the page's height barely changes when these are swapped
+  // for the real cards that follow.
+  const nextPageLoadingComponent = new Array(2)
+    .fill(1)
+    .map((index) => (
+      <Skeleton
+        key={index}
+        className="mt-6 w-full rounded-xl md:mt-8"
+        style={{ height: PROJECT_CARD_ESTIMATE }}
+      />
+    ))
 
   const filterPanelProps = {
     t,
@@ -675,7 +700,7 @@ function Projects({ cached_projects }) {
                 : projectsComponent}
             </div>
             {projectsQuery.isFetchingNextPage &&
-              loadingComponent.slice(0, 2)}
+              nextPageLoadingComponent}
             {!loading &&
               !projectsQuery.isError &&
               projects.length === 0 &&

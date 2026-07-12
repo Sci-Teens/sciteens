@@ -22,6 +22,13 @@ import FilterAside from '@/components/search/FilterAside'
 import TopicsList from '@/components/search/TopicsList'
 
 const ARTICLES_PAGE_SIZE = 10
+// Matches the virtualized row's estimateSize/measured height closely
+// enough that the "fetching next page" skeleton and the real card it's
+// replaced by are roughly the same height. A generic short skeleton
+// here would make the page grow by ~250px the instant the page
+// resolves, which is exactly the kind of layout shift that kills
+// momentum scrolling on mobile.
+const ARTICLE_CARD_ESTIMATE = 340
 
 async function fetchArticlesPage({
   search,
@@ -168,7 +175,12 @@ function Articles({ cached_articles }) {
   const ref = useRef(null)
   const isBottomVisible = useIntersectionObserver(
     ref,
-    { threshold: 0 },
+    // Fires well before the sentinel is actually on screen so the next
+    // page has time to fetch and render while the user is still
+    // scrolling through existing content, instead of appending new
+    // rows right as they hit the bottom edge (which is what made
+    // scrolling feel like it "halted" on mobile).
+    { threshold: 0, rootMargin: '600px 0px' },
     false
   )
 
@@ -325,7 +337,7 @@ function Articles({ cached_articles }) {
 
   const articleVirtualizer = useWindowVirtualizer({
     count: articles.length,
-    estimateSize: () => 340,
+    estimateSize: () => ARTICLE_CARD_ESTIMATE,
     overscan: 5,
   })
 
@@ -376,6 +388,19 @@ function Articles({ cached_articles }) {
       )
     })
 
+  // Sized to ARTICLE_CARD_ESTIMATE (not the short generic skeleton
+  // above) so the page's height barely changes when these are swapped
+  // for the real cards that follow.
+  const nextPageLoadingComponent = new Array(2)
+    .fill(1)
+    .map((index) => (
+      <Skeleton
+        key={index}
+        className="mt-4 w-full rounded-xl"
+        style={{ height: ARTICLE_CARD_ESTIMATE }}
+      />
+    ))
+
   const filterPanel = (
     <TopicsList
       topicsLabel={t('articles.topics')}
@@ -424,7 +449,7 @@ function Articles({ cached_articles }) {
 
             {loading ? loadingComponent : articlesComponent}
             {articlesQuery.isFetchingNextPage &&
-              loadingComponent.slice(0, 2)}
+              nextPageLoadingComponent}
             {articles.length === 0 && !loading && (
               <div className="mx-auto mt-20 text-center">
                 <i className="text-xl font-semibold">
