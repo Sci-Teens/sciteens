@@ -292,6 +292,8 @@ function Projects({ cached_projects }) {
     to: '',
   })
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
 
   const searchParam = router.query?.search || ''
   const fieldParam =
@@ -472,7 +474,6 @@ function Projects({ cached_projects }) {
     setField('')
     setSort('')
     setDateRange({ from: '', to: '' })
-    setFiltersOpen(false)
     router.push({ pathname: '/projects' })
   }
 
@@ -487,7 +488,7 @@ function Projects({ cached_projects }) {
             project={project}
             date={formatProjectDate(
               project.date,
-              router?.locale
+              mounted ? router?.locale : undefined
             )}
           />
         </div>
