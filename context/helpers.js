@@ -5,7 +5,16 @@ import {
   GoogleAuthProvider,
   getAdditionalUserInfo,
 } from '@firebase/auth'
-import { useState, useRef, useEffect } from 'react'
+import {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+} from 'react'
+import {
+  useWindowVirtualizer,
+  measureElement as virtualMeasureElement,
+} from '@tanstack/react-virtual'
 import moment from 'moment'
 
 export async function createUniqueSlug(
@@ -205,6 +214,50 @@ export function useIntersectionObserver(
   }, [element, options])
 
   return isIntersecting
+}
+
+// A fixed estimateSize forces the virtualizer to keep correcting the
+// scroll offset every time a newly-mounted row's real measured height
+// turns out to differ from the guess — and these listing cards render
+// at very different heights depending on viewport (smaller thumbnail,
+// no description paragraph below the `md` breakpoint), so any single
+// hardcoded number is wrong for most rows on one side of that
+// breakpoint. Each of those corrections is a programmatic scroll
+// write, which is exactly what cuts a momentum-scroll fling short on
+// mobile. Instead of hand-tuning per-breakpoint constants (which goes
+// stale the moment the card markup changes), estimate every
+// not-yet-measured row from the most recently measured one — after
+// the first row or two mounts, the estimate is self-correcting and
+// stays within a few pixels of reality at any viewport size.
+export function useAdaptiveWindowVirtualizer({
+  count,
+  initialEstimate,
+  overscan = 5,
+}) {
+  const lastMeasuredSize = useRef(initialEstimate)
+  const measureElement = useCallback(
+    (element, entry, instance) => {
+      const size = virtualMeasureElement(
+        element,
+        entry,
+        instance
+      )
+      lastMeasuredSize.current = size
+      return size
+    },
+    []
+  )
+  const estimateSize = useCallback(
+    () => lastMeasuredSize.current,
+    []
+  )
+
+  return useWindowVirtualizer({
+    count,
+    estimateSize,
+    measureElement,
+    overscan,
+  })
 }
 
 // A File's `name` is fully attacker-controlled (a client-side upload can
