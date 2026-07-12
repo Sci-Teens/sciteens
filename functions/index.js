@@ -517,26 +517,6 @@ exports.newProgram = functions.firestore
         fields: data.fields,
         hits: data.hits,
       })
-      .then(() => {
-        // Add the program to algolia
-        let data_minified = {
-          name: data.name,
-          loc: data.loc,
-          img: data.img,
-          about: data.about,
-          start: data.start,
-          end: data.end,
-          app: data.app,
-          coord: data.coord,
-          _geoloc: data.coord,
-          geo: data.geo,
-          slug: data.slug,
-          grade_h: data.grade_h,
-          grade_l: data.grade_l,
-          fields: data.fields,
-          hits: data.hits,
-        }
-      })
   })
 
 /*
