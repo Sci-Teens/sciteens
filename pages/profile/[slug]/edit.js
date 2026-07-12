@@ -58,6 +58,8 @@ import { updateProfile as updateFirebaseProfile } from '@firebase/auth'
 import { useDropzone } from 'react-dropzone'
 import File from '../../../components/File'
 import LinksField from '../../../components/LinksField'
+import FileUploadField from '../../../components/FileUploadField'
+import AuthCard from '../../../components/AuthCard'
 import { AppContext } from '../../../context/context'
 import {
   ALLOWED_UPLOAD_MIME_TYPES,
@@ -72,11 +74,13 @@ import firebaseConfig from '../../../firebaseConfig'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
+import { cn } from '@/lib/utils'
 
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Field,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -87,12 +91,10 @@ export default function UpdateProfilePage({
 }) {
   const { t } = useTranslation('common')
   const [loading, setLoading] = useState(false)
-  const [members] = useState([])
   // { key, kind: 'existing', id, record } for a Firestore file
   // record already in Storage, or { key, kind: 'new', file } for a
   // freshly dropped, not-yet-uploaded File.
   const [entries, setEntries] = useState([])
-  const [select_photo_mode, setMode] = useState(false)
 
   const [error_file, setErrorFile] = useState('')
 
@@ -438,7 +440,6 @@ export default function UpdateProfilePage({
     temp[id] = temp[0]
     temp[0] = chosen
     setEntries(temp)
-    setMode(false)
   }
 
   const onResumeChange = (e) => {
@@ -508,231 +509,128 @@ export default function UpdateProfilePage({
 
   if (status == 'success' && signInCheckResult.signedIn) {
     return (
-      <>
-        <main>
-          <div className="bg-card relative z-30 mx-auto mb-24 mt-8 w-11/12 rounded-lg px-4 py-8 text-left shadow-sm md:w-2/3 md:px-12 md:py-12 lg:w-[45%] lg:px-20">
-            <h1 className="mb-2 text-center text-3xl font-semibold">
-              {t('edit_profile.update_your_profile')}
-            </h1>
-            <p className="text-muted-foreground mb-6 text-center">
-              {t('edit_profile.why_update_your_profile')}
-            </p>
-            <form
-              onSubmit={form.handleSubmit(updateProfile)}
-            >
-              <FieldGroup>
-                <Controller
-                  name="about"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field
-                      data-invalid={fieldState.invalid}
-                    >
-                      <FieldLabel htmlFor="about">
-                        {t('edit_profile.about')}
-                      </FieldLabel>
-                      <Textarea
-                        {...field}
-                        id="about"
-                        rows={7}
-                        maxLength={1000}
-                        placeholder={t(
-                          'edit_profile.tell_us_about'
-                        )}
-                        aria-invalid={fieldState.invalid}
-                      />
-                      {fieldState.invalid && (
-                        <FieldError
-                          errors={[fieldState.error]}
-                        />
-                      )}
-                    </Field>
-                  )}
-                />
-              </FieldGroup>
-
-              {members.map((m, index) => (
-                <p key={index} className="p-2">
-                  {m}
-                </p>
-              ))}
-
-              <div className="mb-4"></div>
-              <LinksField
-                links={links}
-                setLinks={setLinks}
-              />
-              <div
-                {...getRootProps()}
-                className={`h-40 w-full border-2 ${
-                  error_file
-                    ? 'bg-red-200 hover:bg-red-300'
-                    : 'bg-muted hover:bg-accent'
-                }  text-muted-foreground flex items-center justify-center rounded-lg border-dashed border-gray-600 text-center`}
-              >
-                <input {...getInputProps()} />
-                {isDragActive ? (
-                  <p>{t('edit_profile.drop_files')}</p>
-                ) : (
-                  <p>{t('edit_profile.drag_files')}</p>
-                )}
-              </div>
-              <p className="mb-4 text-sm text-red-800">
-                {error_file}
-              </p>
-              {entries.length !== 0 && (
-                <div className="mb-6">
-                  {entries.length > 1 && (
-                    <p className="mb-2">
-                      {t(
-                        'project_create_edit.multiple_photos'
-                      )}{' '}
-                      <span
-                        role="button"
-                        tabIndex={0}
-                        onClick={() =>
-                          setMode(!select_photo_mode)
-                        }
-                        onKeyDown={(e) => {
-                          if (
-                            e.key === 'Enter' ||
-                            e.key === ' '
-                          ) {
-                            e.preventDefault()
-                            setMode(!select_photo_mode)
-                          }
-                        }}
-                        className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark cursor-pointer font-semibold"
-                      >
-                        {t(
-                          'project_create_edit.set_display_photo'
-                        )}
-                      </span>
-                      .
-                    </p>
-                  )}
-                  <label
-                    htmlFor="project_photo"
-                    className="text-muted-foreground mt-2 uppercase"
-                  >
-                    {t('edit_profile.profile_photo')}
-                  </label>
-                  <File
-                    file={fileForEntry(entries[0])}
-                    id={0}
-                    removeFile={removeFile}
-                    setPhoto={setPhoto}
-                  ></File>
-                </div>
-              )}
-              <div className="flex flex-col space-y-3">
-                {entries.length > 1 && (
-                  <>
-                    <label
-                      htmlFor="other_files"
-                      className="text-muted-foreground -mb-3 mt-2 text-left uppercase"
-                    >
-                      {t('project_create_edit.other_photo')}
-                    </label>
-                    {entries.map((entry, id) => {
-                      if (id === 0) return null
-                      return (
-                        <div
-                          className="flex w-full flex-row"
-                          key={entry.key}
-                        >
-                          <button
-                            onClick={(e) => setPhoto(e, id)}
-                            className={`border-sciteensLightGreen-regular text-sciteensLightGreen-regular hover:border-sciteensLightGreen-dark hover:text-sciteensLightGreen-dark hover:bg-accent rounded-lg border-2 font-semibold transition-all duration-500 ${
-                              select_photo_mode
-                                ? 'mr-4 w-28'
-                                : 'w-0 overflow-hidden border-none'
-                            }`}
-                          >
-                            Select
-                          </button>
-                          <File
-                            file={fileForEntry(entry)}
-                            id={id}
-                            removeFile={removeFile}
-                            setPhoto={setPhoto}
-                          ></File>
-                        </div>
-                      )
-                    })}
-                  </>
-                )}
-              </div>
-
-              <div className="mb-6">
-                <label
-                  htmlFor="resume"
-                  className="text-muted-foreground mt-2 uppercase"
-                >
-                  {t('edit_profile.resume')}
-                </label>
-                <p className="text-muted-foreground mb-2 text-sm">
-                  {t('edit_profile.resume_hint')}
-                </p>
-                {resume ? (
-                  <File
-                    file={fileForEntry(resume)}
-                    id="resume"
-                    removeFile={removeResume}
-                  ></File>
-                ) : (
-                  <label
-                    htmlFor="resume-input"
-                    className={`h-16 w-full border-2 ${
-                      errorResume
-                        ? 'bg-red-200 hover:bg-red-300'
-                        : 'bg-muted hover:bg-accent'
-                    } text-muted-foreground flex cursor-pointer items-center justify-center rounded-lg border-dashed border-gray-600 text-center`}
-                  >
-                    {t('edit_profile.resume_upload')}
-                    <input
-                      id="resume-input"
-                      type="file"
-                      accept="application/pdf"
-                      className="hidden"
-                      onChange={onResumeChange}
+      <AuthCard
+        maxWidth="max-w-2xl"
+        title={t('edit_profile.update_your_profile')}
+        subtitle={t('edit_profile.why_update_your_profile')}
+      >
+        <form onSubmit={form.handleSubmit(updateProfile)}>
+          <FieldGroup>
+            <Controller
+              name="about"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="about">
+                    {t('edit_profile.about')}
+                  </FieldLabel>
+                  <Textarea
+                    {...field}
+                    id="about"
+                    rows={7}
+                    maxLength={1000}
+                    placeholder={t(
+                      'edit_profile.tell_us_about'
+                    )}
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError
+                      errors={[fieldState.error]}
                     />
-                  </label>
-                )}
-                {errorResume && (
-                  <p className="mt-2 text-sm text-red-800">
-                    {errorResume}
-                  </p>
-                )}
-              </div>
+                  )}
+                </Field>
+              )}
+            />
 
-              <div className="flex w-full justify-end">
-                <Button
-                  type="submit"
-                  size="lg"
-                  disabled={
-                    !form.formState.isValid ||
-                    form.formState.isSubmitting ||
-                    loading ||
-                    error_file ||
+            <LinksField links={links} setLinks={setLinks} />
+
+            <FileUploadField
+              dropzone={{
+                getRootProps,
+                getInputProps,
+                isDragActive,
+              }}
+              error={error_file}
+              entries={entries}
+              getFile={fileForEntry}
+              getKey={(entry) => entry.key}
+              onRemove={removeFile}
+              onSetPhoto={setPhoto}
+              photoLabel={t('edit_profile.profile_photo')}
+            />
+
+            <Field>
+              <FieldLabel htmlFor="resume-input">
+                {t('edit_profile.resume')}
+              </FieldLabel>
+              <FieldDescription>
+                {t('edit_profile.resume_hint')}
+              </FieldDescription>
+              {resume ? (
+                <File
+                  file={fileForEntry(resume)}
+                  id="resume"
+                  removeFile={removeResume}
+                />
+              ) : (
+                <label
+                  htmlFor="resume-input"
+                  className={cn(
+                    'flex h-16 w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed text-center text-sm transition-colors',
                     errorResume
-                  }
-                  className="mr-2 mt-4 w-full"
+                      ? 'border-destructive/40 bg-destructive/5 text-destructive'
+                      : 'border-border bg-muted/50 hover:bg-muted text-muted-foreground'
+                  )}
                 >
-                  {t('edit_profile.update')}
-                  {loading && <LoadingSpinner />}
-                </Button>
-                <Link
-                  href={`/profile/${user_profile.slug}`}
-                  className="border-border bg-muted text-foreground hover:border-border hover:bg-accent ml-2 mt-4 w-full rounded-lg border-2 p-2 text-center text-lg font-semibold shadow-sm disabled:opacity-50"
-                >
-                  {t('edit_profile.cancel')}
-                </Link>
-              </div>
-            </form>
-          </div>
-        </main>
-      </>
+                  {t('edit_profile.resume_upload')}
+                  <input
+                    id="resume-input"
+                    type="file"
+                    accept="application/pdf"
+                    className="hidden"
+                    onChange={onResumeChange}
+                  />
+                </label>
+              )}
+              {errorResume && (
+                <FieldError>{errorResume}</FieldError>
+              )}
+            </Field>
+
+            <div className="flex gap-3">
+              <Button
+                type="submit"
+                size="lg"
+                disabled={
+                  !form.formState.isValid ||
+                  form.formState.isSubmitting ||
+                  loading ||
+                  error_file ||
+                  errorResume
+                }
+                className="flex-1"
+              >
+                {t('edit_profile.update')}
+                {loading && <LoadingSpinner />}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="flex-1"
+                render={
+                  <Link
+                    href={`/profile/${user_profile.slug}`}
+                  />
+                }
+              >
+                {t('edit_profile.cancel')}
+              </Button>
+            </div>
+          </FieldGroup>
+        </form>
+      </AuthCard>
     )
   } else if (status == 'error') {
     return <Error statusCode={404}></Error>

@@ -35,8 +35,6 @@
     "why_update_your_profile": "Mettez à jour votre profil pour ajouter plus d'informations sur vous-même ou pour modifier vos informations.",
     "about": "À propos de",
     "tell_us_about": "Parlez nous de vous...",
-    "drop_files": "Déposez les fichiers ici ...",
-    "drag_files": "Faites glisser et déposez des fichiers ici",
     "profile_photo": "Photo de profil",
     "resume": "CV",
     "resume_hint": "Téléversez un CV en PDF à partager sur votre profil.",
@@ -46,10 +44,6 @@
     "cancel": "Annuler",
     "loading": "Chargement...",
     "couldnt_update_profile": "Nous n'avons pas pu mettre à jour votre profil pour le moment",
-    "file_aborted": "La lecture de fichiers a été avortée",
-    "file_failed": "Échec de la lecture du fichier",
-    "format_not_accepted": "Ce format de fichier n'est pas accepté",
-    "too_large": "Ce fichier est trop grand",
     "fill_out_about": "Veuillez remplir votre section à propos"
   },
   "index_profile": {
@@ -75,7 +69,7 @@
   },
   "project_create_edit": {
     "could_not_create": "Nous ne pouvions pas créer votre projet pour le moment",
-    "file_abort": "La lecture de fichiers a été avortée",
+    "file_aborted": "La lecture de fichiers a été avortée",
     "file_failed": "Échec de la lecture du fichier",
     "file_format_not_accepted": "Ce format de fichier n'est pas accepté",
     "file_too_large": "Ce fichier est trop grand",
@@ -85,6 +79,8 @@
     "error_dates": "La date de fin doit venir après la date de début",
     "error_abstract": "Veuillez fournir un bref aperçu de votre projet (ou de ce que vous prévoyez de terminer pour votre projet)",
     "error_email": "Veuillez saisir un e-mail valide",
+    "select_photo": "Sélectionner",
+    "remove_member": "Supprimer le membre",
     "create_project": "Créer un projet",
     "why_create_project": "Créez un projet pour partager votre travail et obtenir des commentaires de vos pairs et mentors professionnels.",
     "title": "Titre",
@@ -122,7 +118,8 @@
     "documents": "Documents",
     "previous": "Image précédente",
     "next": "Image suivante",
-    "open_new_tab": "Ouvrir dans un nouvel onglet"
+    "open_new_tab": "Ouvrir dans un nouvel onglet",
+    "remove_file": "Supprimer le fichier"
   },
   "auth": {
     "auth_invalid_email": "L'adresse e-mail ou le mot de passe n'est pas valide (si vous vous connectez avec Gmail, essayez d'utiliser le bouton ci-dessous)",
@@ -337,8 +334,7 @@
     "sort_newest": "Plus récents",
     "sort_oldest": "Plus anciens",
     "search_unavailable": "La recherche est temporairement indisponible. Affichage des projets récents.",
-    "results_count": "{{count}} résultats",
-    "apply_dates": "Appliquer"
+    "results_count": "{{count}} résultats"
   },
   "fields": {
     "all": "Tout",

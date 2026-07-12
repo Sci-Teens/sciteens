@@ -68,7 +68,7 @@ export default function LinksField({ links, setLinks }) {
         </Button>
       </div>
       {error && (
-        <p className="text-sm text-red-800">{error}</p>
+        <p className="text-destructive text-sm">{error}</p>
       )}
       {links.length > 0 && (
         <ul className="mt-2 flex flex-col space-y-2">
@@ -90,7 +90,7 @@ export default function LinksField({ links, setLinks }) {
                 aria-label={t(
                   'project_create_edit.links_remove'
                 )}
-                className="ml-2 shrink-0 text-red-600"
+                className="text-destructive ml-2 shrink-0"
                 onClick={(e) => removeLink(e, index)}
               >
                 <X className="h-4 w-4" />
