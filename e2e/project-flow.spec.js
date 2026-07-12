@@ -71,9 +71,9 @@ test.describe('project create -> invite -> edit', () => {
     await page.locator('#member').fill(invitee.email)
     // No existence check anymore (see file header) — the email is
     // added to the local list once it debounces.
-    await expect(
-      page.getByText(invitee.email)
-    ).toBeVisible({ timeout: 5_000 })
+    await expect(page.getByText(invitee.email)).toBeVisible(
+      { timeout: 5_000 }
+    )
 
     await page
       .getByRole('button', { name: 'Create' })
