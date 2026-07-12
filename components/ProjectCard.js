@@ -60,7 +60,7 @@ export default function ProjectCard({
     Boolean(normalizedProject?.project_photo) && !photoError
 
   return (
-    <Card className="animate-in border-border/60 fade-in slide-in-from-right-8 relative isolate overflow-hidden transition duration-300 hover:-translate-y-0.5 hover:shadow-md">
+    <Card className="border-border/60 relative isolate overflow-hidden transition duration-300 hover:-translate-y-0.5 hover:shadow-md">
       <a
         href={`/project/${normalizedProject.id}`}
         aria-label={normalizedProject.title}
