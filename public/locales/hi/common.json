@@ -256,7 +256,8 @@
     "search": "खोज",
     "topics": "विषय",
     "filters": "फ़िल्टर",
-    "clear_filters": "फ़िल्टर हटाएं"
+    "clear_filters": "फ़िल्टर हटाएं",
+    "load_more": "और लेख लोड करें"
   },
   "courses": {
     "courses": "पाठ्यक्रम",
@@ -334,7 +335,8 @@
     "sort_newest": "नवीनतम",
     "sort_oldest": "सबसे पुराने",
     "search_unavailable": "खोज अस्थायी रूप से अनुपलब्ध है। हाल की परियोजनाएं दिखाई जा रही हैं।",
-    "results_count": "{{count}} परिणाम"
+    "results_count": "{{count}} परिणाम",
+    "load_more": "और परियोजनाएं लोड करें"
   },
   "fields": {
     "all": "सभी",

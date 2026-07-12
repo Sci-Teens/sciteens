@@ -1,10 +1,4 @@
-import {
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { useEffect, useId, useMemo, useState } from 'react'
 
 import Link from 'next/link'
 import SocialMeta from '@/components/SocialMeta'
@@ -12,7 +6,6 @@ import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import {
-  useIntersectionObserver,
   useAdaptiveWindowVirtualizer,
   getTranslatedFieldsDict,
 } from '../context/helpers'
@@ -43,6 +36,7 @@ import {
 
 import { PlusCircle } from 'lucide-react'
 import ProjectCard from '../components/ProjectCard'
+import LoadingSpinner from '@/components/LoadingSpinner'
 import {
   normalizeProject,
   formatProjectDate,
@@ -439,33 +433,6 @@ function Projects({ cached_projects }) {
     }
   }, [projectsQuery.isError, projectsQuery.error])
 
-  const ref = useRef(null)
-  const isBottomVisible = useIntersectionObserver(
-    ref,
-    // Fires well before the sentinel is actually on screen so the next
-    // page has time to fetch and render while the user is still
-    // scrolling through existing content, instead of appending new
-    // rows right as they hit the bottom edge (which is what made
-    // scrolling feel like it "halted" on mobile).
-    { threshold: 0, rootMargin: '600px 0px' },
-    false
-  )
-
-  useEffect(() => {
-    if (
-      isBottomVisible &&
-      hasNextPage &&
-      !isFetchingNextPage
-    ) {
-      fetchNextPage()
-    }
-  }, [
-    isBottomVisible,
-    hasNextPage,
-    isFetchingNextPage,
-    fetchNextPage,
-  ])
-
   function pushFilters(overrides = {}) {
     const next = {
       search,
@@ -714,10 +681,22 @@ function Projects({ cached_projects }) {
                   </i>
                 </div>
               )}
-            <div
-              ref={ref}
-              style={{ width: '100%', height: '20px' }}
-            ></div>
+            {hasNextPage && (
+              <div className="mt-6 flex justify-center md:mt-8">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="bg-card shadow-sm"
+                  disabled={isFetchingNextPage}
+                  onClick={() => fetchNextPage()}
+                >
+                  {t('projects.load_more')}
+                  {isFetchingNextPage && (
+                    <LoadingSpinner className="ml-2" />
+                  )}
+                </Button>
+              </div>
+            )}
           </div>
 
           <FilterAside>
