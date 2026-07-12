@@ -5,7 +5,10 @@ import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
-import { useIntersectionObserver } from '../context/helpers'
+import {
+  useIntersectionObserver,
+  useAdaptiveWindowVirtualizer,
+} from '../context/helpers'
 import PageHeading from '@/components/PageHeading'
 
 var Prismic = require('@prismicio/client')
@@ -14,7 +17,6 @@ import { RichText } from 'prismic-reactjs'
 import moment from 'moment'
 import { getTranslatedFieldsDict } from '../context/helpers'
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { useWindowVirtualizer } from '@tanstack/react-virtual'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import SearchToolbar from '@/components/search/SearchToolbar'
@@ -22,13 +24,12 @@ import FilterAside from '@/components/search/FilterAside'
 import TopicsList from '@/components/search/TopicsList'
 
 const ARTICLES_PAGE_SIZE = 10
-// Matches the virtualized row's estimateSize/measured height closely
-// enough that the "fetching next page" skeleton and the real card it's
-// replaced by are roughly the same height. A generic short skeleton
-// here would make the page grow by ~250px the instant the page
-// resolves, which is exactly the kind of layout shift that kills
-// momentum scrolling on mobile.
-const ARTICLE_CARD_ESTIMATE = 340
+// Rough guess used only before the first row has been measured (and
+// for the "fetching next page" skeleton, so it doesn't visibly jump
+// once the real card replaces it) — the virtualizer self-corrects
+// from real measured heights after that. See
+// useAdaptiveWindowVirtualizer in context/helpers.js.
+const ARTICLE_CARD_ESTIMATE = 220
 
 async function fetchArticlesPage({
   search,
@@ -335,9 +336,9 @@ function Articles({ cached_articles }) {
     )
   }
 
-  const articleVirtualizer = useWindowVirtualizer({
+  const articleVirtualizer = useAdaptiveWindowVirtualizer({
     count: articles.length,
-    estimateSize: () => ARTICLE_CARD_ESTIMATE,
+    initialEstimate: ARTICLE_CARD_ESTIMATE,
     overscan: 5,
   })
 

@@ -11,8 +11,11 @@ import SocialMeta from '@/components/SocialMeta'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
-import { useIntersectionObserver } from '../context/helpers'
-import { getTranslatedFieldsDict } from '../context/helpers'
+import {
+  useIntersectionObserver,
+  useAdaptiveWindowVirtualizer,
+  getTranslatedFieldsDict,
+} from '../context/helpers'
 import PageHeading from '@/components/PageHeading'
 
 import { db as firestore } from '../lib/firebase'
@@ -37,7 +40,6 @@ import {
   useInfiniteQuery,
   useQuery,
 } from '@tanstack/react-query'
-import { useWindowVirtualizer } from '@tanstack/react-virtual'
 
 import { PlusCircle } from 'lucide-react'
 import ProjectCard from '../components/ProjectCard'
@@ -63,13 +65,12 @@ import FilterAside from '@/components/search/FilterAside'
 import TopicsList from '@/components/search/TopicsList'
 
 const PROJECTS_PAGE_SIZE = 10
-// Matches the virtualized row's estimateSize/measured height closely
-// enough that the "fetching next page" skeleton and the real card it's
-// replaced by are roughly the same height. A generic short skeleton
-// here would make the page grow the instant the fetch resolves, which
-// is exactly the kind of layout shift that kills momentum scrolling
-// on mobile.
-const PROJECT_CARD_ESTIMATE = 320
+// Rough guess used only before the first row has been measured (and
+// for the "fetching next page" skeleton, so it doesn't visibly jump
+// once the real card replaces it) — the virtualizer self-corrects
+// from real measured heights after that. See
+// useAdaptiveWindowVirtualizer in context/helpers.js.
+const PROJECT_CARD_ESTIMATE = 220
 
 function mapProjectSnapshot(snapshot) {
   const projects = []
@@ -519,9 +520,9 @@ function Projects({ cached_projects }) {
     router.push({ pathname: '/projects' })
   }
 
-  const projectVirtualizer = useWindowVirtualizer({
+  const projectVirtualizer = useAdaptiveWindowVirtualizer({
     count: projects.length,
-    estimateSize: () => PROJECT_CARD_ESTIMATE,
+    initialEstimate: PROJECT_CARD_ESTIMATE,
     overscan: 5,
   })
 
