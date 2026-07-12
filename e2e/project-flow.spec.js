@@ -1,12 +1,11 @@
 // Creates a project, adds a member by email, edits it, confirms field
 // checkboxes reflect saved state.
 //
-// KNOWN BUG (pre-existing): member-by-email is non-functional —
-// `validateEmail()` queries the `emails` collection client-side, but
-// firestore.rules denies all reads on it (verified: permission-denied),
-// so every lookup reports "not found" regardless of registration. Real
-// fix needs a Cloud Function (avoids an email-enumeration oracle).
-// This test asserts the actual current behavior.
+// member-by-email no longer does a client-side existence check against
+// `emails` (firestore.rules denies all reads on it — see firestore.rules
+// and functions/index.js#newProjectInvite's comment). The input now just
+// format-validates and adds straight to the local invite list; the real
+// per-email lookup happens server-side when the invite is processed.
 const { test, expect } = require('@playwright/test')
 const {
   seedStudent,
@@ -37,7 +36,7 @@ async function signIn(page, { email, password }, ref) {
 }
 
 test.describe('project create -> invite -> edit', () => {
-  test('field checkboxes survive create + edit; member-by-email lookup is (currently) always a miss', async ({
+  test('field checkboxes survive create + edit; member-by-email is added to the invite list', async ({
     page,
   }) => {
     const owner = await seedStudent({
@@ -70,10 +69,10 @@ test.describe('project create -> invite -> edit', () => {
     await expect(fieldsCheckbox).toBeChecked()
 
     await page.locator('#member').fill(invitee.email)
-    // Current, correct-per-rules behavior (see file header), not a
-    // flake.
+    // No existence check anymore (see file header) — the email is
+    // added to the local list once it debounces.
     await expect(
-      page.getByText('We could not find that address')
+      page.getByText(invitee.email)
     ).toBeVisible({ timeout: 5_000 })
 
     await page
@@ -92,7 +91,7 @@ test.describe('project create -> invite -> edit', () => {
     // `read: if false` in firestore.rules — only the admin SDK can
     // verify this.
     const invite = await getProjectInvite(projectId)
-    expect(invite?.emails).toEqual([])
+    expect(invite?.emails).toEqual([invitee.email])
 
     const created = await getProject(projectId)
     expect(created.fields).toEqual(['Biology'])
