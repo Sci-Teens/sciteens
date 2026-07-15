@@ -38,6 +38,7 @@ import {
   buildFileRecord,
   getProjectFieldOptions,
   getSafeUploadName,
+  getUploadStoragePath,
   isAllowedLink,
 } from '../../context/helpers'
 import { generatePdfThumbnailBlob } from '../../lib/pdfThumbnail'
@@ -188,13 +189,18 @@ export default function CreateProject() {
           )
           continue
         }
+        const isPhoto = f.name == project_photo
         const fileRef = ref(
           storage,
-          `projects/${res.id}/${safeName}`
+          getUploadStoragePath(
+            'projects',
+            res.id,
+            safeName,
+            isPhoto
+          )
         )
         await uploadBytes(fileRef, f)
         const downloadURL = await getDownloadURL(fileRef)
-        const isPhoto = f.name == project_photo
 
         // Best-effort: a thumbnail-generation failure (corrupt/
         // encrypted/unrenderable PDF) must never block the upload

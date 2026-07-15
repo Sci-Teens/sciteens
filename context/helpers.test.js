@@ -20,6 +20,7 @@ import {
   getProjectFieldOptions,
   getSafeUploadName,
   getTranslatedFieldsDict,
+  getUploadStoragePath,
   isAllowedLink,
   isLegacyUnsupportedFile,
   resolveRefPath,
@@ -486,5 +487,40 @@ describe('buildFileRecord', () => {
     expect(Number.isNaN(Date.parse(record.createdAt))).toBe(
       false
     )
+  })
+})
+
+describe('getUploadStoragePath', () => {
+  it('puts a display photo under its own photo/ subpath', () => {
+    expect(
+      getUploadStoragePath(
+        'profiles',
+        'uid1',
+        'abc123.jpg',
+        true
+      )
+    ).toBe('profiles/uid1/photo/abc123.jpg')
+  })
+
+  it('puts a non-photo file at the flat prefix', () => {
+    expect(
+      getUploadStoragePath(
+        'profiles',
+        'uid1',
+        'abc123.jpg',
+        false
+      )
+    ).toBe('profiles/uid1/abc123.jpg')
+  })
+
+  it('works for the project owner prefix too', () => {
+    expect(
+      getUploadStoragePath(
+        'projects',
+        'proj1',
+        'abc123.jpg',
+        true
+      )
+    ).toBe('projects/proj1/photo/abc123.jpg')
   })
 })

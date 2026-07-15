@@ -65,6 +65,7 @@ import {
   ALLOWED_UPLOAD_MIME_TYPES,
   buildFileRecord,
   getSafeUploadName,
+  getUploadStoragePath,
   isAllowedLink,
   MAX_LINKS,
 } from '../../../context/helpers'
@@ -248,7 +249,12 @@ export default function UpdateProfilePage({
         }
         const fileRef = ref(
           storage,
-          `profiles/${user_profile.id}/${safeName}`
+          getUploadStoragePath(
+            'profiles',
+            user_profile.id,
+            safeName,
+            isPhoto
+          )
         )
         await uploadBytes(fileRef, f)
         const downloadURL = await getDownloadURL(fileRef)
