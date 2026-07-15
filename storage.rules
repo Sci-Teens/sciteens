@@ -3,8 +3,10 @@ rules_version = '2';
 // SciTeens Cloud Storage Security Rules
 //
 // Upload paths (client):
-//   profiles/{uid}/<filename>            — profile files + profile photo
-//   projects/{projectId}/<filename>      — project files + project photo
+//   profiles/{uid}/<filename>            — profile files
+//   profiles/{uid}/photo/<filename>      — profile display photo
+//   projects/{projectId}/<filename>      — project files
+//   projects/{projectId}/photo/<filename> — project display photo
 // Upload paths (server / legacy):
 //   profilephoto/{uid}.<ext>             — legacy profile photo
 //   courses/{slug}/<filename>            — course assets (Prismic webhook)
@@ -46,10 +48,19 @@ service firebase.storage {
     // Only the profile owner may upload to their prefix. Non-recursive
     // {fileName} (one path segment) is deliberate — Storage rules grant
     // access if ANY matching statement allows it (there's no "most
-    // specific wins"), so this must not also match thumbnails/** or its
-    // looser 8MB/any-allowlisted-type budget would swallow the tighter
-    // thumbnail rule above it.
+    // specific wins"), so this must not also match thumbnails/**, photo/**,
+    // or their tighter budgets would be swallowed by this looser one.
     match /profiles/{uid}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth.uid == uid && isValidUpload();
+      allow delete: if request.auth.uid == uid;
+    }
+
+    // The current display photo, uploaded to its own subpath (see
+    // context/helpers.js#getUploadStoragePath) so the fileUpload Cloud
+    // Function can tell it apart from a gallery file and resize it down
+    // to the small dimensions it's actually ever displayed at.
+    match /profiles/{uid}/photo/{fileName} {
       allow read: if true;
       allow write: if request.auth.uid == uid && isValidUpload();
       allow delete: if request.auth.uid == uid;
@@ -80,6 +91,23 @@ service firebase.storage {
     }
 
     match /projects/{projectId}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && request.auth.uid in
+            firestore.get(/databases/(default)/documents/projects/$(projectId))
+              .data.member_uids
+        && isValidUpload();
+      allow delete: if request.auth != null
+        && request.auth.uid in
+            firestore.get(/databases/(default)/documents/projects/$(projectId))
+              .data.member_uids;
+    }
+
+    // The current display photo, uploaded to its own subpath (see
+    // context/helpers.js#getUploadStoragePath) so the fileUpload Cloud
+    // Function can tell it apart from a gallery file and resize it down
+    // to the small dimensions it's actually ever displayed at.
+    match /projects/{projectId}/photo/{fileName} {
       allow read: if true;
       allow write: if request.auth != null
         && request.auth.uid in

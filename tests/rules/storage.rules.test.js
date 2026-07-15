@@ -224,6 +224,92 @@ describe('/profiles/{uid}/thumbnails/{fileName=**}', () => {
   })
 })
 
+describe('/profiles/{uid}/photo/{fileName=**}', () => {
+  it('owner can upload an allowlisted, in-budget display photo', async () => {
+    const storage = ctxStorage('alice')
+    await assertSucceeds(
+      uploadBytes(
+        ref(storage, 'profiles/alice/photo/f1.png'),
+        PNG_BYTES,
+        { contentType: 'image/png' }
+      )
+    )
+  })
+
+  it('rejects upload from a different uid', async () => {
+    const storage = ctxStorage('mallory')
+    await assertFails(
+      uploadBytes(
+        ref(storage, 'profiles/alice/photo/f1.png'),
+        PNG_BYTES,
+        { contentType: 'image/png' }
+      )
+    )
+  })
+
+  it('rejects a disallowed content type', async () => {
+    const storage = ctxStorage('alice')
+    await assertFails(
+      uploadBytes(
+        ref(storage, 'profiles/alice/photo/f1.docx'),
+        PNG_BYTES,
+        {
+          contentType:
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        }
+      )
+    )
+  })
+
+  it('is publicly readable', async () => {
+    await testEnv.withSecurityRulesDisabled(
+      async (context) =>
+        uploadBytes(
+          ref(
+            context.storage(),
+            'profiles/alice/photo/f1.png'
+          ),
+          PNG_BYTES,
+          { contentType: 'image/png' }
+        )
+    )
+    const storage = ctxStorage(null)
+    await assertSucceeds(
+      getBytes(ref(storage, 'profiles/alice/photo/f1.png'))
+    )
+  })
+
+  it('only the owner can delete', async () => {
+    await testEnv.withSecurityRulesDisabled(
+      async (context) =>
+        uploadBytes(
+          ref(
+            context.storage(),
+            'profiles/alice/photo/f1.png'
+          ),
+          PNG_BYTES,
+          { contentType: 'image/png' }
+        )
+    )
+    await assertFails(
+      deleteObject(
+        ref(
+          ctxStorage('mallory'),
+          'profiles/alice/photo/f1.png'
+        )
+      )
+    )
+    await assertSucceeds(
+      deleteObject(
+        ref(
+          ctxStorage('alice'),
+          'profiles/alice/photo/f1.png'
+        )
+      )
+    )
+  })
+})
+
 describe('/projects/{projectId}/{fileName=**}', () => {
   it('a member can upload an allowlisted, in-budget file', async () => {
     await seedProject('p1', ['alice'])
@@ -331,6 +417,74 @@ describe('/projects/{projectId}/thumbnails/{fileName=**}', () => {
         ref(storage, 'projects/p1/thumbnails/f1.png'),
         PNG_BYTES,
         { contentType: 'image/png' }
+      )
+    )
+  })
+})
+
+describe('/projects/{projectId}/photo/{fileName=**}', () => {
+  it('a member can upload an allowlisted, in-budget display photo', async () => {
+    await seedProject('p1', ['alice'])
+    const storage = ctxStorage('alice')
+    await assertSucceeds(
+      uploadBytes(
+        ref(storage, 'projects/p1/photo/f1.png'),
+        PNG_BYTES,
+        { contentType: 'image/png' }
+      )
+    )
+  })
+
+  it('rejects upload from a non-member', async () => {
+    await seedProject('p1', ['alice'])
+    const storage = ctxStorage('mallory')
+    await assertFails(
+      uploadBytes(
+        ref(storage, 'projects/p1/photo/f1.png'),
+        PNG_BYTES,
+        { contentType: 'image/png' }
+      )
+    )
+  })
+
+  it('rejects a disallowed content type even from a member', async () => {
+    await seedProject('p1', ['alice'])
+    const storage = ctxStorage('alice')
+    await assertFails(
+      uploadBytes(
+        ref(storage, 'projects/p1/photo/f1.ppt'),
+        PNG_BYTES,
+        {
+          contentType: 'application/vnd.ms-powerpoint',
+        }
+      )
+    )
+  })
+
+  it('only a member can delete', async () => {
+    await seedProject('p1', ['alice'])
+    await testEnv.withSecurityRulesDisabled(
+      async (context) =>
+        uploadBytes(
+          ref(
+            context.storage(),
+            'projects/p1/photo/f1.png'
+          ),
+          PNG_BYTES,
+          { contentType: 'image/png' }
+        )
+    )
+    await assertFails(
+      deleteObject(
+        ref(
+          ctxStorage('mallory'),
+          'projects/p1/photo/f1.png'
+        )
+      )
+    )
+    await assertSucceeds(
+      deleteObject(
+        ref(ctxStorage('alice'), 'projects/p1/photo/f1.png')
       )
     )
   })

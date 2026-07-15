@@ -47,6 +47,7 @@ import {
   buildFileRecord,
   getProjectFieldOptions,
   getSafeUploadName,
+  getUploadStoragePath,
   isAllowedLink,
 } from '../../../context/helpers'
 import { generatePdfThumbnailBlob } from '../../../lib/pdfThumbnail'
@@ -331,7 +332,12 @@ export default function UpdateProject({ query }) {
         }
         const fileRef = ref(
           storage,
-          `projects/${query.id}/${safeName}`
+          getUploadStoragePath(
+            'projects',
+            query.id,
+            safeName,
+            isPhoto
+          )
         )
         await uploadBytes(fileRef, f)
         const downloadURL = await getDownloadURL(fileRef)

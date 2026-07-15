@@ -1,3 +1,4 @@
+const crypto = require('node:crypto')
 // Firebase
 const functions = require('firebase-functions/v1')
 const {
@@ -771,9 +772,73 @@ exports.scheduledProgramEmailer = functions
     entire file is deleted.
 */
 
+const sharp = require('sharp')
+const {
+  isResizeEligiblePath,
+  getResizeTarget,
+  WEBP_QUALITY,
+} = require('./lib/imageOptimize')
+
+// Resizes/recompresses an image object in place to WebP, per the
+// target dimensions from lib/imageOptimize.js. Overwrites the SAME
+// object path with `.save()` rather than deleting + re-uploading
+// under a new name, preserving (or minting, if absent) the object's
+// `firebaseStorageDownloadTokens` metadata — that's what keeps the
+// download URL the client already captured (it calls
+// `getDownloadURL()` right after `uploadBytes()`, before this trigger
+// has necessarily run) valid after the bytes underneath it change.
+// The `optimized: 'true'` custom-metadata flag it sets is what the
+// top of onFinalize below checks to avoid reprocessing its own
+// overwrite in an infinite trigger loop.
+async function optimizeImageObject(object) {
+  const bucket = admin.storage().bucket(object.bucket)
+  const file = bucket.file(object.name)
+
+  const [buffer] = await file.download()
+  const target = getResizeTarget(object.name)
+  const webpBuffer = await sharp(buffer)
+    .resize(target)
+    .webp({ quality: WEBP_QUALITY })
+    .toBuffer()
+
+  const [freshMetadata] = await file.getMetadata()
+  const existingTokens =
+    freshMetadata.metadata?.firebaseStorageDownloadTokens
+  const token = existingTokens
+    ? existingTokens.split(',')[0]
+    : crypto.randomUUID()
+
+  await file.save(webpBuffer, {
+    contentType: 'image/webp',
+    metadata: {
+      cacheControl: freshMetadata.cacheControl,
+      metadata: {
+        ...freshMetadata.metadata,
+        optimized: 'true',
+        firebaseStorageDownloadTokens: token,
+      },
+    },
+  })
+
+  console.log(
+    `Optimized ${object.name}: ${buffer.length}B -> ${webpBuffer.length}B`
+  )
+}
+
 exports.fileUpload = functions.storage
   .object()
   .onFinalize(async (object) => {
+    // Our own in-place optimizeImageObject() overwrite re-triggers
+    // this same function (a new object generation of the same path);
+    // it was already SafeSearch-checked and resized as the original
+    // upload, so just stop here instead of re-scanning, re-resizing,
+    // or looping forever.
+    if (object.metadata?.optimized === 'true') {
+      return console.log(
+        'Skipping already-optimized object ' + object.name
+      )
+    }
+
     const contentType = object.contentType
     if (!contentType) {
       return console.log('No content type')
@@ -859,6 +924,29 @@ exports.fileUpload = functions.storage
     console.log(
       'No offensive content found for ' + object.name
     )
+    // Resize/recompress eligible images in place (see
+    // lib/imageOptimize.js). profiles/{uid}/... and
+    // projects/{projectId}/... don't need makePublic() or a
+    // Firestore write here — the client already wrote the file
+    // record + display-photo pointer fields itself right after
+    // upload (see pages/profile/[slug]/edit.js,
+    // pages/project/create.js, pages/project/[id]/edit.js), keyed to
+    // the download-token URL optimizeImageObject() preserves above.
+    // A resize failure is logged, not thrown — the unoptimized
+    // original stays live rather than the upload silently vanishing.
+    if (isImage && isResizeEligiblePath(object.name)) {
+      try {
+        await optimizeImageObject(object)
+      } catch (err) {
+        console.error(
+          'Failed to optimize image ' +
+            object.name +
+            ': ' +
+            err
+        )
+      }
+      return
+    }
 
     // File passed moderation. Make it public and update the
     // corresponding Firestore record based on the upload path.

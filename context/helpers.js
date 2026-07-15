@@ -273,6 +273,25 @@ export function getSafeUploadName(file) {
   return `${generateUploadId()}.${ext}`
 }
 
+// Storage path for a freshly uploaded profile/project file. A
+// display photo goes under its own `photo/` subpath (mirroring the
+// existing `thumbnails/` subpath convention) so the fileUpload Cloud
+// Function (functions/index.js + functions/lib/imageOptimize.js) can
+// tell it apart from a regular gallery file by path alone and resize
+// it down to the small dimensions it's actually ever displayed at,
+// without racing the Firestore `isPhoto` write that happens after
+// this upload completes.
+export function getUploadStoragePath(
+  ownerPrefix,
+  ownerId,
+  safeName,
+  isPhoto
+) {
+  return isPhoto
+    ? `${ownerPrefix}/${ownerId}/photo/${safeName}`
+    : `${ownerPrefix}/${ownerId}/${safeName}`
+}
+
 // Builds the Firestore record written alongside every Storage upload,
 // at `projects/{id}/files/{fileId}` or `profiles/{uid}/files/{fileId}`
 // — `fileId` is always the object's own basename (getSafeUploadName's
