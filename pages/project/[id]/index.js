@@ -22,7 +22,9 @@ import SocialMeta from '../../../components/SocialMeta'
 import Image from 'next/image'
 import Error from 'next/error'
 import Link from 'next/link'
-import FileGallery from '../../../components/FileGallery'
+import FileGallery, {
+  FileGallerySkeleton,
+} from '../../../components/FileGallery'
 import { ExternalLink, Pencil } from 'lucide-react'
 import ProjectUpvoteButton from '../../../components/ProjectUpvoteButton'
 import { useEffect, useMemo, useState } from 'react'
@@ -309,13 +311,15 @@ function Project({ query, initialProject }) {
 
       {/* Files */}
       <div className="mx-auto mb-4 mt-8 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
-        {filesStatus === 'success' &&
-          fileRecords.length > 0 && (
-            <h2 className="mb-2 text-lg font-semibold md:text-2xl">
-              {t('course.files')}
-            </h2>
-          )}
-        {filesStatus !== 'loading' && (
+        {(filesStatus === 'loading' ||
+          fileRecords.length > 0) && (
+          <h2 className="mb-2 text-lg font-semibold md:text-2xl">
+            {t('course.files')}
+          </h2>
+        )}
+        {filesStatus === 'loading' ? (
+          <FileGallerySkeleton />
+        ) : (
           <FileGallery
             files={fileRecords.map((record) => ({
               id: record.id,

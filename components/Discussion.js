@@ -33,6 +33,35 @@ import { useTranslation } from 'next-i18next'
 import debounce from 'lodash.debounce'
 import moment from 'moment'
 
+function DiscussionAuthor({ uid, display }) {
+  const photo = (
+    <div className="mr-2 h-10 w-10 shrink-0">
+      <ProfilePhoto uid={uid} />
+    </div>
+  )
+
+  if (!uid) {
+    return (
+      <>
+        {photo}
+        <p className="font-semibold">{display}</p>
+      </>
+    )
+  }
+
+  return (
+    <a
+      href={`/profile/${uid}`}
+      className="flex min-w-0 flex-row items-center no-underline"
+    >
+      {photo}
+      <p className="text-sciteensGreen-regular hover:text-sciteensGreen-dark font-bold">
+        {display}
+      </p>
+    </a>
+  )
+}
+
 export default function Discussion({ type, item_id }) {
   const { data: signInCheckResult } = useSigninCheck()
   const { t } = useTranslation('common')
@@ -297,7 +326,7 @@ export default function Discussion({ type, item_id }) {
                 <Card
                   id={comment.id}
                   key={comment.date}
-                  className={`relative ${
+                  className={`border-border/60 relative shadow-sm ${
                     router.isReady &&
                     router.basePath.includes(comment.id)
                       ? 'ring-primary/50 ring-2'
@@ -310,14 +339,10 @@ export default function Discussion({ type, item_id }) {
                 >
                   <CardContent>
                     <div className="mb-2 flex flex-row items-center">
-                      <div className="mr-2 h-10 w-10">
-                        <ProfilePhoto
-                          uid={comment.uid}
-                        ></ProfilePhoto>
-                      </div>
-                      <p className="font-semibold">
-                        {comment.display}
-                      </p>
+                      <DiscussionAuthor
+                        uid={comment.uid}
+                        display={comment.display}
+                      />
                     </div>
                     <p className="text-muted-foreground absolute right-4 top-4 text-xs">
                       {moment(comment.date)
@@ -430,18 +455,14 @@ export default function Discussion({ type, item_id }) {
                             <Card
                               id={reply.id}
                               key={reply.date}
-                              className="relative mb-2 ml-auto"
+                              className="border-border/60 relative mb-2 ml-auto shadow-sm"
                             >
                               <CardContent>
                                 <div className="mb-2 flex flex-row items-center">
-                                  <div className="mr-2 h-10 w-10">
-                                    <ProfilePhoto
-                                      uid={reply.uid}
-                                    ></ProfilePhoto>
-                                  </div>
-                                  <p className="font-semibold">
-                                    {reply.display}
-                                  </p>
+                                  <DiscussionAuthor
+                                    uid={reply.uid}
+                                    display={reply.display}
+                                  />
                                 </div>
                                 <p>{reply.comment}</p>
                                 <p className="text-muted-foreground absolute right-4 top-4 text-xs">

@@ -44,7 +44,9 @@ import {
   getLinkPlatformLabel,
   isAllowedLink,
 } from '../../../context/helpers'
-import FileGallery from '../../../components/FileGallery'
+import FileGallery, {
+  FileGallerySkeleton,
+} from '../../../components/FileGallery'
 import ProjectCard from '../../../components/ProjectCard'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -306,10 +308,7 @@ function Project({ profile }) {
         )}
         <div className="flex flex-col items-center space-y-2">
           {filesStatus === 'loading' ? (
-            <>
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
-            </>
+            <FileGallerySkeleton />
           ) : (
             <FileGallery
               files={galleryFiles.map((record) => ({

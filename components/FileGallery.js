@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/carousel'
 import RenderFile, { getPreviewUrl } from './File'
 import { isLegacyUnsupportedFile } from '../context/helpers'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const PdfThumbnail = dynamic(
   () => import('./PdfThumbnail'),
@@ -109,6 +110,25 @@ function ImageLightbox({ images, startIndex }) {
         )}
       </div>
     </>
+  )
+}
+
+// Placeholder grid matching the image thumbnail layout so the
+// surrounding page does not jump when file docs first arrive.
+export function FileGallerySkeleton({ count = 4 }) {
+  return (
+    <div
+      className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4"
+      aria-busy="true"
+      aria-live="polite"
+    >
+      {Array.from({ length: count }, (_, index) => (
+        <Skeleton
+          key={index}
+          className="aspect-square w-full rounded-xl"
+        />
+      ))}
+    </div>
   )
 }
 
