@@ -20,23 +20,19 @@ const meiliMasterKey = defineSecret('MEILI_MASTER_KEY')
 // Google
 const vision = require('@google-cloud/vision')
 
-// Mailjet — functions.config() was removed in firebase-functions v7, so
-// credentials are Secret Manager params instead. Secrets are only
-// readable at invocation time (after being bound via
-// `.runWith({ secrets: [...] })` on each export that needs them), so
-// the client is built lazily rather than at module load.
-const mailjetApiKey = defineSecret('MAILJET_APIKEY')
-const mailjetApiSecret = defineSecret('MAILJET_APISECRET')
-let mailjetClient
-function getMailjet() {
-  if (!mailjetClient) {
-    mailjetClient = require('node-mailjet').connect(
-      mailjetApiKey.value(),
-      mailjetApiSecret.value()
-    )
-  }
-  return mailjetClient
-}
+// Resend
+const {
+  resendApiKey,
+  sendEmail,
+  addContact,
+} = require('./lib/resend')
+const {
+  verifyEmailTemplate,
+  welcomeTemplate,
+  newFeedbackTemplate,
+  upcomingProgramTemplate,
+  projectUpdateTemplate,
+} = require('./lib/emailTemplates')
 
 // Prismic
 const Prismic = require('@prismicio/client')
@@ -302,24 +298,19 @@ exports.deleteProfile = functions.firestore
 
 exports.newUser = functions
   .runWith({
-    secrets: [mailjetApiKey, mailjetApiSecret],
+    secrets: [resendApiKey],
   })
   .auth.user()
   .onCreate(async (user) => {
+    const [firstName, ...rest] = (
+      user.displayName || ''
+    ).split(' ')
     await Promise.all([
-      getMailjet()
-        .post('contact', { version: 'v3' })
-        .request({
-          IsExcludedFromCampaigns: 'false',
-          Name: user.displayName,
-          Email: user.email,
-        })
-        .then((result) => {
-          console.log(result.body)
-        })
-        .catch((err) => {
-          console.log(err.statusCode)
-        }),
+      addContact({
+        email: user.email,
+        firstName,
+        lastName: rest.join(' '),
+      }),
       // Create a user ref in the database to
       // quickly query emails
       admin
@@ -353,7 +344,7 @@ exports.newUser = functions
 
 exports.newProfile = functions
   .runWith({
-    secrets: [mailjetApiKey, mailjetApiSecret],
+    secrets: [resendApiKey],
   })
   .firestore.document('profiles/{profileID}')
   .onCreate(async (profile) => {
@@ -373,40 +364,24 @@ exports.newProfile = functions
         email,
         actionCodeSettings
       )
-    const request = getMailjet()
-      .post('send', { version: 'v3.1' })
-      .request({
-        Messages: [
-          {
-            From: {
-              Email: 'noreply@sciteens.com',
-              Name: 'SciTeens',
-            },
-            To: [
-              {
-                Email: email,
-                Name: data.display ? data.display : email,
-              },
-            ],
-            TemplateID: 1267257,
-            TemplateLanguage: true,
-            Subject: 'Verify Email',
-            Variables: {
-              link: verification_link,
-            },
-          },
-        ],
-      })
-    await request
+    await sendEmail({
+      to: email,
+      toName: data.display ? data.display : email,
+      subject: 'Verify Email',
+      html: verifyEmailTemplate({
+        link: verification_link,
+      }),
+    })
 
-    // Add to all contact list
-    await getMailjet()
-      .post('listrecipient', { version: 'v3' })
-      .request({
-        IsUnsubscribed: 'false',
-        ContactAlt: email,
-        ListID: '10251294',
-      })
+    // Add to all-contacts audience
+    const [firstName, ...rest] = (
+      user.displayName || ''
+    ).split(' ')
+    await addContact({
+      email,
+      firstName,
+      lastName: rest.join(' '),
+    })
 
     // Handle sending emails based on user type
     switch (data.position) {
@@ -417,77 +392,30 @@ exports.newProfile = functions
         await admin
           .auth()
           .setCustomUserClaims(id, { mentor: true })
-        await getMailjet()
-          .post('listrecipient', { version: 'v3' })
-          .request({
-            IsUnsubscribed: 'false',
-            ContactAlt: email,
-            ListID: '10251293',
-          })
 
-        await getMailjet()
-          .post('send', { version: 'v3.1' })
-          .request({
-            Messages: [
-              {
-                From: {
-                  Email: 'noreply@sciteens.com',
-                  Name: 'SciTeens',
-                },
-                To: [
-                  {
-                    Email: email,
-                    Name: user.displayName
-                      ? user.displayName
-                      : email,
-                  },
-                ],
-                TemplateID: 3336350,
-                TemplateLanguage: true,
-                Subject: 'Welcome to SciTeens!',
-                Variables: {
-                  displayName: user.displayName,
-                },
-              },
-            ],
-          })
+        await sendEmail({
+          to: email,
+          toName: user.displayName
+            ? user.displayName
+            : email,
+          subject: 'Welcome to SciTeens!',
+          html: welcomeTemplate({
+            displayName: user.displayName,
+          }),
+        })
         break
       default:
-        await getMailjet()
-          .post('listrecipient', { version: 'v3' })
-          .request({
-            IsUnsubscribed: 'false',
-            ContactAlt: user.email,
-            ListID: '10251292',
-          })
-
         // Send student welcome
-        await getMailjet()
-          .post('send', { version: 'v3.1' })
-          .request({
-            Messages: [
-              {
-                From: {
-                  Email: 'noreply@sciteens.com',
-                  Name: 'SciTeens',
-                },
-                To: [
-                  {
-                    Email: email,
-                    Name: user.displayName
-                      ? user.displayName
-                      : email,
-                  },
-                ],
-                TemplateID: 3336347,
-                TemplateLanguage: true,
-                Subject: 'Welcome to SciTeens!',
-                Variables: {
-                  displayName: user.displayName,
-                },
-              },
-            ],
-          })
+        await sendEmail({
+          to: email,
+          toName: user.displayName
+            ? user.displayName
+            : email,
+          subject: 'Welcome to SciTeens!',
+          html: welcomeTemplate({
+            displayName: user.displayName,
+          }),
+        })
         break
     }
   })
@@ -609,7 +537,7 @@ exports.updateProgram = functions.firestore
 
 exports.newDiscussion = functions
   .runWith({
-    secrets: [mailjetApiKey, mailjetApiSecret],
+    secrets: [resendApiKey],
   })
   .firestore.document(
     'projects/{projectID}/discussion/{feedbackID}'
@@ -640,35 +568,18 @@ exports.newDiscussion = functions
         'Sending discussion email to user ' +
           originalComment.data().uid
       )
-      return getMailjet()
-        .post('send', { version: 'v3.1' })
-        .request({
-          Messages: [
-            {
-              From: {
-                Email: 'noreply@sciteens.com',
-                Name: 'SciTeens',
-              },
-              To: [
-                {
-                  Email: originalUser.email,
-                  Name: originalUser.displayName,
-                },
-              ],
-              TemplateID: 1525200,
-              TemplateLanguage: true,
-              Subject: 'New Feedback',
-              Variables: {
-                studentOrMentor:
-                  user.customClaims &&
-                  user.customClaims['mentor']
-                    ? 'mentor'
-                    : 'student',
-                projectLink: `https://sciteens.com/project/${context.params.projectID}#${event.id}`,
-              },
-            },
-          ],
-        })
+      return sendEmail({
+        to: originalUser.email,
+        toName: originalUser.displayName,
+        subject: 'New Feedback',
+        html: newFeedbackTemplate({
+          studentOrMentor:
+            user.customClaims && user.customClaims['mentor']
+              ? 'mentor'
+              : 'student',
+          projectLink: `https://sciteens.com/project/${context.params.projectID}#${event.id}`,
+        }),
+      })
     }
   })
 
@@ -682,7 +593,7 @@ exports.newDiscussion = functions
 */
 exports.scheduledProgramEmailer = functions
   .runWith({
-    secrets: [mailjetApiKey, mailjetApiSecret],
+    secrets: [resendApiKey],
   })
   .pubsub.schedule('5 0 * * *')
   .timeZone('America/New_York') // Users can choose timezone - default is America/Los_Angeles
@@ -709,34 +620,14 @@ exports.scheduledProgramEmailer = functions
               .auth()
               .getUser(sub)
               .then((user) => {
-                // Send using Mailjet API v3
-                getMailjet()
-                  .post('send', { version: 'v3.1' })
-                  .request({
-                    Messages: [
-                      {
-                        From: {
-                          Email: 'noreply@sciteens.com',
-                          Name: 'SciTeens',
-                        },
-                        To: [
-                          {
-                            Email: user.email,
-                            Name: user.displayName
-                              ? user.displayName
-                              : user.email,
-                          },
-                        ],
-                        TemplateID: 1219486,
-                        TemplateLanguage: true,
-                        Subject:
-                          'Upcoming Program Application',
-                        Variables: {
-                          link: link,
-                        },
-                      },
-                    ],
-                  })
+                sendEmail({
+                  to: user.email,
+                  toName: user.displayName
+                    ? user.displayName
+                    : user.email,
+                  subject: 'Upcoming Program Application',
+                  html: upcomingProgramTemplate({ link }),
+                })
                 // Add notification
                 admin
                   .firestore()
@@ -1047,7 +938,7 @@ exports.fileUpload = functions.storage
 */
 exports.newProjectInvite = functions
   .runWith({
-    secrets: [mailjetApiKey, mailjetApiSecret],
+    secrets: [resendApiKey],
   })
   .firestore.document('project-invites/{projectID}')
   .onCreate((event) => {
@@ -1105,36 +996,18 @@ exports.newProjectInvite = functions
 
       // Email the user that they've been added to a project
       // Send an email to the user
-      getMailjet()
-        .post('send', { version: 'v3.1' })
-        .request({
-          Messages: [
-            {
-              From: {
-                Email: 'noreply@sciteens.com',
-                Name: 'SciTeens',
-              },
-              To: [
-                {
-                  Email: email,
-                  Name: email,
-                },
-              ],
-              TemplateID: 1373653,
-              TemplateLanguage: true,
-              Subject: 'Project Update',
-              Variables: {
-                projectName: title,
-                projectLink:
-                  'https://sciteens.com/project/' +
-                  event.id,
-              },
-            },
-          ],
-        })
-        .catch((err) => {
-          console.log('mailjet error:' + err)
-        })
+      sendEmail({
+        to: email,
+        toName: email,
+        subject: 'Project Update',
+        html: projectUpdateTemplate({
+          projectName: title,
+          projectLink:
+            'https://sciteens.com/project/' + event.id,
+        }),
+      }).catch((err) => {
+        console.log('resend error:' + err)
+      })
     })
     // Delete project invite once finished
     return admin
