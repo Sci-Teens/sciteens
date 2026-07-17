@@ -33,6 +33,10 @@ vi.mock('firebase/firestore', () => ({
   }),
 }))
 
+vi.mock('./ProjectUpvoteButton', () => ({
+  default: () => <button type="button">upvote</button>,
+}))
+
 afterEach(cleanup)
 
 describe('ProjectCard', () => {

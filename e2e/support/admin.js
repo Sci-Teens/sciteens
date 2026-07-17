@@ -108,6 +108,7 @@ async function seedProject(data) {
     need_mentor: false,
     links: [],
     subscribers: [],
+    upvote_count: 0,
     member_arr: [],
     member_uids: [],
     ...data,

@@ -159,6 +159,7 @@ export default function CreateProject() {
           links: links.filter(isAllowedLink),
           date: moment().toISOString(),
           subscribers: [],
+          upvote_count: 0,
           fields: Object.keys(
             getProjectFieldOptions(t)
           ).filter((item, i) => field_values[i]),

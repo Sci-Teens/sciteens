@@ -110,8 +110,11 @@ service cloud.firestore {
     // Public-readable. Any authenticated user may create one (they become
     // a member). Only existing members may update/delete. Mass-assignment
     // is constrained: client writes may not touch member_uids/subscribers
-    // except to add the creator on create. `links` validity is enforced
-    // by isValidLinks above (shared with /profiles/{uid}).
+    // except to add the creator on create. `upvote_count` is denormalized
+    // and may only move by +/-1 when paired with a write to
+    // projects/{id}/upvotes/{uid} in the same transaction. `links`
+    // validity is enforced by isValidLinks above (shared with
+    // /profiles/{uid}).
 
     function isProjectMember(projectId) {
       return request.auth != null
@@ -119,18 +122,63 @@ service cloud.firestore {
             get(/databases/$(database)/documents/projects/$(projectId))
               .data.member_uids;
     }
+
+    function projectUpvoteCount(data) {
+      return data.get('upvote_count', 0);
+    }
+
+    function isUpvoteCountOnlyUpdate() {
+      return request.auth != null
+        && request.resource.data.diff(resource.data)
+            .affectedKeys().hasOnly(['upvote_count'])
+        && request.resource.data.upvote_count is int
+        && request.resource.data.upvote_count >= 0;
+    }
+
     match /projects/{projectId} {
       allow read: if true;
       allow create: if request.auth != null
         && request.resource.data.member_uids.size() >= 1
         && request.resource.data.member_uids[0] == request.auth.uid
-        && isValidLinks(request.resource.data);
-      allow update: if request.auth.uid in resource.data.member_uids
-        && !request.resource.data.diff(resource.data)
-            .affectedKeys().hasAny(['member_uids', 'subscribers'])
-        && isValidLinks(request.resource.data);
+        && isValidLinks(request.resource.data)
+        && (!('upvote_count' in request.resource.data)
+            || request.resource.data.upvote_count == 0);
+      allow update: if (
+          (
+            request.auth.uid in resource.data.member_uids
+            && !request.resource.data.diff(resource.data)
+                .affectedKeys()
+                .hasAny([
+                  'member_uids',
+                  'subscribers',
+                  'upvote_count'
+                ])
+            && isValidLinks(request.resource.data)
+          )
+          || (
+            isUpvoteCountOnlyUpdate()
+            && (
+              (
+                request.resource.data.upvote_count
+                  == projectUpvoteCount(resource.data) + 1
+                && existsAfter(
+                  /databases/$(database)/documents/projects/$(projectId)/upvotes/$(request.auth.uid)
+                )
+              )
+              || (
+                request.resource.data.upvote_count
+                  == projectUpvoteCount(resource.data) - 1
+                && exists(
+                  /databases/$(database)/documents/projects/$(projectId)/upvotes/$(request.auth.uid)
+                )
+                && !existsAfter(
+                  /databases/$(database)/documents/projects/$(projectId)/upvotes/$(request.auth.uid)
+                )
+              )
+            )
+          )
+        );
       allow delete: if request.auth.uid in resource.data.member_uids;
-
       // ---- Project discussion ------------------------------------------
       match /discussion/{feedbackId} {
         allow read: if true;
@@ -156,6 +204,52 @@ service cloud.firestore {
           && request.resource.data.diff(resource.data)
               .affectedKeys().hasOnly(['isPhoto']);
         allow delete: if isProjectMember(projectId);
+      }
+
+      // ---- Project upvotes ----------------------------------------------
+      // One doc per supporter, doc id == auth.uid. Create/delete must be
+      // paired with a matching +/-1 of the parent project's upvote_count
+      // in the same transaction (see parent update rule).
+      match /upvotes/{uid} {
+        allow read: if true;
+        allow create: if request.auth != null
+          && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly([
+            'uid',
+            'projectId',
+            'createdAt'
+          ])
+          && request.resource.data.uid == uid
+          && request.resource.data.projectId == projectId
+          && request.resource.data.createdAt is string
+          && projectUpvoteCount(
+                getAfter(
+                  /databases/$(database)/documents/projects/$(projectId)
+                ).data
+             )
+               == projectUpvoteCount(
+                    get(
+                      /databases/$(database)/documents/projects/$(projectId)
+                    ).data
+                  ) + 1;
+        allow delete: if request.auth != null
+          && request.auth.uid == uid
+          && projectUpvoteCount(
+                getAfter(
+                  /databases/$(database)/documents/projects/$(projectId)
+                ).data
+             )
+               == projectUpvoteCount(
+                    get(
+                      /databases/$(database)/documents/projects/$(projectId)
+                    ).data
+                  ) - 1
+          && projectUpvoteCount(
+                getAfter(
+                  /databases/$(database)/documents/projects/$(projectId)
+                ).data
+             ) >= 0;
+        allow update: if false;
       }
     }
 

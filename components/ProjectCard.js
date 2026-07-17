@@ -10,6 +10,7 @@ import {
 import { normalizeProject } from '../lib/projects'
 import { getDefaultProjectImage } from '../lib/defaultProjectImage'
 import ProfilePhoto from './ProfilePhoto'
+import ProjectUpvoteButton from './ProjectUpvoteButton'
 
 function getProfileHref(member) {
   if (member?.slug) {
@@ -66,6 +67,13 @@ export default function ProjectCard({
         aria-label={normalizedProject.title}
         className="focus-visible:ring-3 focus-visible:ring-ring/50 absolute inset-0 z-10 rounded-xl"
       />
+      <div className="absolute right-2 top-2 z-20">
+        <ProjectUpvoteButton
+          projectId={normalizedProject.id}
+          count={normalizedProject.upvote_count}
+          size="sm"
+        />
+      </div>
       <CardContent className="flex items-center">
         <div className="bg-muted relative h-24 w-24 shrink-0 overflow-hidden rounded-lg md:h-40 md:w-40">
           {hasPhoto ? (
