@@ -71,12 +71,12 @@ module.exports = {
   distDir: process.env.NEXT_DIST_DIR || '.next',
   i18n,
   images: {
-    domains: [
-      'images.prismic.io',
-      'source.unsplash.com',
-      'lh3.googleusercontent.com',
-      'firebasestorage.googleapis.com',
-      'storage.googleapis.com',
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.prismic.io' },
+      { protocol: 'https', hostname: 'source.unsplash.com' },
+      { protocol: 'https', hostname: '*.googleusercontent.com' },
+      { protocol: 'https', hostname: 'firebasestorage.googleapis.com' },
+      { protocol: 'https', hostname: 'storage.googleapis.com' },
     ],
   },
   eslint: {
@@ -136,7 +136,7 @@ module.exports = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
               // blob: — components/File.js previews dropped/loaded
               // project files via URL.createObjectURL before upload.
-              "img-src 'self' data: blob: https://images.prismic.io https://source.unsplash.com https://lh3.googleusercontent.com https://firebasestorage.googleapis.com https://storage.googleapis.com https://lh3.googleusercontent.com; " +
+              "img-src 'self' data: blob: https://images.prismic.io https://source.unsplash.com https://*.googleusercontent.com https://firebasestorage.googleapis.com https://storage.googleapis.com; " +
               "font-src 'self' https://fonts.gstatic.com; " +
               // *.firebaseapp.com hosts the Firebase Auth helper iframe
               // (__/auth/iframe) that signInWithPopup/signInWithRedirect
