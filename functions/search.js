@@ -91,6 +91,12 @@ function toSearchDocument(id, data) {
       ? data.members
       : [],
     date: toMillis(data.date),
+    upvote_count:
+      typeof data.upvote_count === 'number' &&
+      Number.isFinite(data.upvote_count) &&
+      data.upvote_count > 0
+        ? Math.floor(data.upvote_count)
+        : 0,
   }
 }
 

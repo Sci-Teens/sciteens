@@ -336,7 +336,9 @@
     "sort_oldest": "Oldest",
     "search_unavailable": "Search is temporarily unavailable. Showing recent projects instead.",
     "results_count": "{{count}} results",
-    "load_more": "Load more projects"
+    "load_more": "Load more projects",
+    "support": "Support this project",
+    "remove_support": "Remove support"
   },
   "fields": {
     "all": "All",

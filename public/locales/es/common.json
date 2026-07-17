@@ -1,4 +1,8 @@
 {
+  "404": {
+    "sorry": "404 - Lo siento, no pudimos encontrar eso",
+    "cool_video": "Aquí hay un video genial para ver en su lugar"
+  },
   "article": {
     "about_the_author": "Sobre el Autor",
     "interview": "Entrevista",
@@ -211,10 +215,6 @@
     "show_password": "Mostrar contraseña",
     "hide_password": "Ocultar contraseña"
   },
-  "404": {
-    "sorry": "404 - Lo siento, no pudimos encontrar eso",
-    "cool_video": "Aquí hay un video genial para ver en su lugar"
-  },
   "about": {
     "on_a_mission": "Estamos en una misión.",
     "we_strive": "Nos esforzamos por cerrar la brecha entre la educación y la oportunidad, particularmente para los estudiantes de áreas de baja recursos que no tienen una red extensa de apoyo STEM.",
@@ -336,7 +336,9 @@
     "sort_oldest": "Más antiguos",
     "search_unavailable": "La búsqueda no está disponible temporalmente. Mostrando proyectos recientes.",
     "results_count": "{{count}} resultados",
-    "load_more": "Cargar más proyectos"
+    "load_more": "Cargar más proyectos",
+    "support": "Apoyar este proyecto",
+    "remove_support": "Quitar apoyo"
   },
   "fields": {
     "all": "Todos",

@@ -160,6 +160,13 @@ exports.deleteProject = functions
       500
     )
 
+    // Delete the upvotes subcollection (one-doc-per-supporter records)
+    await deleteCollection(
+      admin.firestore(),
+      `/projects/${context.params.projectID}/upvotes`,
+      500
+    )
+
     // Delete the underlying Storage objects the files subcollection
     // pointed at. Logged, not thrown, so a Storage-side failure never
     // fails the trigger — the Firestore doc is already gone by now.

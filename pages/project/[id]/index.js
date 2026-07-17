@@ -24,6 +24,7 @@ import Error from 'next/error'
 import Link from 'next/link'
 import FileGallery from '../../../components/FileGallery'
 import { ExternalLink, Pencil } from 'lucide-react'
+import ProjectUpvoteButton from '../../../components/ProjectUpvoteButton'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'next-i18next'
 import dynamic from 'next/dynamic'
@@ -137,25 +138,31 @@ function Project({ query, initialProject }) {
               <h1 className="text-2xl font-semibold md:text-3xl">
                 {project.title}
               </h1>
-              {project.member_uids?.includes(
-                signInCheckResult?.user?.uid
-              ) && (
-                <Button
-                  render={
-                    <Link
-                      href={`/project/${router?.query?.id}/edit`}
-                    >
-                      <Pencil
-                        className="h-4 w-4"
-                        aria-hidden="true"
-                      />
-                      {t('index_profile.edit')}
-                    </Link>
-                  }
-                  variant="outline"
-                  className="shrink-0"
+              <div className="flex shrink-0 items-center gap-1">
+                <ProjectUpvoteButton
+                  projectId={query.id}
+                  count={project.upvote_count}
                 />
-              )}
+                {project.member_uids?.includes(
+                  signInCheckResult?.user?.uid
+                ) && (
+                  <Button
+                    render={
+                      <Link
+                        href={`/project/${router?.query?.id}/edit`}
+                      >
+                        <Pencil
+                          className="h-4 w-4"
+                          aria-hidden="true"
+                        />
+                        {t('index_profile.edit')}
+                      </Link>
+                    }
+                    variant="outline"
+                    className="shrink-0"
+                  />
+                )}
+              </div>
             </div>
             {project.member_arr?.length > 0 && (
               <div className="flex flex-row items-center">

@@ -24,6 +24,7 @@ import {
   getDoc,
   getDocs,
   query,
+  runTransaction,
   setDoc,
   updateDoc,
   where,
@@ -646,6 +647,171 @@ describe('/projects/{projectId}', () => {
     await assertFails(
       updateDoc(doc(db, 'projects/p1'), {
         links: 'not-a-list',
+      })
+    )
+  })
+})
+
+describe('/projects/{id}/upvotes/{uid}', () => {
+  const seedProject = (overrides = {}) =>
+    seed((db) =>
+      setDoc(doc(db, 'projects/p1'), {
+        member_uids: ['alice'],
+        title: 'x',
+        upvote_count: 0,
+        ...overrides,
+      })
+    )
+
+  const validUpvote = {
+    uid: 'mallory',
+    projectId: 'p1',
+    createdAt: '2026-01-01T00:00:00.000Z',
+  }
+
+  it('is publicly readable', async () => {
+    await seedProject({ upvote_count: 1 })
+    await seed((db) =>
+      setDoc(
+        doc(db, 'projects/p1/upvotes/mallory'),
+        validUpvote
+      )
+    )
+    await assertSucceeds(
+      getDoc(
+        doc(
+          ctxFirestore(null),
+          'projects/p1/upvotes/mallory'
+        )
+      )
+    )
+  })
+
+  it('allows a paired upvote create+count transaction', async () => {
+    await seedProject()
+    const db = ctxFirestore('mallory')
+    await assertSucceeds(
+      runTransaction(db, async (tx) => {
+        tx.set(
+          doc(db, 'projects/p1/upvotes/mallory'),
+          validUpvote
+        )
+        tx.update(doc(db, 'projects/p1'), {
+          upvote_count: 1,
+        })
+      })
+    )
+  })
+
+  it('rejects an upvote create without a matching count update', async () => {
+    await seedProject()
+    const db = ctxFirestore('mallory')
+    await assertFails(
+      setDoc(
+        doc(db, 'projects/p1/upvotes/mallory'),
+        validUpvote
+      )
+    )
+  })
+
+  it('rejects a standalone upvote_count bump', async () => {
+    await seedProject()
+    const db = ctxFirestore('mallory')
+    await assertFails(
+      updateDoc(doc(db, 'projects/p1'), {
+        upvote_count: 1,
+      })
+    )
+  })
+
+  it('rejects create under another user uid path', async () => {
+    await seedProject()
+    const db = ctxFirestore('mallory')
+    await assertFails(
+      runTransaction(db, async (tx) => {
+        tx.set(doc(db, 'projects/p1/upvotes/alice'), {
+          uid: 'alice',
+          projectId: 'p1',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        })
+        tx.update(doc(db, 'projects/p1'), {
+          upvote_count: 1,
+        })
+      })
+    )
+  })
+
+  it('rejects a count jump greater than 1', async () => {
+    await seedProject()
+    const db = ctxFirestore('mallory')
+    await assertFails(
+      runTransaction(db, async (tx) => {
+        tx.set(
+          doc(db, 'projects/p1/upvotes/mallory'),
+          validUpvote
+        )
+        tx.update(doc(db, 'projects/p1'), {
+          upvote_count: 5,
+        })
+      })
+    )
+  })
+
+  it('allows a paired remove-support transaction', async () => {
+    await seedProject({ upvote_count: 1 })
+    await seed((db) =>
+      setDoc(
+        doc(db, 'projects/p1/upvotes/mallory'),
+        validUpvote
+      )
+    )
+    const db = ctxFirestore('mallory')
+    await assertSucceeds(
+      runTransaction(db, async (tx) => {
+        tx.delete(doc(db, 'projects/p1/upvotes/mallory'))
+        tx.update(doc(db, 'projects/p1'), {
+          upvote_count: 0,
+        })
+      })
+    )
+  })
+
+  it('rejects deleting another user vote', async () => {
+    await seedProject({ upvote_count: 1 })
+    await seed((db) =>
+      setDoc(
+        doc(db, 'projects/p1/upvotes/mallory'),
+        validUpvote
+      )
+    )
+    const db = ctxFirestore('alice')
+    await assertFails(
+      runTransaction(db, async (tx) => {
+        tx.delete(doc(db, 'projects/p1/upvotes/mallory'))
+        tx.update(doc(db, 'projects/p1'), {
+          upvote_count: 0,
+        })
+      })
+    )
+  })
+
+  it('members cannot mass-assign upvote_count on a normal edit', async () => {
+    await seedProject()
+    const db = ctxFirestore('alice')
+    await assertFails(
+      updateDoc(doc(db, 'projects/p1'), {
+        upvote_count: 42,
+      })
+    )
+  })
+
+  it('rejects project create with a non-zero upvote_count', async () => {
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(doc(db, 'projects/p2'), {
+        member_uids: ['alice'],
+        title: 'x',
+        upvote_count: 10,
       })
     )
   })
