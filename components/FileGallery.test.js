@@ -14,7 +14,9 @@ import {
   screen,
   within,
 } from '@testing-library/react'
-import FileGallery from './FileGallery'
+import FileGallery, {
+  FileGallerySkeleton,
+} from './FileGallery'
 
 vi.mock('next-i18next', () => ({
   useTranslation: () => ({ t: (key) => key }),
@@ -214,5 +216,24 @@ describe('FileGallery', () => {
 
     matchMediaSpy.mockRestore()
     openSpy.mockRestore()
+  })
+})
+
+describe('FileGallerySkeleton', () => {
+  it('reserves a four-tile image grid by default', () => {
+    const { container } = render(<FileGallerySkeleton />)
+    const tiles = container.querySelectorAll(
+      '[data-slot="skeleton"]'
+    )
+    expect(tiles).toHaveLength(4)
+  })
+
+  it('respects an explicit tile count', () => {
+    const { container } = render(
+      <FileGallerySkeleton count={2} />
+    )
+    expect(
+      container.querySelectorAll('[data-slot="skeleton"]')
+    ).toHaveLength(2)
   })
 })

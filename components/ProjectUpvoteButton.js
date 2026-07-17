@@ -35,19 +35,28 @@ export default function ProjectUpvoteButton({
   const { data: upvoteDoc } = useFirestoreDocData(upvoteRef)
 
   const serverCount = normalizeUpvoteCount(count)
-  const serverUpvoted = Boolean(upvoteDoc)
+  // Missing docs are `null` (see mapDocSnapshot); never treat an empty
+  // object / residual cache hit as "no vote".
+  const serverUpvoted = upvoteDoc != null
 
-  // Optimistic overlay so the bolt flips immediately; cleared once the
-  // live upvote doc matches what we predicted.
+  // Optimistic overlay so the bolt flips immediately. Keep it until the
+  // live vote doc AND parent count prop both catch up — listing cards
+  // often pass a stale denormalized count after a local toggle.
   const [optimistic, setOptimistic] = useState(null)
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
     if (!optimistic) return
-    if (serverUpvoted === optimistic.upvoted) {
-      setOptimistic(null)
+    if (serverUpvoted !== optimistic.upvoted) return
+    if (
+      optimistic.upvoted
+        ? serverCount < optimistic.upvote_count
+        : serverCount > optimistic.upvote_count
+    ) {
+      return
     }
-  }, [serverUpvoted, optimistic])
+    setOptimistic(null)
+  }, [serverUpvoted, serverCount, optimistic])
 
   // Drop a stale optimistic state if the user signs out mid-click.
   useEffect(() => {

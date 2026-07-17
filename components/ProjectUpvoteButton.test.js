@@ -37,7 +37,7 @@ vi.mock('../lib/firebase', () => ({
 vi.mock('../lib/firestoreData', () => ({
   useFirestoreDocData: vi.fn(() => ({
     status: 'success',
-    data: undefined,
+    data: null,
   })),
 }))
 
@@ -73,7 +73,7 @@ beforeEach(() => {
   })
   useFirestoreDocData.mockReturnValue({
     status: 'success',
-    data: undefined,
+    data: null,
   })
   toggleMock.mockResolvedValue({
     upvoted: true,
@@ -136,5 +136,47 @@ describe('ProjectUpvoteButton', () => {
         'u1'
       )
     })
+  })
+
+  it('keeps the optimistic upvote until the parent count catches up', async () => {
+    const { rerender } = render(
+      <ProjectUpvoteButton projectId="p1" count={0} />
+    )
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'projects.support',
+      })
+    )
+
+    await waitFor(() => {
+      expect(toggleMock).toHaveBeenCalled()
+    })
+
+    // Vote doc has arrived, but listing count prop is still stale.
+    useFirestoreDocData.mockReturnValue({
+      status: 'success',
+      data: { uid: 'u1', projectId: 'p1' },
+    })
+    rerender(
+      <ProjectUpvoteButton projectId="p1" count={0} />
+    )
+
+    expect(
+      screen.getByRole('button', {
+        name: 'projects.remove_support',
+      })
+    ).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByText('1')).toBeInTheDocument()
+
+    // Parent finally reflects the denormalized count.
+    rerender(
+      <ProjectUpvoteButton projectId="p1" count={1} />
+    )
+    expect(
+      screen.getByRole('button', {
+        name: 'projects.remove_support',
+      })
+    ).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByText('1')).toBeInTheDocument()
   })
 })

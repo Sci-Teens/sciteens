@@ -42,8 +42,12 @@ vi.mock('firebase/firestore', () => ({
   addDoc: vi.fn().mockResolvedValue(undefined),
 }))
 
+const { discussionState } = vi.hoisted(() => ({
+  discussionState: { data: [] },
+}))
+
 vi.mock('../lib/firestoreData', () => ({
-  useFirestoreCollectionData: () => ({ data: [] }),
+  useFirestoreCollectionData: () => discussionState,
 }))
 
 vi.mock('../context/AuthContext', () => ({
@@ -53,6 +57,12 @@ vi.mock('../context/AuthContext', () => ({
       user: { uid: 'u1', displayName: 'Test User' },
     },
   }),
+}))
+
+vi.mock('./ProfilePhoto', () => ({
+  default: ({ uid }) => (
+    <span data-testid={`photo-${uid || 'none'}`} />
+  ),
 }))
 
 class MockWorker {
@@ -89,6 +99,7 @@ function typeComment(text) {
 beforeEach(() => {
   vi.useFakeTimers()
   MockWorker.instances = []
+  discussionState.data = []
   vi.stubGlobal('Worker', MockWorker)
 })
 
@@ -247,4 +258,45 @@ describe('Discussion toxicity worker wiring', () => {
       ).not.toBeDisabled()
     }
   )
+})
+
+describe('Discussion author profile links', () => {
+  it('links comment and reply authors to their profile pages', () => {
+    discussionState.data = [
+      {
+        id: 'c1',
+        uid: 'author-1',
+        display: 'Ada Lovelace',
+        comment: 'Interesting project',
+        date: '2026-01-01T00:00:00.000Z',
+        reply_to_id: '',
+      },
+      {
+        id: 'r1',
+        uid: 'author-2',
+        display: 'Grace Hopper',
+        comment: 'Agreed',
+        date: '2026-01-02T00:00:00.000Z',
+        reply_to_id: 'c1',
+      },
+    ]
+
+    render(<Discussion type="projects" item_id="p1" />)
+
+    const authorLink = screen.getByRole('link', {
+      name: /Ada Lovelace/,
+    })
+    const replyLink = screen.getByRole('link', {
+      name: /Grace Hopper/,
+    })
+
+    expect(authorLink).toHaveAttribute(
+      'href',
+      '/profile/author-1'
+    )
+    expect(replyLink).toHaveAttribute(
+      'href',
+      '/profile/author-2'
+    )
+  })
 })
