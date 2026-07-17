@@ -198,7 +198,7 @@ export default function Home() {
       icon: Globe,
     },
     {
-      body: 'I want to first thank the members and founders of SciTeens for bringing such a wonderful and amazing opportunity we are having.I would love to thank all the mentors who were taking most of their time mentoring us as well helping us coming up with best projects.',
+      body: 'I want to first thank the members and founders of SciTeens for bringing such a wonderful and amazing opportunity we are having. I would love to thank all the mentors who were taking most of their time mentoring us as well helping us coming up with best projects.',
       name: 'Elisha M.',
       country: 'Zimbabwe',
       icon: GraduationCap,

@@ -219,7 +219,7 @@ function Article({ article, recommendations }) {
   return (
     <>
       {isAmp ? (
-        <h3>AMP article in progess...</h3>
+        <h3>AMP article in progress...</h3>
       ) : (
         <>
           <SocialMeta
