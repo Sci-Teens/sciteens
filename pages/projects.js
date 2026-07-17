@@ -621,8 +621,8 @@ function Projects({ cached_projects }) {
             <div
               className={cn(
                 'transition-opacity',
-                projectsQuery.isFetching &&
-                  !loading &&
+                // Dim only while keepPreviousData holds a stale filter/sort page, not initial revalidation or next-page fetches.
+                projectsQuery.isPlaceholderData &&
                   'opacity-60'
               )}
             >
