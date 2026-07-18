@@ -338,7 +338,8 @@
     "results_count": "{{count}} परिणाम",
     "load_more": "और परियोजनाएं लोड करें",
     "support": "इस परियोजना का समर्थन करें",
-    "remove_support": "समर्थन हटाएं"
+    "remove_support": "समर्थन हटाएं",
+    "support_failed": "आपका वोट सहेज नहीं सका। कृपया पुनः प्रयास करें।"
   },
   "fields": {
     "all": "सभी",

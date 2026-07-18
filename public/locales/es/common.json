@@ -338,7 +338,8 @@
     "results_count": "{{count}} resultados",
     "load_more": "Cargar más proyectos",
     "support": "Apoyar este proyecto",
-    "remove_support": "Quitar apoyo"
+    "remove_support": "Quitar apoyo",
+    "support_failed": "No se pudo guardar tu voto. Inténtalo de nuevo."
   },
   "fields": {
     "all": "Todos",

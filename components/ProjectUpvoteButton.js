@@ -44,6 +44,10 @@ export default function ProjectUpvoteButton({
   // often pass a stale denormalized count after a local toggle.
   const [optimistic, setOptimistic] = useState(null)
   const [busy, setBusy] = useState(false)
+  // Set only when the transaction rejects (permission-denied, offline,
+  // contention) — surfaces the otherwise-silent optimistic revert so a
+  // failed vote doesn't just look like a random flicker.
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     if (!optimistic) return
@@ -62,6 +66,14 @@ export default function ProjectUpvoteButton({
   useEffect(() => {
     if (!uid) setOptimistic(null)
   }, [uid])
+
+  // Auto-dismiss the failure ring so it doesn't linger indefinitely on a
+  // card the user has moved on from.
+  useEffect(() => {
+    if (!error) return undefined
+    const timer = setTimeout(() => setError(false), 4000)
+    return () => clearTimeout(timer)
+  }, [error])
 
   const upvoted = optimistic?.upvoted ?? serverUpvoted
   const displayCount =
@@ -89,6 +101,7 @@ export default function ProjectUpvoteButton({
       0,
       displayCount + (nextUpvoted ? 1 : -1)
     )
+    setError(false)
     setOptimistic({
       upvoted: nextUpvoted,
       upvote_count: nextCount,
@@ -104,6 +117,7 @@ export default function ProjectUpvoteButton({
     } catch (err) {
       console.error('toggleProjectUpvote failed:', err)
       setOptimistic(null)
+      setError(true)
     } finally {
       setBusy(false)
     }
@@ -112,44 +126,55 @@ export default function ProjectUpvoteButton({
   const label = upvoted
     ? t('projects.remove_support')
     : t('projects.support')
+  const title = error ? t('projects.support_failed') : label
 
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      size={size === 'sm' ? 'sm' : 'default'}
-      onClick={handleClick}
-      disabled={busy}
-      aria-pressed={upvoted}
-      aria-label={label}
-      title={label}
-      className={cn(
-        'text-muted-foreground relative z-20 gap-1 tabular-nums',
-        upvoted && 'text-amber-500 hover:text-amber-500',
-        className
-      )}
-    >
-      <Zap
+    <>
+      <Button
+        type="button"
+        variant="ghost"
+        size={size === 'sm' ? 'sm' : 'default'}
+        onClick={handleClick}
+        disabled={busy}
+        aria-pressed={upvoted}
+        aria-label={label}
+        aria-invalid={error}
+        title={title}
         className={cn(
-          'size-4 transition-colors',
-          size === 'sm' ? 'size-3.5' : 'size-4',
-          upvoted
-            ? 'fill-amber-400 text-amber-400'
-            : 'fill-none text-gray-300'
-        )}
-        aria-hidden="true"
-      />
-      <span
-        className={cn(
-          'min-w-[1ch] text-xs',
-          size === 'default' && 'text-sm',
-          upvoted
-            ? 'text-amber-500'
-            : 'text-muted-foreground'
+          'text-muted-foreground relative z-20 gap-1 tabular-nums',
+          upvoted && 'text-amber-500 hover:text-amber-500',
+          className
         )}
       >
-        {displayCount}
+        <Zap
+          className={cn(
+            'size-4 transition-colors',
+            size === 'sm' ? 'size-3.5' : 'size-4',
+            upvoted
+              ? 'fill-amber-400 text-amber-400'
+              : 'fill-none text-gray-300'
+          )}
+          aria-hidden="true"
+        />
+        <span
+          className={cn(
+            'min-w-[1ch] text-xs',
+            size === 'default' && 'text-sm',
+            upvoted
+              ? 'text-amber-500'
+              : 'text-muted-foreground'
+          )}
+        >
+          {displayCount}
+        </span>
+      </Button>
+      <span
+        role="status"
+        aria-live="polite"
+        className="sr-only"
+      >
+        {error ? t('projects.support_failed') : null}
       </span>
-    </Button>
+    </>
   )
 }
