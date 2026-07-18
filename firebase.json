@@ -8,7 +8,6 @@
     "indexes": "firestore.indexes.json"
   },
   "storage": {
-    "target": "main",
     "rules": "storage.rules"
   },
   "emulators": {

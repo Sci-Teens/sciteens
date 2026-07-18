@@ -13,7 +13,7 @@ steps:
         'firebase-tools@15.23.0',
         'deploy',
         '--only',
-        'firestore:rules,storage:rules',
+        'firestore:rules,storage',
         '--project',
         '${_NEXT_PUBLIC_FB_PROJECT_ID}',
         '--non-interactive',
