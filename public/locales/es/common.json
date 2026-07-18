@@ -400,5 +400,25 @@
     "projects": "Proyectos",
     "post_projects": "Si sus alumnos están trabajando en un proyecto de ciencias, ya sea en su propio tiempo o para una competencia, ¡puede alentarlos a publicarlo en Sciteens! Nuestra página del proyecto está dedicada a los estudiantes que desean compartir su trabajo y recibir comentarios. En la página, los estudiantes pueden ver proyectos existentes, dejar comentarios y publicar su propio trabajo. También pueden actualizarlo a medida que avanzan; ¡Los proyectos no tienen que completarse para que se publiquen!",
     "thanks": "¡Gracias por visitar nuestra página de Educadores! Esperamos colaborar contigo pronto."
+  },
+  "unsubscribe": {
+    "title": "Preferencias de correo electrónico",
+    "intro": "Administra qué correos electrónicos de SciTeens recibes.",
+    "loading": "Actualizando tus preferencias de correo electrónico...",
+    "invalid_link": "Este enlace para darte de baja no es válido o ha expirado.",
+    "unsubscribed_confirmation": "Te has dado de baja de los correos de {{category}}.",
+    "error": "Algo salió mal al actualizar tus preferencias. Por favor, inténtalo de nuevo.",
+    "subscribed": "Suscrito",
+    "not_subscribed": "No suscrito",
+    "resubscribe": "Volver a suscribirse",
+    "unsubscribe_action": "Darse de baja",
+    "categories": {
+      "general": "Actualizaciones generales de SciTeens",
+      "programs": "Recordatorios de fechas límite de programas"
+    },
+    "category_descriptions": {
+      "general": "Mensajes de bienvenida, anuncios de productos y noticias de la comunidad.",
+      "programs": "Recordatorios cuando un programa al que estás suscrito tiene una fecha límite de solicitud próxima."
+    }
   }
 }

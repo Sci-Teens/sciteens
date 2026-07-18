@@ -25,6 +25,11 @@ const {
   resendApiKey,
   sendEmail,
   addContact,
+  buildUnsubscribeLinks,
+  verifyUnsubscribeToken,
+  getSubscriptions,
+  setSubscription,
+  setResendCategorySubscription,
 } = require('./lib/resend')
 const {
   verifyEmailTemplate,
@@ -33,6 +38,10 @@ const {
   upcomingProgramTemplate,
   projectUpdateTemplate,
 } = require('./lib/emailTemplates')
+const {
+  EMAIL_CATEGORIES,
+  EMAIL_CATEGORY_VALUES,
+} = require('./lib/emailCategories')
 
 // Prismic
 const Prismic = require('@prismicio/client')
@@ -373,15 +382,51 @@ exports.newProfile = functions
       }),
     })
 
-    // Add to all-contacts audience
+    // Add to all-contacts audience plus every per-category audience;
+    // everyone starts subscribed to everything until they unsubscribe.
     const [firstName, ...rest] = (
       user.displayName || ''
     ).split(' ')
-    await addContact({
-      email,
-      firstName,
-      lastName: rest.join(' '),
-    })
+    await Promise.all([
+      addContact({
+        email,
+        firstName,
+        lastName: rest.join(' '),
+      }),
+      admin
+        .firestore()
+        .collection('profiles')
+        .doc(id)
+        .set(
+          {
+            emailSubscriptions: {
+              [EMAIL_CATEGORIES.GENERAL]: true,
+              [EMAIL_CATEGORIES.PROGRAMS]: true,
+            },
+          },
+          { merge: true }
+        ),
+    ])
+
+    const {
+      pageUrl: welcomeUnsubscribeUrl,
+      actionUrl: welcomeUnsubscribeAction,
+    } = await buildUnsubscribeLinks(
+      id,
+      EMAIL_CATEGORIES.GENERAL
+    )
+    const welcomeEmail = {
+      to: email,
+      toName: user.displayName ? user.displayName : email,
+      subject: 'Welcome to SciTeens!',
+      html: welcomeTemplate({
+        displayName: user.displayName,
+        unsubscribeUrl: welcomeUnsubscribeUrl,
+      }),
+      category: EMAIL_CATEGORIES.GENERAL,
+      uid: id,
+      unsubscribeActionUrl: welcomeUnsubscribeAction,
+    }
 
     // Handle sending emails based on user type
     switch (data.position) {
@@ -393,29 +438,11 @@ exports.newProfile = functions
           .auth()
           .setCustomUserClaims(id, { mentor: true })
 
-        await sendEmail({
-          to: email,
-          toName: user.displayName
-            ? user.displayName
-            : email,
-          subject: 'Welcome to SciTeens!',
-          html: welcomeTemplate({
-            displayName: user.displayName,
-          }),
-        })
+        await sendEmail(welcomeEmail)
         break
       default:
         // Send student welcome
-        await sendEmail({
-          to: email,
-          toName: user.displayName
-            ? user.displayName
-            : email,
-          subject: 'Welcome to SciTeens!',
-          html: welcomeTemplate({
-            displayName: user.displayName,
-          }),
-        })
+        await sendEmail(welcomeEmail)
         break
     }
   })
@@ -619,14 +646,27 @@ exports.scheduledProgramEmailer = functions
             admin
               .auth()
               .getUser(sub)
-              .then((user) => {
-                sendEmail({
+              .then(async (user) => {
+                const {
+                  pageUrl: unsubscribeUrl,
+                  actionUrl: unsubscribeActionUrl,
+                } = await buildUnsubscribeLinks(
+                  user.uid,
+                  EMAIL_CATEGORIES.PROGRAMS
+                )
+                await sendEmail({
                   to: user.email,
                   toName: user.displayName
                     ? user.displayName
                     : user.email,
                   subject: 'Upcoming Program Application',
-                  html: upcomingProgramTemplate({ link }),
+                  html: upcomingProgramTemplate({
+                    link,
+                    unsubscribeUrl,
+                  }),
+                  category: EMAIL_CATEGORIES.PROGRAMS,
+                  uid: user.uid,
+                  unsubscribeActionUrl,
                 })
                 // Add notification
                 admin
@@ -653,6 +693,113 @@ exports.scheduledProgramEmailer = functions
         })
       })
     return null
+  })
+
+/*
+    Function unsubscribe()
+
+    Public HTTPS endpoint backing per-category email unsubscribe links
+    (see functions/lib/resend.js#buildUnsubscribeLinks). Verifies the
+    opaque per-user token stored in emails/{uid}.unsubscribeToken, then
+    reads/writes profiles/{uid}.emailSubscriptions — the source of
+    truth sendEmail() gates on — and best-effort mirrors the change
+    into the matching Resend audience. Also serves ?action=status so
+    the /unsubscribe page can render every category's current state.
+*/
+exports.unsubscribe = functions
+  .runWith({
+    secrets: [resendApiKey],
+  })
+  .https.onRequest(async (req, res) => {
+    const allowedOrigins = [
+      'https://sciteens.com',
+      'http://localhost:3000',
+    ]
+    const origin = req.get('Origin')
+    if (allowedOrigins.includes(origin)) {
+      res.set('Access-Control-Allow-Origin', origin)
+    }
+    res.set(
+      'Access-Control-Allow-Methods',
+      'GET, POST, OPTIONS'
+    )
+    res.set('Access-Control-Allow-Headers', 'Content-Type')
+    if (req.method === 'OPTIONS') {
+      return res.status(204).send('')
+    }
+
+    const source =
+      req.method === 'POST' &&
+      req.body &&
+      Object.keys(req.body).length
+        ? req.body
+        : req.query
+    const uid =
+      typeof source.uid === 'string' ? source.uid : ''
+    const token =
+      typeof source.token === 'string' ? source.token : ''
+    const category =
+      typeof source.category === 'string'
+        ? source.category
+        : ''
+    // RFC 8058 one-click POSTs only send `List-Unsubscribe=One-Click`
+    // in the body — the real intent lives in the query string
+    // embedded in the List-Unsubscribe header, so default to
+    // unsubscribing.
+    const action =
+      typeof source.action === 'string'
+        ? source.action
+        : 'unsubscribe'
+
+    if (!(await verifyUnsubscribeToken(uid, token))) {
+      return res
+        .status(401)
+        .json({ ok: false, error: 'invalid_token' })
+    }
+
+    if (action === 'status') {
+      const subscriptions = await getSubscriptions(uid)
+      return res
+        .status(200)
+        .json({ ok: true, subscriptions })
+    }
+
+    if (!EMAIL_CATEGORY_VALUES.includes(category)) {
+      return res
+        .status(400)
+        .json({ ok: false, error: 'invalid_category' })
+    }
+    if (
+      action !== 'subscribe' &&
+      action !== 'unsubscribe'
+    ) {
+      return res
+        .status(400)
+        .json({ ok: false, error: 'invalid_action' })
+    }
+
+    const subscribed = action === 'subscribe'
+    await setSubscription(uid, category, subscribed)
+
+    const emailSnap = await admin
+      .firestore()
+      .collection('emails')
+      .doc(uid)
+      .get()
+    const email = emailSnap.exists
+      ? emailSnap.data().email
+      : null
+    if (email) {
+      await setResendCategorySubscription({
+        email,
+        category,
+        unsubscribed: !subscribed,
+      })
+    }
+
+    return res
+      .status(200)
+      .json({ ok: true, category, subscribed })
   })
 
 /*
