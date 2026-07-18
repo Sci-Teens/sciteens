@@ -4,13 +4,18 @@
 
 const GREEN = '#2e7d32'
 
-function layout(bodyHtml) {
+function layout(bodyHtml, { unsubscribeUrl } = {}) {
   return `<!DOCTYPE html>
 <html>
   <body style="font-family: sans-serif; color: #1a1a1a; max-width: 480px; margin: 0 auto;">
     <p style="font-size: 20px; font-weight: bold; color: ${GREEN};">SciTeens</p>
     ${bodyHtml}
     <p style="font-size: 12px; color: #666;">SciTeens &middot; sciteens.org</p>
+    ${
+      unsubscribeUrl
+        ? `<p style="font-size: 12px; color: #666;"><a href="${unsubscribeUrl}" style="color: #666;">Unsubscribe</a> or manage your email preferences.</p>`
+        : ''
+    }
   </body>
 </html>`
 }
@@ -26,11 +31,14 @@ function verifyEmailTemplate({ link }) {
   `)
 }
 
-function welcomeTemplate({ displayName }) {
-  return layout(`
+function welcomeTemplate({ displayName, unsubscribeUrl }) {
+  return layout(
+    `
     <p>Hi ${displayName || 'there'},</p>
     <p>Welcome to SciTeens! We're excited to have you join our community.</p>
-  `)
+  `,
+    { unsubscribeUrl }
+  )
 }
 
 function newFeedbackTemplate({
@@ -43,11 +51,14 @@ function newFeedbackTemplate({
   `)
 }
 
-function upcomingProgramTemplate({ link }) {
-  return layout(`
+function upcomingProgramTemplate({ link, unsubscribeUrl }) {
+  return layout(
+    `
     <p>A program you're subscribed to has an application deadline coming up within the week.</p>
     ${button(link, 'View Program')}
-  `)
+  `,
+    { unsubscribeUrl }
+  )
 }
 
 function projectUpdateTemplate({

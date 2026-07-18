@@ -400,5 +400,25 @@
     "projects": "Projets",
     "post_projects": "Si vos étudiants travaillent sur un projet scientifique, soit sur leur propre temps, soit pour un concours, vous pouvez les encourager à le publier sur Sciteens! Notre page de projet est dédiée aux étudiants qui souhaitent partager leur travail et obtenir des commentaires. Sur la page, les étudiants peuvent consulter les projets existants, laisser des commentaires et publier leur propre travail. Ils peuvent également le mettre à jour au fur et à mesure; Les projets ne doivent pas être terminés pour être publiés!",
     "thanks": "Merci d'avoir consulté notre page Educators! Nous espérons collaborer avec vous bientôt."
+  },
+  "unsubscribe": {
+    "title": "Préférences d'e-mail",
+    "intro": "Gérez les e-mails SciTeens que vous recevez.",
+    "loading": "Mise à jour de vos préférences d'e-mail...",
+    "invalid_link": "Ce lien de désabonnement est invalide ou a expiré.",
+    "unsubscribed_confirmation": "Vous avez été désabonné des e-mails {{category}}.",
+    "error": "Une erreur s'est produite lors de la mise à jour de vos préférences. Veuillez réessayer.",
+    "subscribed": "Abonné",
+    "not_subscribed": "Non abonné",
+    "resubscribe": "Se réabonner",
+    "unsubscribe_action": "Se désabonner",
+    "categories": {
+      "general": "Mises à jour générales de SciTeens",
+      "programs": "Rappels de dates limites de programmes"
+    },
+    "category_descriptions": {
+      "general": "Messages de bienvenue, annonces de produits et actualités de la communauté.",
+      "programs": "Rappels lorsqu'un programme auquel vous êtes abonné a une date limite de candidature à venir."
+    }
   }
 }

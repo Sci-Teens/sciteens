@@ -400,5 +400,25 @@
     "projects": "Projects",
     "post_projects": "If your students are working on a science project, either on their own time or for a competition, you can encourage them to post it on SciTeens! Our Project page is dedicated to students who want to share their work and get feedback. On the page, students can view existing projects, leave comments, and post their own work. They can also update it as they go; projects do not have to be completed in order to be posted!",
     "thanks": "Thanks for checking out our Educators page! We hope to collaborate with you soon."
+  },
+  "unsubscribe": {
+    "title": "Email Preferences",
+    "intro": "Manage which SciTeens emails you receive.",
+    "loading": "Updating your email preferences...",
+    "invalid_link": "This unsubscribe link is invalid or has expired.",
+    "unsubscribed_confirmation": "You've been unsubscribed from {{category}} emails.",
+    "error": "Something went wrong updating your preferences. Please try again.",
+    "subscribed": "Subscribed",
+    "not_subscribed": "Not subscribed",
+    "resubscribe": "Resubscribe",
+    "unsubscribe_action": "Unsubscribe",
+    "categories": {
+      "general": "General SciTeens updates",
+      "programs": "Program deadline reminders"
+    },
+    "category_descriptions": {
+      "general": "Welcome messages, product announcements, and community news.",
+      "programs": "Reminders when a program you're subscribed to has an upcoming application deadline."
+    }
   }
 }
