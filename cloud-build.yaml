@@ -6,7 +6,7 @@
 # that identity from the ambient Application Default Credentials.
 
 steps:
-  - name: 'gcr.io/cloud-builders/npm'
+  - name: 'node:24-alpine'
     entrypoint: npx
     args:
       [
