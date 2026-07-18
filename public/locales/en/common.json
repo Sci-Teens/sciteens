@@ -338,7 +338,8 @@
     "results_count": "{{count}} results",
     "load_more": "Load more projects",
     "support": "Support this project",
-    "remove_support": "Remove support"
+    "remove_support": "Remove support",
+    "support_failed": "Couldn't save your vote. Please try again."
   },
   "fields": {
     "all": "All",

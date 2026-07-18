@@ -179,4 +179,31 @@ describe('ProjectUpvoteButton', () => {
     ).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByText('1')).toBeInTheDocument()
   })
+
+  it('reverts optimistic state and surfaces an error when the toggle fails', async () => {
+    toggleMock.mockRejectedValue(
+      new Error('permission-denied')
+    )
+    render(<ProjectUpvoteButton projectId="p1" count={0} />)
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'projects.support',
+      })
+    )
+    // Optimistic flip is immediate.
+    expect(
+      screen.getByRole('button', {
+        name: 'projects.remove_support',
+      })
+    ).toHaveAttribute('aria-pressed', 'true')
+
+    const btn = await screen.findByRole('button', {
+      name: 'projects.support',
+    })
+    expect(btn).toHaveAttribute('aria-pressed', 'false')
+    expect(btn).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'projects.support_failed'
+    )
+  })
 })

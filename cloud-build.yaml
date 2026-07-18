@@ -1,4 +1,23 @@
+# Rules deploy first: app code merged alongside a rules change must never
+# ship before the rules are live. Idempotent — a no-op if unchanged.
+# One-time setup: grant the Cloud Build service account
+# (<project-number>@cloudbuild.gserviceaccount.com) `roles/firebaserules.admin`
+# so it can push firestore.rules/storage.rules; firebase-tools picks up
+# that identity from the ambient Application Default Credentials.
+
 steps:
+  - name: 'gcr.io/cloud-builders/npm'
+    entrypoint: npx
+    args:
+      [
+        'firebase-tools@15.23.0',
+        'deploy',
+        '--only',
+        'firestore:rules,storage:rules',
+        '--project',
+        '${_NEXT_PUBLIC_FB_PROJECT_ID}',
+        '--non-interactive',
+      ]
   - name: 'gcr.io/cloud-builders/docker'
     entrypoint: 'bash'
     args:
