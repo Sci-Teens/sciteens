@@ -34,6 +34,13 @@
     "cookie_policy": "POLÍTICA DE COOKIES",
     "last_update": "Última actualización 9/30/2021"
   },
+  "cookie_consent": {
+    "heading": "Consentimiento de cookies",
+    "message": "Utilizamos cookies esenciales para operar este sitio y, con su permiso, cookies analíticas para entender cómo se usa.",
+    "learn_more": "Más información",
+    "accept": "Aceptar",
+    "reject": "Rechazar no esenciales"
+  },
   "edit_profile": {
     "update_your_profile": "Actualiza tu perfil",
     "why_update_your_profile": "Actualice su perfil para agregar más información sobre usted o para cambiar su información.",

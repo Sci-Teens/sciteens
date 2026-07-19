@@ -210,20 +210,36 @@ export default function gdpr() {
                 features, such as access to secure areas.
               </p>
               <p className="text-muted-foreground mb-10 ml-4">
-                <b>__tlbcpv:</b>
+                <b>sciteens-cookie-consent:</b>
                 <br />
-                Used to record unique visitor views of the
-                consent banner.
+                Records your choice to accept or reject
+                non-essential cookies in your browser&apos;s
+                local storage, so we don&apos;t ask again on
+                every visit.
                 <br />
-                termly.io
+                sciteens.com (first party, browser storage
+                only; never sent to our servers)
                 <br />
-                Termly View Service Privacy Policy
+                Persists until you clear your browser data
+              </p>
+              <p className="mb-2 text-lg">
+                Analytics cookies (only set if you Accept in
+                the cookie banner):
+              </p>
+              <p className="text-muted-foreground mb-10 ml-4">
+                <b>_ga, _ga_&lt;container-id&gt;, _gid:</b>
+                <br />
+                Used by Google Analytics for Firebase to
+                distinguish visitors and measure how the
+                Websites are used.
+                <br />
+                google-analytics.com
+                <br />
+                Google Analytics Privacy Policy
                 <br />
                 United States
                 <br />
-                <b>http_cookie:</b>
-                <br />
-                Expires in 1 year
+                Expire up to 2 years
               </p>
             </div>
 
