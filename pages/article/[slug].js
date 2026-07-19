@@ -11,6 +11,7 @@ import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import { logEvent, getAnalytics } from 'firebase/analytics'
+import { hasAnalyticsConsent } from '../../lib/consent'
 import { createCropImageLoader } from '../../lib/prismicImageLoader'
 import { getTranslatedFieldsDict } from '../../context/helpers'
 import { Button } from '@/components/ui/button'
@@ -26,12 +27,17 @@ function Article({ article, recommendations }) {
   const [vote, setVote] = useState(null)
   const isAmp = false
   const { t } = useTranslation('common')
-  let analytics
-  if (typeof window !== 'undefined')
-    analytics = getAnalytics()
+  // Lazily fetched inside handleRate, never at module render — calling
+  // getAnalytics() initializes GA4 and sets its cookies immediately, so it
+  // must stay behind the same consent gate as page-view logging
+  // (components/Analytics.js).
 
   async function handleRate(type) {
-    if (typeof window !== 'undefined') {
+    if (
+      typeof window !== 'undefined' &&
+      hasAnalyticsConsent()
+    ) {
+      const analytics = getAnalytics()
       if (type == 'positive') {
         setVote('positive')
         return logEvent(analytics, 'rate_positive', {
@@ -48,6 +54,7 @@ function Article({ article, recommendations }) {
         })
       }
     }
+    setVote(type)
   }
 
   // Each usage below gets its own loader tuned to its own display

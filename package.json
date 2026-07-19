@@ -44,7 +44,6 @@
     "next": "^14.2.15",
     "next-i18next": "^9.2.0",
     "next-slicezone": "^0.2.6",
-    "nprogress": "^0.2.0",
     "pdfjs-dist": "^6.1.200",
     "prismic-dom": "^2.2.7",
     "prismic-reactjs": "^1.3.4",

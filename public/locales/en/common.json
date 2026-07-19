@@ -30,6 +30,13 @@
     "cookie_policy": "COOKIE POLICY",
     "last_update": "Last Updated 9/30/2021"
   },
+  "cookie_consent": {
+    "heading": "Cookie consent",
+    "message": "We use essential cookies to run this site, and, with your permission, analytics cookies to understand how it's used.",
+    "learn_more": "Learn more",
+    "accept": "Accept",
+    "reject": "Reject non-essential"
+  },
   "edit_profile": {
     "update_your_profile": "Update your Profile",
     "why_update_your_profile": "Update your profile to add more information about yourself or to change your information.",

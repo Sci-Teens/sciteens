@@ -12,6 +12,11 @@ const Footer = dynamic(() => import('./Footer'), {
   ssr: false,
 })
 
+const CookieConsent = dynamic(
+  () => import('./CookieConsent'),
+  { ssr: false }
+)
+
 // Matches the nav's rendered height (mt-3 + h-16) when no banner is
 // showing, so the content doesn't jump on first paint.
 const DEFAULT_NAV_HEIGHT = 76
@@ -71,6 +76,7 @@ export default function Layout({ children }) {
         {children}
       </div>
       <Footer />
+      <CookieConsent />
       <MyPageViewLogger />
     </>
   )
