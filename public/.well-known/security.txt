@@ -1,0 +1,5 @@
+Contact: mailto:support@sciteens.com
+Contact: mailto:john@sciteens.com
+Expires: 2027-07-25T00:00:00.000Z
+Preferred-Languages: en, es, fr, hi
+Canonical: https://sciteens.org/.well-known/security.txt
