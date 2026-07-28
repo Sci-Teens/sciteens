@@ -12,13 +12,18 @@ authenticated purely with the Cloud Run instance's attached service account
 (metadata-server OAuth token) — no service account key files, no gcloud SDK
 in the image.
 
-Requires `resources.cpu_idle = false` (always-allocated CPU) on the Cloud
-Run service and `min_instance_count >= 1` — both load-bearing, not tunables
-(see `infra/meilisearch/README.md`'s Cost rationale): request-based
-billing starves the background `snapshot-sync.sh` loop of CPU badly enough
-that its GCS upload fails outright, and `min_instance_count = 0` risks the
-instance being reaped before the first `--schedule-snapshot` interval ever
-elapses, silently wiping the index on the next cold start.
+Persistence is request-driven: a small Go reverse proxy (`proxy/`) owns the
+public port, forwards all traffic to Meilisearch on loopback, and serves
+`POST /__snapshot_now__`, which synchronously creates a snapshot, waits for
+the task, and uploads it to `gs://$MEILI_SNAPSHOT_BUCKET/latest.snapshot`
+before responding. Cloud Scheduler (`infra/meilisearch`) calls that endpoint
+every 15 minutes with an OIDC token for the runtime service account (the
+master key also works, for manual ops). Doing all snapshot work inside an
+in-flight request is what lets the service run scale-to-zero under
+request-based billing — a background loop gets CPU-starved between requests
+and its uploads fail (verified in production with the old
+`snapshot-sync.sh` design, since removed). Boot restores
+`latest.snapshot` from GCS if present.
 
 ## Build
 
@@ -35,17 +40,19 @@ docker push us-east1-docker.pkg.dev/<PROJECT_ID>/<REPO>/meilisearch:v1.48.2
 
 ## Runtime environment variables
 
-| Variable                          | Required | Default   | Notes                                                                                                                                                                                        |
-| --------------------------------- | -------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `MEILI_MASTER_KEY`                | yes      | —         | Meilisearch's own auth key; passed straight through to the `meilisearch` binary via its normal env var.                                                                                      |
-| `MEILI_SNAPSHOT_BUCKET`           | no       | _(unset)_ | GCS bucket name, **no** `gs://` prefix. When unset/empty, snapshot restore-on-boot and background sync are both skipped entirely (no errors) — useful for local runs.                        |
-| `MEILI_SNAPSHOT_INTERVAL_SECONDS` | no       | `900`     | How often Meilisearch writes a fresh snapshot (`--schedule-snapshot`) and how often `snapshot-sync.sh` checks for a new one to upload. `infra/meilisearch` sets this to `300` in production. |
-| `PORT`                            | no       | `7700`    | Cloud Run injects this automatically; only set it manually for local runs if you want a non-default port.                                                                                    |
+| Variable                | Required | Default                 | Notes                                                                                                                                                                   |
+| ----------------------- | -------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `MEILI_MASTER_KEY`      | yes      | —                       | Meilisearch's own auth key; also accepted as a bearer token on `/__snapshot_now__` for manual snapshot runs.                                                             |
+| `MEILI_SNAPSHOT_BUCKET` | no       | _(unset)_               | GCS bucket name, **no** `gs://` prefix. When unset/empty, restore-on-boot is skipped and `/__snapshot_now__` returns 503 — useful for local runs.                         |
+| `SCHEDULER_SA_EMAIL`    | no       | _(unset)_               | Email the proxy requires on the Cloud Scheduler OIDC token for `/__snapshot_now__`. When unset, only master-key auth works on that endpoint.                              |
+| `PORT`                  | no       | `7700`                  | Public port the proxy binds. Cloud Run injects this automatically.                                                                                                        |
+| `MEILI_PORT`            | no       | `7701`                  | Loopback port Meilisearch itself binds (`--http-addr 127.0.0.1:$MEILI_PORT`); the proxy forwards everything except `/__snapshot_now__` here.                              |
+| `MEILI_SNAP_DIR`        | no       | `/meili_data/snapshots` | Directory the proxy scans for the newest `.snapshot` file to upload. entrypoint.sh sets it to match Meilisearch's `--snapshot-dir`; no need to set it yourself.          |
 
 On Cloud Run, grant the service's runtime service account `roles/storage.objectAdmin`
 (or a narrower custom role covering get/insert on the one snapshot object)
 on `MEILI_SNAPSHOT_BUCKET` — the metadata-server token entrypoint.sh and
-snapshot-sync.sh fetch is scoped to that service account automatically, no
+the proxy fetch is scoped to that service account automatically, no
 extra wiring needed in the image. The metadata endpoint used is
 `http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token`
 — note **`service-accounts`, plural**; the singular form 404s and silently
@@ -63,7 +70,6 @@ docker run --rm -p 7700:7700 \
   meilisearch
 ```
 
-Leaving `MEILI_SNAPSHOT_BUCKET` empty makes `entrypoint.sh` skip both the
-snapshot restore-on-boot step and the background `snapshot-sync.sh` loop, so
-the container works standalone with only local disk persistence via the
-bind mount — nothing ever calls out to GCS.
+Leaving `MEILI_SNAPSHOT_BUCKET` empty makes `entrypoint.sh` skip the
+snapshot restore-on-boot step, so the container works standalone with only
+local disk persistence via the bind mount — nothing ever calls out to GCS.

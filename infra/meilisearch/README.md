@@ -137,33 +137,37 @@ explicit, documented tradeoff of network-layer isolation for cost, judged
 acceptable here because Meilisearch never accepts unauthenticated requests
 regardless of network reachability.
 
-`scaling.min_instance_count = 1` keeps a single warm instance running at
-all times — **not** scale-to-zero, despite that looking like the obvious
-next cost lever. Scale-to-zero was the original design and it was tried:
-in production, an idle period let Cloud Run reap the `min_instance_count =
-0` instance before its first `--schedule-snapshot` interval had even
-elapsed, so the next cold start restored from no snapshot at all and
-silently wiped the entire index. The GCS snapshot/restore path is disaster
-recovery (redeploys, host failures), not a substitute for keeping the one
-and only writer instance alive — Meilisearch is a single-node embedded-DB
-engine with no replication, so "restart and hope the last snapshot was
-recent enough" is not an acceptable steady-state behavior.
+The service runs **scale-to-zero under request-based billing**
+(`min_instance_count = 0`, `cpu_idle = true`), which brings the steady-state
+cost to roughly zero — requests stay inside Cloud Run's free tier (180k
+vCPU-seconds, 360k GiB-seconds, 2M requests/mo) for a low-traffic
+projects-search feature. This combination was NOT always safe, and the git
+history is a warning against reintroducing either half naively:
 
-`resources.cpu_idle = false` (always-allocated CPU, instance-based billing)
-was also tried the other way first — `cpu_idle = true` (request-based
-billing, CPU throttled between requests) is markedly cheaper, but broke
-persistence a second time: `docker/meilisearch/snapshot-sync.sh` runs as a
-background loop with no incoming HTTP request to justify CPU allocation
-under request-based billing, and Cloud Run starved it badly enough that
-the GCS upload call failed outright on every cycle (verified in
-production: `curl` never even completed the request). Background
-disaster-recovery uploads only run reliably with CPU always allocated, so
-`cpu_idle = false` stays explicit — the residual cost is a genuinely
-continuous 1 vCPU / 512Mi instance (still no VPC connector, and
-`max_instance_count = 1`, load-bearing not a tunable — a second concurrent
-instance would split-brain the index against the shared snapshot bucket,
-keeps request volume well inside Cloud Run's free tier of 2M requests/mo
-for a low-traffic projects-search feature).
+- `min_instance_count = 0` with an in-container background snapshot loop
+  silently wiped the index: Cloud Run reaped the idle instance before the
+  first `--schedule-snapshot` interval elapsed, and the next cold start
+  restored nothing.
+- `cpu_idle = true` with that same background loop broke uploads: Cloud
+  Run only allocates CPU while a request is in flight, and the loop's GCS
+  upload was starved badly enough to fail on every cycle.
+
+The fix that makes scale-to-zero safe is that **no work happens outside a
+request anymore**. A proxy inside the container
+(`docker/meilisearch/proxy/`) fronts Meilisearch and serves
+`POST /__snapshot_now__`, which creates a snapshot, waits for the task,
+and uploads it to GCS synchronously. `google_cloud_scheduler_job`
+`meili_snapshot` calls that endpoint every 15 minutes with an OIDC token
+for the runtime service account (also gated by email claim in the proxy;
+the master key works for manual runs). Cold starts restore
+`gs://.../latest.snapshot` in entrypoint.sh; the residual data-loss window
+is one scheduler interval of project writes, which resync automatically
+the next time those docs are written (Firestore triggers in
+`functions/search.js`).
+
+`max_instance_count = 1` remains load-bearing, not a tunable — Meilisearch
+is a single-node embedded-DB engine and a second concurrent instance would
+split-brain the index against the shared snapshot bucket.
 
 If network-layer isolation later becomes a compliance requirement, the
 fix is additive and does not require reintroducing the connector-cost
@@ -196,9 +200,16 @@ Meilisearch's existing key auth as defense in depth.
   for the Cloud Run service (bucket-scoped `storage.objectAdmin`,
   master-key-scoped `secretmanager.secretAccessor`).
 - `google_cloud_run_v2_service.meilisearch` — the Meilisearch service
-  itself, `min_instance_count = 1` and `cpu_idle = false` (see Cost
-  rationale — both load-bearing, not tunables), `max_instance_count = 1`.
+  itself, `min_instance_count = 0` and `cpu_idle = true` (see Cost
+  rationale — safe only because snapshots are request-driven),
+  `max_instance_count = 1` (load-bearing).
 - `google_cloud_run_v2_service_iam_member.public_invoker` — grants
   `roles/run.invoker` to `allUsers`; see
   [Access control](#access-control-network-reachable-application-layer-gated)
   above for why this is required (and safe).
+- `google_cloud_scheduler_job.meili_snapshot` — fires
+  `POST /__snapshot_now__` every 15 minutes with a runtime-SA OIDC token;
+  lives in `var.scheduler_region` (must match the project's App Engine
+  location), targets the service's public URL cross-region.
+- `google_service_account_iam_member.scheduler_token_creator` — lets Cloud
+  Scheduler's service agent sign OIDC tokens as the runtime SA.
