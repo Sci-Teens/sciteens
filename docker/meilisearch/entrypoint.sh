@@ -2,14 +2,15 @@
 # Entrypoint for the SciTeens Meilisearch Cloud Run image.
 #
 # 1. Restores the latest snapshot from GCS (if MEILI_SNAPSHOT_BUCKET is set
-#    and an object already exists there) so search stays warm across
-#    scale-to-zero restarts.
-# 2. Starts snapshot-sync.sh in the background, which watches the directory
-#    Meilisearch's own `--schedule-snapshot` flag writes to and pushes new
-#    snapshots up to the bucket.
-# 3. execs meilisearch itself as PID... well, tini is already PID 1 in this
-#    image, meilisearch just becomes tini's direct child and receives
-#    signals normally via exec.
+#    and an object already exists there) so search survives scale-to-zero
+#    cold starts.
+# 2. Starts the snapshot proxy in the background: it owns the public port
+#    ($PORT), reverse-proxies everything to Meilisearch on loopback, and
+#    serves POST /__snapshot_now__ (snapshot + GCS upload, synchronously)
+#    for Cloud Scheduler. Doing snapshot work inside a request is what lets
+#    this service run under request-based billing with min instances = 0.
+# 3. execs meilisearch itself, keeping it tini's direct child so shutdown
+#    signals reach it normally.
 set -eu
 
 DATA_DIR=/meili_data
@@ -17,7 +18,7 @@ SNAP_DIR="$DATA_DIR/snapshots"
 mkdir -p "$SNAP_DIR"
 
 MEILI_SNAPSHOT_BUCKET="${MEILI_SNAPSHOT_BUCKET:-}"
-MEILI_SNAPSHOT_INTERVAL_SECONDS="${MEILI_SNAPSHOT_INTERVAL_SECONDS:-900}"
+MEILI_PORT="${MEILI_PORT:-7701}"
 PORT="${PORT:-7700}"
 
 METADATA_TOKEN_URL="http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token"
@@ -51,18 +52,17 @@ if [ -n "$MEILI_SNAPSHOT_BUCKET" ]; then
     else
         echo "entrypoint: notice: could not obtain a GCS auth token from the metadata server, starting with a fresh index"
     fi
-
-    echo "entrypoint: starting background snapshot-sync (every ${MEILI_SNAPSHOT_INTERVAL_SECONDS}s)"
-    /snapshot-sync.sh "$SNAP_DIR" "$MEILI_SNAPSHOT_BUCKET" "$MEILI_SNAPSHOT_INTERVAL_SECONDS" &
 else
-    echo "entrypoint: notice: MEILI_SNAPSHOT_BUCKET not set, skipping snapshot restore and sync (local/dev mode)"
+    echo "entrypoint: notice: MEILI_SNAPSHOT_BUCKET not set, skipping snapshot restore (local/dev mode)"
 fi
 
+echo "entrypoint: starting snapshot proxy on :${PORT}"
+MEILI_SNAP_DIR="$SNAP_DIR" /snapshot-proxy &
+
 exec /bin/meilisearch \
-    --http-addr "0.0.0.0:${PORT}" \
+    --http-addr "127.0.0.1:${MEILI_PORT}" \
     --db-path "$DATA_DIR/data.ms" \
     --snapshot-dir "$SNAP_DIR" \
-    --schedule-snapshot "$MEILI_SNAPSHOT_INTERVAL_SECONDS" \
     --env production \
     --no-analytics \
     $IMPORT_FLAG

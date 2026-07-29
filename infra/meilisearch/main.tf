@@ -119,20 +119,16 @@ resource "google_cloud_run_v2_service" "meilisearch" {
     # is a single-writer embedded-DB engine and running a second instance
     # would split-brain the index against the snapshot bucket.
     #
-    # min_instance_count = 1 is ALSO load-bearing, not a cost knob, despite
-    # looking like the obvious dial to hit zero-idle-cost with. Verified in
-    # production: with min_instance_count = 0, Cloud Run reaped the idle
-    # instance before the first --schedule-snapshot interval ever elapsed
-    # (snapshots only start accumulating after MEILI_SNAPSHOT_INTERVAL_SECONDS
-    # of uptime), so the next cold start restored from... nothing, and the
-    # entire index was silently gone. A snapshot-backed cold start is a
-    # best-effort disaster-recovery path (redeploys, host failures), not a
-    # substitute for keeping the one and only writer instance alive. The
-    # marginal cost is Cloud Run's per-GiB-second idle memory charge only
-    # (CPU stays request-billed) — a few dollars a month, not the ~$10-22/mo
-    # VPC connector this design already skips.
+    # min_instance_count = 0 is safe only because snapshots are no longer
+    # taken by a background loop inside the container (which needed a warm
+    # instance to ever run — the original reason this was pinned to 1).
+    # Cloud Scheduler now calls POST /__snapshot_now__ on the in-container
+    # proxy every 15 minutes, so snapshot+upload always happens while a
+    # request holds CPU. Cold starts restore gs://.../latest.snapshot (see
+    # entrypoint.sh); the worst-case loss window is one scheduler interval
+    # of project writes, which resync on the next write to those docs.
     scaling {
-      min_instance_count = 1
+      min_instance_count = 0
       max_instance_count = 1
     }
 
@@ -144,20 +140,16 @@ resource "google_cloud_run_v2_service" "meilisearch" {
           cpu    = "1"
           memory = "512Mi"
         }
+        # cpu_idle = true selects request-based billing (CPU allocated
+        # only while a request is in flight). This is the cost fix that
+        # lets the service scale to zero; it is safe because no work
+        # happens outside a request anymore — the snapshot proxy handles
+        # snapshot+upload synchronously inside POST /__snapshot_now__.
         # The terraform-google provider defaults cpu_idle to false
-        # (always-on/instance-based billing) whenever `resources.limits`
-        # is set. Tried the opposite (cpu_idle = true, request-based
-        # billing) first to save cost — it broke persistence: with no
-        # active HTTP request, Cloud Run starves the background
-        # snapshot-sync loop of CPU badly enough that the GCS upload
-        # curl call fails outright (verified: uploads only ever got
-        # `curl` exit-level connection failures, never even reached GCS).
-        # Background disaster-recovery uploads only run reliably with
-        # CPU always allocated, so this stays explicit and false. See
-        # https://github.com/hashicorp/terraform-provider-google/issues/17246
-        # for the underlying provider-default gotcha this is guarding
-        # against accidentally reintroducing by omission.
-        cpu_idle = false
+        # (instance-based billing, ~$45/mo for 1 vCPU running 24/7)
+        # whenever `resources.limits` is set, so this must stay explicit.
+        # See https://github.com/hashicorp/terraform-provider-google/issues/17246
+        cpu_idle = true
       }
 
       ports {
@@ -169,13 +161,12 @@ resource "google_cloud_run_v2_service" "meilisearch" {
         value = google_storage_bucket.meili_snapshots.name
       }
 
-      # Lowered from a 15-minute default: with min_instance_count = 1 this
-      # no longer has to survive a scale-to-zero race, but a shorter
-      # interval still bounds how much gets lost across a redeploy/crash to
-      # a few minutes of writes instead of up to 15.
+      # Email the snapshot proxy accepts on the Cloud Scheduler OIDC token
+      # for POST /__snapshot_now__ (the master key also works, for manual
+      # ops). Must match the scheduler job's oidc_token service account.
       env {
-        name  = "MEILI_SNAPSHOT_INTERVAL_SECONDS"
-        value = "300"
+        name  = "SCHEDULER_SA_EMAIL"
+        value = google_service_account.meilisearch.email
       }
 
       # Read from Secret Manager at boot via Cloud Run's native secret-env-var
@@ -234,4 +225,52 @@ resource "google_cloud_run_v2_service_iam_member" "public_invoker" {
   name     = google_cloud_run_v2_service.meilisearch.name
   role     = "roles/run.invoker"
   member   = "allUsers"
+}
+
+# ---------------------------------------------------------------------------
+# Snapshot trigger — request-driven snapshots via Cloud Scheduler
+# ---------------------------------------------------------------------------
+# Snapshots are created and uploaded synchronously inside POST
+# /__snapshot_now__ (served by the in-container proxy), because under
+# request-based billing CPU only exists while a request is in flight. This
+# job is the clock that replaces the old in-container background loop and
+# Meilisearch's own --schedule-snapshot flag. The interval bounds the
+# search-index loss window if the (single, scale-to-zero) instance is
+# reaped or crashes between runs.
+#
+# Region must match the project's App Engine location (Cloud Scheduler
+# requirement), which is NOT necessarily var.region — the job targets the
+# service's public URL, so cross-region is fine.
+data "google_project" "project" {
+  project_id = var.project_id
+}
+
+resource "google_cloud_scheduler_job" "meili_snapshot" {
+  name      = "meilisearch-snapshot"
+  project   = var.project_id
+  region    = var.scheduler_region
+  schedule  = "*/15 * * * *"
+  time_zone = "Etc/UTC"
+
+  retry_config {
+    retry_count = 1
+  }
+
+  http_target {
+    http_method = "POST"
+    uri         = "${google_cloud_run_v2_service.meilisearch.uri}/__snapshot_now__"
+
+    oidc_token {
+      service_account_email = google_service_account.meilisearch.email
+      audience              = google_cloud_run_v2_service.meilisearch.uri
+    }
+  }
+}
+
+# Cloud Scheduler's service agent signs the OIDC tokens it sends with the
+# job, so it needs Token Creator on the runtime SA it impersonates.
+resource "google_service_account_iam_member" "scheduler_token_creator" {
+  service_account_id = google_service_account.meilisearch.name
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloudscheduler.iam.gserviceaccount.com"
 }

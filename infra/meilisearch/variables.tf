@@ -9,6 +9,12 @@ variable "region" {
   default     = "us-east1"
 }
 
+variable "scheduler_region" {
+  description = "Region for the Cloud Scheduler snapshot-trigger job. Must match the project's App Engine location (Scheduler requirement), which for this project is us-central1 even though everything else runs in us-east1."
+  type        = string
+  default     = "us-central1"
+}
+
 variable "meilisearch_image" {
   description = "Fully-qualified container image reference for Meilisearch (e.g. gcr.io/PROJECT_ID/meilisearch:TAG), built from docker/meilisearch/Dockerfile and pushed by CI/an operator before running terraform apply. No default: apply fails until this is supplied."
   type        = string
