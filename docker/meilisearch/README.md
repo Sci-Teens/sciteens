@@ -40,14 +40,14 @@ docker push us-east1-docker.pkg.dev/<PROJECT_ID>/<REPO>/meilisearch:v1.48.2
 
 ## Runtime environment variables
 
-| Variable                | Required | Default                 | Notes                                                                                                                                                                   |
-| ----------------------- | -------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `MEILI_MASTER_KEY`      | yes      | —                       | Meilisearch's own auth key; also accepted as a bearer token on `/__snapshot_now__` for manual snapshot runs.                                                             |
-| `MEILI_SNAPSHOT_BUCKET` | no       | _(unset)_               | GCS bucket name, **no** `gs://` prefix. When unset/empty, restore-on-boot is skipped and `/__snapshot_now__` returns 503 — useful for local runs.                         |
-| `SCHEDULER_SA_EMAIL`    | no       | _(unset)_               | Email the proxy requires on the Cloud Scheduler OIDC token for `/__snapshot_now__`. When unset, only master-key auth works on that endpoint.                              |
-| `PORT`                  | no       | `7700`                  | Public port the proxy binds. Cloud Run injects this automatically.                                                                                                        |
-| `MEILI_PORT`            | no       | `7701`                  | Loopback port Meilisearch itself binds (`--http-addr 127.0.0.1:$MEILI_PORT`); the proxy forwards everything except `/__snapshot_now__` here.                              |
-| `MEILI_SNAP_DIR`        | no       | `/meili_data/snapshots` | Directory the proxy scans for the newest `.snapshot` file to upload. entrypoint.sh sets it to match Meilisearch's `--snapshot-dir`; no need to set it yourself.          |
+| Variable                | Required | Default                 | Notes                                                                                                                                                           |
+| ----------------------- | -------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `MEILI_MASTER_KEY`      | yes      | —                       | Meilisearch's own auth key; also accepted as a bearer token on `/__snapshot_now__` for manual snapshot runs.                                                    |
+| `MEILI_SNAPSHOT_BUCKET` | no       | _(unset)_               | GCS bucket name, **no** `gs://` prefix. When unset/empty, restore-on-boot is skipped and `/__snapshot_now__` returns 503 — useful for local runs.               |
+| `SCHEDULER_SA_EMAIL`    | no       | _(unset)_               | Email the proxy requires on the Cloud Scheduler OIDC token for `/__snapshot_now__`. When unset, only master-key auth works on that endpoint.                    |
+| `PORT`                  | no       | `7700`                  | Public port the proxy binds. Cloud Run injects this automatically.                                                                                              |
+| `MEILI_PORT`            | no       | `7701`                  | Loopback port Meilisearch itself binds (`--http-addr 127.0.0.1:$MEILI_PORT`); the proxy forwards everything except `/__snapshot_now__` here.                    |
+| `MEILI_SNAP_DIR`        | no       | `/meili_data/snapshots` | Directory the proxy scans for the newest `.snapshot` file to upload. entrypoint.sh sets it to match Meilisearch's `--snapshot-dir`; no need to set it yourself. |
 
 On Cloud Run, grant the service's runtime service account `roles/storage.objectAdmin`
 (or a narrower custom role covering get/insert on the one snapshot object)
