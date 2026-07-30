@@ -239,7 +239,7 @@ export default function terms() {
                 and SciTeens Inc., doing business as
                 SciTeens (&quot;SciTeens&quot;, “we”, “us”,
                 or “our”), concerning your access to and use
-                of the http://sciteens.com website as well
+                of the http://sciteens.org website as well
                 as any other media form, media channel,
                 mobile website or mobile application
                 related, linked, or otherwise connected
@@ -914,7 +914,7 @@ export default function terms() {
               <p className="text-muted-foreground mb-10">
                 We care about data privacy and security.
                 Please review our Privacy Policy:
-                https://sciteens.com/legal/privacy. By using
+                https://sciteens.org/legal/privacy. By using
                 the Site, you agree to be bound by our
                 Privacy Policy, which is incorporated into
                 these Terms of Use. Please be advised the

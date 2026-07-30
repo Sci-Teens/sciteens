@@ -63,7 +63,7 @@ export default function Footer() {
                   </li>
                   <li>
                     <a
-                      href="mailto:info@sciteens.com"
+                      href="mailto:info@sciteens.org"
                       target="_blank"
                       rel="noreferrer"
                     >

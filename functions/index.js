@@ -364,7 +364,7 @@ exports.newProfile = functions
     const user = await admin.auth().getUser(id)
     const email = user.email
     const actionCodeSettings = {
-      url: 'https://sciteens.com/',
+      url: 'https://sciteens.org/',
       handleCodeInApp: false,
     }
     const verification_link = await admin
@@ -604,7 +604,7 @@ exports.newDiscussion = functions
             user.customClaims && user.customClaims['mentor']
               ? 'mentor'
               : 'student',
-          projectLink: `https://sciteens.com/project/${context.params.projectID}#${event.id}`,
+          projectLink: `https://sciteens.org/project/${context.params.projectID}#${event.id}`,
         }),
       })
     }
@@ -639,7 +639,7 @@ exports.scheduledProgramEmailer = functions
           // Send an email to each subscriber
           let subscribers = event.data().subscribers
           let link =
-            'https://sciteens.com/program/' + event.id
+            'https://sciteens.org/program/' + event.id
 
           subscribers.forEach((sub) => {
             // Fetch the user's email
@@ -712,7 +712,7 @@ exports.unsubscribe = functions
   })
   .https.onRequest(async (req, res) => {
     const allowedOrigins = [
-      'https://sciteens.com',
+      'https://sciteens.org',
       'http://localhost:3000',
     ]
     const origin = req.get('Origin')
@@ -1150,7 +1150,7 @@ exports.newProjectInvite = functions
         html: projectUpdateTemplate({
           projectName: title,
           projectLink:
-            'https://sciteens.com/project/' + event.id,
+            'https://sciteens.org/project/' + event.id,
         }),
       }).catch((err) => {
         console.log('resend error:' + err)

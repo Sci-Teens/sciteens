@@ -345,7 +345,7 @@ function Article({ article, recommendations }) {
                   <p className="text-foreground text-sm md:text-lg">
                     {t('article.submit_own')}{' '}
                     <a
-                      href="mailto:info@sciteens.com"
+                      href="mailto:info@sciteens.org"
                       target="_blank"
                       rel="noreferrer"
                       className="font-bold"
