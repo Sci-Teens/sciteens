@@ -33,6 +33,7 @@ export default function SocialMeta({
       {keywords && (
         <meta name="keywords" content={keywords} />
       )}
+      {url && <link rel="canonical" href={url} />}
       {url && <meta property="og:url" content={url} />}
       <meta property="og:site_name" content="SciTeens" />
       <meta property="og:type" content={type} />

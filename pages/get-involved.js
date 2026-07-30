@@ -45,12 +45,12 @@ export default function GetInvolved() {
               <p className="mb-4 text-sm lg:text-base">
                 {t('get_involved.get_involved_student')}
                 <a
-                  href="mailto:opportunities@sciteens.com"
+                  href="mailto:opportunities@sciteens.org"
                   target="_blank"
                   className="text-sciteensGreen-regular hover:text-sciteensGreen-dark font-semibold"
                   rel="noreferrer"
                 >
-                  &nbsp;opportunities@sciteens.com.&nbsp;
+                  &nbsp;opportunities@sciteens.org.&nbsp;
                 </a>
               </p>
               <Link
@@ -78,16 +78,16 @@ export default function GetInvolved() {
               <p className="mb-4 text-sm lg:text-base">
                 {t('get_involved.get_involved_outreach')}
                 <a
-                  href="mailto:support@sciteens.com"
+                  href="mailto:support@sciteens.org"
                   target="_blank"
                   className="text-sciteensGreen-regular hover:text-sciteensGreen-dark font-semibold"
                   rel="noreferrer"
                 >
-                  &nbsp;opportunities@sciteens.com.&nbsp;
+                  &nbsp;opportunities@sciteens.org.&nbsp;
                 </a>
               </p>
               <a
-                href="mailto:support@sciteens.com"
+                href="mailto:support@sciteens.org"
                 target="_blank"
                 className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark rounded-lg p-2 text-center text-white shadow-md"
                 rel="noreferrer"
@@ -113,12 +113,12 @@ export default function GetInvolved() {
               <p className="mb-4 text-sm lg:text-base">
                 {t('get_involved.get_involved_funding')}
                 <a
-                  href="mailto:support@sciteens.com"
+                  href="mailto:support@sciteens.org"
                   target="_blank"
                   className="text-sciteensGreen-regular hover:text-sciteensGreen-dark font-semibold"
                   rel="noreferrer"
                 >
-                  &nbsp;opportunities@sciteens.com.&nbsp;
+                  &nbsp;opportunities@sciteens.org.&nbsp;
                 </a>
                 {t('get_involved.no_student_limited')}
               </p>

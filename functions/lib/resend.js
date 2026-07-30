@@ -31,7 +31,7 @@ const CONTACTS_AUDIENCE_ID =
   '8c384f39-b01c-4cc8-a97e-1c9660c85225'
 
 const FROM = 'SciTeens <noreply@sciteens.org>'
-const SITE_URL = 'https://sciteens.com'
+const SITE_URL = 'https://sciteens.org'
 // Firebase Functions v1 HTTPS triggers deploy to us-central1 by default
 // (no .region() call on any export in index.js) under the
 // directed-relic-266701 project (see .firebaserc). Update both if

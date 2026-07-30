@@ -54,7 +54,7 @@ export default function Educators() {
             {t('educators.contact_us')}
             <a
               target="_blank"
-              href="mailto:carlos@sciteens.com"
+              href="mailto:carlos@sciteens.org"
               className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold"
               rel="noreferrer"
             >
@@ -65,7 +65,7 @@ export default function Educators() {
             &nbsp;
             <a
               target="_blank"
-              href="mailto:aarti@sciteens.com"
+              href="mailto:aarti@sciteens.org"
               className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold"
               rel="noreferrer"
             >

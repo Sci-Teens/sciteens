@@ -235,7 +235,7 @@ export default async function handler(req, res) {
                       marginTop: 4,
                     }}
                   >
-                    sciteens.com
+                    sciteens.org
                   </div>
                 </div>
               </div>
