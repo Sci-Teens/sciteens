@@ -1,146 +1,186 @@
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import {
-  useTrail,
   animated,
-  config,
+  useSpring,
+  useTrail,
 } from '@react-spring/web'
+import { ArrowRight } from 'lucide-react'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import { useTranslation } from 'next-i18next'
+import { Trans, useTranslation } from 'next-i18next'
 import SocialMeta from '@/components/SocialMeta'
 import PageHeading from '@/components/PageHeading'
+import HeadingRule from '@/components/HeadingRule'
+import { Button } from '@/components/ui/button'
+import { GUTTER } from '@/lib/layout'
+import { fadeUp, useSectionReveal } from '@/lib/reveal'
+
+const SECTIONS = ['paths', 'contact']
+
+const SUPPORT_EMAIL = 'support@sciteens.org'
+const OPPORTUNITIES_EMAIL = 'opportunities@sciteens.org'
+
+// `email` is the single source for the address a row shows, the mailto it
+// links, and the mailto a mailto-CTA targets, so the three can't drift
+// apart the way they had (the outreach and funding rows used to display
+// opportunities@ while linking support@). The address is interpolated
+// into the translated sentence rather than concatenated after it, so each
+// locale owns its own word order and sentence terminator.
+const PATHS = [
+  {
+    id: 'students',
+    heading: 'get_involved.students',
+    body: 'get_involved.get_involved_student',
+    email: OPPORTUNITIES_EMAIL,
+    cta: 'get_involved.student_sign_up',
+    href: '/signup/student',
+  },
+  {
+    id: 'outreach',
+    heading: 'get_involved.outreach',
+    body: 'get_involved.get_involved_outreach',
+    email: SUPPORT_EMAIL,
+    cta: 'get_involved.contact_us',
+  },
+  {
+    id: 'funding',
+    heading: 'get_involved.funding',
+    body: 'get_involved.get_involved_funding',
+    email: SUPPORT_EMAIL,
+    trailing: 'get_involved.no_student_limited',
+    cta: 'get_involved.donate_now',
+    href: '/donate',
+  },
+]
+
+// Renders the address as a mailto inside whatever sentence the locale
+// wraps it in.
+function MailLink({ email }) {
+  return (
+    <a
+      href={`mailto:${email}`}
+      translate="no"
+      className="text-sciteensGreen-regular hover:text-sciteensGreen-dark font-semibold underline-offset-4 hover:underline"
+    >
+      {email}
+    </a>
+  )
+}
+
+// A row with no `href` is a mail-us row: the CTA targets the same address
+// the sentence names.
+const ctaTarget = (path) =>
+  path.href ?? `mailto:${path.email}`
 
 export default function GetInvolved() {
   const { t } = useTranslation('common')
-  // REACT SPRING ANIMATIONS
-  const cardsTrail = useTrail(3, {
-    transform: 'scale(1)',
-    from: {
-      transform: 'scale(0)',
-    },
-    config: config.stiff,
-    delay: 100,
-  })
+
+  const [animateLanding, setAnimateLanding] =
+    useState(false)
+  useEffect(() => setAnimateLanding(true), [])
+
+  const visible = useSectionReveal(SECTIONS)
+
+  const landingSpring = useSpring(fadeUp(animateLanding))
+  const pathsTrail = useTrail(
+    PATHS.length,
+    fadeUp(visible.paths)
+  )
+  const contactSpring = useSpring(fadeUp(visible.contact))
 
   return (
     <div>
       <SocialMeta
         title="Get Involved | SciTeens"
-        description="Volunteer, mentor, or partner with SciTeens to bring free STEM opportunities to more students."
+        description={t('get_involved.lede')}
         eyebrow="Get Involved"
         path="/get-involved"
       />
-      <div>
-        <div className="mx-auto w-full px-4 py-8 text-left md:p-8 lg:w-5/6">
-          <PageHeading className="my-4 mb-10 text-center">
-            {t('get_involved.want_to_get_involved')}
-          </PageHeading>
-          <div className="flex flex-col">
-            <animated.div
-              style={cardsTrail[0]}
-              className="border-border/60 bg-card relative mb-10 mr-0 overflow-hidden rounded-xl border p-12 shadow-sm md:mb-8 md:mr-8"
-            >
-              <h2 className="mb-3 text-2xl font-semibold md:text-3xl">
-                {t('get_involved.students')}
-              </h2>
-              <p className="mb-4 text-sm lg:text-base">
-                {t('get_involved.get_involved_student')}
-                <a
-                  href="mailto:opportunities@sciteens.org"
-                  target="_blank"
-                  className="text-sciteensGreen-regular hover:text-sciteensGreen-dark font-semibold"
-                  rel="noreferrer"
-                >
-                  &nbsp;opportunities@sciteens.org.&nbsp;
-                </a>
-              </p>
-              <Link
-                href="/signup/student"
-                className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark mb-4 rounded-lg p-2 text-center text-white shadow-md"
-              >
-                {t('get_involved.student_sign_up')}
-              </Link>
-              <svg
-                className="absolute -left-8 -top-8 h-2/3 -rotate-12 transform opacity-5"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-              >
-                <path d="M3.33 8L10 12l10-6-10-6L0 6h10v2H3.33zM0 8v8l2-2.22V9.2L0 8zm10 12l-5-3-2-1.2v-6l7 4.2 7-4.2v6L10 20z" />
-              </svg>
-            </animated.div>
+      <main>
+        <section
+          className={`${GUTTER} pb-14 pt-10 md:pb-16 md:pt-16`}
+        >
+          <animated.div style={landingSpring}>
+            <PageHeading className="max-w-[16ch]">
+              {t('get_involved.want_to_get_involved')}
+            </PageHeading>
+            <HeadingRule />
+            <p className="text-muted-foreground text-pretty mt-6 max-w-[58ch] text-base md:mt-7 md:text-lg">
+              {t('get_involved.lede')}
+            </p>
+          </animated.div>
+        </section>
 
-            <animated.div
-              style={cardsTrail[1]}
-              className="border-border/60 bg-card relative mb-10 mr-0 overflow-hidden rounded-xl border p-12 shadow-sm md:mr-8 md:mt-8"
-            >
-              <h2 className="mb-3 mr-6 text-2xl font-semibold md:text-3xl">
-                {t('get_involved.outreach')}
-              </h2>
-              <p className="mb-4 text-sm lg:text-base">
-                {t('get_involved.get_involved_outreach')}
-                <a
-                  href="mailto:support@sciteens.org"
-                  target="_blank"
-                  className="text-sciteensGreen-regular hover:text-sciteensGreen-dark font-semibold"
-                  rel="noreferrer"
-                >
-                  &nbsp;opportunities@sciteens.org.&nbsp;
-                </a>
-              </p>
-              <a
-                href="mailto:support@sciteens.org"
-                target="_blank"
-                className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark rounded-lg p-2 text-center text-white shadow-md"
-                rel="noreferrer"
-              >
-                {t('get_involved.contact_us')}
-              </a>
-              <svg
-                className="absolute -left-8 -top-8 h-2/3 -rotate-12 transform opacity-5"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-              >
-                <path d="M10 20a10 10 0 1 1 0-20 10 10 0 0 1 0 20zm2-2.25a8 8 0 0 0 4-2.46V9a2 2 0 0 1-2-2V3.07a7.95 7.95 0 0 0-3-1V3a2 2 0 0 1-2 2v1a2 2 0 0 1-2 2v2h3a2 2 0 0 1 2 2v5.75zm-4 0V15a2 2 0 0 1-2-2v-1h-.5A1.5 1.5 0 0 1 4 10.5V8H2.25A8.01 8.01 0 0 0 8 17.75z" />
-              </svg>
-            </animated.div>
+        <section id="paths" className={GUTTER}>
+          {pathsTrail.map((style, index) => {
+            const path = PATHS[index]
 
-            <animated.div
-              style={cardsTrail[2]}
-              className="border-border/60 bg-card relative mb-10 ml-0 overflow-hidden rounded-xl border p-12 shadow-sm md:ml-8 md:mt-8"
-            >
-              <h2 className="mb-3 text-2xl font-semibold md:text-3xl">
-                {t('get_involved.funding')}
-              </h2>
-              <p className="mb-4 text-sm lg:text-base">
-                {t('get_involved.get_involved_funding')}
-                <a
-                  href="mailto:support@sciteens.org"
-                  target="_blank"
-                  className="text-sciteensGreen-regular hover:text-sciteensGreen-dark font-semibold"
-                  rel="noreferrer"
-                >
-                  &nbsp;opportunities@sciteens.org.&nbsp;
-                </a>
-                {t('get_involved.no_student_limited')}
-              </p>
-              <a
-                href="https://www.paypal.com/donate?hosted_button_id=7B8QACYV83ACA"
-                target="_blank"
-                className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark mr-2 rounded-lg p-2 text-white shadow-md"
-                rel="noreferrer"
+            return (
+              <animated.div
+                key={path.id}
+                style={style}
+                className="border-border/60 grid gap-6 border-t py-12 md:py-16 lg:grid-cols-[1fr_1.4fr] lg:gap-16"
               >
-                {t('get_involved.donate_now')}
-              </a>
-              <svg
-                className="absolute -left-8 -top-8 h-2/3 -rotate-12 transform opacity-5"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-              >
-                <path d="M10 20a10 10 0 1 1 0-20 10 10 0 0 1 0 20zm1-5h1a3 3 0 0 0 0-6H7.99a1 1 0 0 1 0-2H14V5h-3V3H9v2H8a3 3 0 1 0 0 6h4a1 1 0 1 1 0 2H6v2h3v2h2v-2z" />
-              </svg>
-            </animated.div>
-          </div>
-        </div>
-      </div>
+                <h2 className="text-balance text-2xl font-bold tracking-tight md:text-4xl">
+                  {t(path.heading)}
+                </h2>
+                <div>
+                  <p className="text-muted-foreground max-w-[62ch] text-base md:text-lg">
+                    <Trans
+                      i18nKey={path.body}
+                      values={{ email: path.email }}
+                      components={{
+                        mail: (
+                          <MailLink email={path.email} />
+                        ),
+                      }}
+                    />
+                    {path.trailing &&
+                      ` ${t(path.trailing)}`}
+                  </p>
+                  <Button
+                    size="lg"
+                    className="mt-6 h-11 px-6 text-base"
+                    render={
+                      path.href ? (
+                        <Link href={path.href} />
+                      ) : (
+                        <a
+                          href={ctaTarget(path)}
+                          aria-label={t(path.cta)}
+                        />
+                      )
+                    }
+                  >
+                    {t(path.cta)}
+                    <ArrowRight className="group-hover/button:translate-x-0.5 transition-transform" />
+                  </Button>
+                </div>
+              </animated.div>
+            )
+          })}
+        </section>
+
+        <section
+          id="contact"
+          className="border-border/60 border-y"
+        >
+          <animated.div
+            style={contactSpring}
+            className={`${GUTTER} py-14 md:py-16`}
+          >
+            <p className="max-w-[58ch] text-base md:text-lg">
+              <Trans
+                i18nKey="get_involved.not_sure_where"
+                values={{ email: SUPPORT_EMAIL }}
+                components={{
+                  mail: <MailLink email={SUPPORT_EMAIL} />,
+                }}
+              />
+            </p>
+          </animated.div>
+        </section>
+      </main>
     </div>
   )
 }

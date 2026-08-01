@@ -6,7 +6,6 @@ import { useRouter } from 'next/router'
 import {
   useSpring,
   useTrail,
-  useReducedMotion,
   animated,
   config,
 } from '@react-spring/web'
@@ -26,11 +25,12 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import HeadingRule from '@/components/HeadingRule'
+import { GUTTER } from '@/lib/layout'
+import { fadeUp, useSectionReveal } from '@/lib/reveal'
+import { SITE_STATS } from '@/lib/siteStats'
 
 const AnimatedImage = animated(Image)
-
-// Matches the nav's `mx-4` on mobile so page content lines up with it.
-const GUTTER = 'px-4 md:px-16 lg:px-24'
 
 const PARTNERS = [
   {
@@ -126,12 +126,6 @@ const TESTIMONIALS = [
   },
 ]
 
-const STATS = [
-  { value: 400, suffix: '+', label: 'index.monthly_users' },
-  { value: 50, suffix: '', label: 'index.schools' },
-  { value: 50, suffix: '+', label: 'index.countries' },
-]
-
 const MEDIA = [
   {
     href: 'https://www.neonscience.org/impact/observatory-blog/sciteens-data-science-and-ecology-gen-z',
@@ -160,62 +154,16 @@ const SECTIONS = [
   'media',
 ]
 
-// No `from`: the visible=false branch is already the initial render value, and
-// re-supplying `from` restarts every spring whenever any section scrolls in.
-function fadeUp(visible, overrides) {
-  return {
-    opacity: visible ? 1 : 0,
-    transform: visible
-      ? 'translateY(0px)'
-      : 'translateY(24px)',
-    config: config.gentle,
-    ...overrides,
-  }
-}
-
 export default function Home() {
   const { t } = useTranslation('common')
   const { locale } = useRouter()
-  useReducedMotion()
 
   const [animateLanding, setAnimateLanding] =
     useState(false)
-  const [visible, setVisible] = useState({})
+  const visible = useSectionReveal(SECTIONS)
 
   useEffect(() => {
     setAnimateLanding(true)
-
-    const sections = SECTIONS.map((id) => ({
-      id,
-      element: document.getElementById(id),
-    })).filter(({ element }) => Boolean(element))
-
-    if (!('IntersectionObserver' in window)) {
-      setVisible(
-        Object.fromEntries(SECTIONS.map((id) => [id, true]))
-      )
-      return
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return
-          setVisible((current) => ({
-            ...current,
-            [entry.target.id]: true,
-          }))
-          observer.unobserve(entry.target)
-        })
-      },
-      { threshold: 0.15, rootMargin: '0px 0px -10% 0px' }
-    )
-
-    sections.forEach(({ element }) =>
-      observer.observe(element)
-    )
-
-    return () => observer.disconnect()
   }, [])
 
   const formatDate = (iso) =>
@@ -268,7 +216,7 @@ export default function Home() {
   )
 
   return (
-    <div>
+    <main>
       <SocialMeta
         title={`SciTeens — ${t(
           'index.science_simplified'
@@ -282,24 +230,11 @@ export default function Home() {
       >
         <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_1fr] lg:gap-16">
           <animated.div style={landingSpring}>
-            <h1 className="text-4xl font-extrabold tracking-tight md:text-6xl lg:text-7xl">
+            <h1 className="text-balance text-4xl font-extrabold tracking-tight md:text-6xl lg:text-7xl">
               {t('index.science_simplified')}
             </h1>
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 300 12"
-              preserveAspectRatio="none"
-              className="text-sciteensLightGreen-regular mt-3 h-2.5 w-44 md:mt-4 md:h-4 md:w-72"
-            >
-              <path
-                d="M3 8.5C58 3.5 112 10.5 168 5.5S262 3 297 6.5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="4"
-                strokeLinecap="round"
-              />
-            </svg>
-            <p className="text-muted-foreground mt-6 max-w-[52ch] text-base md:mt-7 md:text-lg">
+            <HeadingRule />
+            <p className="text-muted-foreground text-pretty mt-6 max-w-[52ch] text-base md:mt-7 md:text-lg">
               {t('index.share_work')}
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -415,7 +350,7 @@ export default function Home() {
             className="border-border/60 h-auto w-full rounded-xl border shadow-sm"
           />
           <animated.div style={missionSpring}>
-            <h2 className="text-2xl font-bold tracking-tight md:text-4xl">
+            <h2 className="text-balance text-2xl font-bold tracking-tight md:text-4xl">
               {t('index.furthering_accessibility')}
             </h2>
             <p className="text-muted-foreground mt-5 max-w-[58ch] text-base md:text-lg">
@@ -432,7 +367,7 @@ export default function Home() {
         <div className={`${GUTTER} pb-20 md:pb-28`}>
           <animated.h2
             style={testimonialsTitleSpring}
-            className="max-w-[48ch] text-xl font-semibold md:text-2xl"
+            className="text-balance max-w-[48ch] text-xl font-semibold md:text-2xl"
           >
             {t('index.sciteens_pride')}
           </animated.h2>
@@ -478,7 +413,7 @@ export default function Home() {
             style={statsSpring}
             className={`${GUTTER} grid grid-cols-3 gap-6 py-12 md:py-16`}
           >
-            {STATS.map((stat) => (
+            {SITE_STATS.map((stat) => (
               <div key={stat.label}>
                 <p className="text-3xl font-extrabold tabular-nums md:text-5xl">
                   <animated.span>
@@ -504,7 +439,7 @@ export default function Home() {
       >
         <animated.h2
           style={mediaTitleSpring}
-          className="text-2xl font-bold tracking-tight md:text-4xl"
+          className="text-balance text-2xl font-bold tracking-tight md:text-4xl"
         >
           {t('index.featured_media')}
         </animated.h2>
@@ -548,7 +483,7 @@ export default function Home() {
 
       <section className={`${GUTTER} py-20 md:py-28`}>
         <div className="bg-sciteensGreen-dark rounded-xl px-6 py-14 text-white md:px-12 md:py-20">
-          <h2 className="text-3xl font-extrabold tracking-tight md:text-5xl">
+          <h2 className="text-balance text-3xl font-extrabold tracking-tight md:text-5xl">
             {t('get_involved.want_to_get_involved')}
           </h2>
           <p className="mt-5 max-w-[58ch] text-base text-white/80 md:text-lg">
@@ -574,7 +509,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </div>
+    </main>
   )
 }
 

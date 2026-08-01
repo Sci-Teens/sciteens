@@ -11,7 +11,7 @@ export default function PageHeading({
   return (
     <Tag
       className={cn(
-        'text-3xl font-extrabold md:text-4xl lg:text-5xl',
+        'text-balance text-3xl font-extrabold tracking-tight md:text-4xl lg:text-5xl',
         className
       )}
     >

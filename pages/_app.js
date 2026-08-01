@@ -10,8 +10,14 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
+import { useReducedMotion } from '@react-spring/web'
 
 function MyApp({ Component, pageProps }) {
+  // Flips react-spring's global skipAnimation once for the whole app, so
+  // every spring on every route snaps to its end state for visitors who
+  // asked for reduced motion.
+  useReducedMotion()
+
   const [profile, setUserProfile] = useState({})
   const [queryClient] = useState(
     () =>

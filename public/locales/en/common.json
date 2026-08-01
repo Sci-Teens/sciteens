@@ -225,7 +225,7 @@
     "cool_video": "Here's a cool video to watch instead"
   },
   "about": {
-    "on_a_mission": "We're on a mission.",
+    "on_a_mission": "We’re on a mission.",
     "we_strive": "We strive to bridge the gap between education and opportunity, particularly for students from low-resource areas who do not have an extensive STEM support network.",
     "get_to_know_us": "Get to know us.",
     "current_members": "Our Team",
@@ -256,7 +256,10 @@
     "about_joud": "Joud is a Lebanese/Canadian senior student who loves biology. He likes to read, explore, and enjoy life. He’s always ready to make everyone full with positivity.",
     "about_sanjana": "Sanjana enjoys playing violin, trying new recipes, and taking diverse courses online.",
     "about_grace2": "I’m Grace Nyakarombo, an 11th grade student from Zimbabwe. I’m a science researcher and innovator. I’m passionate about solving SDG 4 & 7 through the use of technology.",
-    "about_alae": "I’m Alae and I love making memes. Oh and I also have the cutest dog ever."
+    "about_alae": "I’m Alae and I love making memes. Oh and I also have the cutest dog ever.",
+    "about_haley": "Haley is a member of five Dungeons & Dragons groups.",
+    "mission_heading": "Furthering the accessibility of science, one student at a time.",
+    "mission_body": "With SciTeens, you can share your knowledge and research by writing articles or creating projects. Your work can be viewed by other SciTeens students, giving you access to unique opportunities through collaboration with your peers and other scholars in STEM fields."
   },
   "articles": {
     "articles": "Articles",
@@ -286,23 +289,29 @@
     "we_depend_on_donations": "This is why we depend on generous people like you, who see the future and immediate need for more online resources that are accessible to students. Your generosity will allow us to reach out to more students across America that will be able to benefit from our resources for free. SciTeens plans on expanding its curriculums to more low income high schools across America. Today more than ever, it is evident that online education is the future for an equitable STEM education.",
     "we_kindly_ask": "We kindly ask that you consider SciTeens as an organization that you will donate to so we may continue carrying out our mission and engage more students in the beauty of STEM.",
     "sincerely": "Sincerely",
-    "co_founder": "Co-Founder and Executive Director"
+    "co_founder": "Co-Founder and Executive Director",
+    "lede": "Every gift keeps SciTeens free for the students who need it most.",
+    "support_sciteens": "Support SciTeens",
+    "our_reach": "Our reach today",
+    "every_donation_counts": "No student should be limited by their income level when it comes to conducting scientific research, so every donation counts."
   },
   "get_involved": {
     "want_to_get_involved": "Want to Get Involved?",
     "students": "Students",
-    "get_involved_student": "As a student, getting involved with SciTeens is as simple as signing up! Once registered, you can connect with amazing STEM programs and mentors, as well as share your amazing projects. If you want to start a STEM club at your high school, we're more than willing to sponsor and assist you as well; just reach out to",
+    "get_involved_student": "As a student, getting involved with SciTeens is as simple as signing up! Once registered, you can connect with amazing STEM programs and mentors, as well as share your amazing projects. If you want to start a STEM club at your high school, we're more than willing to sponsor and assist you as well; just reach out to <mail>{{email}}</mail>.",
     "student_sign_up": "Student Sign Up",
     "mentors": "Mentors",
     "get_involved_mentor": "One of the services that SciTeens provides is mentorship opportunities for students. We are always looking for mentors who are willing to be matched with a student based on topics and fields of interest to assist a student. In order to be a mentor, you must be a professor, teacher, graduate or undergraduate STEM student, or be employed in a STEM field and be willing to devote some time to helping passionate STEM students.",
     "mentor_sign_up": "Mentor Sign Up",
     "outreach": "Outreach",
-    "get_involved_outreach": "One of the core principles of science is collaboration. Our mission depends on collaboration, and we are always looking for ways to bring science to every single student! If you know a school, teacher, science program, or organization that could help us achieve our mission, please reach out to us at",
+    "get_involved_outreach": "One of the core principles of science is collaboration. Our mission depends on collaboration, and we are always looking for ways to bring science to every single student! If you know a school, teacher, science program, or organization that could help us achieve our mission, please reach out to us at <mail>{{email}}</mail>.",
     "contact_us": "Contact Us",
     "funding": "Funding",
-    "get_involved_funding": "We are a nonprofit organization that relies on crowdfunding, grants, and private donations. If you know someone who is willing to donate or would like to help us out in finding ways of getting funded, please reach out to us at",
+    "get_involved_funding": "We are a nonprofit organization that relies on crowdfunding, grants, and private donations. If you know someone who is willing to donate or would like to help us out in finding ways of getting funded, please reach out to us at <mail>{{email}}</mail>.",
     "no_student_limited": "No student should be limited by their income level when it comes to conducting scientific research, so every donation counts.",
-    "donate_now": "Donate Now"
+    "donate_now": "Donate Now",
+    "lede": "Students, partners, and donors all move the same mission forward. Here is where you fit in.",
+    "not_sure_where": "Not sure where you fit? Write to us at <mail>{{email}}</mail>."
   },
   "index": {
     "science_simplified": "Science, simplified.",
@@ -315,9 +324,6 @@
     "device_mockup_alt": "A laptop and a phone showing the SciTeens articles feed",
     "spark_of_inspiration": "All it takes is a spark of inspiration, the willingness to work with your peers, and an account to get started doing scientific research and making a difference in your area of study.",
     "sciteens_pride": "SciTeens takes pride in its open source and collaborative platform, but here are some shoutouts from students using our resources:",
-    "monthly_users": "Monthly Active Students",
-    "schools": "schools",
-    "countries": "countries",
     "featured_media": "Featured Media",
     "data_science_and_ecology": "SciTeens: Data Science and Ecology for Gen Z",
     "ideas_challenge": "IDEAS challenge showcases social ventures at MIT",
@@ -430,5 +436,10 @@
       "general": "Welcome messages, product announcements, and community news.",
       "programs": "Reminders when a program you're subscribed to has an upcoming application deadline."
     }
+  },
+  "stats": {
+    "monthly_users": "Monthly Active Students",
+    "schools": "schools",
+    "countries": "countries"
   }
 }
