@@ -27,7 +27,7 @@ export default function TopicsList({
           <button
             type="button"
             onClick={onClear}
-            className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs transition-colors"
+            className="text-muted-foreground hover:text-foreground inline-flex touch-manipulation items-center gap-1 text-xs transition-colors"
           >
             <X className="h-3 w-3" aria-hidden="true" />
             {clearLabel}
@@ -53,7 +53,7 @@ export default function TopicsList({
               onClick={() => onFieldSelect(key)}
               aria-pressed={active}
               className={cn(
-                'flex items-center justify-between rounded-lg px-3 py-1.5 text-left text-sm transition-colors',
+                'flex touch-manipulation items-center justify-between rounded-lg px-3 py-1.5 text-left text-sm transition-colors',
                 active
                   ? 'bg-primary text-primary-foreground'
                   : 'text-foreground hover:bg-muted'

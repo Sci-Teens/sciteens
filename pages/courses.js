@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
-import Image from 'next/image'
 import { useRouter } from 'next/router'
 import SocialMeta from '@/components/SocialMeta'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
@@ -8,94 +7,179 @@ import { useTranslation } from 'next-i18next'
 
 var Prismic = require('@prismicio/client')
 import { RichText } from 'prismic-reactjs'
-import moment from 'moment'
 
-import { getTranslatedFieldsDict } from '../context/helpers'
-import { Card, CardContent } from '@/components/ui/card'
-import PageHeading from '@/components/PageHeading'
+import { useInfiniteQuery } from '@tanstack/react-query'
+import {
+  getFieldLabel,
+  getTranslatedFieldsDict,
+} from '../context/helpers'
+import { formatMediumDate } from '../lib/formatDate'
+import { Button } from '@/components/ui/button'
+import InfiniteScrollTrigger from '@/components/InfiniteScrollTrigger'
+import ActiveFilters from '@/components/search/ActiveFilters'
+import EmptyState from '@/components/search/EmptyState'
+import ListingCard from '@/components/search/ListingCard'
+import ListingLayout from '@/components/search/ListingLayout'
+import ListingSkeleton from '@/components/search/ListingSkeleton'
+import ResultsCount from '@/components/search/ResultsCount'
 import SearchToolbar from '@/components/search/SearchToolbar'
-import FilterAside from '@/components/search/FilterAside'
 import TopicsList from '@/components/search/TopicsList'
+
+const COURSES_PAGE_SIZE = 10
+
+async function fetchCoursesPage({
+  search,
+  field,
+  pageParam,
+}) {
+  const apiEndpoint =
+    'https://sciteens.cdn.prismic.io/api/v2'
+  const client = Prismic.default.client(apiEndpoint)
+  const predicates = []
+
+  if (search) {
+    predicates.push(
+      Prismic.default.Predicates.fulltext(
+        'document',
+        search
+      )
+    )
+  }
+  if (field) {
+    predicates.push(
+      Prismic.default.Predicates.at('document.tags', [
+        field,
+      ])
+    )
+  }
+
+  const courses = await client.query(
+    [
+      Prismic.default.Predicates.at(
+        'document.type',
+        'course'
+      ),
+      ...predicates,
+    ],
+    {
+      orderings: `[document.first_publication_date desc]`,
+      pageSize: COURSES_PAGE_SIZE,
+      page: pageParam,
+    }
+  )
+
+  return {
+    courses: courses.results,
+    nextPage:
+      courses.page < courses.total_pages
+        ? courses.page + 1
+        : null,
+    totalResults: courses.total_results_size,
+  }
+}
+
+function imageLoader({ src, width, height }) {
+  return `${src}?fit=crop&crop=faces&w=${width || 256}&h=${
+    height || 256
+  }`
+}
 
 function Courses({ cached_courses }) {
   const router = useRouter()
-  const [courses, setCourses] = useState(cached_courses)
-
-  useEffect(() => {
-    async function loadCourses() {
-      if (router.asPath !== '/courses') {
-        const apiEndpoint =
-          'https://sciteens.cdn.prismic.io/api/v2'
-        const client = Prismic.default.client(apiEndpoint)
-        let predicates = []
-        if (router.query.search) {
-          predicates.push(
-            Prismic.default.Predicates.fulltext(
-              'document',
-              router.query.search
-            )
-          )
-        }
-        if (
-          router.query.field &&
-          router.query.field != 'All'
-        ) {
-          predicates.push(
-            Prismic.default.Predicates.at('document.tags', [
-              router.query.field,
-            ])
-          )
-        }
-        const cs = await client.query(
-          [
-            Prismic.default.Predicates.at(
-              'document.type',
-              'course'
-            ),
-            ...predicates,
-          ],
-          {
-            orderings: `[document.first_publication_date desc]`,
-            pageSize: 10,
-          }
-        )
-        setCourses(cs)
-      }
-    }
-    loadCourses()
-  }, [router])
-
+  const { t } = useTranslation('common')
   const [search, setSearch] = useState('')
   const [field, setField] = useState('')
   const [filtersOpen, setFiltersOpen] = useState(false)
 
-  const { t } = useTranslation('common')
-  const imageLoader = ({ src, width, height }) => {
-    return `${src}?fit=crop&crop=faces&w=${
-      width || 256
-    }&h=${height || 256}`
-  }
+  const searchParam = router.query?.search || ''
+  const fieldParam =
+    router.query?.field && router.query.field !== 'All'
+      ? router.query.field
+      : ''
+
+  const hasActiveFilters = Boolean(
+    searchParam || fieldParam
+  )
+
+  const initialData = useMemo(() => {
+    if (
+      searchParam ||
+      fieldParam ||
+      !cached_courses?.results
+    ) {
+      return undefined
+    }
+
+    return {
+      pages: [
+        {
+          courses: cached_courses.results,
+          nextPage:
+            cached_courses.page < cached_courses.total_pages
+              ? cached_courses.page + 1
+              : null,
+          totalResults: cached_courses.total_results_size,
+        },
+      ],
+      pageParams: [1],
+    }
+  }, [searchParam, fieldParam, cached_courses])
+
+  const coursesQuery = useInfiniteQuery({
+    queryKey: ['courses', searchParam, fieldParam],
+    enabled: router.isReady,
+    initialPageParam: 1,
+    initialData,
+    queryFn: ({ pageParam }) =>
+      fetchCoursesPage({
+        search: searchParam,
+        field: fieldParam,
+        pageParam,
+      }),
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+  })
+
+  const courses = useMemo(
+    () =>
+      coursesQuery.data?.pages.flatMap(
+        (page) => page.courses
+      ) || [],
+    [coursesQuery.data]
+  )
+  const totalResults =
+    coursesQuery.data?.pages[0]?.totalResults
+  const loading =
+    coursesQuery.isLoading && courses.length === 0
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } =
+    coursesQuery
+
+  useEffect(() => {
+    if (coursesQuery.isError) {
+      console.error(
+        'Failed to load courses:',
+        coursesQuery.error
+      )
+    }
+  }, [coursesQuery.isError, coursesQuery.error])
 
   useEffect(() => {
     if (router?.isReady) {
-      setSearch(
-        router.query?.search ? router.query.search : ''
-      )
-      setField(
-        router.query?.field && router.query.field !== 'All'
-          ? router.query.field
-          : ''
-      )
+      setSearch(searchParam)
+      setField(fieldParam)
     }
-  }, [router])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.isReady, searchParam, fieldParam])
 
-  const hasActiveFilters = Boolean(search || field)
-
-  // Merges into whatever's already active instead of replacing the
-  // whole query — picking a topic used to drop an in-progress search
-  // term (and vice versa).
+  // Every handler below changes exactly one filter, so the rest are
+  // read back from the URL rather than from input state: sourcing them
+  // from `search` would commit a half-typed term the visitor never
+  // submitted just because they removed an unrelated chip.
   function pushFilters(overrides = {}) {
-    const next = { search, field, ...overrides }
+    const next = {
+      search: searchParam,
+      field: fieldParam,
+      ...overrides,
+    }
     const query = {}
     if (next.search) query.search = next.search
     if (next.field) query.field = next.field
@@ -104,7 +188,12 @@ function Courses({ cached_courses }) {
 
   function handleSearch(e) {
     e.preventDefault()
-    pushFilters({})
+    pushFilters({ search })
+  }
+
+  function handleClearSearch() {
+    setSearch('')
+    pushFilters({ search: '' })
   }
 
   function handleFieldSearch(nextField) {
@@ -121,62 +210,56 @@ function Courses({ cached_courses }) {
     router.push({ pathname: '/courses' })
   }
 
-  const coursesComponent = courses.results.map((course) => {
-    let courseStart = moment(course.data.start).format('ll')
-    let dateDisplay = <p></p>
-    if (courseStart == 'Invalid date') {
-      dateDisplay = (
-        <p className="flex text-xs">Asynchronous Course</p>
-      )
-    } else {
-      dateDisplay = (
-        <p className="flex text-xs">
-          {courseStart +
-            ' - ' +
-            moment(course.data.end).format('ll')}
-        </p>
-      )
-    }
-
-    return (
-      <Card
-        key={course.uid}
-        className="animate-in border-border/60 fade-in slide-in-from-right-8 relative isolate mt-6 overflow-hidden transition duration-300 hover:-translate-y-0.5 hover:shadow-md md:mt-8"
-      >
-        <a
-          href={`/course/${course.uid}`}
-          aria-label={RichText.asText(course.data.name)}
-          className="focus-visible:ring-3 focus-visible:ring-ring/50 absolute inset-0 z-10 rounded-xl"
-        />
-        <CardContent className="flex items-center">
-          <div className="bg-muted relative h-24 w-24 shrink-0 overflow-hidden rounded-lg md:h-40 md:w-40">
-            <Image
-              alt={RichText.asText(course.data.name)}
-              fill
-              sizes="(min-width: 768px) 160px, 96px"
-              className="object-cover"
-              loader={imageLoader}
-              src={course.data.image_main.url}
-            />
-          </div>
-          <div className="ml-4 min-w-0 flex-1">
-            <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">
-              {RichText.asText(course.data.name)}
-            </h3>
-            <p className="line-clamp-none md:line-clamp-2 lg:line-clamp-3 mb-2 hidden md:block">
-              {RichText.asText(course.data.description)}
-            </p>
-            {dateDisplay}
-          </div>
-        </CardContent>
-      </Card>
+  function courseSchedule(course) {
+    const start = formatMediumDate(
+      course.data.start,
+      router.locale
     )
-  })
+    if (!start) return t('courses.self_paced')
+
+    const end = formatMediumDate(
+      course.data.end,
+      router.locale
+    )
+    return end
+      ? `${start} – ${end}`
+      : `${t('courses.starts_on')} ${start}`
+  }
+
+  const translatedFields = getTranslatedFieldsDict(t)
+
+  const activeFilters = []
+  if (searchParam) {
+    activeFilters.push({
+      key: 'search',
+      label: t('courses.search'),
+      value: searchParam,
+      removeLabel: t('courses.remove_filter', {
+        filter: `${t('courses.search')} ${searchParam}`,
+      }),
+      onRemove: handleClearSearch,
+    })
+  }
+  if (fieldParam) {
+    const label = getFieldLabel(
+      translatedFields,
+      fieldParam
+    )
+    activeFilters.push({
+      key: 'field',
+      label: t('courses.topics'),
+      value: label,
+      removeLabel: t('courses.remove_filter', {
+        filter: `${t('courses.topics')} ${label}`,
+      }),
+      onRemove: () => handleFieldSearch('All'),
+    })
+  }
 
   const filterPanel = (
     <TopicsList
       topicsLabel={t('courses.topics')}
-      fields={getTranslatedFieldsDict(t)}
+      fields={translatedFields}
       field={field}
       onFieldSelect={handleFieldSearch}
       hasActiveFilters={hasActiveFilters}
@@ -198,48 +281,133 @@ function Courses({ cached_courses }) {
         badge={field && field !== 'All' ? field : undefined}
         path="/courses"
       />
-      <div className="text-foreground mx-auto mb-24 mt-8 min-h-screen px-4 md:px-0 lg:mx-16 xl:mx-32">
-        <PageHeading className="ml-0 py-4 text-left">
-          {t('courses.courses')} 📖
-        </PageHeading>
+      <ListingLayout
+        title={t('courses.courses')}
+        lede={t('courses.lede')}
+        aside={filterPanel}
+      >
+        <SearchToolbar
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onSubmit={handleSearch}
+          onClear={handleClearSearch}
+          placeholder={t('courses.search_courses')}
+          searchLabel={t('courses.search')}
+          submitLabel={t('courses.search')}
+          clearSearchLabel={t('courses.clear_search')}
+          filtersLabel={t('courses.filters')}
+          hasActiveFilters={hasActiveFilters}
+          filtersOpen={filtersOpen}
+          onFiltersOpenChange={setFiltersOpen}
+          filterPanel={filterPanel}
+        />
 
-        <div className="flex flex-row items-start gap-8 xl:gap-12">
-          <div className="min-w-0 flex-1">
-            <SearchToolbar
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onSubmit={handleSearch}
-              placeholder={t('courses.search_courses')}
-              searchLabel={t('courses.search')}
-              submitLabel={t('courses.search')}
-              filtersLabel={t('courses.filters')}
-              hasActiveFilters={hasActiveFilters}
-              filtersOpen={filtersOpen}
-              onFiltersOpenChange={setFiltersOpen}
-              filterPanel={filterPanel}
-            />
+        <ActiveFilters
+          label={t('courses.active_filters')}
+          filters={activeFilters}
+          clearLabel={t('courses.clear_filters')}
+          onClear={handleClearFilters}
+        />
 
-            {coursesComponent}
-            {courses.results.length == 0 && (
-              <div className="mx-auto mt-20 text-center">
-                <i className="text-xl font-semibold">
-                  {search
-                    ? `${t('courses.sorry')} ${search}`
-                    : t('courses.sorry')}
-                </i>
-              </div>
-            )}
+        <ResultsCount>
+          {loading
+            ? t('courses.loading')
+            : !coursesQuery.isError &&
+              typeof totalResults === 'number' &&
+              t('courses.results_count', {
+                count: totalResults,
+              })}
+        </ResultsCount>
+
+        {coursesQuery.isError && (
+          <div className="border-destructive/30 bg-destructive/5 rounded-xl border px-4 py-4 text-sm">
+            <p className="text-destructive">
+              {t('courses.load_failed')}
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              onClick={() => coursesQuery.refetch()}
+            >
+              {t('courses.retry')}
+            </Button>
           </div>
+        )}
 
-          <FilterAside>{filterPanel}</FilterAside>
-        </div>
-      </div>
+        {/* The banner above sits alongside whatever already loaded: a
+            failed next-page fetch must not unmount the pages the
+            visitor has already scrolled through. */}
+        {loading ? (
+          <ListingSkeleton />
+        ) : courses.length === 0 ? (
+          !coursesQuery.isError && (
+            <EmptyState
+              title={t('courses.empty_title')}
+              description={
+                hasActiveFilters
+                  ? t('courses.empty_filtered')
+                  : t('courses.empty_default')
+              }
+              actionLabel={
+                hasActiveFilters
+                  ? t('courses.clear_filters')
+                  : undefined
+              }
+              onAction={
+                hasActiveFilters
+                  ? handleClearFilters
+                  : undefined
+              }
+            />
+          )
+        ) : (
+          <div className="w-full">
+            {courses.map((course, index) => {
+              const title = RichText.asText(
+                course.data.name
+              )
+
+              return (
+                <div
+                  key={course.uid}
+                  className="w-full pt-6 md:pt-8"
+                >
+                  <ListingCard
+                    href={`/course/${course.uid}`}
+                    title={title}
+                    description={RichText.asText(
+                      course.data.description
+                    )}
+                    imageSrc={course.data.image_main?.url}
+                    imageAlt={title}
+                    imageLoader={imageLoader}
+                    priority={index === 0}
+                    meta={courseSchedule(course)}
+                  />
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {isFetchingNextPage && (
+          <ListingSkeleton count={2} />
+        )}
+
+        <InfiniteScrollTrigger
+          hasNextPage={hasNextPage}
+          isLoading={isFetchingNextPage}
+          onLoadMore={fetchNextPage}
+          label={t('courses.load_more')}
+        />
+      </ListingLayout>
     </>
   )
 }
 
 export async function getStaticProps({ locale }) {
-  // Fetch data from external API
   const translations = await serverSideTranslations(
     locale,
     ['common']
@@ -252,7 +420,7 @@ export async function getStaticProps({ locale }) {
       [Prismic.Predicates.at('document.type', 'course')],
       {
         orderings: `[document.first_publication_date desc]`,
-        pageSize: 10,
+        pageSize: COURSES_PAGE_SIZE,
       }
     )
 

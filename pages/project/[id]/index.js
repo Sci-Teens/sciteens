@@ -39,10 +39,8 @@ import {
   getFieldLabel,
 } from '../../../context/helpers'
 import firebaseConfig from '../../../firebaseConfig'
-import {
-  normalizeProject,
-  formatProjectDate,
-} from '../../../lib/projects'
+import { normalizeProject } from '../../../lib/projects'
+import { formatMediumDate } from '../../../lib/formatDate'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 
 const Discussion = dynamic(
@@ -105,7 +103,7 @@ function Project({ query, initialProject }) {
     return <Error statusCode={404} />
   }
 
-  const startDate = formatProjectDate(
+  const startDate = formatMediumDate(
     project.start,
     router?.locale
   )
