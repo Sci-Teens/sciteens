@@ -108,9 +108,6 @@ importers:
       tailwind-merge:
         specifier: ^3.6.0
         version: 3.6.0
-      three:
-        specifier: ^0.133.1
-        version: 0.133.1
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
@@ -10049,10 +10046,6 @@ packages:
     dependencies:
       any-promise: 1.3.0
     dev: true
-
-  /three@0.133.1:
-    resolution: {integrity: sha512-WydohO8ll949B0FTD6MGz59Yv2Lwj8hvObg/0Heh2r42S6+tQC1WByfCNRdmG4D7+odfGod+n8JPV1I2xrboWw==}
-    dev: false
 
   /tiny-inflate@1.0.3:
     resolution: {integrity: sha512-pkY1fj1cKHb2seWDy0B16HeWyczlJA9/WW3u3c4z/NiWDsO3DOU5D7nhTLE9CF0yXv/QZFY7sEJmj24dK+Rrqw==}
