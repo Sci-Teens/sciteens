@@ -119,7 +119,9 @@
     "why_update_project": "Ici, vous pouvez mettre à jour votre projet",
     "update": "Mise à jour",
     "cancel": "Annuler",
-    "could_not_update": "Nous n'avons pas pu mettre à jour votre projet pour le moment"
+    "could_not_update": "Nous n'avons pas pu mettre à jour votre projet pour le moment",
+    "members_too_many": "Vous pouvez inviter jusqu'à 10 collaborateurs",
+    "error_title_too_long": "Le titre du projet doit faire moins de 200 caractères"
   },
   "file": {
     "unsupported_legacy": "Ce type de fichier n'est plus pris en charge et ne peut pas être ouvert ici. Contactez-nous si vous avez besoin de le convertir en PDF.",

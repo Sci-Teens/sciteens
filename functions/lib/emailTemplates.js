@@ -20,11 +20,23 @@ function esc(value) {
 }
 
 // Hrefs get the same escaping plus a scheme check: an https link is
-// the only thing any of these templates ever needs, and it keeps
-// `javascript:`/`data:` out of mail clients that still follow them.
+// the only thing any of these templates ever needs in production, and
+// it keeps `javascript:`/`data:` out of mail clients that still
+// follow them. Loopback http is the one exception, because the Auth
+// emulator hands back an http://127.0.0.1:9099/emulator/action link
+// and silently rewriting it to '#' leaves local signup with a dead
+// verify button. A rejected url is logged rather than swallowed.
 function safeHref(url) {
   const value = String(url ?? '')
-  return /^https:\/\//i.test(value) ? esc(value) : '#'
+  if (/^https:\/\//i.test(value)) return esc(value)
+  if (
+    /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//i.test(
+      value
+    )
+  )
+    return esc(value)
+  console.warn('Dropped non-https email link:', value)
+  return '#'
 }
 
 function layout(bodyHtml, { unsubscribeUrl } = {}) {

@@ -58,7 +58,7 @@ service cloud.firestore {
         && request.resource.data.contentType in
             ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf']
         && request.resource.data.size is int
-        && request.resource.data.size > 0
+        && request.resource.data.size >= 0
         && request.resource.data.size <= 8000000
         && request.resource.data.path is string
         && request.resource.data.bucket is string
@@ -237,8 +237,23 @@ service cloud.firestore {
           && request.resource.data.display == request.auth.token.get('name', null)
           && request.resource.data.comment is string
           && request.resource.data.comment.size() <= 1000
-          && request.resource.data.date is string;
-        allow update, delete: if request.auth.uid == resource.data.uid;
+          && request.resource.data.date is string
+          // Both reply fields land in a Firestore document path in
+          // newDiscussion (functions/index.js), so a separator or a
+          // non-string there retargets that read.
+          && request.resource.data.get('reply_to_id', '') is string
+          && request.resource.data.get('reply_to_id', '').size() <= 128
+          && request.resource.data.get('reply_to_name', '') is string
+          && request.resource.data.get('reply_to_name', '').size() <= 200;
+        // Editing may only touch the body. Without this the create-time
+        // guards above are a one-write speed bump: post a clean comment,
+        // then rewrite `display` and `comment` to anything at all.
+        allow update: if request.auth.uid == resource.data.uid
+          && request.resource.data.diff(resource.data)
+              .affectedKeys().hasOnly(['comment'])
+          && request.resource.data.comment is string
+          && request.resource.data.comment.size() <= 1000;
+        allow delete: if request.auth.uid == resource.data.uid;
       }
 
       // ---- Project files ------------------------------------------------
@@ -312,17 +327,19 @@ service cloud.firestore {
       // in `emails` and interpolates `title` into the message body, so
       // both are bounded here — an unvalidated array turns any project
       // member into a mail relay with a SciTeens-branded template.
-      allow create, update, delete: if request.auth != null
+      allow create, update: if
+        exists(/databases/$(database)/documents/projects/$(projectId))
+        && isProjectMember(projectId)
+        && request.resource.data.keys().hasOnly(['emails', 'title'])
+        && request.resource.data.emails is list
+        && request.resource.data.emails.size() <= 10
+        && request.resource.data.title is string
+        && request.resource.data.title.size() <= 200;
+      allow delete: if request.auth != null
         && exists(/databases/$(database)/documents/projects/$(projectId))
         && request.auth.uid in
             get(/databases/$(database)/documents/projects/$(projectId))
-              .data.member_uids
-        && (request.method == 'delete'
-            || (request.resource.data.keys().hasOnly(['emails', 'title'])
-                && request.resource.data.emails is list
-                && request.resource.data.emails.size() <= 10
-                && request.resource.data.title is string
-                && request.resource.data.title.size() <= 200));
+              .data.member_uids;
     }
 
     // ---- Programs -------------------------------------------------------

@@ -70,9 +70,9 @@ async function meiliSearch(params) {
   }
 }
 
-function parseIntParam(value, fallback) {
+function parsePageParam(value) {
   const parsed = parseInt(value, 10)
-  if (!Number.isFinite(parsed)) return fallback
+  if (!Number.isFinite(parsed)) return 0
   return Math.min(Math.max(parsed, 0), MAX_SEARCH_PAGE)
 }
 
@@ -97,16 +97,20 @@ export default async function handler(req, res) {
   } = req.query
 
   try {
+    const pageParam = parsePageParam(firstParam(page))
     const params = buildProjectSearchParams({
       search: String(firstParam(q) ?? '').slice(
         0,
         MAX_QUERY_LENGTH
       ),
-      field: firstParam(field),
+      field: String(firstParam(field) ?? '').slice(
+        0,
+        MAX_QUERY_LENGTH
+      ),
       dateFrom: firstParam(dateFrom),
       dateTo: firstParam(dateTo),
       sort: firstParam(sort),
-      page: parseIntParam(firstParam(page), 0),
+      page: pageParam,
     })
 
     const result = await meiliSearch(params)
@@ -121,9 +125,14 @@ export default async function handler(req, res) {
       page: Math.floor(
         (result.offset ?? 0) / (result.limit || 1)
       ),
+      // Closed at the clamp, not just at the end of the result set:
+      // pages/projects.js drives its infinite query off this flag, so
+      // leaving it true past MAX_SEARCH_PAGE re-appends the last page
+      // forever instead of stopping.
       hasNextPage:
+        pageParam < MAX_SEARCH_PAGE &&
         (result.offset ?? 0) + (result.hits?.length ?? 0) <
-        (result.estimatedTotalHits ?? 0),
+          (result.estimatedTotalHits ?? 0),
     })
   } catch (err) {
     console.error('search/projects failed:', err)

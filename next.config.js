@@ -44,6 +44,12 @@ const connectSrc = [
   'https://securetoken.googleapis.com',
   'https://firebaseinstallations.googleapis.com',
   'https://firebasestorage.googleapis.com',
+  'https://storage.googleapis.com',
+  // Newer Firebase Storage bucket domain. Accepted by
+  // context/helpers.js#isSafeFileUrl and firestore.rules, so the three
+  // allowlists have to move together or a record on that domain
+  // renders as an empty card.
+  'https://*.firebasestorage.app',
   'https://huggingface.co',
   'https://hf.co',
   'https://*.hf.co',
@@ -148,7 +154,7 @@ module.exports = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
               // blob: — components/File.js previews dropped/loaded
               // project files via URL.createObjectURL before upload.
-              "img-src 'self' data: blob: https://images.prismic.io https://source.unsplash.com https://*.googleusercontent.com https://firebasestorage.googleapis.com https://storage.googleapis.com; " +
+              "img-src 'self' data: blob: https://images.prismic.io https://source.unsplash.com https://*.googleusercontent.com https://firebasestorage.googleapis.com https://storage.googleapis.com https://*.firebasestorage.app; " +
               "font-src 'self' https://fonts.gstatic.com; " +
               // *.firebaseapp.com hosts the Firebase Auth helper iframe
               // (__/auth/iframe) that signInWithPopup/signInWithRedirect
@@ -158,9 +164,13 @@ module.exports = {
               // firebasestorage.googleapis.com/storage.googleapis.com —
               // components/FileGallery.js embeds an uploaded PDF's own
               // download URL in an <iframe> for in-page viewing.
+              // The media hosts match htmlserializer.js's
+              // EMBED_SRC_HOSTS: article/course oEmbeds are rendered as
+              // our own iframe pointing at one of those origins, and
+              // without them here every embed is a blank frame.
               `frame-src https://www.google.com https://*.firebaseapp.com ${
                 authDomain ? `https://${authDomain} ` : ''
-              }https://firebasestorage.googleapis.com https://storage.googleapis.com; ` +
+              }https://firebasestorage.googleapis.com https://storage.googleapis.com https://*.firebasestorage.app https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://w.soundcloud.com https://open.spotify.com; ` +
               `connect-src ${connectSrc}; ` +
               "frame-ancestors 'self'; " +
               "base-uri 'self'; " +

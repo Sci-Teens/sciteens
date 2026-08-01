@@ -254,6 +254,10 @@ describe('/profiles/{uid}/files/{fileId}', () => {
     'https://evil.example/payload.png',
     'http://firebasestorage.googleapis.com/v0/b/x/o/f1.png',
     'https://firebasestorage.googleapis.com.evil.example/f1.png',
+    'https://firebasestorage.googleapis.com@evil.example/f1.png',
+    // Pins matches() as a whole-string match: a valid Storage url as a
+    // substring must not carry the rest of the value through.
+    'javascript:fetch("https://storage.googleapis.com/x")',
   ])(
     'rejects create with a non-Storage url: %s',
     async (url) => {
@@ -262,6 +266,44 @@ describe('/profiles/{uid}/files/{fileId}', () => {
         setDoc(
           doc(db, 'profiles/alice/files/f1'),
           validRecord({ url })
+        )
+      )
+    }
+  )
+
+  // The other two host alternatives in isStorageUrl. Firebase's default
+  // bucket domain moved to *.firebasestorage.app, so that branch is the
+  // one most likely to become load-bearing.
+  it.each([
+    'https://storage.googleapis.com/sciteens.appspot.com/f1.png',
+    'https://sciteens.firebasestorage.app/f1.png',
+  ])('accepts the %s host', async (url) => {
+    const db = ctxFirestore('alice')
+    await assertSucceeds(
+      setDoc(
+        doc(db, 'profiles/alice/files/f1'),
+        validRecord({ url })
+      )
+    )
+  })
+
+  // The exact 11-key shape context/helpers.js#buildFileRecord emits.
+  // Without this, dropping a key from the hasOnly list would break
+  // every upload in production with the suite still green.
+  it.each([
+    ['a plain gallery file', null],
+    [
+      'a PDF with a persisted thumbnail',
+      'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/thumb.png',
+    ],
+  ])(
+    'accepts the real buildFileRecord payload for %s',
+    async (_label, thumbnailUrl) => {
+      const db = ctxFirestore('alice')
+      await assertSucceeds(
+        setDoc(
+          doc(db, 'profiles/alice/files/f1'),
+          validRecord({ isResume: false, thumbnailUrl })
         )
       )
     }
@@ -970,6 +1012,37 @@ describe('/projects/{id}/discussion/{feedbackId}', () => {
       )
     )
   })
+
+  // Without an update guard the create-time checks are a one-write
+  // speed bump: post a clean comment, then rewrite it into anything.
+  it.each([
+    [
+      'a display name they do not own',
+      { display: 'SciTeens Staff' },
+    ],
+    [
+      'a comment past the cap',
+      { comment: 'x'.repeat(1001) },
+    ],
+    ['an undeclared extra field', { pinned: true }],
+  ])(
+    'rejects an author update setting %s',
+    async (_label, patch) => {
+      await seedProject()
+      await seed((db) =>
+        setDoc(
+          doc(db, 'projects/p1/discussion/c1'),
+          comment()
+        )
+      )
+      await assertFails(
+        updateDoc(
+          doc(asBob(), 'projects/p1/discussion/c1'),
+          patch
+        )
+      )
+    }
+  )
 
   it('only the comment author can update or delete it', async () => {
     await seedProject()

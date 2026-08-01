@@ -41,7 +41,15 @@ const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg']
 // client actually vouched for.
 function classify(file) {
   if (isLegacyUnsupportedFile(file?.type)) return 'other'
-  if (!getPreviewUrl(file)) return 'other'
+  // Deliberately not `getPreviewUrl(file)`: that allocates an
+  // unrevoked object URL for a Blob, and classify runs three times
+  // per file per render across the filters below.
+  if (
+    file?.url
+      ? !isSafeFileUrl(file.url)
+      : typeof file?.arrayBuffer !== 'function'
+  )
+    return 'other'
   if (file?.type === 'application/pdf') return 'pdf'
   if (IMAGE_TYPES.includes(file?.type)) return 'image'
   return 'other'

@@ -49,6 +49,8 @@ import {
   getSafeUploadName,
   getUploadStoragePath,
   isAllowedLink,
+  MAX_PROJECT_MEMBERS,
+  MAX_PROJECT_TITLE,
 } from '../../../context/helpers'
 import { generatePdfThumbnailBlob } from '../../../lib/pdfThumbnail'
 import firebaseConfig from '../../../firebaseConfig'
@@ -103,7 +105,11 @@ export default function UpdateProject({ query }) {
     .object({
       title: z
         .string()
-        .min(1, t('project_create_edit.error_title')),
+        .min(1, t('project_create_edit.error_title'))
+        .max(
+          MAX_PROJECT_TITLE,
+          t('project_create_edit.error_title_too_long')
+        ),
       start_date: z
         .string()
         .min(1, t('project_create_edit.error_start_date')),
@@ -457,6 +463,13 @@ export default function UpdateProject({ query }) {
         if (!isEmail(e.target.value)) {
           setErrorMember(
             t('project_create_edit.error_email')
+          )
+        } else if (
+          members.length >= MAX_PROJECT_MEMBERS &&
+          !members.includes(e.target.value)
+        ) {
+          setErrorMember(
+            t('project_create_edit.members_too_many')
           )
         } else {
           setErrorMember('')

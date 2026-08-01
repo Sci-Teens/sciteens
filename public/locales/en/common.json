@@ -115,7 +115,9 @@
     "why_update_project": "Here, you can update your project",
     "update": "Update",
     "cancel": "Cancel",
-    "could_not_update": "We could not update your project at this time"
+    "could_not_update": "We could not update your project at this time",
+    "members_too_many": "You can invite up to 10 collaborators",
+    "error_title_too_long": "Please keep your project title under 200 characters"
   },
   "file": {
     "unsupported_legacy": "This file type is no longer supported and can't be opened here. Contact us if you need it converted to a PDF.",

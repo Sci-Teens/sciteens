@@ -212,6 +212,15 @@ export const ALLOWED_LINK_HOSTS = [
 
 export const MAX_LINKS = 10
 
+// Bounds on the project-invite document the create/edit forms write.
+// firestore.rules enforces the same numbers, and newProjectInvite
+// re-checks them again before spending Resend quota; mirrored here so
+// an honest user is stopped by a field error instead of a
+// permission-denied thrown after the project doc has already been
+// committed.
+export const MAX_PROJECT_MEMBERS = 10
+export const MAX_PROJECT_TITLE = 200
+
 // True only for an https URL whose hostname is, or is a subdomain of,
 // an entry in ALLOWED_LINK_HOSTS. This is the single point of
 // enforcement — called both when a link is added in the create/edit
@@ -276,9 +285,10 @@ export function isSafeFileUrl(url) {
   } catch {
     return false
   }
-  // Pre-upload previews come from URL.createObjectURL on a
-  // dropzone-picked File, which never leaves this document.
-  if (parsed.protocol === 'blob:') return true
+  // No blob: branch. Dropzone previews bypass this guard entirely
+  // (components/File.js returns URL.createObjectURL directly for a
+  // Blob), and firestore.rules forbids persisting a blob: url, so the
+  // only strings that ever reach here are stored https ones.
   if (parsed.protocol !== 'https:') return false
   const host = parsed.hostname.toLowerCase()
   return (
@@ -288,10 +298,7 @@ export function isSafeFileUrl(url) {
 }
 
 function generateUploadId() {
-  const cryptoObj =
-    typeof globalThis !== 'undefined'
-      ? globalThis.crypto
-      : undefined
+  const cryptoObj = globalThis.crypto
   if (cryptoObj?.randomUUID) return cryptoObj.randomUUID()
   // Storage object names must not be guessable or collidable, so the
   // fallback still draws from the CSPRNG rather than Math.random.

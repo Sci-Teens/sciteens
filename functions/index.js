@@ -69,17 +69,24 @@ async function slackPost(text) {
     // Node's built-in fetch rather than axios: one JSON POST does not
     // justify a dependency whose 0.x line carries a standing pile of
     // SSRF, proxy-credential-leak, and prototype-pollution advisories.
-    await fetch(webhook, {
+    const res = await fetch(webhook, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text }),
       signal: AbortSignal.timeout(10000),
     })
+    // fetch resolves on any status, unlike the axios call this
+    // replaced. A revoked webhook answers 403/404/410, so without
+    // this the alerting channel would go quiet with nothing logged.
+    if (!res.ok) {
+      console.error(
+        'Slack post failed:',
+        res.status,
+        await res.text().catch(() => '')
+      )
+    }
   } catch (err) {
-    console.error(
-      'Slack post failed:',
-      (err && err.statusCode) || err
-    )
+    console.error('Slack post failed:', err)
   }
 }
 
@@ -1121,6 +1128,17 @@ exports.newProjectInvite = functions
         )
       )
       .slice(0, MAX_PROJECT_INVITES)
+
+    // Both drop paths are otherwise invisible: the invite doc is
+    // deleted at the end of this handler, so a silently skipped
+    // invitee leaves no artifact to diagnose from.
+    const dropped =
+      (Array.isArray(raw) ? raw.length : 0) - emails.length
+    if (dropped > 0) {
+      console.warn(
+        `Dropped ${dropped} invalid or excess invite address(es) for project ${id}`
+      )
+    }
 
     emails.forEach((email) => {
       // Fetch the user from email
