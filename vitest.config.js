@@ -37,6 +37,10 @@ module.exports = defineConfig({
   },
   test: {
     environment: 'node',
+    // Non-UTC on purpose: the date helper pins its own formatting to
+    // UTC, and that assertion is vacuous on a runner that is already
+    // UTC (as GitHub's ubuntu-latest is).
+    env: { TZ: 'Asia/Kolkata' },
     setupFiles: ['./vitest.setup.js'],
     include: ['**/*.test.js'],
     exclude: [

@@ -3,9 +3,15 @@ import { Input as InputPrimitive } from '@base-ui/react/input'
 
 import { cn } from '@/lib/utils'
 
-function Input({ className, type, ...props }) {
+// forwardRef because React 18 drops `ref` from a plain function
+// component's props: without it `<Input ref={...} />` silently no-ops.
+const Input = React.forwardRef(function Input(
+  { className, type, ...props },
+  ref
+) {
   return (
     <InputPrimitive
+      ref={ref}
       type={type}
       data-slot="input"
       className={cn(
@@ -15,6 +21,6 @@ function Input({ className, type, ...props }) {
       {...props}
     />
   )
-}
+})
 
 export { Input }

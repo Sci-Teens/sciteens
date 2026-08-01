@@ -6,21 +6,28 @@ import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import InfiniteScrollTrigger from '@/components/InfiniteScrollTrigger'
-import PageHeading from '@/components/PageHeading'
 
 var Prismic = require('@prismicio/client')
 import { RichText } from 'prismic-reactjs'
 
-import moment from 'moment'
-import { getTranslatedFieldsDict } from '../context/helpers'
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { Card, CardContent } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
+import {
+  getFieldLabel,
+  getTranslatedFieldsDict,
+} from '../context/helpers'
+import { formatMediumDate } from '../lib/formatDate'
+import { Button } from '@/components/ui/button'
+import ActiveFilters from '@/components/search/ActiveFilters'
+import EmptyState from '@/components/search/EmptyState'
+import ListingCard from '@/components/search/ListingCard'
+import ListingLayout from '@/components/search/ListingLayout'
+import ListingSkeleton from '@/components/search/ListingSkeleton'
+import ResultsCount from '@/components/search/ResultsCount'
 import SearchToolbar from '@/components/search/SearchToolbar'
-import FilterAside from '@/components/search/FilterAside'
 import TopicsList from '@/components/search/TopicsList'
 
 const ARTICLES_PAGE_SIZE = 10
+const WORDS_PER_MINUTE = 200
 
 async function fetchArticlesPage({
   search,
@@ -69,17 +76,42 @@ async function fetchArticlesPage({
       articles.page < articles.total_pages
         ? articles.page + 1
         : null,
-    totalPages: articles.total_pages,
+    totalResults: articles.total_results_size,
   }
+}
+
+function readingMinutes(richText) {
+  const words = (richText || []).reduce((total, block) => {
+    if (block.type === 'paragraph' && block.text) {
+      return total + block.text.split(' ').length
+    }
+    return total
+  }, 0)
+
+  return Math.max(1, Math.round(words / WORDS_PER_MINUTE))
+}
+
+function imageLoader({ src, width, height }) {
+  return `${src}?fit=crop&crop=faces&w=${width || 256}&h=${
+    height || 256
+  }`
+}
+
+function authorHeadshot(article) {
+  const slice = (article.data.body || []).find(
+    (candidate) =>
+      candidate.slice_type === 'about_the_author'
+  )
+
+  return slice?.primary?.headshot?.url || ''
 }
 
 function Articles({ cached_articles }) {
   const router = useRouter()
+  const { t } = useTranslation('common')
   const [search, setSearch] = useState('')
   const [field, setField] = useState('')
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
 
   const searchParam = router.query?.search || ''
   const fieldParam =
@@ -92,7 +124,9 @@ function Articles({ cached_articles }) {
       ? queryPage
       : 1
 
-  const hasActiveFilters = Boolean(search || field)
+  const hasActiveFilters = Boolean(
+    searchParam || fieldParam
+  )
 
   const initialData = useMemo(() => {
     if (
@@ -113,7 +147,7 @@ function Articles({ cached_articles }) {
             cached_articles.total_pages
               ? cached_articles.page + 1
               : null,
-          totalPages: cached_articles.total_pages,
+          totalResults: cached_articles.total_results_size,
         },
       ],
       pageParams: [1],
@@ -146,6 +180,8 @@ function Articles({ cached_articles }) {
       ) || [],
     [articlesQuery.data]
   )
+  const totalResults =
+    articlesQuery.data?.pages[0]?.totalResults
   const loading =
     articlesQuery.isLoading && articles.length === 0
   const { hasNextPage, isFetchingNextPage, fetchNextPage } =
@@ -168,17 +204,16 @@ function Articles({ cached_articles }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady, searchParam, fieldParam])
 
-  const imageLoader = ({ src, width, height }) => {
-    return `${src}?fit=crop&crop=faces&w=${
-      width || 256
-    }&h=${height || 256}`
-  }
-
-  // Merges into whatever's already active instead of replacing the
-  // whole query — picking a topic used to drop an in-progress search
-  // term (and vice versa).
+  // Every handler below changes exactly one filter, so the rest are
+  // read back from the URL rather than from input state: sourcing them
+  // from `search` would commit a half-typed term the visitor never
+  // submitted just because they removed an unrelated chip.
   function pushFilters(overrides = {}) {
-    const next = { search, field, ...overrides }
+    const next = {
+      search: searchParam,
+      field: fieldParam,
+      ...overrides,
+    }
     const query = {}
     if (next.search) query.search = next.search
     if (next.field) query.field = next.field
@@ -187,7 +222,12 @@ function Articles({ cached_articles }) {
 
   function handleSearch(e) {
     e.preventDefault()
-    pushFilters({})
+    pushFilters({ search })
+  }
+
+  function handleClearSearch() {
+    setSearch('')
+    pushFilters({ search: '' })
   }
 
   function handleFieldSearch(nextField) {
@@ -204,130 +244,40 @@ function Articles({ cached_articles }) {
     router.push({ pathname: '/articles' })
   }
 
-  function readingTime(article) {
-    let article_length = 0
-    article.map((text) => {
-      if (text.type == 'paragraph' && text.text) {
-        article_length += text.text?.split(' ').length
-      }
+  const translatedFields = getTranslatedFieldsDict(t)
+
+  const activeFilters = []
+  if (searchParam) {
+    activeFilters.push({
+      key: 'search',
+      label: t('articles.search'),
+      value: searchParam,
+      removeLabel: t('articles.remove_filter', {
+        filter: `${t('articles.search')} ${searchParam}`,
+      }),
+      onRemove: handleClearSearch,
     })
-    let time_to_read = Math.max(
-      1,
-      Math.round(article_length / 200)
-    )
-
-    return `${time_to_read} minute read · ${article_length} words`
   }
-
-  const { t } = useTranslation('common')
-
-  function renderArticleCard(article) {
-    const author_image = article.data.body.map(
-      (slice, i) => {
-        if (slice.slice_type == 'about_the_author') {
-          return (
-            <div
-              className="relative h-6 w-6 lg:h-8 lg:w-8"
-              key={i}
-            >
-              <Image
-                alt={`${article.data.author} headshot`}
-                className="h-6 w-6 rounded-full lg:h-8 lg:w-8"
-                height={48}
-                width={48}
-                loader={imageLoader}
-                src={slice.primary.headshot.url}
-              />
-            </div>
-          )
-        } else {
-          return null
-        }
-      }
+  if (fieldParam) {
+    const label = getFieldLabel(
+      translatedFields,
+      fieldParam
     )
-
-    return (
-      <div key={article.id} className="w-full pt-6 md:pt-8">
-        <Card className="border-border/60 relative isolate overflow-hidden transition duration-300 hover:-translate-y-0.5 hover:shadow-md">
-          <a
-            href={`/article/${article.uid}`}
-            aria-label={RichText.asText(article.data.title)}
-            className="focus-visible:ring-3 focus-visible:ring-ring/50 absolute inset-0 z-10 rounded-xl"
-          />
-          <CardContent className="flex items-center">
-            <div className="bg-muted relative h-24 w-24 shrink-0 overflow-hidden rounded-lg md:h-40 md:w-40">
-              <Image
-                alt={RichText.asText(article.data.title)}
-                fill
-                sizes="(min-width: 768px) 160px, 96px"
-                className="object-cover"
-                loader={imageLoader}
-                src={article.data.image.url}
-              />
-            </div>
-            <div className="ml-4 min-w-0 flex-1">
-              <div className="mb-3 flex flex-row items-center">
-                {author_image}
-                <p className="ml-3">
-                  {article.data.author}
-                </p>
-              </div>
-              <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">
-                {RichText.asText(article.data.title)}
-              </h3>
-              <p className="line-clamp-none md:line-clamp-2 mb-2 hidden text-sm md:flex lg:text-base">
-                {article.data.description}
-              </p>
-              <p className="flex text-xs">
-                {(mounted
-                  ? moment(article.data.date)
-                      .locale(router?.locale || 'en')
-                      .format('ll')
-                  : moment(article.data.date).format(
-                      'll'
-                    )) +
-                  ' · ' +
-                  readingTime(article.data.text)}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  const articlesComponent = (
-    <div className="w-full">
-      {articles.map((article) =>
-        renderArticleCard(article)
-      )}
-    </div>
-  )
-
-  const loadingComponent = new Array(10)
-    .fill(1)
-    .map((index) => {
-      return (
-        <Skeleton
-          key={index}
-          className="mt-4 h-16 rounded-xl"
-        />
-      )
+    activeFilters.push({
+      key: 'field',
+      label: t('articles.topics'),
+      value: label,
+      removeLabel: t('articles.remove_filter', {
+        filter: `${t('articles.topics')} ${label}`,
+      }),
+      onRemove: () => handleFieldSearch('All'),
     })
-
-  const nextPageLoadingComponent = new Array(2)
-    .fill(1)
-    .map((index) => (
-      <Skeleton
-        key={index}
-        className="mt-6 h-32 w-full rounded-xl md:mt-8 md:h-48"
-      />
-    ))
+  }
 
   const filterPanel = (
     <TopicsList
       topicsLabel={t('articles.topics')}
-      fields={getTranslatedFieldsDict(t)}
+      fields={translatedFields}
       field={field}
       onFieldSelect={handleFieldSearch}
       hasActiveFilters={hasActiveFilters}
@@ -349,50 +299,156 @@ function Articles({ cached_articles }) {
         badge={field && field !== 'All' ? field : undefined}
         path="/articles"
       />
-      <div className="text-foreground mx-auto mb-24 mt-8 min-h-screen px-4 md:px-0 lg:mx-16 xl:mx-32">
-        <PageHeading className="ml-0 py-4 text-left">
-          {t('articles.articles')} 📰
-        </PageHeading>
+      <ListingLayout
+        title={t('articles.articles')}
+        lede={t('articles.lede')}
+        aside={filterPanel}
+      >
+        <SearchToolbar
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onSubmit={handleSearch}
+          onClear={handleClearSearch}
+          placeholder={t('articles.search_articles')}
+          searchLabel={t('articles.search')}
+          submitLabel={t('articles.search')}
+          clearSearchLabel={t('articles.clear_search')}
+          filtersLabel={t('articles.filters')}
+          hasActiveFilters={hasActiveFilters}
+          filtersOpen={filtersOpen}
+          onFiltersOpenChange={setFiltersOpen}
+          filterPanel={filterPanel}
+        />
 
-        <div className="flex flex-row items-start gap-8 xl:gap-12">
-          <div className="min-w-0 flex-1">
-            <SearchToolbar
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onSubmit={handleSearch}
-              placeholder={t('articles.search_articles')}
-              searchLabel={t('articles.search')}
-              submitLabel={t('articles.search')}
-              filtersLabel={t('articles.filters')}
-              hasActiveFilters={hasActiveFilters}
-              filtersOpen={filtersOpen}
-              onFiltersOpenChange={setFiltersOpen}
-              filterPanel={filterPanel}
-            />
+        <ActiveFilters
+          label={t('articles.active_filters')}
+          filters={activeFilters}
+          clearLabel={t('articles.clear_filters')}
+          onClear={handleClearFilters}
+        />
 
-            {loading ? loadingComponent : articlesComponent}
-            {articlesQuery.isFetchingNextPage &&
-              nextPageLoadingComponent}
-            {articles.length === 0 && !loading && (
-              <div className="mx-auto mt-20 text-center">
-                <i className="text-xl font-semibold">
-                  {search
-                    ? `${t('articles.sorry')} ${search}`
-                    : t('articles.sorry')}
-                </i>
-              </div>
-            )}
-            <InfiniteScrollTrigger
-              hasNextPage={hasNextPage}
-              isLoading={isFetchingNextPage}
-              onLoadMore={fetchNextPage}
-              label={t('articles.load_more')}
-            />
+        <ResultsCount>
+          {loading
+            ? t('articles.loading')
+            : !articlesQuery.isError &&
+              typeof totalResults === 'number' &&
+              t('articles.results_count', {
+                count: totalResults,
+              })}
+        </ResultsCount>
+
+        {articlesQuery.isError && (
+          <div className="border-destructive/30 bg-destructive/5 rounded-xl border px-4 py-4 text-sm">
+            <p className="text-destructive">
+              {t('articles.load_failed')}
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              onClick={() => articlesQuery.refetch()}
+            >
+              {t('articles.retry')}
+            </Button>
           </div>
+        )}
 
-          <FilterAside>{filterPanel}</FilterAside>
-        </div>
-      </div>
+        {/* The banner above sits alongside whatever already loaded: a
+            failed next-page fetch must not unmount the pages the
+            visitor has already scrolled through. */}
+        {loading ? (
+          <ListingSkeleton />
+        ) : articles.length === 0 ? (
+          !articlesQuery.isError && (
+            <EmptyState
+              title={t('articles.empty_title')}
+              description={
+                hasActiveFilters
+                  ? t('articles.empty_filtered')
+                  : t('articles.empty_default')
+              }
+              actionLabel={
+                hasActiveFilters
+                  ? t('articles.clear_filters')
+                  : undefined
+              }
+              onAction={
+                hasActiveFilters
+                  ? handleClearFilters
+                  : undefined
+              }
+            />
+          )
+        ) : (
+          <div className="w-full">
+            {articles.map((article, index) => {
+              const title = RichText.asText(
+                article.data.title
+              )
+              const headshot = authorHeadshot(article)
+
+              return (
+                <div
+                  key={article.id}
+                  className="w-full pt-6 md:pt-8"
+                >
+                  <ListingCard
+                    href={`/article/${article.uid}`}
+                    title={title}
+                    description={article.data.description}
+                    imageSrc={article.data.image?.url}
+                    imageAlt={title}
+                    imageLoader={imageLoader}
+                    priority={index === 0}
+                    byline={
+                      <div className="mb-2 flex flex-row items-center gap-2">
+                        {headshot && (
+                          <Image
+                            alt=""
+                            className="h-6 w-6 rounded-full object-cover"
+                            height={24}
+                            width={24}
+                            loader={imageLoader}
+                            src={headshot}
+                          />
+                        )}
+                        <p className="text-muted-foreground truncate text-sm">
+                          {article.data.author}
+                        </p>
+                      </div>
+                    }
+                    meta={[
+                      formatMediumDate(
+                        article.data.date,
+                        router.locale
+                      ),
+                      t('articles.reading_time', {
+                        minutes: readingMinutes(
+                          article.data.text
+                        ),
+                      }),
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  />
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {isFetchingNextPage && (
+          <ListingSkeleton count={2} />
+        )}
+
+        <InfiniteScrollTrigger
+          hasNextPage={hasNextPage}
+          isLoading={isFetchingNextPage}
+          onLoadMore={fetchNextPage}
+          label={t('articles.load_more')}
+        />
+      </ListingLayout>
     </>
   )
 }

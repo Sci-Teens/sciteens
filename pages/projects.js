@@ -5,8 +5,10 @@ import SocialMeta from '@/components/SocialMeta'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
-import { getTranslatedFieldsDict } from '../context/helpers'
-import PageHeading from '@/components/PageHeading'
+import {
+  getFieldLabel,
+  getTranslatedFieldsDict,
+} from '../context/helpers'
 
 import { db as firestore } from '../lib/firebase'
 import firebaseConfig from '../firebaseConfig'
@@ -34,16 +36,13 @@ import {
 import { PlusCircle } from 'lucide-react'
 import ProjectCard from '../components/ProjectCard'
 import InfiniteScrollTrigger from '@/components/InfiniteScrollTrigger'
-import {
-  normalizeProject,
-  formatProjectDate,
-} from '../lib/projects'
+import { normalizeProject } from '../lib/projects'
+import { formatMediumDate } from '../lib/formatDate'
 import { requiresSearchIndex } from '../lib/search'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '@/components/ui/skeleton'
 import {
   Select,
   SelectContent,
@@ -51,8 +50,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import ActiveFilters from '@/components/search/ActiveFilters'
+import EmptyState from '@/components/search/EmptyState'
+import ListingLayout from '@/components/search/ListingLayout'
+import ListingSkeleton from '@/components/search/ListingSkeleton'
+import ResultsCount from '@/components/search/ResultsCount'
 import SearchToolbar from '@/components/search/SearchToolbar'
-import FilterAside from '@/components/search/FilterAside'
 import TopicsList from '@/components/search/TopicsList'
 
 const PROJECTS_PAGE_SIZE = 10
@@ -292,8 +295,6 @@ function Projects({ cached_projects }) {
     to: '',
   })
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
 
   const searchParam = router.query?.search || ''
   const fieldParam =
@@ -302,7 +303,15 @@ function Projects({ cached_projects }) {
       : ''
   const dateFromParam = router.query?.dateFrom || ''
   const dateToParam = router.query?.dateTo || ''
-  const sortParam = router.query?.sort || ''
+  // Clamp to the values the sort control and the query builder both
+  // understand: `?sort=anything` otherwise renders a blank Select
+  // trigger and a chip that disagrees with the executed ordering.
+  const rawSortParam = router.query?.sort || ''
+  const sortParam = ['newest', 'oldest'].includes(
+    rawSortParam
+  )
+    ? rawSortParam
+    : ''
 
   useEffect(() => {
     if (!router?.isReady) return
@@ -323,12 +332,15 @@ function Projects({ cached_projects }) {
     sortParam,
   ])
 
+  // Derived from the URL, not the input state: the chips and the empty
+  // state must describe the result set on screen, not a search term the
+  // visitor has typed but not submitted yet.
   const hasActiveFilters = Boolean(
-    search ||
-      field ||
-      dateRange.from ||
-      dateRange.to ||
-      sort
+    searchParam ||
+      fieldParam ||
+      dateFromParam ||
+      dateToParam ||
+      sortParam
   )
 
   const initialData = useMemo(() => {
@@ -424,13 +436,17 @@ function Projects({ cached_projects }) {
     }
   }, [projectsQuery.isError, projectsQuery.error])
 
+  // Every handler below changes exactly one filter, so the rest are
+  // read back from the URL rather than from input state: sourcing them
+  // from `search` would commit a half-typed term the visitor never
+  // submitted just because they removed an unrelated chip.
   function pushFilters(overrides = {}) {
     const next = {
-      search,
-      field,
-      dateFrom: dateRange.from,
-      dateTo: dateRange.to,
-      sort,
+      search: searchParam,
+      field: fieldParam,
+      dateFrom: dateFromParam,
+      dateTo: dateToParam,
+      sort: sortParam,
       ...overrides,
     }
     const query = {}
@@ -444,7 +460,12 @@ function Projects({ cached_projects }) {
 
   function handleSearchSubmit(e) {
     e.preventDefault()
-    pushFilters({})
+    pushFilters({ search })
+  }
+
+  function handleClearSearch() {
+    setSearch('')
+    pushFilters({ search: '' })
   }
 
   function handleFieldSelect(nextField) {
@@ -474,47 +495,81 @@ function Projects({ cached_projects }) {
     setField('')
     setSort('')
     setDateRange({ from: '', to: '' })
+    setFiltersOpen(false)
     router.push({ pathname: '/projects' })
   }
 
-  const projectsComponent = (
-    <div className="w-full">
-      {projects.map((project) => (
-        <div
-          key={project.id}
-          className="w-full pt-6 md:pt-8"
-        >
-          <ProjectCard
-            project={project}
-            date={formatProjectDate(
-              project.date,
-              mounted ? router?.locale : undefined
-            )}
-          />
-        </div>
-      ))}
-    </div>
-  )
+  const translatedFields = getTranslatedFieldsDict(t)
 
-  const loadingComponent = new Array(10)
-    .fill(1)
-    .map((index) => {
-      return (
-        <Skeleton
-          key={index}
-          className="mt-4 h-16 rounded-xl"
-        />
-      )
+  // Base UI renders the raw value in the trigger unless it is told how
+  // to label it, so the sort control read "relevance" instead of
+  // "Relevance".
+  const sortLabels = {
+    relevance: t('projects.sort_relevance'),
+    newest: t('projects.sort_newest'),
+    oldest: t('projects.sort_oldest'),
+  }
+
+  const activeFilters = []
+  if (searchParam) {
+    activeFilters.push({
+      key: 'search',
+      label: t('projects.search'),
+      value: searchParam,
+      removeLabel: t('projects.remove_filter', {
+        filter: `${t('projects.search')} ${searchParam}`,
+      }),
+      onRemove: handleClearSearch,
     })
-
-  const nextPageLoadingComponent = new Array(2)
-    .fill(1)
-    .map((index) => (
-      <Skeleton
-        key={index}
-        className="mt-6 h-32 w-full rounded-xl md:mt-8 md:h-48"
-      />
-    ))
+  }
+  if (fieldParam) {
+    const label = getFieldLabel(
+      translatedFields,
+      fieldParam
+    )
+    activeFilters.push({
+      key: 'field',
+      label: t('projects.topics'),
+      value: label,
+      removeLabel: t('projects.remove_filter', {
+        filter: `${t('projects.topics')} ${label}`,
+      }),
+      onRemove: () => handleFieldSelect('All'),
+    })
+  }
+  if (dateFromParam || dateToParam) {
+    const from = formatMediumDate(
+      dateFromParam,
+      router.locale
+    )
+    const to = formatMediumDate(dateToParam, router.locale)
+    const value =
+      from && to
+        ? `${from} – ${to}`
+        : from || `${t('projects.date_to')} ${to}`
+    activeFilters.push({
+      key: 'date',
+      label: t('projects.date_range'),
+      value,
+      removeLabel: t('projects.remove_filter', {
+        filter: `${t('projects.date_range')} ${value}`,
+      }),
+      onRemove: () =>
+        handleDateRangeChange({ from: '', to: '' }),
+    })
+  }
+  if (sortParam) {
+    const value = sortLabels[sortParam]
+    activeFilters.push({
+      key: 'sort',
+      label: t('projects.sort_by'),
+      value,
+      removeLabel: t('projects.remove_filter', {
+        filter: `${t('projects.sort_by')} ${value}`,
+      }),
+      onRemove: () => handleSortChange('relevance'),
+    })
+  }
 
   const filterPanelProps = {
     t,
@@ -540,11 +595,11 @@ function Projects({ cached_projects }) {
         badge={field && field !== 'All' ? field : undefined}
         path="/projects"
       />
-      <div className="text-foreground mx-auto mb-24 mt-8 min-h-screen px-4 md:px-0 lg:mx-16 xl:mx-32">
-        <div className="flex flex-row items-center justify-between">
-          <PageHeading className="ml-0 py-4 text-left">
-            {t('projects.projects')} 🔬
-          </PageHeading>
+      <ListingLayout
+        title={t('projects.projects')}
+        lede={t('projects.lede')}
+        aside={<FilterPanel {...filterPanelProps} />}
+        actions={
           <Button
             variant="outline"
             render={
@@ -556,107 +611,167 @@ function Projects({ cached_projects }) {
                 {t('projects.create')}
               </Link>
             }
-            className="shrink-0"
+            className="shrink-0 touch-manipulation"
           />
-        </div>
+        }
+      >
+        <SearchToolbar
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onSubmit={handleSearchSubmit}
+          onClear={handleClearSearch}
+          placeholder={t('projects.search_projects')}
+          searchLabel={t('projects.search')}
+          submitLabel={t('projects.search')}
+          clearSearchLabel={t('projects.clear_search')}
+          filtersLabel={t('projects.filters')}
+          hasActiveFilters={hasActiveFilters}
+          filtersOpen={filtersOpen}
+          onFiltersOpenChange={setFiltersOpen}
+          filterPanel={
+            <FilterPanel {...filterPanelProps} />
+          }
+        >
+          <Select
+            value={sort || 'relevance'}
+            onValueChange={handleSortChange}
+          >
+            <SelectTrigger
+              aria-label={t('projects.sort_by')}
+              className="bg-card w-full shadow-sm sm:w-44"
+            >
+              <SelectValue>
+                {(value) => sortLabels[value]}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="relevance">
+                {t('projects.sort_relevance')}
+              </SelectItem>
+              <SelectItem value="newest">
+                {t('projects.sort_newest')}
+              </SelectItem>
+              <SelectItem value="oldest">
+                {t('projects.sort_oldest')}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </SearchToolbar>
+
+        <ActiveFilters
+          label={t('projects.active_filters')}
+          filters={activeFilters}
+          clearLabel={t('projects.clear_filters')}
+          onClear={handleClearFilters}
+        />
+
+        <ResultsCount>
+          {loading
+            ? t('projects.loading')
+            : !projectsQuery.isError &&
+              typeof totalHits === 'number' &&
+              t('projects.results_count', {
+                count: totalHits,
+              })}
+        </ResultsCount>
 
         {projectsQuery.isError && (
-          <div className="border-destructive/30 bg-destructive/5 text-destructive mb-6 rounded-xl border px-4 py-3 text-sm">
-            {t('projects.search_unavailable')}
+          <div className="border-destructive/30 bg-destructive/5 rounded-xl border px-4 py-4 text-sm">
+            <p className="text-destructive">
+              {t('projects.search_unavailable')}
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              onClick={() => projectsQuery.refetch()}
+            >
+              {t('projects.retry')}
+            </Button>
           </div>
         )}
 
-        <div className="flex flex-row items-start gap-8 xl:gap-12">
-          <div className="min-w-0 flex-1">
-            {/* Search + sort + filters row lives inside the content
-                column (not the outer page container) so its width — and
-                therefore the search input/card right edge — matches the
-                results list below exactly. It's always visible at every
-                breakpoint; the previous layout hid the entire search UI
-                below `lg`, leaving mobile/tablet visitors with no way to
-                search or filter at all. */}
-            <SearchToolbar
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onSubmit={handleSearchSubmit}
-              placeholder={t('projects.search_projects')}
-              searchLabel={t('projects.search')}
-              submitLabel={t('projects.search')}
-              filtersLabel={t('projects.filters')}
-              hasActiveFilters={hasActiveFilters}
-              filtersOpen={filtersOpen}
-              onFiltersOpenChange={setFiltersOpen}
-              filterPanel={
-                <FilterPanel {...filterPanelProps} />
+        {/* The banner above sits alongside whatever already loaded: a
+            failed next-page fetch must not unmount the pages the
+            visitor has already scrolled through. */}
+        {loading ? (
+          <ListingSkeleton />
+        ) : projects.length === 0 ? (
+          !projectsQuery.isError && (
+            <EmptyState
+              title={t('projects.empty_title')}
+              description={
+                hasActiveFilters
+                  ? t('projects.empty_filtered')
+                  : t('projects.empty_default')
               }
-            >
-              <Select
-                value={sort || 'relevance'}
-                onValueChange={handleSortChange}
-              >
-                <SelectTrigger className="bg-card w-full shadow-sm sm:w-44">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="relevance">
-                    {t('projects.sort_relevance')}
-                  </SelectItem>
-                  <SelectItem value="newest">
-                    {t('projects.sort_newest')}
-                  </SelectItem>
-                  <SelectItem value="oldest">
-                    {t('projects.sort_oldest')}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </SearchToolbar>
-
-            {typeof totalHits === 'number' && (
-              <p className="text-muted-foreground mb-2 text-sm">
-                {t('projects.results_count', {
-                  count: totalHits,
-                })}
-              </p>
-            )}
-            <div
-              className={cn(
-                'transition-opacity',
-                // Dim only while keepPreviousData holds a stale filter/sort page, not initial revalidation or next-page fetches.
-                projectsQuery.isPlaceholderData &&
-                  'opacity-60'
-              )}
-            >
-              {loading && projects.length === 0
-                ? loadingComponent
-                : projectsComponent}
-            </div>
-            {projectsQuery.isFetchingNextPage &&
-              nextPageLoadingComponent}
-            {!loading &&
-              !projectsQuery.isError &&
-              projects.length === 0 &&
-              hasActiveFilters && (
-                <div className="mx-auto mt-20 text-center">
-                  <i className="text-xl font-semibold">
-                    {search
-                      ? `${t('projects.sorry')} ${search}`
-                      : t('projects.sorry')}
-                  </i>
-                </div>
-              )}
-            <InfiniteScrollTrigger
-              hasNextPage={hasNextPage}
-              isLoading={isFetchingNextPage}
-              onLoadMore={fetchNextPage}
-              label={t('projects.load_more')}
+              actionLabel={
+                hasActiveFilters
+                  ? t('projects.clear_filters')
+                  : undefined
+              }
+              onAction={
+                hasActiveFilters
+                  ? handleClearFilters
+                  : undefined
+              }
+              action={
+                hasActiveFilters ? undefined : (
+                  <Button
+                    variant="outline"
+                    className="mt-6"
+                    render={
+                      <Link href="/project/create">
+                        <PlusCircle
+                          className="h-4 w-4"
+                          aria-hidden="true"
+                        />
+                        {t('projects.create')}
+                      </Link>
+                    }
+                  />
+                )
+              }
             />
+          )
+        ) : (
+          <div
+            className={cn(
+              'w-full transition-opacity',
+              // Dim only while keepPreviousData holds a stale filter/sort page, not initial revalidation or next-page fetches.
+              projectsQuery.isPlaceholderData &&
+                'opacity-60'
+            )}
+          >
+            {projects.map((project) => (
+              <div
+                key={project.id}
+                className="w-full pt-6 md:pt-8"
+              >
+                <ProjectCard
+                  project={project}
+                  date={formatMediumDate(
+                    project.date,
+                    router.locale
+                  )}
+                />
+              </div>
+            ))}
           </div>
+        )}
 
-          <FilterAside>
-            <FilterPanel {...filterPanelProps} />
-          </FilterAside>
-        </div>
-      </div>
+        {isFetchingNextPage && (
+          <ListingSkeleton count={2} />
+        )}
+
+        <InfiniteScrollTrigger
+          hasNextPage={hasNextPage}
+          isLoading={isFetchingNextPage}
+          onLoadMore={fetchNextPage}
+          label={t('projects.load_more')}
+        />
+      </ListingLayout>
     </>
   )
 }

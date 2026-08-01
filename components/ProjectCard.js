@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useTranslation } from 'next-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -61,11 +62,14 @@ export default function ProjectCard({
     Boolean(normalizedProject?.project_photo) && !photoError
 
   return (
-    <Card className="border-border/60 relative isolate overflow-hidden transition duration-300 hover:-translate-y-0.5 hover:shadow-md">
-      <a
+    <Card className="border-border/60 hover:border-border hover:bg-muted/40 relative isolate overflow-hidden transition-colors">
+      {/* Inset outline: Card is `overflow-hidden`, so the global
+          `outline-offset: 2px` focus ring paints outside the clip box
+          and disappears entirely. */}
+      <Link
         href={`/project/${normalizedProject.id}`}
         aria-label={normalizedProject.title}
-        className="focus-visible:ring-3 focus-visible:ring-ring/50 absolute inset-0 z-10 rounded-xl"
+        className="focus-visible:outline-ring focus-visible:-outline-offset-2 absolute inset-0 z-10 rounded-xl focus-visible:outline-2"
       />
       <div className="absolute right-2 top-2 z-20">
         <ProjectUpvoteButton
@@ -74,14 +78,14 @@ export default function ProjectCard({
           size="sm"
         />
       </div>
-      <CardContent className="flex items-center">
-        <div className="bg-muted relative h-24 w-24 shrink-0 overflow-hidden rounded-lg md:h-40 md:w-40">
+      <CardContent className="flex items-start gap-4">
+        <div className="bg-muted relative h-24 w-24 shrink-0 overflow-hidden rounded-lg md:h-36 md:w-36">
           {hasPhoto ? (
             <Image
               src={normalizedProject.project_photo}
               alt={normalizedProject.title}
               fill
-              sizes="(min-width: 768px) 160px, 96px"
+              sizes="(min-width: 768px) 144px, 96px"
               className="object-cover"
               onError={() => setPhotoError(true)}
             />
@@ -97,9 +101,9 @@ export default function ProjectCard({
             />
           )}
         </div>
-        <div className="ml-4 min-w-0 flex-1">
+        <div className="min-w-0 flex-1">
           {(members.length > 0 || date) && (
-            <div className="text-muted-foreground mb-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 gap-y-1 text-sm">
+            <div className="text-muted-foreground mb-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 gap-y-1 pr-16 text-sm">
               {members.length > 0 && (
                 <>
                   <div className="flex -space-x-2 overflow-hidden">
@@ -158,34 +162,33 @@ export default function ProjectCard({
               )}
             </div>
           )}
-          <h3 className="line-clamp-2 mb-2 text-base font-semibold md:text-xl lg:text-2xl">
+          <h3 className="line-clamp-2 text-pretty text-base font-semibold md:text-lg lg:text-xl">
             {normalizedProject.title}
           </h3>
           {normalizedProject.abstract && (
-            <p className="line-clamp-none text-muted-foreground md:line-clamp-2 lg:line-clamp-3 mb-4 hidden md:block">
+            <p className="text-muted-foreground md:line-clamp-2 max-md:hidden mt-1.5 max-w-[68ch] text-sm leading-relaxed">
               {normalizedProject.abstract}
             </p>
           )}
           {fields.length > 0 && (
-            <div className="hidden flex-row lg:flex">
+            <div className="mt-3 hidden flex-row flex-wrap items-center gap-2 lg:flex">
               {fields
                 .slice(0, visibleFieldCount)
                 .map((field) => (
-                  <p
+                  <span
                     key={field}
-                    className="bg-muted z-30 mb-2 mr-2 whitespace-nowrap rounded-full px-3 py-1.5 text-xs shadow-sm"
+                    className="bg-muted text-foreground whitespace-nowrap rounded-full px-3 py-1 text-xs"
                   >
                     {getFieldLabel(translatedFields, field)}
-                  </p>
+                  </span>
                 ))}
-              {fields.length >= 3 && (
-                <p className="text-muted-foreground mt-1.5 hidden whitespace-nowrap text-xs lg:flex">
-                  + {fields.length - visibleFieldCount} more
-                  field
-                  {fields.length - visibleFieldCount === 1
-                    ? ''
-                    : 's'}
-                </p>
+              {fields.length > visibleFieldCount && (
+                <span className="text-muted-foreground whitespace-nowrap text-xs">
+                  {t('projects.more_fields', {
+                    count:
+                      fields.length - visibleFieldCount,
+                  })}
+                </span>
               )}
             </div>
           )}
