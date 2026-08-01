@@ -43,6 +43,7 @@ import { AppContext } from '../../../context/context'
 import {
   getLinkPlatformLabel,
   isAllowedLink,
+  isSafeFileUrl,
 } from '../../../context/helpers'
 import FileGallery, {
   FileGallerySkeleton,
@@ -87,10 +88,15 @@ function Project({ profile }) {
     })
 
   // Resume is a single-slot file record (isResume: true) — kept out
-  // of the gallery below and surfaced as its own CTA instead.
+  // of the gallery below and surfaced as its own CTA instead. The
+  // record's `url` is client-written, so it only becomes an href once
+  // it checks out as a Storage url.
   const resumeRecord = useMemo(
     () =>
-      fileRecords.find((record) => record.isResume) || null,
+      fileRecords.find(
+        (record) =>
+          record.isResume && isSafeFileUrl(record.url)
+      ) || null,
     [fileRecords]
   )
   const galleryFiles = useMemo(

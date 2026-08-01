@@ -14,6 +14,12 @@ import {
 } from '@/lib/search'
 
 const REQUEST_TIMEOUT_MS = 8000
+// Deep pagination is the expensive shape for Meilisearch, and `page`
+// comes straight off the query string, so it is clamped rather than
+// trusted: an unbounded offset is a free way to make the search
+// container do real work per request.
+const MAX_SEARCH_PAGE = 200
+const MAX_QUERY_LENGTH = 200
 
 function meiliHost() {
   const host = process.env.MEILI_HOST
@@ -66,7 +72,12 @@ async function meiliSearch(params) {
 
 function parseIntParam(value, fallback) {
   const parsed = parseInt(value, 10)
-  return Number.isFinite(parsed) ? parsed : fallback
+  if (!Number.isFinite(parsed)) return fallback
+  return Math.min(Math.max(parsed, 0), MAX_SEARCH_PAGE)
+}
+
+function firstParam(value) {
+  return Array.isArray(value) ? value[0] : value
 }
 
 export default async function handler(req, res) {
@@ -87,17 +98,15 @@ export default async function handler(req, res) {
 
   try {
     const params = buildProjectSearchParams({
-      search: Array.isArray(q) ? q[0] : q,
-      field: Array.isArray(field) ? field[0] : field,
-      dateFrom: Array.isArray(dateFrom)
-        ? dateFrom[0]
-        : dateFrom,
-      dateTo: Array.isArray(dateTo) ? dateTo[0] : dateTo,
-      sort: Array.isArray(sort) ? sort[0] : sort,
-      page: parseIntParam(
-        Array.isArray(page) ? page[0] : page,
-        0
+      search: String(firstParam(q) ?? '').slice(
+        0,
+        MAX_QUERY_LENGTH
       ),
+      field: firstParam(field),
+      dateFrom: firstParam(dateFrom),
+      dateTo: firstParam(dateTo),
+      sort: firstParam(sort),
+      page: parseIntParam(firstParam(page), 0),
     })
 
     const result = await meiliSearch(params)

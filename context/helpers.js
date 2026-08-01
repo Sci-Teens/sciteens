@@ -255,11 +255,51 @@ export function getLinkPlatformLabel(url) {
   return matchedHost ? LINK_HOST_LABELS[matchedHost] : null
 }
 
+// Hosts that may back a stored file record's `url`/`thumbnailUrl`.
+// Those fields are written by the client alongside every upload and
+// are rendered as an <a href>/<img src>/<iframe src> on public
+// profile and project pages, so a record whose url points anywhere
+// else (`javascript:`, an attacker's origin) must never become a
+// clickable target. firestore.rules#isStorageUrl enforces the same
+// set at write time; this is the render-time half, matching how
+// isAllowedLink is checked on both sides.
+const STORAGE_URL_HOSTS = [
+  'firebasestorage.googleapis.com',
+  'storage.googleapis.com',
+]
+
+export function isSafeFileUrl(url) {
+  if (typeof url !== 'string' || !url) return false
+  let parsed
+  try {
+    parsed = new URL(url)
+  } catch {
+    return false
+  }
+  // Pre-upload previews come from URL.createObjectURL on a
+  // dropzone-picked File, which never leaves this document.
+  if (parsed.protocol === 'blob:') return true
+  if (parsed.protocol !== 'https:') return false
+  const host = parsed.hostname.toLowerCase()
+  return (
+    STORAGE_URL_HOSTS.includes(host) ||
+    host.endsWith('.firebasestorage.app')
+  )
+}
+
 function generateUploadId() {
-  return typeof window !== 'undefined' &&
-    window.crypto?.randomUUID
-    ? window.crypto.randomUUID()
-    : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+  const cryptoObj =
+    typeof globalThis !== 'undefined'
+      ? globalThis.crypto
+      : undefined
+  if (cryptoObj?.randomUUID) return cryptoObj.randomUUID()
+  // Storage object names must not be guessable or collidable, so the
+  // fallback still draws from the CSPRNG rather than Math.random.
+  const bytes = new Uint8Array(16)
+  cryptoObj.getRandomValues(bytes)
+  return Array.from(bytes, (b) =>
+    b.toString(16).padStart(2, '0')
+  ).join('')
 }
 
 // Returns a safe "<id>.<ext>" storage name for `file`, or null when

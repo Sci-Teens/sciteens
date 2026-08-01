@@ -2,7 +2,10 @@ import Image from 'next/image'
 import dynamic from 'next/dynamic'
 import { useTranslation } from 'next-i18next'
 import { FileText, FileWarning, X } from 'lucide-react'
-import { isLegacyUnsupportedFile } from '../context/helpers'
+import {
+  isLegacyUnsupportedFile,
+  isSafeFileUrl,
+} from '../context/helpers'
 
 const PdfThumbnail = dynamic(
   () => import('./PdfThumbnail'),
@@ -49,7 +52,8 @@ function UnsupportedFile({ file, id, removeFile, reason }) {
 // descriptor (an already-uploaded Firestore file record) — the latter
 // never needs a blob download just to render a preview.
 export function getPreviewUrl(file) {
-  if (file?.url) return file.url
+  if (file?.url)
+    return isSafeFileUrl(file.url) ? file.url : null
   if (typeof file?.arrayBuffer === 'function') {
     return URL.createObjectURL(file)
   }
@@ -76,6 +80,20 @@ export default function RenderFile({
 
   const previewUrl = getPreviewUrl(file)
 
+  // A record whose stored url isn't a Storage url is never turned into
+  // a click target: the field is client-written, so this is the last
+  // stop before `javascript:` reaches an href.
+  if (!previewUrl) {
+    return (
+      <UnsupportedFile
+        file={file}
+        id={id}
+        removeFile={removeFile}
+        reason={t('file.unknown_type_generic')}
+      />
+    )
+  }
+
   switch (file?.type) {
     case 'application/pdf':
       return (
@@ -87,7 +105,7 @@ export default function RenderFile({
         >
           <div className="bg-muted relative h-16 w-[10%] shrink-0 overflow-hidden rounded-l-lg">
             <FileText className="absolute inset-0 m-auto h-8 w-8 text-red-600" />
-            {file?.thumbnailUrl ? (
+            {isSafeFileUrl(file?.thumbnailUrl) ? (
               // Persisted at upload time — no pdfjs, no re-fetching
               // the whole PDF just to show a preview.
               <Image

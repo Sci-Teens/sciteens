@@ -9,9 +9,12 @@ export default function Footer() {
 
   useEffect(() => {
     if (router.isReady && i18n?.isInitialized) {
-      i18n.addResourceBundle(router.locale, 'common')
+      // Empty bundle on purpose: this only marks the namespace as
+      // present for a client-only mount. i18next throws outright when
+      // `resources` is omitted, so the argument is not optional.
+      i18n.addResourceBundle(router.locale, 'common', {})
     }
-  }, [router, i18n])
+  }, [router])
 
   return (
     <footer suppressHydrationWarning={true}>

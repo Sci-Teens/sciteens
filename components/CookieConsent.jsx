@@ -17,9 +17,10 @@ export default function CookieConsent() {
 
   useEffect(() => {
     if (router.isReady && i18n?.isInitialized) {
-      i18n.addResourceBundle(router.locale, 'common')
+      // See Footer.js: i18next rejects an omitted `resources`.
+      i18n.addResourceBundle(router.locale, 'common', {})
     }
-  }, [router, i18n])
+  }, [router])
 
   // `null` = no decision recorded yet (undecided in localStorage), the
   // only state the banner shows for. Once granted/denied it stays hidden

@@ -43,7 +43,7 @@ function imageFile(overrides = {}) {
   return {
     name: 'photo.png',
     type: 'image/png',
-    url: 'https://example.com/photo.png',
+    url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/photo.png',
     ...overrides,
   }
 }
@@ -52,7 +52,7 @@ function pdfFile(overrides = {}) {
   return {
     name: 'report.pdf',
     type: 'application/pdf',
-    url: 'https://example.com/report.pdf',
+    url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report.pdf',
     ...overrides,
   }
 }
@@ -92,7 +92,7 @@ describe('FileGallery', () => {
           {
             name: 'old.doc',
             type: 'application/msword',
-            url: 'https://example.com/old.doc',
+            url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/old.doc',
           },
         ]}
       />
@@ -103,6 +103,30 @@ describe('FileGallery', () => {
     expect(
       screen.queryByRole('button', { name: 'old.doc' })
     ).toBeNull()
+  })
+
+  // Every sink in this component (window.open, <a href>, <iframe src>,
+  // <img src>) reads the record's own url, so a record pointing off
+  // Storage is demoted to the non-clickable row instead of rendered.
+  it('demotes a record whose url is not a Storage url', () => {
+    render(
+      <FileGallery
+        files={[
+          imageFile({ url: 'javascript:alert(1)' }),
+          pdfFile({
+            url: 'https://evil.example/report.pdf',
+          }),
+        ]}
+      />
+    )
+    expect(screen.queryByText('file.images')).toBeNull()
+    expect(
+      screen.queryByRole('button', { name: /photo\.png/ })
+    ).toBeNull()
+    expect(
+      screen.queryByRole('button', { name: /report\.pdf/ })
+    ).toBeNull()
+    expect(document.querySelectorAll('a')).toHaveLength(0)
   })
 
   it('truncates long filenames with a title attribute carrying the full name', () => {
@@ -148,7 +172,7 @@ describe('FileGallery', () => {
           imageFile({ name: 'first.png' }),
           imageFile({
             name: 'second.png',
-            url: 'https://example.com/second.png',
+            url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/second.png',
           }),
         ]}
       />
@@ -180,14 +204,14 @@ describe('FileGallery', () => {
     expect(iframe.tagName).toBe('IFRAME')
     expect(iframe).toHaveAttribute(
       'src',
-      'https://example.com/report.pdf'
+      'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report.pdf'
     )
     const link = within(dialog).getByRole('link', {
       name: /file\.open_new_tab/,
     })
     expect(link).toHaveAttribute(
       'href',
-      'https://example.com/report.pdf'
+      'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report.pdf'
     )
     expect(link).toHaveAttribute('target', '_blank')
   })
@@ -208,7 +232,7 @@ describe('FileGallery', () => {
     )
 
     expect(openSpy).toHaveBeenCalledWith(
-      'https://example.com/report.pdf',
+      'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report.pdf',
       '_blank',
       'noopener,noreferrer'
     )

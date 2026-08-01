@@ -48,7 +48,10 @@ const Prismic = require('@prismicio/client')
 const { firestore } = require('firebase-admin')
 const prismicSecret = defineSecret('PRISMIC_SECRET')
 
-const axios = require('axios').default
+// Ceiling on how many addresses one project-invite document may fan
+// out to. firestore.rules enforces the same bound at write time.
+const MAX_PROJECT_INVITES = 10
+
 // Post to the SciTeens Slack webhook. The webhook URL is stored in
 // the SLACK_WEBHOOK secret (set via
 // `firebase functions:secrets:set SLACK_WEBHOOK`). Never hardcode
@@ -63,7 +66,15 @@ async function slackPost(text) {
       )
       return
     }
-    await axios.post(webhook, { text })
+    // Node's built-in fetch rather than axios: one JSON POST does not
+    // justify a dependency whose 0.x line carries a standing pile of
+    // SSRF, proxy-credential-leak, and prototype-pollution advisories.
+    await fetch(webhook, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+      signal: AbortSignal.timeout(10000),
+    })
   } catch (err) {
     console.error(
       'Slack post failed:',
@@ -1090,14 +1101,32 @@ exports.newProjectInvite = functions
   .firestore.document('project-invites/{projectID}')
   .onCreate((event) => {
     let id = event.id
-    let emails = event.data().emails
-    let title = event.data().title
+    let title = String(event.data().title ?? '').slice(
+      0,
+      200
+    )
+
+    // The invite doc is client-written. firestore.rules bounds it too,
+    // but this is the side that actually spends Resend quota and puts
+    // our From address on the message, so it re-validates rather than
+    // trusting the document: an unbounded or malformed `emails` array
+    // here is a mail relay.
+    const raw = event.data().emails
+    const emails = (Array.isArray(raw) ? raw : [])
+      .filter((email) => typeof email === 'string')
+      .map((email) => email.trim())
+      .filter((email) =>
+        /^[^\s@,;<>"]+@[^\s@,;<>"]+\.[^\s@,;<>"]+$/.test(
+          email
+        )
+      )
+      .slice(0, MAX_PROJECT_INVITES)
 
     emails.forEach((email) => {
       // Fetch the user from email
       admin
         .auth()
-        .getUserByEmail(email.trim())
+        .getUserByEmail(email)
         .then((user) => {
           // Fetch the user's profile, and add them to the project
           admin
@@ -1145,7 +1174,6 @@ exports.newProjectInvite = functions
       // Send an email to the user
       sendEmail({
         to: email,
-        toName: email,
         subject: 'Project Update',
         html: projectUpdateTemplate({
           projectName: title,
