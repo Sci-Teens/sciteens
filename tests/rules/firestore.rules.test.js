@@ -57,10 +57,10 @@ beforeEach(async () => {
   await testEnv.clearFirestore()
 })
 
-function ctxFirestore(uid) {
+function ctxFirestore(uid, token) {
   return (
     uid
-      ? testEnv.authenticatedContext(uid)
+      ? testEnv.authenticatedContext(uid, token)
       : testEnv.unauthenticatedContext()
   ).firestore()
 }
@@ -200,6 +200,7 @@ describe('/profiles/{uid}/files/{fileId}', () => {
     name: 'photo.png',
     contentType: 'image/png',
     size: 1024,
+    url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/f1.png',
     uploadedBy: 'alice',
     isPhoto: false,
     createdAt: '2024-01-01T00:00:00.000Z',
@@ -241,6 +242,110 @@ describe('/profiles/{uid}/files/{fileId}', () => {
     const { size, ...incomplete } = validRecord()
     await assertFails(
       setDoc(doc(db, 'profiles/alice/files/f1'), incomplete)
+    )
+  })
+
+  // The record's `url` is rendered as an <a href> on the public
+  // profile page, so anything that isn't a Storage url is a script
+  // execution primitive against every visitor.
+  it.each([
+    'javascript:alert(1)',
+    'data:text/html,<script>alert(1)</script>',
+    'https://evil.example/payload.png',
+    'http://firebasestorage.googleapis.com/v0/b/x/o/f1.png',
+    'https://firebasestorage.googleapis.com.evil.example/f1.png',
+    'https://firebasestorage.googleapis.com@evil.example/f1.png',
+    // Pins matches() as a whole-string match: a valid Storage url as a
+    // substring must not carry the rest of the value through.
+    'javascript:fetch("https://storage.googleapis.com/x")',
+  ])(
+    'rejects create with a non-Storage url: %s',
+    async (url) => {
+      const db = ctxFirestore('alice')
+      await assertFails(
+        setDoc(
+          doc(db, 'profiles/alice/files/f1'),
+          validRecord({ url })
+        )
+      )
+    }
+  )
+
+  // The other two host alternatives in isStorageUrl. Firebase's default
+  // bucket domain moved to *.firebasestorage.app, so that branch is the
+  // one most likely to become load-bearing.
+  it.each([
+    'https://storage.googleapis.com/sciteens.appspot.com/f1.png',
+    'https://sciteens.firebasestorage.app/f1.png',
+  ])('accepts the %s host', async (url) => {
+    const db = ctxFirestore('alice')
+    await assertSucceeds(
+      setDoc(
+        doc(db, 'profiles/alice/files/f1'),
+        validRecord({ url })
+      )
+    )
+  })
+
+  // The exact 11-key shape context/helpers.js#buildFileRecord emits.
+  // Without this, dropping a key from the hasOnly list would break
+  // every upload in production with the suite still green.
+  it.each([
+    ['a plain gallery file', null],
+    [
+      'a PDF with a persisted thumbnail',
+      'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/thumb.png',
+    ],
+  ])(
+    'accepts the real buildFileRecord payload for %s',
+    async (_label, thumbnailUrl) => {
+      const db = ctxFirestore('alice')
+      await assertSucceeds(
+        setDoc(
+          doc(db, 'profiles/alice/files/f1'),
+          validRecord({ isResume: false, thumbnailUrl })
+        )
+      )
+    }
+  )
+
+  it('rejects create with a non-Storage thumbnailUrl', async () => {
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(
+        doc(db, 'profiles/alice/files/f1'),
+        validRecord({ thumbnailUrl: 'javascript:alert(1)' })
+      )
+    )
+  })
+
+  it('rejects create carrying an undeclared extra field', async () => {
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(
+        doc(db, 'profiles/alice/files/f1'),
+        validRecord({ isAdmin: true })
+      )
+    )
+  })
+
+  it('rejects create with a contentType outside the upload allowlist', async () => {
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(
+        doc(db, 'profiles/alice/files/f1'),
+        validRecord({ contentType: 'image/svg+xml' })
+      )
+    )
+  })
+
+  it('rejects create claiming a size past the Storage budget', async () => {
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(
+        doc(db, 'profiles/alice/files/f1'),
+        validRecord({ size: 8000001 })
+      )
     )
   })
 
@@ -825,51 +930,127 @@ describe('/projects/{id}/discussion/{feedbackId}', () => {
       })
     )
 
+  // Discussion.js posts `display: user.displayName`, which the rules
+  // pin to the account's own token claim.
+  const asBob = () => ctxFirestore('bob', { name: 'Bob' })
+
+  const comment = (overrides = {}) => ({
+    date: new Date().toISOString(),
+    uid: 'bob',
+    display: 'Bob',
+    comment: 'hi',
+    ...overrides,
+  })
+
   it('create requires uid == auth.uid plus all required fields', async () => {
     await seedProject()
-    const db = ctxFirestore('bob')
     await assertSucceeds(
-      setDoc(doc(db, 'projects/p1/discussion/c1'), {
-        date: Date.now(),
-        uid: 'bob',
-        display: 'Bob',
-        comment: 'hi',
-      })
+      setDoc(
+        doc(asBob(), 'projects/p1/discussion/c1'),
+        comment()
+      )
+    )
+  })
+
+  it('accepts the reply fields the client actually sends', async () => {
+    await seedProject()
+    await assertSucceeds(
+      setDoc(
+        doc(asBob(), 'projects/p1/discussion/c2'),
+        comment({ reply_to_id: 'c1', reply_to_name: 'Ada' })
+      )
     )
   })
 
   it('rejects create when uid does not match auth.uid', async () => {
     await seedProject()
-    const db = ctxFirestore('bob')
     await assertFails(
-      setDoc(doc(db, 'projects/p1/discussion/c1'), {
-        date: Date.now(),
-        uid: 'mallory',
-        display: 'Bob',
-        comment: 'hi',
-      })
+      setDoc(
+        doc(asBob(), 'projects/p1/discussion/c1'),
+        comment({ uid: 'mallory' })
+      )
     )
   })
 
   it('rejects create missing required fields', async () => {
     await seedProject()
-    const db = ctxFirestore('bob')
     await assertFails(
-      setDoc(doc(db, 'projects/p1/discussion/c1'), {
+      setDoc(doc(asBob(), 'projects/p1/discussion/c1'), {
         uid: 'bob',
       })
     )
   })
 
+  // The author name is rendered next to every comment, so it has to be
+  // the commenter's own, not a name they picked per post.
+  it('rejects a display name that is not the caller own', async () => {
+    await seedProject()
+    await assertFails(
+      setDoc(
+        doc(asBob(), 'projects/p1/discussion/c1'),
+        comment({ display: 'SciTeens Staff' })
+      )
+    )
+  })
+
+  it('rejects an undeclared extra field', async () => {
+    await seedProject()
+    await assertFails(
+      setDoc(
+        doc(asBob(), 'projects/p1/discussion/c1'),
+        comment({ pinned: true })
+      )
+    )
+  })
+
+  it('rejects a comment past the length the form allows', async () => {
+    await seedProject()
+    await assertFails(
+      setDoc(
+        doc(asBob(), 'projects/p1/discussion/c1'),
+        comment({ comment: 'x'.repeat(1001) })
+      )
+    )
+  })
+
+  // Without an update guard the create-time checks are a one-write
+  // speed bump: post a clean comment, then rewrite it into anything.
+  it.each([
+    [
+      'a display name they do not own',
+      { display: 'SciTeens Staff' },
+    ],
+    [
+      'a comment past the cap',
+      { comment: 'x'.repeat(1001) },
+    ],
+    ['an undeclared extra field', { pinned: true }],
+  ])(
+    'rejects an author update setting %s',
+    async (_label, patch) => {
+      await seedProject()
+      await seed((db) =>
+        setDoc(
+          doc(db, 'projects/p1/discussion/c1'),
+          comment()
+        )
+      )
+      await assertFails(
+        updateDoc(
+          doc(asBob(), 'projects/p1/discussion/c1'),
+          patch
+        )
+      )
+    }
+  )
+
   it('only the comment author can update or delete it', async () => {
     await seedProject()
     await seed((db) =>
-      setDoc(doc(db, 'projects/p1/discussion/c1'), {
-        date: Date.now(),
-        uid: 'bob',
-        display: 'Bob',
-        comment: 'hi',
-      })
+      setDoc(
+        doc(db, 'projects/p1/discussion/c1'),
+        comment()
+      )
     )
     await assertFails(
       updateDoc(
@@ -881,13 +1062,9 @@ describe('/projects/{id}/discussion/{feedbackId}', () => {
       )
     )
     await assertSucceeds(
-      updateDoc(
-        doc(
-          ctxFirestore('bob'),
-          'projects/p1/discussion/c1'
-        ),
-        { comment: 'edited' }
-      )
+      updateDoc(doc(asBob(), 'projects/p1/discussion/c1'), {
+        comment: 'edited',
+      })
     )
     await assertFails(
       deleteDoc(
@@ -898,12 +1075,7 @@ describe('/projects/{id}/discussion/{feedbackId}', () => {
       )
     )
     await assertSucceeds(
-      deleteDoc(
-        doc(
-          ctxFirestore('bob'),
-          'projects/p1/discussion/c1'
-        )
-      )
+      deleteDoc(doc(asBob(), 'projects/p1/discussion/c1'))
     )
   })
 })
@@ -920,10 +1092,22 @@ describe('/projects/{projectId}/files/{fileId}', () => {
     name: 'report.pdf',
     contentType: 'application/pdf',
     size: 2048,
+    url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/f1.pdf',
     uploadedBy: 'alice',
     isPhoto: false,
     createdAt: '2024-01-01T00:00:00.000Z',
     ...overrides,
+  })
+
+  it('rejects a member create whose url is not a Storage url', async () => {
+    await seedProject()
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(
+        doc(db, 'projects/p1/files/f1'),
+        validRecord({ url: 'javascript:alert(1)' })
+      )
+    )
   })
 
   it('a member can create a well-formed record', async () => {
@@ -1026,18 +1210,23 @@ describe('/project-invites/{projectId}', () => {
       })
     )
 
+  const invite = (overrides = {}) => ({
+    emails: ['x@y.com'],
+    title: 'Photosynthesis',
+    ...overrides,
+  })
+
   it('a project member can create/update/delete an invite doc', async () => {
     await seedProject()
     const db = ctxFirestore('alice')
     await assertSucceeds(
-      setDoc(doc(db, 'project-invites/p1'), {
-        email: 'x@y.com',
-      })
+      setDoc(doc(db, 'project-invites/p1'), invite())
     )
     await assertSucceeds(
-      updateDoc(doc(db, 'project-invites/p1'), {
-        email: 'z@y.com',
-      })
+      updateDoc(
+        doc(db, 'project-invites/p1'),
+        invite({ emails: ['z@y.com'] })
+      )
     )
     await assertSucceeds(
       deleteDoc(doc(db, 'project-invites/p1'))
@@ -1048,27 +1237,73 @@ describe('/project-invites/{projectId}', () => {
     await seedProject()
     const db = ctxFirestore('mallory')
     await assertFails(
-      setDoc(doc(db, 'project-invites/p1'), {
-        email: 'x@y.com',
-      })
+      setDoc(doc(db, 'project-invites/p1'), invite())
     )
   })
 
   it('rejects writes when the referenced project does not exist', async () => {
     const db = ctxFirestore('alice')
     await assertFails(
-      setDoc(doc(db, 'project-invites/does-not-exist'), {
-        email: 'x@y.com',
-      })
+      setDoc(
+        doc(db, 'project-invites/does-not-exist'),
+        invite()
+      )
+    )
+  })
+
+  // newProjectInvite emails every address in the array from the
+  // SciTeens domain, so an unbounded list is a mail relay.
+  it('rejects an invite fanning out past the cap', async () => {
+    await seedProject()
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(
+        doc(db, 'project-invites/p1'),
+        invite({
+          emails: new Array(11).fill('x@y.com'),
+        })
+      )
+    )
+  })
+
+  it('rejects an invite whose emails field is not a list', async () => {
+    await seedProject()
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(
+        doc(db, 'project-invites/p1'),
+        invite({ emails: 'x@y.com' })
+      )
+    )
+  })
+
+  // `title` lands in the outbound email body.
+  it('rejects an oversized invite title', async () => {
+    await seedProject()
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(
+        doc(db, 'project-invites/p1'),
+        invite({ title: 'x'.repeat(201) })
+      )
+    )
+  })
+
+  it('rejects an undeclared extra field', async () => {
+    await seedProject()
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(
+        doc(db, 'project-invites/p1'),
+        invite({ sendFrom: 'security@sciteens.org' })
+      )
     )
   })
 
   it('no client can read invite docs', async () => {
     await seedProject()
     await seed((db) =>
-      setDoc(doc(db, 'project-invites/p1'), {
-        email: 'x@y.com',
-      })
+      setDoc(doc(db, 'project-invites/p1'), invite())
     )
     const db = ctxFirestore('alice')
     await assertFails(getDoc(doc(db, 'project-invites/p1')))

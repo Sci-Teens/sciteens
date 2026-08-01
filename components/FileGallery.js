@@ -18,7 +18,10 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel'
 import RenderFile, { getPreviewUrl } from './File'
-import { isLegacyUnsupportedFile } from '../context/helpers'
+import {
+  isLegacyUnsupportedFile,
+  isSafeFileUrl,
+} from '../context/helpers'
 import { Skeleton } from '@/components/ui/skeleton'
 
 const PdfThumbnail = dynamic(
@@ -29,11 +32,24 @@ const PdfThumbnail = dynamic(
 const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg']
 
 // Only images and PDFs get the gallery treatment below; anything else
-// (legacy Office docs, unrecognized types) falls back to File.js's
+// (legacy Office docs, unrecognized types, and any record whose stored
+// url doesn't resolve to Cloud Storage) falls back to File.js's
 // existing non-clickable warning row — those are edge cases, not
-// worth a bespoke card.
+// worth a bespoke card. Routing an unsafe url here rather than
+// rendering it keeps every clickable/embedding sink below
+// (window.open, <a href>, <iframe src>, <img src>) on a url the
+// client actually vouched for.
 function classify(file) {
   if (isLegacyUnsupportedFile(file?.type)) return 'other'
+  // Deliberately not `getPreviewUrl(file)`: that allocates an
+  // unrevoked object URL for a Blob, and classify runs three times
+  // per file per render across the filters below.
+  if (
+    file?.url
+      ? !isSafeFileUrl(file.url)
+      : typeof file?.arrayBuffer !== 'function'
+  )
+    return 'other'
   if (file?.type === 'application/pdf') return 'pdf'
   if (IMAGE_TYPES.includes(file?.type)) return 'image'
   return 'other'
@@ -245,7 +261,7 @@ export default function FileGallery({ files }) {
                 <Card className="overflow-hidden p-0 transition hover:shadow-md">
                   <div className="bg-muted relative aspect-[3/4] w-full overflow-hidden">
                     <FileText className="absolute inset-0 m-auto h-10 w-10 text-red-600" />
-                    {file?.thumbnailUrl ? (
+                    {isSafeFileUrl(file?.thumbnailUrl) ? (
                       <Image
                         src={file.thumbnailUrl}
                         alt=""

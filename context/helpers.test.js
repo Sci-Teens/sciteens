@@ -23,6 +23,7 @@ import {
   getUploadStoragePath,
   isAllowedLink,
   isLegacyUnsupportedFile,
+  isSafeFileUrl,
   resolveRefPath,
   validatePassword,
 } from './helpers'
@@ -38,9 +39,11 @@ vi.mock('@firebase/firestore', () => ({
 // Identity translator: lets assertions check against the raw key.
 const t = (key) => key
 
+// Upload ids come from the platform CSPRNG (globalThis.crypto), which
+// is present in every browser and in Node 19+.
 function stubBrowserCrypto() {
-  vi.stubGlobal('window', {
-    crypto: { randomUUID: () => 'fixed-uuid' },
+  vi.stubGlobal('crypto', {
+    randomUUID: () => 'fixed-uuid',
   })
 }
 
@@ -128,6 +131,20 @@ describe('getSafeUploadName', () => {
       expect(result).toMatch(/\.png$/)
     }
   )
+
+  // No randomUUID (older Safari, non-secure contexts): the id must
+  // still come from the CSPRNG, never Math.random.
+  it('falls back to getRandomValues when randomUUID is unavailable', () => {
+    const getRandomValues = vi.fn((bytes) => {
+      bytes.fill(0xab)
+      return bytes
+    })
+    vi.stubGlobal('crypto', { getRandomValues })
+    expect(
+      getSafeUploadName({ name: 'x', type: 'image/png' })
+    ).toBe(`${'ab'.repeat(16)}.png`)
+    expect(getRandomValues).toHaveBeenCalledOnce()
+  })
 
   it('rejects an adversarial type just like any other unsupported type', () => {
     expect(
@@ -522,5 +539,46 @@ describe('getUploadStoragePath', () => {
         true
       )
     ).toBe('projects/proj1/photo/abc123.jpg')
+  })
+})
+
+// `url`/`thumbnailUrl` on a file record are client-written and get
+// rendered as an href/src on public pages, so this is the render-time
+// half of firestore.rules#isStorageUrl.
+describe('isSafeFileUrl', () => {
+  it.each([
+    'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/f1.png?alt=media',
+    'https://storage.googleapis.com/sciteens.appspot.com/f1.png',
+    'https://sciteens.firebasestorage.app/f1.png',
+  ])('accepts %s', (url) => {
+    expect(isSafeFileUrl(url)).toBe(true)
+  })
+
+  it.each([
+    'javascript:alert(1)',
+    'JavaScript:alert(1)',
+    'data:text/html,<script>alert(1)</script>',
+    'vbscript:msgbox(1)',
+    'http://firebasestorage.googleapis.com/v0/b/x/o/f1.png',
+    'https://evil.example/f1.png',
+    // Credentials before the host: the guard reads the parsed
+    // hostname, so the real host here is evil.example.
+    'https://firebasestorage.googleapis.com@evil.example/f1.png',
+    // Trailing-dot FQDN resolves to the same host but is not the
+    // literal allowlist entry, so it fails closed.
+    'https://firebasestorage.googleapis.com./f1.png',
+    // Suffix, not a subdomain of, an allowlisted host.
+    'https://firebasestorage.googleapis.com.evil.example/f1.png',
+    'https://notfirebasestorage.app/f1.png',
+    '//evil.example/f1.png',
+    // Only ever produced pre-upload, and never persisted: the rules
+    // reject a blob: url at write time.
+    'blob:https://sciteens.org/8f1c-4b2a',
+    '',
+    null,
+    undefined,
+    42,
+  ])('rejects %s', (url) => {
+    expect(isSafeFileUrl(url)).toBe(false)
   })
 })

@@ -112,8 +112,9 @@ export default function NavBar() {
 
   useEffect(() => {
     if (router.isReady && i18n?.isInitialized)
-      i18n.addResourceBundle(router.locale, 'common')
-  }, [router, i18n])
+      // See Footer.js: i18next rejects an omitted `resources`.
+      i18n.addResourceBundle(router.locale, 'common', {})
+  }, [router])
 
   const scrollDirection = useScrollDirection()
   useEffect(() => {

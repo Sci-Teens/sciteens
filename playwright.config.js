@@ -59,11 +59,17 @@ const webServer = [
       ...EMULATOR_FIREBASE_CONFIG,
       NEXT_PUBLIC_I18NEXT_DEBUG: 'true',
       NEXT_DIST_DIR: '.next-e2e-emulator',
-      // Same 7GB-runner memory budget as the JVM cap above — `next
-      // dev`'s module graph grows with every distinct route/locale
-      // it compiles across the run, so cap it instead of letting V8
-      // grow toward the default (much larger) ceiling.
-      NODE_OPTIONS: '--max-old-space-size=1024',
+      // `next dev` retains a module graph that grows with every
+      // route/locale it compiles, so this run needs a heap ceiling
+      // chosen for the whole suite, not one page. Measured on the same
+      // route set: Next 14 survived at 768MB, Next 15 needs 1024MB, and
+      // at the old 1024 cap CI died mid-run with "Ineffective
+      // mark-compacts near heap limit" at ~959MB. 2048 restores the
+      // headroom the 1024 cap used to give Next 14 and still leaves the
+      // 7GB runner room for the JVM emulator and Chromium. This is V8's
+      // own limit, not the OS budget: raising it is unrelated to the
+      // swap the workflow adds for teardown.
+      NODE_OPTIONS: '--max-old-space-size=2048',
     },
   },
 ]

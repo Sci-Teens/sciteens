@@ -22,6 +22,52 @@ service cloud.firestore {
         || (data.links is list && data.links.size() <= 10);
     }
 
+    // A file record's `url`/`thumbnailUrl` are rendered straight into an
+    // <a href>/<img src> on the public profile and project pages
+    // (components/File.js#getPreviewUrl), so they must resolve to Cloud
+    // Storage and nowhere else. Left unconstrained, the owner of any
+    // profile can store `javascript:...` here and land script execution
+    // on every visitor who clicks the file — the CSP can't help, since
+    // script-src still carries 'unsafe-inline' for Next's bootstrap.
+    function isStorageUrl(url) {
+      return url is string
+        && url.size() <= 2000
+        && url.matches('https://(firebasestorage\\.googleapis\\.com|storage\\.googleapis\\.com|[a-z0-9-]+\\.firebasestorage\\.app)/.*');
+    }
+
+    // Shape guard for the Firestore record written alongside every
+    // Storage upload (context/helpers.js#buildFileRecord). `hasOnly`
+    // rather than `hasAll` alone: the record is public-readable and
+    // rendered, so an unknown extra key is an injection channel, and
+    // contentType decides whether the client renders an <iframe>, an
+    // <img>, or nothing at all.
+    function isValidFileRecord(uploaderUid) {
+      return request.resource.data.keys().hasOnly([
+          'path', 'bucket', 'name', 'contentType', 'size', 'url',
+          'uploadedBy', 'isPhoto', 'isResume', 'thumbnailUrl', 'createdAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'path', 'bucket', 'name', 'contentType', 'size', 'url',
+          'uploadedBy', 'isPhoto', 'createdAt'
+        ])
+        && request.resource.data.uploadedBy == uploaderUid
+        && isStorageUrl(request.resource.data.url)
+        && (!('thumbnailUrl' in request.resource.data)
+            || request.resource.data.thumbnailUrl == null
+            || isStorageUrl(request.resource.data.thumbnailUrl))
+        && request.resource.data.contentType in
+            ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf']
+        && request.resource.data.size is int
+        && request.resource.data.size >= 0
+        && request.resource.data.size <= 8000000
+        && request.resource.data.path is string
+        && request.resource.data.bucket is string
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 255
+        && request.resource.data.isPhoto is bool
+        && request.resource.data.createdAt is string;
+    }
+
     // ---- Profiles -------------------------------------------------------
     // Public-readable (shown on /profile/[slug]); writable only by owner.
     // create must include uid == auth.uid; update only requires ownership
@@ -96,10 +142,7 @@ service cloud.firestore {
     match /profiles/{uid}/files/{fileId} {
       allow read: if true;
       allow create: if request.auth.uid == uid
-        && request.resource.data.uploadedBy == uid
-        && request.resource.data.keys().hasAll(
-          ['path', 'bucket', 'name', 'contentType', 'size', 'uploadedBy', 'isPhoto', 'createdAt']
-        );
+        && isValidFileRecord(uid);
       allow update: if request.auth.uid == uid
         && request.resource.data.diff(resource.data)
             .affectedKeys().hasOnly(['isPhoto']);
@@ -184,8 +227,33 @@ service cloud.firestore {
         allow read: if true;
         allow create: if request.auth != null
           && request.resource.data.uid == request.auth.uid
-          && request.resource.data.keys().hasAll(['date', 'uid', 'display', 'comment']);
-        allow update, delete: if request.auth.uid == resource.data.uid;
+          && request.resource.data.keys().hasOnly(
+            ['date', 'uid', 'display', 'comment', 'reply_to_id', 'reply_to_name'])
+          && request.resource.data.keys().hasAll(['date', 'uid', 'display', 'comment'])
+          // `display` is the author name rendered next to every comment.
+          // Pinned to the account's own token claim so a commenter can't
+          // post under a name that isn't theirs; a user with no
+          // displayName sends null, which matches the absent claim.
+          && request.resource.data.display == request.auth.token.get('name', null)
+          && request.resource.data.comment is string
+          && request.resource.data.comment.size() <= 1000
+          && request.resource.data.date is string
+          // Both reply fields land in a Firestore document path in
+          // newDiscussion (functions/index.js), so a separator or a
+          // non-string there retargets that read.
+          && request.resource.data.get('reply_to_id', '') is string
+          && request.resource.data.get('reply_to_id', '').size() <= 128
+          && request.resource.data.get('reply_to_name', '') is string
+          && request.resource.data.get('reply_to_name', '').size() <= 200;
+        // Editing may only touch the body. Without this the create-time
+        // guards above are a one-write speed bump: post a clean comment,
+        // then rewrite `display` and `comment` to anything at all.
+        allow update: if request.auth.uid == resource.data.uid
+          && request.resource.data.diff(resource.data)
+              .affectedKeys().hasOnly(['comment'])
+          && request.resource.data.comment is string
+          && request.resource.data.comment.size() <= 1000;
+        allow delete: if request.auth.uid == resource.data.uid;
       }
 
       // ---- Project files ------------------------------------------------
@@ -196,10 +264,7 @@ service cloud.firestore {
       match /files/{fileId} {
         allow read: if true;
         allow create: if isProjectMember(projectId)
-          && request.resource.data.uploadedBy == request.auth.uid
-          && request.resource.data.keys().hasAll(
-            ['path', 'bucket', 'name', 'contentType', 'size', 'uploadedBy', 'isPhoto', 'createdAt']
-          );
+          && isValidFileRecord(request.auth.uid);
         allow update: if isProjectMember(projectId)
           && request.resource.data.diff(resource.data)
               .affectedKeys().hasOnly(['isPhoto']);
@@ -258,7 +323,19 @@ service cloud.firestore {
     // function. Only members of the project with the same id may write.
     match /project-invites/{projectId} {
       allow read: if false;
-      allow create, update, delete: if request.auth != null
+      // The payload drives newProjectInvite, which emails every address
+      // in `emails` and interpolates `title` into the message body, so
+      // both are bounded here — an unvalidated array turns any project
+      // member into a mail relay with a SciTeens-branded template.
+      allow create, update: if
+        exists(/databases/$(database)/documents/projects/$(projectId))
+        && isProjectMember(projectId)
+        && request.resource.data.keys().hasOnly(['emails', 'title'])
+        && request.resource.data.emails is list
+        && request.resource.data.emails.size() <= 10
+        && request.resource.data.title is string
+        && request.resource.data.title.size() <= 200;
+      allow delete: if request.auth != null
         && exists(/databases/$(database)/documents/projects/$(projectId))
         && request.auth.uid in
             get(/databases/$(database)/documents/projects/$(projectId))

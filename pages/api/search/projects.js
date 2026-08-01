@@ -14,6 +14,12 @@ import {
 } from '@/lib/search'
 
 const REQUEST_TIMEOUT_MS = 8000
+// Deep pagination is the expensive shape for Meilisearch, and `page`
+// comes straight off the query string, so it is clamped rather than
+// trusted: an unbounded offset is a free way to make the search
+// container do real work per request.
+const MAX_SEARCH_PAGE = 200
+const MAX_QUERY_LENGTH = 200
 
 function meiliHost() {
   const host = process.env.MEILI_HOST
@@ -64,9 +70,14 @@ async function meiliSearch(params) {
   }
 }
 
-function parseIntParam(value, fallback) {
+function parsePageParam(value) {
   const parsed = parseInt(value, 10)
-  return Number.isFinite(parsed) ? parsed : fallback
+  if (!Number.isFinite(parsed)) return 0
+  return Math.min(Math.max(parsed, 0), MAX_SEARCH_PAGE)
+}
+
+function firstParam(value) {
+  return Array.isArray(value) ? value[0] : value
 }
 
 export default async function handler(req, res) {
@@ -86,18 +97,20 @@ export default async function handler(req, res) {
   } = req.query
 
   try {
+    const pageParam = parsePageParam(firstParam(page))
     const params = buildProjectSearchParams({
-      search: Array.isArray(q) ? q[0] : q,
-      field: Array.isArray(field) ? field[0] : field,
-      dateFrom: Array.isArray(dateFrom)
-        ? dateFrom[0]
-        : dateFrom,
-      dateTo: Array.isArray(dateTo) ? dateTo[0] : dateTo,
-      sort: Array.isArray(sort) ? sort[0] : sort,
-      page: parseIntParam(
-        Array.isArray(page) ? page[0] : page,
-        0
+      search: String(firstParam(q) ?? '').slice(
+        0,
+        MAX_QUERY_LENGTH
       ),
+      field: String(firstParam(field) ?? '').slice(
+        0,
+        MAX_QUERY_LENGTH
+      ),
+      dateFrom: firstParam(dateFrom),
+      dateTo: firstParam(dateTo),
+      sort: firstParam(sort),
+      page: pageParam,
     })
 
     const result = await meiliSearch(params)
@@ -112,9 +125,14 @@ export default async function handler(req, res) {
       page: Math.floor(
         (result.offset ?? 0) / (result.limit || 1)
       ),
+      // Closed at the clamp, not just at the end of the result set:
+      // pages/projects.js drives its infinite query off this flag, so
+      // leaving it true past MAX_SEARCH_PAGE re-appends the last page
+      // forever instead of stopping.
       hasNextPage:
+        pageParam < MAX_SEARCH_PAGE &&
         (result.offset ?? 0) + (result.hits?.length ?? 0) <
-        (result.estimatedTotalHits ?? 0),
+          (result.estimatedTotalHits ?? 0),
     })
   } catch (err) {
     console.error('search/projects failed:', err)

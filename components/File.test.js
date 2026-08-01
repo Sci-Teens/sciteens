@@ -130,7 +130,7 @@ describe('RenderFile', () => {
         file={{
           name: 'report.pdf',
           type: 'application/pdf',
-          url: 'https://example.com/report.pdf',
+          url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report.pdf',
         }}
         id={0}
       />
@@ -138,7 +138,7 @@ describe('RenderFile', () => {
     const anchor = container.querySelector('a')
     expect(anchor).toHaveAttribute(
       'href',
-      'https://example.com/report.pdf'
+      'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report.pdf'
     )
     expect(getByText('report.pdf')).toBeInTheDocument()
   })
@@ -149,14 +149,14 @@ describe('RenderFile', () => {
         file={{
           name: 'photo.png',
           type: 'image/png',
-          url: 'https://example.com/photo.png',
+          url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/photo.png',
         }}
         id={0}
       />
     )
     expect(container.querySelector('img')).toHaveAttribute(
       'src',
-      'https://example.com/photo.png'
+      'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/photo.png'
     )
   })
 
@@ -166,9 +166,9 @@ describe('RenderFile', () => {
         file={{
           name: 'report.pdf',
           type: 'application/pdf',
-          url: 'https://example.com/report.pdf',
+          url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report.pdf',
           thumbnailUrl:
-            'https://example.com/report-thumb.png',
+            'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report-thumb.png',
         }}
         id={0}
       />
@@ -177,7 +177,7 @@ describe('RenderFile', () => {
     expect(img).not.toBeNull()
     expect(img).toHaveAttribute(
       'src',
-      'https://example.com/report-thumb.png'
+      'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report-thumb.png'
     )
   })
 
@@ -187,13 +187,48 @@ describe('RenderFile', () => {
         file={{
           name: 'report.pdf',
           type: 'application/pdf',
-          url: 'https://example.com/report.pdf',
+          url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report.pdf',
         }}
         id={0}
       />
     )
     // next/dynamic is mocked to a component rendering null, so there's
     // no <img> from the persisted-thumbnail branch here.
+    expect(container.querySelector('img')).toBeNull()
+  })
+
+  // A record's url is written by whoever owns the profile/project, so
+  // a non-Storage url must never become an href a visitor can click.
+  it.each([
+    'javascript:alert(document.domain)',
+    'data:text/html,<script>alert(1)</script>',
+    'https://evil.example/report.pdf',
+  ])('never links a %s url', (url) => {
+    const { container } = render(
+      <RenderFile
+        file={{
+          name: 'report.pdf',
+          type: 'application/pdf',
+          url,
+        }}
+        id={0}
+      />
+    )
+    expect(container.querySelector('a')).toBeNull()
+  })
+
+  it('never renders a hostile thumbnailUrl as an image source', () => {
+    const { container } = render(
+      <RenderFile
+        file={{
+          name: 'report.pdf',
+          type: 'application/pdf',
+          url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report.pdf',
+          thumbnailUrl: 'javascript:alert(1)',
+        }}
+        id={0}
+      />
+    )
     expect(container.querySelector('img')).toBeNull()
   })
 })
