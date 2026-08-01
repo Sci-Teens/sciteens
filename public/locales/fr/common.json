@@ -256,7 +256,10 @@
     "about_joud": "Joud est un étudiant senior libanais / canadien qui aime la biologie. Il aime lire, explorer et profiter de la vie. Il est toujours prêt à rendre tout le monde plein de positivité.",
     "about_sanjana": "Sanjana aime jouer du violon, essayer de nouvelles recettes et suivre des cours divers en ligne.",
     "about_grace2": "Je suis Grace Nyakarombo, une élève de 11e année du Zimbabwe. Je suis chercheur en science et innovateur. Je suis passionné par la résolution de SDG 4 et 7 grâce à l'utilisation de la technologie.",
-    "about_alae": "Je suis alae et j'adore faire des mèmes. Oh et j'ai aussi le chien le plus mignon de tous les temps."
+    "about_alae": "Je suis alae et j'adore faire des mèmes. Oh et j'ai aussi le chien le plus mignon de tous les temps.",
+    "about_haley": "Haley fait partie de cinq groupes de Donjons & Dragons.",
+    "mission_heading": "Favoriser l'accessibilité de la science, un étudiant à la fois.",
+    "mission_body": "Avec SciTeens, vous pouvez partager vos connaissances et vos recherches en rédigeant des articles ou en créant des projets. Votre travail peut être consulté par d'autres étudiants de SciTeens, ce qui vous donne accès à des opportunités uniques grâce à la collaboration avec vos pairs et d'autres chercheurs dans les domaines des STIM."
   },
   "articles": {
     "articles": "Des articles",
@@ -286,23 +289,29 @@
     "we_depend_on_donations": "C'est pourquoi nous dépendons de personnes généreuses comme vous, qui voient l'avenir et le besoin immédiat de plus de ressources en ligne accessibles aux étudiants. Votre générosité nous permettra de contacter davantage d'étudiants à travers l'Amérique qui pourront bénéficier de nos ressources gratuitement. Sciteens prévoit d'étendre ses programmes d'études à des écoles secondaires plus à faible revenu à travers l'Amérique. Aujourd'hui plus que jamais, il est évident que l'éducation en ligne est l'avenir d'une éducation STEM équitable.",
     "we_kindly_ask": "Nous vous demandons de tenter de considérer Sciteens comme une organisation à laquelle vous ferez un don afin que nous puissions continuer à mener notre mission et engager plus d'étudiants dans la beauté de la STEM.",
     "sincerely": "Sincèrement",
-    "co_founder": "Co-fondateur et directeur exécutif"
+    "co_founder": "Co-fondateur et directeur exécutif",
+    "lede": "Chaque don permet à SciTeens de rester gratuit pour les élèves qui en ont le plus besoin.",
+    "support_sciteens": "Soutenir SciTeens",
+    "our_reach": "Notre portée aujourd'hui",
+    "every_donation_counts": "Aucun étudiant ne doit être limité par leur niveau de revenu lorsqu'il s'agit de mener des recherches scientifiques, donc chaque don compte."
   },
   "get_involved": {
     "want_to_get_involved": "Vous voulez vous impliquer?",
     "students": "Étudiants",
-    "get_involved_student": "En tant qu'étudiant, s'impliquer avec Sciteens est aussi simple que de s'inscrire! Une fois enregistré, vous pouvez vous connecter avec des programmes et des mentors STEM incroyables, ainsi que partager vos projets incroyables. Si vous voulez créer un club STEM dans votre lycée, nous sommes plus que disposés à vous parrainer et à vous aider également; Tendre la main à",
+    "get_involved_student": "En tant qu'étudiant, s'impliquer avec Sciteens est aussi simple que de s'inscrire! Une fois enregistré, vous pouvez vous connecter avec des programmes et des mentors STEM incroyables, ainsi que partager vos projets incroyables. Si vous voulez créer un club STEM dans votre lycée, nous sommes plus que disposés à vous parrainer et à vous aider également; écrivez-nous à <mail>{{email}}</mail>.",
     "student_sign_up": "Student Inscription",
     "mentors": "Mentors",
     "get_involved_mentor": "L'un des services que Sciteens offre est les possibilités de mentorat aux étudiants. Nous recherchons toujours des mentors qui sont prêts à être jumelés avec un étudiant basé sur des sujets et des domaines d'intérêt pour aider un étudiant. Pour être mentor, vous devez être professeur, enseignant, diplômé ou étudiant STEM de premier cycle, ou être employé dans un domaine STEM et être prêt à consacrer du temps à aider les étudiants passionnés STEM.",
     "mentor_sign_up": "Mentor Inscription",
     "outreach": "Attitude",
-    "get_involved_outreach": "L'un des principaux principes de la science est la collaboration. Notre mission dépend de la collaboration, et nous recherchons toujours des moyens d'amener la science à chaque étudiant! Si vous connaissez une école, un enseignant, un programme scientifique ou une organisation qui pourrait nous aider à réaliser notre mission, veuillez nous contacter à nous à",
+    "get_involved_outreach": "L'un des principaux principes de la science est la collaboration. Notre mission dépend de la collaboration, et nous recherchons toujours des moyens d'amener la science à chaque étudiant! Si vous connaissez une école, un enseignant, un programme scientifique ou une organisation qui pourrait nous aider à réaliser notre mission, veuillez nous contacter à <mail>{{email}}</mail>.",
     "contact_us": "Nous contacter",
     "funding": "Financement",
-    "get_involved_funding": "Nous sommes une organisation à but non lucratif qui s'appuie sur le financement participatif, les subventions et les dons privés. Si vous connaissez quelqu'un qui est prêt à faire un don ou qui souhaite nous aider pour trouver des moyens de financement, veuillez nous contacter à",
+    "get_involved_funding": "Nous sommes une organisation à but non lucratif qui s'appuie sur le financement participatif, les subventions et les dons privés. Si vous connaissez quelqu'un qui est prêt à faire un don ou qui souhaite nous aider pour trouver des moyens de financement, veuillez nous contacter à <mail>{{email}}</mail>.",
     "no_student_limited": "Aucun étudiant ne doit être limité par leur niveau de revenu lorsqu'il s'agit de mener des recherches scientifiques, donc chaque don compte.",
-    "donate_now": "Faire un don maintenant"
+    "donate_now": "Faire un don maintenant",
+    "lede": "Les élèves, les partenaires et les donateurs font avancer la même mission. Voici votre place.",
+    "not_sure_where": "Vous ne savez pas par où commencer ? Écrivez-nous à <mail>{{email}}</mail>."
   },
   "index": {
     "science_simplified": "Science, simplifiée.",
@@ -315,9 +324,6 @@
     "device_mockup_alt": "Un ordinateur portable et un téléphone affichant le fil d'articles de SciTeens",
     "spark_of_inspiration": "Tout ce qu'il faut, c'est une étincelle d'inspiration, la volonté de travailler avec vos pairs et un compte pour commencer à faire des recherches scientifiques et faire une différence dans votre domaine d'étude.",
     "sciteens_pride": "SciTeens est fier de sa plate-forme open source et collaborative, mais voici quelques témoignages d'étudiants utilisant nos ressources :",
-    "monthly_users": "Étudiants actifs mensuels",
-    "schools": "écoles",
-    "countries": "des pays",
     "featured_media": "Médias en vedette",
     "data_science_and_ecology": "Sciteens: science des données et écologie pour la génération Z",
     "ideas_challenge": "Les idées Challenge présentent des entreprises sociales au MIT",
@@ -430,5 +436,10 @@
       "general": "Messages de bienvenue, annonces de produits et actualités de la communauté.",
       "programs": "Rappels lorsqu'un programme auquel vous êtes abonné a une date limite de candidature à venir."
     }
+  },
+  "stats": {
+    "monthly_users": "Étudiants actifs mensuels",
+    "schools": "écoles",
+    "countries": "des pays"
   }
 }

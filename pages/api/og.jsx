@@ -22,21 +22,31 @@ const ACCENTS = {
 // `fetch(new URL(..., import.meta.url))` relies on in edge functions,
 // so fonts are read from disk instead. Cached at module scope — read
 // once per server process, reused across every request.
+//
+// These are static instances of the same three families the site loads
+// through next/font (lib/fonts.js): Archivo for display, Figtree for
+// text and UI, Anek Devanagari for the hi locale. satori cannot hint a
+// variable axis, so each weight is vendored as its own instance.
 const FONT_DIR = join(process.cwd(), 'assets', 'fonts')
 const font = (path) => readFileSync(join(FONT_DIR, path))
+
+// Display roles (wordmark, title) take Archivo; everything else takes
+// Figtree. Both fall through to Anek Devanagari for codepoints they
+// cannot render, mirroring --font-heading/--font-sciteens.
+const DISPLAY_FAMILY = '"Archivo", "Anek Devanagari"'
+const TEXT_FAMILY = '"Figtree", "Anek Devanagari"'
 
 let fontCache
 function loadFonts() {
   if (!fontCache) {
     fontCache = {
-      regular: font('Inter-Regular.ttf'),
-      semiBold: font('Inter-SemiBold.ttf'),
-      bold: font('Inter-Bold.ttf'),
-      extraBold: font('Inter-ExtraBold.ttf'),
-      devanagariRegular: font(
-        'NotoSansDevanagari-Regular.ttf'
-      ),
-      devanagariBold: font('NotoSansDevanagari-Bold.ttf'),
+      archivoExtraBold: font('Archivo-ExtraBold.ttf'),
+      figtreeRegular: font('Figtree-Regular.ttf'),
+      figtreeMedium: font('Figtree-Medium.ttf'),
+      figtreeSemiBold: font('Figtree-SemiBold.ttf'),
+      figtreeBold: font('Figtree-Bold.ttf'),
+      devanagariRegular: font('AnekDevanagari-Regular.ttf'),
+      devanagariBold: font('AnekDevanagari-Bold.ttf'),
     }
   }
   return fontCache
@@ -136,15 +146,14 @@ export default async function handler(req, res) {
       ACCENTS[eyebrow?.toLowerCase()] || ACCENTS.default
 
     const {
-      regular,
-      semiBold,
-      bold,
-      extraBold,
+      archivoExtraBold,
+      figtreeRegular,
+      figtreeMedium,
+      figtreeSemiBold,
+      figtreeBold,
       devanagariRegular,
       devanagariBold,
     } = loadFonts()
-
-    const textFontFamily = '"Inter", "Noto Sans Devanagari"'
 
     const imageResponse = new ImageResponse(
       (
@@ -156,7 +165,7 @@ export default async function handler(req, res) {
             flexDirection: 'column',
             backgroundColor: '#ffffff',
             position: 'relative',
-            fontFamily: '"Inter"',
+            fontFamily: TEXT_FAMILY,
           }}
         >
           <div
@@ -218,8 +227,10 @@ export default async function handler(req, res) {
                   <div
                     style={{
                       display: 'flex',
+                      fontFamily: DISPLAY_FAMILY,
                       fontSize: 25,
                       fontWeight: 800,
+                      letterSpacing: -0.4,
                       color: '#1f2937',
                       lineHeight: 1,
                     }}
@@ -273,7 +284,7 @@ export default async function handler(req, res) {
                   WebkitBoxOrient: 'vertical',
                   WebkitLineClamp: 3,
                   overflow: 'hidden',
-                  fontFamily: textFontFamily,
+                  fontFamily: DISPLAY_FAMILY,
                   fontSize: title.length > 70 ? 52 : 62,
                   fontWeight: 800,
                   color: '#0f172a',
@@ -290,7 +301,7 @@ export default async function handler(req, res) {
                     WebkitBoxOrient: 'vertical',
                     WebkitLineClamp: 2,
                     overflow: 'hidden',
-                    fontFamily: textFontFamily,
+                    fontFamily: TEXT_FAMILY,
                     fontSize: 27,
                     fontWeight: 400,
                     color: '#4b5563',
@@ -356,7 +367,7 @@ export default async function handler(req, res) {
                     <div
                       style={{
                         display: 'flex',
-                        fontFamily: textFontFamily,
+                        fontFamily: TEXT_FAMILY,
                         fontSize: 19,
                         fontWeight: 500,
                         color: '#6b7280',
@@ -386,37 +397,43 @@ export default async function handler(req, res) {
         height: 630,
         fonts: [
           {
-            name: 'Inter',
-            data: regular,
-            weight: 400,
-            style: 'normal',
-          },
-          {
-            name: 'Inter',
-            data: semiBold,
-            weight: 600,
-            style: 'normal',
-          },
-          {
-            name: 'Inter',
-            data: bold,
-            weight: 700,
-            style: 'normal',
-          },
-          {
-            name: 'Inter',
-            data: extraBold,
+            name: 'Archivo',
+            data: archivoExtraBold,
             weight: 800,
             style: 'normal',
           },
           {
-            name: 'Noto Sans Devanagari',
+            name: 'Figtree',
+            data: figtreeRegular,
+            weight: 400,
+            style: 'normal',
+          },
+          {
+            name: 'Figtree',
+            data: figtreeMedium,
+            weight: 500,
+            style: 'normal',
+          },
+          {
+            name: 'Figtree',
+            data: figtreeSemiBold,
+            weight: 600,
+            style: 'normal',
+          },
+          {
+            name: 'Figtree',
+            data: figtreeBold,
+            weight: 700,
+            style: 'normal',
+          },
+          {
+            name: 'Anek Devanagari',
             data: devanagariRegular,
             weight: 400,
             style: 'normal',
           },
           {
-            name: 'Noto Sans Devanagari',
+            name: 'Anek Devanagari',
             data: devanagariBold,
             weight: 700,
             style: 'normal',
