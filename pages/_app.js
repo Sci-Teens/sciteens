@@ -3,7 +3,7 @@ import Layout from '../components/Layout'
 import { AppContext } from '../context/context'
 import { AuthProvider } from '../context/AuthContext'
 import { useState, useEffect } from 'react'
-import { nunito } from '../lib/fonts'
+import { fontVariables } from '../lib/fonts'
 import Head from 'next/head'
 import { appWithTranslation } from 'next-i18next'
 import {
@@ -54,7 +54,7 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <div
-      className={`${nunito.variable} bg-background font-sciteens text-foreground flex min-h-screen w-full flex-col`}
+      className={`${fontVariables} bg-background font-sciteens text-foreground flex min-h-screen w-full flex-col`}
     >
       <Head>
         <title>Welcome to SciTeens</title>

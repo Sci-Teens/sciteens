@@ -1,9 +1,9 @@
 import { Html, Head, Main, NextScript } from 'next/document'
-import { nunito } from '../lib/fonts'
+import { fontVariables } from '../lib/fonts'
 
 export default function Document() {
   return (
-    <Html className={nunito.variable}>
+    <Html className={fontVariables}>
       <Head />
       <body className="bg-background text-foreground">
         <Main />
