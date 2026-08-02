@@ -615,7 +615,7 @@ export default function UpdateProfilePage({
                   error_file ||
                   errorResume
                 }
-                className="flex-1"
+                className="h-11 flex-1 text-base"
               >
                 {t('edit_profile.update')}
                 {loading && <LoadingSpinner />}
@@ -624,7 +624,7 @@ export default function UpdateProfilePage({
                 type="button"
                 variant="outline"
                 size="lg"
-                className="flex-1"
+                className="h-11 flex-1 text-base"
                 render={
                   <Link
                     href={`/profile/${user_profile.slug}`}

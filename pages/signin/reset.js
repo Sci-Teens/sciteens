@@ -2,6 +2,8 @@ import { auth } from '../../lib/firebase'
 import { useRouter } from 'next/router'
 import { sendPasswordResetEmail } from '@firebase/auth'
 import isEmail from 'validator/lib/isEmail'
+import { ArrowRight } from 'lucide-react'
+import LoadingSpinner from '../../components/LoadingSpinner'
 import SocialMeta from '../../components/SocialMeta'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
@@ -77,7 +79,9 @@ export default function Reset() {
                     {...field}
                     id="email"
                     type="email"
+                    inputMode="email"
                     autoComplete="email"
+                    spellCheck={false}
                     aria-invalid={fieldState.invalid}
                   />
                   {fieldState.invalid && (
@@ -91,13 +95,21 @@ export default function Reset() {
             <Button
               type="submit"
               size="lg"
-              className="w-full"
+              className="h-11 w-full text-base"
               disabled={
                 !form.formState.isValid ||
                 form.formState.isSubmitting
               }
             >
               {t('auth.reset_password')}
+              {form.formState.isSubmitting ? (
+                <LoadingSpinner />
+              ) : (
+                <ArrowRight
+                  aria-hidden="true"
+                  className="group-hover/button:translate-x-0.5 transition-transform"
+                />
+              )}
             </Button>
           </FieldGroup>
         </form>

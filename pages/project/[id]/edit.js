@@ -759,7 +759,7 @@ export default function UpdateProject({ query }) {
               <Button
                 type="submit"
                 size="lg"
-                className="flex-1"
+                className="h-11 flex-1 text-base"
                 disabled={
                   !form.formState.isValid ||
                   form.formState.isSubmitting ||
@@ -774,7 +774,7 @@ export default function UpdateProject({ query }) {
                 type="button"
                 variant="outline"
                 size="lg"
-                className="flex-1"
+                className="h-11 flex-1 text-base"
                 render={
                   <Link href={`/project/${query.id}`} />
                 }

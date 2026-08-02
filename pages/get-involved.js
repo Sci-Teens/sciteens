@@ -13,6 +13,7 @@ import PageHeading from '@/components/PageHeading'
 import HeadingRule from '@/components/HeadingRule'
 import { Button } from '@/components/ui/button'
 import { GUTTER } from '@/lib/layout'
+import { INLINE_LINK } from '@/lib/typography'
 import { fadeUp, useSectionReveal } from '@/lib/reveal'
 
 const SECTIONS = ['paths', 'contact']
@@ -60,7 +61,7 @@ function MailLink({ email }) {
     <a
       href={`mailto:${email}`}
       translate="no"
-      className="text-sciteensGreen-regular hover:text-sciteensGreen-dark font-semibold underline-offset-4 hover:underline"
+      className={INLINE_LINK}
     >
       {email}
     </a>

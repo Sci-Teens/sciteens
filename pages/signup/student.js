@@ -4,6 +4,7 @@ import { useContext } from 'react'
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { ArrowRight } from 'lucide-react'
 import SocialMeta from '../../components/SocialMeta'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
@@ -53,6 +54,7 @@ import {
   FieldLabel,
   FieldSeparator,
 } from '@/components/ui/field'
+import { INLINE_LINK } from '@/lib/typography'
 
 export default function StudentSignUp() {
   const { t } = useTranslation('common')
@@ -254,6 +256,13 @@ export default function StudentSignUp() {
     }
   }
 
+  const signInHref = router.query?.ref
+    ? {
+        pathname: '/signin/student',
+        query: { ref: router.query.ref },
+      }
+    : '/signin/student'
+
   return (
     <div>
       <SocialMeta
@@ -266,18 +275,23 @@ export default function StudentSignUp() {
         maxWidth="max-w-lg"
         title={t('auth.student_sign_up')}
         subtitle={t('auth.why_student_sign_up')}
+        footer={
+          <>
+            {t('auth.have_account')}&nbsp;
+            <Link href={signInHref} className={INLINE_LINK}>
+              {t('auth.sign_in_link')}
+            </Link>
+          </>
+        }
       >
         <form onSubmit={form.handleSubmit(emailSignUp)}>
           <FieldGroup>
-            <div className="flex flex-row gap-2">
+            <div className="grid gap-x-3 gap-y-5 sm:grid-cols-2">
               <Controller
                 name="first_name"
                 control={form.control}
                 render={({ field, fieldState }) => (
-                  <Field
-                    className="flex-1"
-                    data-invalid={fieldState.invalid}
-                  >
+                  <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="first_name">
                       {t('auth.first_name')}
                     </FieldLabel>
@@ -301,10 +315,7 @@ export default function StudentSignUp() {
                 name="last_name"
                 control={form.control}
                 render={({ field, fieldState }) => (
-                  <Field
-                    className="flex-1"
-                    data-invalid={fieldState.invalid}
-                  >
+                  <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="last_name">
                       {t('auth.last_name')}
                     </FieldLabel>
@@ -338,7 +349,9 @@ export default function StudentSignUp() {
                     {...field}
                     id="email"
                     type="email"
+                    inputMode="email"
                     autoComplete="email"
+                    spellCheck={false}
                     aria-invalid={fieldState.invalid}
                   />
                   {fieldState.invalid && (
@@ -451,6 +464,7 @@ export default function StudentSignUp() {
               render={({ field, fieldState }) => (
                 <Field
                   orientation="horizontal"
+                  className="items-start"
                   data-invalid={fieldState.invalid}
                 >
                   <Checkbox
@@ -461,12 +475,12 @@ export default function StudentSignUp() {
                   />
                   <FieldLabel
                     htmlFor="terms"
-                    className="font-normal"
+                    className="block font-normal"
                   >
                     {t('auth.terms')}&nbsp;
                     <Link
                       href="/legal/terms"
-                      className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold"
+                      className={INLINE_LINK}
                     >
                       {t('auth.terms_link')}
                     </Link>
@@ -478,7 +492,7 @@ export default function StudentSignUp() {
             <Button
               type="submit"
               size="lg"
-              className="w-full"
+              className="h-11 w-full text-base"
               disabled={
                 !form.formState.isValid ||
                 form.formState.isSubmitting ||
@@ -487,18 +501,25 @@ export default function StudentSignUp() {
               }
             >
               {t('auth.create_account')}
-              {loading && <LoadingSpinner />}
+              {loading ? (
+                <LoadingSpinner />
+              ) : (
+                <ArrowRight
+                  aria-hidden="true"
+                  className="group-hover/button:translate-x-0.5 transition-transform"
+                />
+              )}
             </Button>
           </FieldGroup>
         </form>
-        <FieldSeparator className="my-6">
+        <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card my-7">
           {t('auth.or')}
         </FieldSeparator>
         <Button
           variant="outline"
           type="button"
           size="lg"
-          className="w-full"
+          className="h-11 w-full text-base"
           onClick={() =>
             providerSignIn(
               auth,
@@ -510,33 +531,13 @@ export default function StudentSignUp() {
         >
           <Image
             src="/assets/logos/Google.png"
-            alt="Google Logo"
+            alt=""
             width={20}
             height={20}
-            className="mr-2 h-5 w-5"
+            className="size-5"
           />
           {t('auth.google_sign_in')}
         </Button>
-        <div className="mt-4 flex justify-center">
-          <p className="text-muted-foreground">
-            {t('auth.have_account')}&nbsp;
-            <Link
-              href={
-                router.query?.ref
-                  ? {
-                      pathname: '/signin/student',
-                      query: {
-                        ref: router.query?.ref,
-                      },
-                    }
-                  : '/signin/student'
-              }
-              className="font-bold"
-            >
-              {t('auth.sign_in_link')}
-            </Link>
-          </p>
-        </div>
       </AuthCard>
     </div>
   )
