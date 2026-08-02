@@ -1,4 +1,4 @@
-import { X } from 'lucide-react'
+import { Mail, X } from 'lucide-react'
 import { useTranslation } from 'next-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -31,17 +31,30 @@ export default function MemberInviteField({
         value={value}
         onChange={onChange}
         type="email"
+        inputMode="email"
+        autoComplete="email"
+        spellCheck={false}
         maxLength={100}
+        placeholder={t(
+          'project_create_edit.member_placeholder'
+        )}
         aria-invalid={!!error}
       />
       {error && <FieldError>{error}</FieldError>}
       {members.length > 0 && (
-        <ul className="flex flex-col gap-1.5">
+        <ul className="mt-1 flex flex-col gap-2">
           {members.map((m, index) => (
             <li
               key={m}
-              className="text-muted-foreground flex items-center gap-1.5 text-sm"
+              className="border-border/60 bg-muted/50 flex items-center justify-between gap-2 rounded-lg border px-3 py-1.5"
             >
+              <span className="text-muted-foreground flex min-w-0 items-center gap-1.5 text-sm">
+                <Mail
+                  className="h-3.5 w-3.5 shrink-0"
+                  aria-hidden="true"
+                />
+                <span className="truncate">{m}</span>
+              </span>
               <Button
                 type="button"
                 variant="ghost"
@@ -53,7 +66,6 @@ export default function MemberInviteField({
               >
                 <X className="text-destructive h-3.5 w-3.5" />
               </Button>
-              {m}
             </li>
           ))}
         </ul>

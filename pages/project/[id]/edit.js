@@ -54,6 +54,8 @@ import {
 } from '../../../context/helpers'
 import { generatePdfThumbnailBlob } from '../../../lib/pdfThumbnail'
 import firebaseConfig from '../../../firebaseConfig'
+import FormPageSkeleton from '../../../components/FormPageSkeleton'
+import { useUnsavedChanges } from '../../../lib/useUnsavedChanges'
 
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -75,6 +77,12 @@ import {
 export default function UpdateProject({ query }) {
   const { t } = useTranslation('common')
   const [loading, setLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  // The lists (links, members, files, fields) are seeded from the
+  // loaded doc, so their length says nothing about whether the user
+  // changed them; only an actual edit through one of the handlers
+  // below counts as unsaved work.
+  const [touched, setTouched] = useState(false)
   const [member, setMember] = useState('')
   const [members, setMembers] = useState([])
   const [member_uids, setMemberUids] = useState([])
@@ -145,6 +153,11 @@ export default function UpdateProject({ query }) {
     },
   })
 
+  useUnsavedChanges(
+    !submitted && (form.formState.isDirty || touched),
+    t('form.unsaved_changes')
+  )
+
   useEffect(() => {
     if (
       status == 'success' &&
@@ -192,6 +205,11 @@ export default function UpdateProject({ query }) {
             ? moment(projectData.end).format('yyyy-MM-DD')
             : '',
         })
+        // A project stored before a field was required (an older doc
+        // with no `end`) loads straight into a disabled Update button.
+        // Validating on load names the field that is blocking instead
+        // of leaving the button greyed out with no explanation.
+        form.trigger()
         setFieldValues(projectData.fields)
         setLinks(
           Array.isArray(projectData.links)
@@ -263,6 +281,7 @@ export default function UpdateProject({ query }) {
 
   const onSubmit = async (values) => {
     setLoading(true)
+    setSubmitted(true)
     try {
       // Only update editable fields. Never overwrite member_uids or
       // subscribers on a plain edit — that would kick out other members
@@ -301,6 +320,10 @@ export default function UpdateProject({ query }) {
       })
       console.error(error)
       setLoading(false)
+      setSubmitted(false)
+      // Bail: the block below ends in a redirect, which would carry the
+      // user away from the error that was just set.
+      return
     }
 
     try {
@@ -415,6 +438,7 @@ export default function UpdateProject({ query }) {
       })
       console.error(error)
       setLoading(false)
+      setSubmitted(false)
     }
   }
 
@@ -438,6 +462,7 @@ export default function UpdateProject({ query }) {
         )
       } else {
         reader.readAsDataURL(f)
+        setTouched(true)
         setEntries((old) => [
           ...old,
           {
@@ -491,6 +516,7 @@ export default function UpdateProject({ query }) {
   const validateEmail = useCallback(
     debounce((email) => {
       setErrorMember('')
+      setTouched(true)
       setMembers((prev) => [...new Set([...prev, email])])
       setMember('')
     }, 500),
@@ -500,6 +526,7 @@ export default function UpdateProject({ query }) {
   const removeMember = (index) => {
     const temp = [...members]
     temp.splice(index, 1)
+    setTouched(true)
     setMembers(temp)
   }
 
@@ -508,6 +535,9 @@ export default function UpdateProject({ query }) {
     const removed = entries[id]
     const temp = [...entries]
     temp.splice(id, 1)
+    // Removing entries[0] promotes a different display photo, and that
+    // mapping is only written on submit.
+    setTouched(true)
     setEntries(temp)
 
     // A freshly dropped, not-yet-uploaded file has nothing in Storage
@@ -545,6 +575,7 @@ export default function UpdateProject({ query }) {
     const chosen = temp[id]
     temp[id] = temp[0]
     temp[0] = chosen
+    setTouched(true)
     setEntries(temp)
   }
 
@@ -571,7 +602,13 @@ export default function UpdateProject({ query }) {
     ).indexOf(key)
     let temp = [...field_values]
     temp[index] = !temp[index]
+    setTouched(true)
     setFieldValues([...temp])
+  }
+
+  const updateLinks = (next) => {
+    setTouched(true)
+    setLinks(next)
   }
 
   if (status == 'success' && signInCheckResult.signedIn) {
@@ -582,7 +619,7 @@ export default function UpdateProject({ query }) {
         subtitle={
           <>
             {t('project_create_edit.why_update_project')}{' '}
-            <span className="italic">
+            <span className="text-foreground font-semibold">
               {form.watch('title')}
             </span>
             .
@@ -606,8 +643,8 @@ export default function UpdateProject({ query }) {
                     {...field}
                     id="title"
                     type="text"
-                    aria-label="title"
-                    maxLength="100"
+                    autoComplete="off"
+                    maxLength={MAX_PROJECT_TITLE}
                     aria-invalid={fieldState.invalid}
                   />
                   {fieldState.invalid && (
@@ -685,8 +722,7 @@ export default function UpdateProject({ query }) {
                     {...field}
                     id="abstract"
                     rows={5}
-                    aria-label="summary"
-                    maxLength="1000"
+                    maxLength={1000}
                     aria-invalid={fieldState.invalid}
                   />
                   {fieldState.invalid && (
@@ -733,7 +769,10 @@ export default function UpdateProject({ query }) {
               </div>
             </FieldSet>
 
-            <LinksField links={links} setLinks={setLinks} />
+            <LinksField
+              links={links}
+              setLinks={updateLinks}
+            />
 
             <FileUploadField
               dropzone={{
@@ -760,11 +799,12 @@ export default function UpdateProject({ query }) {
                 type="submit"
                 size="lg"
                 className="h-11 flex-1 text-base"
+                aria-busy={loading}
                 disabled={
                   !form.formState.isValid ||
                   form.formState.isSubmitting ||
                   loading ||
-                  error_file
+                  Boolean(error_file)
                 }
               >
                 {t('project_create_edit.update')}
@@ -789,7 +829,7 @@ export default function UpdateProject({ query }) {
   } else if (status == 'error') {
     return <Error statusCode={404}></Error>
   } else {
-    return <div className="h-screen">loading...</div>
+    return <FormPageSkeleton />
   }
 }
 

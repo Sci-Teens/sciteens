@@ -38,6 +38,7 @@ async function seedStudent({
   lastName = 'Student',
   email,
   password = 'Sup3rSecret!23',
+  links = [],
 } = {}) {
   const suffix = uniqueSuffix()
   const resolvedEmail = email || `${suffix}@example.com`
@@ -65,7 +66,7 @@ async function seedStudent({
       about: '',
       fields: [],
       programs: [],
-      links: [],
+      links,
       joined: new Date().toISOString(),
       birthday: new Date(
         Date.now() - 16 * 365 * 24 * 60 * 60 * 1000

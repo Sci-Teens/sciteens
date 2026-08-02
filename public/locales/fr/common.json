@@ -8,9 +8,13 @@
     "interview": "Interview",
     "by": "Par",
     "rate": "Avez-vous apprécié cet article?",
-    "related": "Plus sur ce sujet ...",
+    "related": "Plus sur ce sujet",
     "submit_own": "Vous voulez soumettre votre propre article ?",
-    "reach_out": "Contactez-nous !"
+    "reach_out": "Contactez-nous !",
+    "rate_yes": "Oui, j'ai apprécié cet article",
+    "rate_no": "Non, je n'ai pas apprécié cet article",
+    "rate_thanks": "Merci pour votre retour.",
+    "topics": "Sujets"
   },
   "course": {
     "starts": "Départs",
@@ -45,7 +49,7 @@
     "update_your_profile": "Mettre à jour votre profil",
     "why_update_your_profile": "Mettez à jour votre profil pour ajouter plus d'informations sur vous-même ou pour modifier vos informations.",
     "about": "À propos de",
-    "tell_us_about": "Parlez nous de vous...",
+    "tell_us_about": "Parlez nous de vous…",
     "profile_photo": "Photo de profil",
     "resume": "CV",
     "resume_hint": "Téléversez un CV en PDF à partager sur votre profil.",
@@ -53,7 +57,7 @@
     "resume_format_not_accepted": "Le CV doit être un fichier PDF",
     "update": "Mise à jour",
     "cancel": "Annuler",
-    "loading": "Chargement...",
+    "loading": "Chargement…",
     "couldnt_update_profile": "Nous n'avons pas pu mettre à jour votre profil pour le moment",
     "fill_out_about": "Veuillez remplir votre section à propos"
   },
@@ -63,20 +67,23 @@
     "educator": "Éducateur",
     "edit": "Modifier",
     "projects": "Projets",
-    "projects_empty": "Cet étudiant n'a pas encore créé de projet",
+    "projects_empty": "Ce profil n'a pas encore de projet",
     "files": "Fichiers",
     "view_resume": "Voir le CV",
-    "visit_platform": "Visiter {{platform}}"
+    "visit_platform": "Visiter {{platform}}",
+    "links": "Liens",
+    "files_empty": "Ce profil n'a pas encore de fichiers partagés",
+    "about_empty": "Ce profil n'a pas encore de biographie"
   },
   "discussion": {
     "title": "Discussion",
     "comment_label": "Commentaire",
-    "placeholder": "Démarrez la conversation...",
+    "placeholder": "Démarrez la conversation…",
     "cancel": "Annuler",
     "post": "Publier",
     "reply": "Répondre",
     "reply_label": "Répondre",
-    "reply_placeholder": "Répondre..."
+    "reply_placeholder": "Répondre…"
   },
   "project_create_edit": {
     "could_not_create": "Nous ne pouvions pas créer votre projet pour le moment",
@@ -107,7 +114,7 @@
     "links_remove": "Supprimer le lien",
     "links_too_many": "Vous pouvez ajouter jusqu'à 10 liens",
     "links_not_allowed": "Seuls les liens vers GitHub, YouTube, LinkedIn et Colab sont pris en charge",
-    "drop_files": "Déposez les fichiers ici ...",
+    "drop_files": "Déposez les fichiers ici…",
     "drag_files": "Faites glisser et déposez des fichiers ici",
     "suggest_photo": "Il est suggéré que vous ayez au moins une photo à des fins d'affichage",
     "multiple_photos": "Puisque vous avez plus d'une photo, vous pouvez",
@@ -121,7 +128,8 @@
     "cancel": "Annuler",
     "could_not_update": "Nous n'avons pas pu mettre à jour votre projet pour le moment",
     "members_too_many": "Vous pouvez inviter jusqu'à 10 collaborateurs",
-    "error_title_too_long": "Le titre du projet doit faire moins de 200 caractères"
+    "error_title_too_long": "Le titre du projet doit faire moins de 200 caractères",
+    "member_placeholder": "nom@ecole.edu"
   },
   "file": {
     "unsupported_legacy": "Ce type de fichier n'est plus pris en charge et ne peut pas être ouvert ici. Contactez-nous si vous avez besoin de le convertir en PDF.",
@@ -204,7 +212,7 @@
     "more_info": "Plus d'informations",
     "student_info": "Inscrivez-vous en tant qu'étudiant si vous êtes actuellement au lycée ou entre 13 et 18 ans.",
     "educator_info": "Inscrivez-vous en tant qu'éducateur si vous êtes dans le monde universitaire ou dans l'industrie et souhaitez aider les élèves du secondaire.",
-    "and_other_options": "(Et d'autres options ...)",
+    "and_other_options": "(Et d'autres options…)",
     "neither_of_above": "Aucun de ce qui précède?",
     "involved_link": "Voyez comment vous pouvez vous impliquer",
     "thanks_for_signing_up": "Merci pour votre inscription!",
@@ -267,7 +275,7 @@
     "articles": "Des articles",
     "search_articles": "Rechercher des articles…",
     "search": "Chercher",
-    "topics": "Les sujets",
+    "topics": "Sujets",
     "filters": "Filtres",
     "clear_filters": "Effacer les filtres",
     "load_more": "Charger plus d'articles",
@@ -289,7 +297,7 @@
     "courses": "Cours",
     "search_courses": "Rechercher des cours…",
     "search": "Chercher",
-    "topics": "Les sujets",
+    "topics": "Sujets",
     "filters": "Filtres",
     "clear_filters": "Effacer les filtres",
     "lede": "Des cours de science gratuits et fondés sur des projets, à votre rythme ou avec un groupe.",
@@ -364,7 +372,7 @@
     "projects": "Projets",
     "search_projects": "Rechercher des projets…",
     "search": "Chercher",
-    "topics": "Les sujets",
+    "topics": "Sujets",
     "started_on": "Commencé le",
     "by": "Par",
     "create": "Créer un projet",
@@ -393,7 +401,11 @@
     "empty_filtered": "Aucun projet ne correspond à ces filtres. Essayez un thème plus large ou une plage de dates plus étendue.",
     "empty_default": "Aucun projet n'a encore été publié. Publiez le premier.",
     "retry": "Réessayer",
-    "more_fields": "+{{count}} de plus"
+    "more_fields": "+{{count}} de plus",
+    "links": "Liens",
+    "files": "Fichiers",
+    "no_files": "Aucun fichier n'a encore été joint à ce projet.",
+    "visit_link": "Ouvrir {{host}} dans un nouvel onglet"
   },
   "fields": {
     "all": "Tout",
@@ -458,7 +470,7 @@
   "unsubscribe": {
     "title": "Préférences d'e-mail",
     "intro": "Gérez les e-mails SciTeens que vous recevez.",
-    "loading": "Mise à jour de vos préférences d'e-mail...",
+    "loading": "Mise à jour de vos préférences d'e-mail…",
     "invalid_link": "Ce lien de désabonnement est invalide ou a expiré.",
     "unsubscribed_confirmation": "Vous avez été désabonné des e-mails {{category}}.",
     "error": "Une erreur s'est produite lors de la mise à jour de vos préférences. Veuillez réessayer.",
@@ -479,5 +491,9 @@
     "monthly_users": "Étudiants actifs mensuels",
     "schools": "écoles",
     "countries": "des pays"
+  },
+  "form": {
+    "loading": "Chargement…",
+    "unsaved_changes": "Vous avez des modifications non enregistrées. Quitter cette page et les perdre ?"
   }
 }

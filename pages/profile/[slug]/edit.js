@@ -11,6 +11,7 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
+import { FileUp } from 'lucide-react'
 
 import { useSigninCheck } from '../../../context/AuthContext'
 import {
@@ -71,6 +72,8 @@ import {
 } from '../../../context/helpers'
 import { generatePdfThumbnailBlob } from '../../../lib/pdfThumbnail'
 import firebaseConfig from '../../../firebaseConfig'
+import FormPageSkeleton from '../../../components/FormPageSkeleton'
+import { useUnsavedChanges } from '../../../lib/useUnsavedChanges'
 
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -92,6 +95,11 @@ export default function UpdateProfilePage({
 }) {
   const { t } = useTranslation('common')
   const [loading, setLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  // `links`/`entries`/`resume` are seeded from the loaded profile, so
+  // their contents say nothing about whether the user changed them;
+  // only an edit through one of the handlers below counts.
+  const [touched, setTouched] = useState(false)
   // { key, kind: 'existing', id, record } for a Firestore file
   // record already in Storage, or { key, kind: 'new', file } for a
   // freshly dropped, not-yet-uploaded File.
@@ -121,7 +129,7 @@ export default function UpdateProfilePage({
 
   const schema = z.object({
     about: z.string().refine((v) => v.trim() !== '', {
-      message: t('fill_out_about'),
+      message: t('edit_profile.fill_out_about'),
     }),
   })
 
@@ -130,6 +138,17 @@ export default function UpdateProfilePage({
     mode: 'onChange',
     defaultValues: { about: user_profile.about || '' },
   })
+
+  useUnsavedChanges(
+    !submitted && (form.formState.isDirty || touched),
+    t('form.unsaved_changes')
+  )
+
+  // A profile with no bio yet loads straight into a disabled Update
+  // button; validating on mount names the field that is blocking.
+  useEffect(() => {
+    form.trigger()
+  }, [form])
 
   useEffect(() => {
     if (
@@ -198,6 +217,7 @@ export default function UpdateProfilePage({
 
   const updateProfile = async (values) => {
     setLoading(true)
+    setSubmitted(true)
     try {
       await updateDoc(
         doc(firestore, 'profiles', user_profile.id),
@@ -214,6 +234,11 @@ export default function UpdateProfilePage({
         type: 'server',
         message: t('edit_profile.couldnt_update_profile'),
       })
+      setLoading(false)
+      setSubmitted(false)
+      // Bail: the block below ends in a redirect, which would carry the
+      // user away from the error that was just set.
+      return
     }
 
     try {
@@ -368,6 +393,7 @@ export default function UpdateProfilePage({
       })
       console.error(error)
       setLoading(false)
+      setSubmitted(false)
     }
   }
 
@@ -389,6 +415,7 @@ export default function UpdateProfilePage({
         )
       } else {
         reader.readAsDataURL(f)
+        setTouched(true)
         setEntries((old) => [
           ...old,
           {
@@ -412,6 +439,9 @@ export default function UpdateProfilePage({
     const removed = entries[id]
     const temp = [...entries]
     temp.splice(id, 1)
+    // Removing entries[0] promotes a different profile photo, and that
+    // mapping is only written on submit.
+    setTouched(true)
     setEntries(temp)
 
     if (removed.kind !== 'existing') return
@@ -445,7 +475,13 @@ export default function UpdateProfilePage({
     const chosen = temp[id]
     temp[id] = temp[0]
     temp[0] = chosen
+    setTouched(true)
     setEntries(temp)
+  }
+
+  const updateLinks = (next) => {
+    setTouched(true)
+    setLinks(next)
   }
 
   const onResumeChange = (e) => {
@@ -465,6 +501,7 @@ export default function UpdateProfilePage({
       return
     }
     setErrorResume('')
+    setTouched(true)
     setResume({
       key: crypto.randomUUID(),
       kind: 'new',
@@ -549,7 +586,10 @@ export default function UpdateProfilePage({
               )}
             />
 
-            <LinksField links={links} setLinks={setLinks} />
+            <LinksField
+              links={links}
+              setLinks={updateLinks}
+            />
 
             <FileUploadField
               dropzone={{
@@ -580,21 +620,28 @@ export default function UpdateProfilePage({
                   removeFile={removeResume}
                 />
               ) : (
+                /* `sr-only`, not `hidden`: a display:none file input
+                   is unreachable by keyboard, which made the resume
+                   slot mouse-only. */
                 <label
                   htmlFor="resume-input"
                   className={cn(
-                    'flex h-16 w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed text-center text-sm transition-colors',
+                    'has-[:focus-visible]:border-ring has-[:focus-visible]:ring-ring/50 has-[:focus-visible]:ring-3 flex h-20 w-full cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed text-center text-sm transition-colors',
                     errorResume
                       ? 'border-destructive/40 bg-destructive/5 text-destructive'
                       : 'border-border bg-muted/50 hover:bg-muted text-muted-foreground'
                   )}
                 >
+                  <FileUp
+                    className="size-5 opacity-70"
+                    aria-hidden="true"
+                  />
                   {t('edit_profile.resume_upload')}
                   <input
                     id="resume-input"
                     type="file"
                     accept="application/pdf"
-                    className="hidden"
+                    className="sr-only"
                     onChange={onResumeChange}
                   />
                 </label>
@@ -608,12 +655,13 @@ export default function UpdateProfilePage({
               <Button
                 type="submit"
                 size="lg"
+                aria-busy={loading}
                 disabled={
                   !form.formState.isValid ||
                   form.formState.isSubmitting ||
                   loading ||
-                  error_file ||
-                  errorResume
+                  Boolean(error_file) ||
+                  Boolean(errorResume)
                 }
                 className="h-11 flex-1 text-base"
               >
@@ -641,7 +689,7 @@ export default function UpdateProfilePage({
   } else if (status == 'error') {
     return <Error statusCode={404}></Error>
   } else {
-    return <div className="h-screen">Loading...</div>
+    return <FormPageSkeleton />
   }
 }
 

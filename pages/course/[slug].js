@@ -190,11 +190,15 @@ function Course({ course }) {
               <FileGallery files={files} />
             </>
           )}
+          {/* Discussion no longer carries its own outer margins;
+              this page keeps the spacing it used to supply. */}
           {typeof window !== 'undefined' && (
-            <Discussion
-              type={'course'}
-              item_id={router.query.slug}
-            />
+            <div className="mb-12 mt-6">
+              <Discussion
+                type={'course'}
+                item_id={router.query.slug}
+              />
+            </div>
           )}
         </div>
       </main>

@@ -52,10 +52,10 @@ function DiscussionAuthor({ uid, display }) {
   return (
     <a
       href={`/profile/${uid}`}
-      className="flex min-w-0 flex-row items-center no-underline"
+      className="group/author flex min-w-0 flex-row items-center no-underline"
     >
       {photo}
-      <p className="text-sciteensGreen-regular hover:text-sciteensGreen-dark font-bold">
+      <p className="text-sciteensGreen-dark group-hover/author:underline truncate font-semibold underline-offset-4">
         {display}
       </p>
     </a>
@@ -258,13 +258,13 @@ export default function Discussion({ type, item_id }) {
   }
 
   return (
-    <div className="mb-12 mt-6 w-full">
-      <h2 className="mb-4 text-2xl font-semibold md:text-3xl">
+    <div className="w-full">
+      <h2 className="text-balance text-xl font-semibold md:text-2xl">
         {t('discussion.title')}
       </h2>
       <form
         onSubmit={(e) => postComment(e)}
-        className="mb-6"
+        className="mb-6 mt-4"
       >
         <Field data-invalid={!!error_comment}>
           <FieldLabel htmlFor="comment" className="sr-only">

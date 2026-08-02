@@ -3,7 +3,15 @@ node_modules
 
 # next.js
 .next
+# `next build` output for the two Playwright dev servers
+# (playwright.config.js#webServer sets NEXT_DIST_DIR)
+.next-e2e-emulator
+.next-e2e-live
 out
+
+# playwright run output
+test-results
+playwright-report
 
 # production
 build
