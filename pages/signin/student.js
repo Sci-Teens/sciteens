@@ -2,7 +2,9 @@ import { useContext } from 'react'
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { ArrowRight } from 'lucide-react'
 import SocialMeta from '../../components/SocialMeta'
+import LoadingSpinner from '../../components/LoadingSpinner'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
@@ -35,6 +37,7 @@ import {
   FieldLabel,
   FieldSeparator,
 } from '@/components/ui/field'
+import { INLINE_LINK, MUTED_LINK } from '@/lib/typography'
 
 export default function StudentSignIn() {
   const { t } = useTranslation('common')
@@ -94,6 +97,20 @@ export default function StudentSignIn() {
     }
   }
 
+  const educatorHref = router.query?.ref
+    ? {
+        pathname: '/signin/educator',
+        query: { ref: router.query.ref },
+      }
+    : '/signin/educator'
+
+  const signUpHref = router.query?.ref
+    ? {
+        pathname: '/signup/student',
+        query: { ref: router.query.ref },
+      }
+    : '/signup/student'
+
   return (
     <div>
       <SocialMeta
@@ -108,19 +125,18 @@ export default function StudentSignIn() {
           <>
             {t('auth.why_student_sign_in')}&nbsp;
             <Link
-              href={
-                router.query?.ref
-                  ? {
-                      pathname: '/signin/educator',
-                      query: {
-                        ref: router.query?.ref,
-                      },
-                    }
-                  : '/signin/educator'
-              }
-              className="cursor-pointer font-bold"
+              href={educatorHref}
+              className={INLINE_LINK}
             >
               {t('auth.sign_in_here')}
+            </Link>
+          </>
+        }
+        footer={
+          <>
+            {t('auth.new_here')}&nbsp;
+            <Link href={signUpHref} className={INLINE_LINK}>
+              {t('auth.sign_up')}
             </Link>
           </>
         }
@@ -139,7 +155,9 @@ export default function StudentSignIn() {
                     {...field}
                     id="email"
                     type="email"
+                    inputMode="email"
                     autoComplete="email"
+                    spellCheck={false}
                     aria-invalid={fieldState.invalid}
                   />
                   {fieldState.invalid && (
@@ -153,36 +171,44 @@ export default function StudentSignIn() {
             <PasswordField
               control={form.control}
               autoComplete="current-password"
+              hint={
+                <Link
+                  href="/signin/reset"
+                  className={MUTED_LINK}
+                >
+                  {t('auth.reset_password')}
+                </Link>
+              }
             />
-            <div className="flex flex-col justify-between">
-              <Link
-                href="/signin/reset"
-                className="text-muted-foreground mb-2 mr-1 flex-1 rounded-sm py-2 text-sm"
-              >
-                {t('auth.reset_password')}
-              </Link>
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full"
-                disabled={
-                  !form.formState.isValid ||
-                  form.formState.isSubmitting
-                }
-              >
-                {t('auth.sign_in')}
-              </Button>
-            </div>
+            <Button
+              type="submit"
+              size="lg"
+              className="h-11 w-full text-base"
+              disabled={
+                !form.formState.isValid ||
+                form.formState.isSubmitting
+              }
+            >
+              {t('auth.sign_in')}
+              {form.formState.isSubmitting ? (
+                <LoadingSpinner />
+              ) : (
+                <ArrowRight
+                  aria-hidden="true"
+                  className="group-hover/button:translate-x-0.5 transition-transform"
+                />
+              )}
+            </Button>
           </FieldGroup>
         </form>
-        <FieldSeparator className="my-6">
+        <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card my-7">
           {t('auth.or')}
         </FieldSeparator>
         <Button
           variant="outline"
           type="button"
           size="lg"
-          className="w-full"
+          className="h-11 w-full gap-2 text-base"
           onClick={() =>
             providerSignIn(
               auth,
@@ -194,33 +220,13 @@ export default function StudentSignIn() {
         >
           <Image
             src="/assets/logos/Google.png"
-            alt="Google Logo"
+            alt=""
             width={20}
             height={20}
-            className="mr-2 h-5 w-5"
+            className="size-5"
           />
           {t('auth.google_sign_in')}
         </Button>
-        <div className="mt-4 flex justify-center">
-          <p className="text-muted-foreground">
-            {t('auth.new_here')}&nbsp;
-            <Link
-              href={
-                router.query?.ref
-                  ? {
-                      pathname: '/signup/student',
-                      query: {
-                        ref: router.query?.ref,
-                      },
-                    }
-                  : '/signup/student'
-              }
-              className="font-bold"
-            >
-              {t('auth.sign_up')}
-            </Link>
-          </p>
-        </div>
       </AuthCard>
     </div>
   )

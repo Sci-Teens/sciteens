@@ -1,10 +1,12 @@
 import { useContext } from 'react'
 
 import Link from 'next/link'
+import { ArrowRight } from 'lucide-react'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import SocialMeta from '../../components/SocialMeta'
+import LoadingSpinner from '../../components/LoadingSpinner'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -31,6 +33,7 @@ import {
   FieldGroup,
   FieldLabel,
 } from '@/components/ui/field'
+import { INLINE_LINK, MUTED_LINK } from '@/lib/typography'
 
 export default function MentorSignIn() {
   const { t } = useTranslation('common')
@@ -90,6 +93,20 @@ export default function MentorSignIn() {
     }
   }
 
+  const studentHref = router.query?.ref
+    ? {
+        pathname: '/signin/student',
+        query: { ref: router.query.ref },
+      }
+    : '/signin/student'
+
+  const signUpHref = router.query?.ref
+    ? {
+        pathname: '/signup/educator',
+        query: { ref: router.query.ref },
+      }
+    : '/signup/educator'
+
   return (
     <div>
       <SocialMeta
@@ -104,19 +121,18 @@ export default function MentorSignIn() {
           <>
             {t('auth.why_educator_sign_in')}&nbsp;
             <Link
-              href={
-                router.query?.ref
-                  ? {
-                      pathname: '/signin/student',
-                      query: {
-                        ref: router.query?.ref,
-                      },
-                    }
-                  : '/signin/student'
-              }
-              className="cursor-pointer font-bold"
+              href={studentHref}
+              className={INLINE_LINK}
             >
               {t('auth.sign_in_here')}
+            </Link>
+          </>
+        }
+        footer={
+          <>
+            {t('auth.new_here')}&nbsp;
+            <Link href={signUpHref} className={INLINE_LINK}>
+              {t('auth.sign_up')}
             </Link>
           </>
         }
@@ -135,7 +151,9 @@ export default function MentorSignIn() {
                     {...field}
                     id="email"
                     type="email"
+                    inputMode="email"
                     autoComplete="email"
+                    spellCheck={false}
                     aria-invalid={fieldState.invalid}
                   />
                   {fieldState.invalid && (
@@ -149,48 +167,36 @@ export default function MentorSignIn() {
             <PasswordField
               control={form.control}
               autoComplete="current-password"
+              hint={
+                <Link
+                  href="/signin/reset"
+                  className={MUTED_LINK}
+                >
+                  {t('auth.reset_password')}
+                </Link>
+              }
             />
-            <div className="flex flex-col justify-between">
-              <Link
-                href="/signin/reset"
-                className="text-muted-foreground mb-2 mr-1 flex-1 rounded-sm py-2 text-sm"
-              >
-                {t('auth.reset_password')}
-              </Link>
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full"
-                disabled={
-                  !form.formState.isValid ||
-                  form.formState.isSubmitting
-                }
-              >
-                {t('auth.sign_in')}
-              </Button>
-            </div>
+            <Button
+              type="submit"
+              size="lg"
+              className="h-11 w-full text-base"
+              disabled={
+                !form.formState.isValid ||
+                form.formState.isSubmitting
+              }
+            >
+              {t('auth.sign_in')}
+              {form.formState.isSubmitting ? (
+                <LoadingSpinner />
+              ) : (
+                <ArrowRight
+                  aria-hidden="true"
+                  className="group-hover/button:translate-x-0.5 transition-transform"
+                />
+              )}
+            </Button>
           </FieldGroup>
         </form>
-        <div className="mt-4 flex justify-center">
-          <p className="text-muted-foreground">
-            {t('auth.new_here')}&nbsp;
-            <Link
-              href={
-                router.query?.ref
-                  ? {
-                      pathname: '/signup/educator',
-                      query: {
-                        ref: router.query?.ref,
-                      },
-                    }
-                  : '/signup/educator'
-              }
-              className="font-bold"
-            >
-              {t('auth.sign_up')}
-            </Link>
-          </p>
-        </div>
       </AuthCard>
     </div>
   )

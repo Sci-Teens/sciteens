@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import SocialMeta from '../../components/SocialMeta'
-import { MailCheck } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
@@ -17,13 +17,22 @@ export default function ResetSent() {
         eyebrow="Sign In"
         path="/signin/resetsent"
       />
-      <AuthCard subtitle={t('auth.reset_message')}>
-        <MailCheck className="text-sciteensGreen-regular mx-auto mb-4 h-12 w-12" />
+      <AuthCard
+        panel={false}
+        title={t('auth.reset_sent')}
+        subtitle={t('auth.reset_message')}
+      >
         <Button
-          render={<Link href="/">{t('auth.go_home')}</Link>}
           size="lg"
-          className="mt-6 w-full"
-        />
+          className="h-11 px-6 text-base"
+          render={<Link href="/" />}
+        >
+          {t('auth.go_home')}
+          <ArrowRight
+            aria-hidden="true"
+            className="group-hover/button:translate-x-0.5 transition-transform"
+          />
+        </Button>
       </AuthCard>
     </div>
   )

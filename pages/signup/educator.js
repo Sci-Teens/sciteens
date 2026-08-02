@@ -3,6 +3,7 @@ import LoadingSpinner from '../../components/LoadingSpinner'
 import { useContext } from 'react'
 
 import Link from 'next/link'
+import { ArrowRight, Info } from 'lucide-react'
 import SocialMeta from '../../components/SocialMeta'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
@@ -48,6 +49,7 @@ import {
   FieldGroup,
   FieldLabel,
 } from '@/components/ui/field'
+import { INLINE_LINK } from '@/lib/typography'
 
 export default function MentorSignUp() {
   const { t } = useTranslation('common')
@@ -244,6 +246,13 @@ export default function MentorSignUp() {
     }
   }
 
+  const signInHref = router.query?.ref
+    ? {
+        pathname: '/signin/educator',
+        query: { ref: router.query.ref },
+      }
+    : '/signin/educator'
+
   return (
     <div>
       <SocialMeta
@@ -256,23 +265,31 @@ export default function MentorSignUp() {
         maxWidth="max-w-lg"
         title={t('auth.educate_on_sciteens')}
         subtitle={t('auth.why_educate_on_sciteens')}
+        footer={
+          <>
+            {t('auth.have_account')}&nbsp;
+            <Link href={signInHref} className={INLINE_LINK}>
+              {t('auth.sign_in_link')}
+            </Link>
+          </>
+        }
       >
-        <p className="text-destructive mb-6 text-center text-sm font-semibold">
-          We currently aren&apos;t accepting new educator
-          signups.
+        <p className="border-border/60 bg-muted/40 mb-7 flex gap-3 rounded-lg border p-4 text-sm">
+          <Info
+            aria-hidden="true"
+            className="text-muted-foreground size-4 mt-0.5 shrink-0"
+          />
+          {t('auth.educator_signups_closed')}
         </p>
 
         <form onSubmit={form.handleSubmit(emailSignUp)}>
           <FieldGroup>
-            <div className="flex flex-row gap-2">
+            <div className="grid gap-x-3 gap-y-5 sm:grid-cols-2">
               <Controller
                 name="first_name"
                 control={form.control}
                 render={({ field, fieldState }) => (
-                  <Field
-                    className="flex-1"
-                    data-invalid={fieldState.invalid}
-                  >
+                  <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="first_name">
                       {t('auth.first_name')}
                     </FieldLabel>
@@ -296,10 +313,7 @@ export default function MentorSignUp() {
                 name="last_name"
                 control={form.control}
                 render={({ field, fieldState }) => (
-                  <Field
-                    className="flex-1"
-                    data-invalid={fieldState.invalid}
-                  >
+                  <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="last_name">
                       {t('auth.last_name')}
                     </FieldLabel>
@@ -509,6 +523,7 @@ export default function MentorSignUp() {
               render={({ field, fieldState }) => (
                 <Field
                   orientation="horizontal"
+                  className="items-start"
                   data-invalid={fieldState.invalid}
                 >
                   <Checkbox
@@ -519,12 +534,12 @@ export default function MentorSignUp() {
                   />
                   <FieldLabel
                     htmlFor="terms"
-                    className="font-normal"
+                    className="block font-normal"
                   >
                     {t('auth.terms')}&nbsp;
                     <Link
                       href="/legal/terms"
-                      className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold"
+                      className={INLINE_LINK}
                     >
                       {t('auth.terms_link')}
                     </Link>
@@ -536,7 +551,7 @@ export default function MentorSignUp() {
             <Button
               type="submit"
               size="lg"
-              className="w-full"
+              className="h-11 w-full text-base"
               disabled={
                 true ||
                 !form.formState.isValid ||
@@ -546,30 +561,17 @@ export default function MentorSignUp() {
               }
             >
               {t('auth.create_account')}
-              {loading && <LoadingSpinner />}
+              {loading ? (
+                <LoadingSpinner />
+              ) : (
+                <ArrowRight
+                  aria-hidden="true"
+                  className="group-hover/button:translate-x-0.5 transition-transform"
+                />
+              )}
             </Button>
           </FieldGroup>
         </form>
-        <div className="mt-4 flex justify-center">
-          <p className="text-muted-foreground">
-            {t('auth.have_account')}&nbsp;
-            <Link
-              href={
-                router.query?.ref
-                  ? {
-                      pathname: '/signin/educator',
-                      query: {
-                        ref: router.query?.ref,
-                      },
-                    }
-                  : '/signin/educator'
-              }
-              className="font-bold"
-            >
-              {t('auth.sign_in_link')}
-            </Link>
-          </p>
-        </div>
       </AuthCard>
     </div>
   )

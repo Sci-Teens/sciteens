@@ -564,7 +564,7 @@ export default function CreateProject() {
             <Button
               type="submit"
               size="lg"
-              className="w-full"
+              className="h-11 w-full text-base"
               disabled={
                 !form.formState.isValid ||
                 form.formState.isSubmitting ||

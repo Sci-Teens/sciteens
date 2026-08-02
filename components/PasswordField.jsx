@@ -13,11 +13,13 @@ import {
 
 // Shared password field for the auth forms: a masked input with a
 // show/hide toggle (reduces mistyped-password sign-up abandonment)
-// wired to react-hook-form.
+// wired to react-hook-form. `hint` renders opposite the label, where
+// sign-in puts its reset-password link.
 export default function PasswordField({
   control,
   name = 'password',
   label,
+  hint,
   autoComplete = 'current-password',
   disabled = false,
 }) {
@@ -30,15 +32,19 @@ export default function PasswordField({
       control={control}
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid}>
-          <FieldLabel htmlFor={name}>
-            {label ?? t('auth.password')}
-          </FieldLabel>
+          <div className="flex items-baseline justify-between gap-3">
+            <FieldLabel htmlFor={name}>
+              {label ?? t('auth.password')}
+            </FieldLabel>
+            {hint}
+          </div>
           <div className="relative">
             <Input
               {...field}
               id={name}
               type={visible ? 'text' : 'password'}
               autoComplete={autoComplete}
+              spellCheck={false}
               disabled={disabled}
               aria-invalid={fieldState.invalid}
               className="pr-9"

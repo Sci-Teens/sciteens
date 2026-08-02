@@ -9,6 +9,7 @@ import { useRouter } from 'next/router'
 import moment from 'moment'
 import SocialMeta from '../../components/SocialMeta'
 import Link from 'next/link'
+import { ArrowRight } from 'lucide-react'
 import { AppContext } from '../../context/context'
 import { createUniqueSlug } from '../../context/helpers'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
@@ -36,6 +37,7 @@ import {
   FieldGroup,
   FieldLabel,
 } from '@/components/ui/field'
+import { INLINE_LINK } from '@/lib/typography'
 
 export default function FinishSignUp() {
   const { t } = useTranslation('common')
@@ -206,15 +208,12 @@ export default function FinishSignUp() {
       >
         <form onSubmit={form.handleSubmit(finishSignUp)}>
           <FieldGroup>
-            <div className="flex flex-row gap-2">
+            <div className="grid gap-x-3 gap-y-5 sm:grid-cols-2">
               <Controller
                 name="first_name"
                 control={form.control}
                 render={({ field, fieldState }) => (
-                  <Field
-                    className="flex-1"
-                    data-invalid={fieldState.invalid}
-                  >
+                  <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="first_name">
                       {t('auth.first_name')}
                     </FieldLabel>
@@ -238,10 +237,7 @@ export default function FinishSignUp() {
                 name="last_name"
                 control={form.control}
                 render={({ field, fieldState }) => (
-                  <Field
-                    className="flex-1"
-                    data-invalid={fieldState.invalid}
-                  >
+                  <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="last_name">
                       {t('auth.last_name')}
                     </FieldLabel>
@@ -348,50 +344,56 @@ export default function FinishSignUp() {
               )}
             />
 
-            <div className="flex flex-col justify-between">
-              <Controller
-                name="terms"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field
-                    orientation="horizontal"
-                    data-invalid={fieldState.invalid}
+            <Controller
+              name="terms"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field
+                  orientation="horizontal"
+                  className="items-start"
+                  data-invalid={fieldState.invalid}
+                >
+                  <Checkbox
+                    id="terms"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    aria-invalid={fieldState.invalid}
+                  />
+                  <FieldLabel
+                    htmlFor="terms"
+                    className="block font-normal"
                   >
-                    <Checkbox
-                      id="terms"
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      aria-invalid={fieldState.invalid}
-                    />
-                    <FieldLabel
-                      htmlFor="terms"
-                      className="font-normal"
+                    {t('auth.terms')}&nbsp;
+                    <Link
+                      href="/legal/terms"
+                      className={INLINE_LINK}
                     >
-                      {t('auth.terms')}&nbsp;
-                      <Link
-                        href="/legal/terms"
-                        className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold"
-                      >
-                        {t('auth.terms_link')}
-                      </Link>
-                    </FieldLabel>
-                  </Field>
-                )}
-              />
-              <Button
-                type="submit"
-                size="lg"
-                className="mt-4 w-full"
-                disabled={
-                  loading ||
-                  !form.formState.isValid ||
-                  form.formState.isSubmitting
-                }
-              >
-                {t('auth.create_account')}
-                {loading && <LoadingSpinner />}
-              </Button>
-            </div>
+                      {t('auth.terms_link')}
+                    </Link>
+                  </FieldLabel>
+                </Field>
+              )}
+            />
+            <Button
+              type="submit"
+              size="lg"
+              className="h-11 w-full text-base"
+              disabled={
+                loading ||
+                !form.formState.isValid ||
+                form.formState.isSubmitting
+              }
+            >
+              {t('auth.create_account')}
+              {loading ? (
+                <LoadingSpinner />
+              ) : (
+                <ArrowRight
+                  aria-hidden="true"
+                  className="group-hover/button:translate-x-0.5 transition-transform"
+                />
+              )}
+            </Button>
           </FieldGroup>
         </form>
       </AuthCard>
