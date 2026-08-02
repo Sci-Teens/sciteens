@@ -1,9 +1,15 @@
 import { useState } from 'react'
-import { X } from 'lucide-react'
+import { ExternalLink, X } from 'lucide-react'
 import { useTranslation } from 'next-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Field, FieldLabel } from '@/components/ui/field'
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field'
+import { INLINE_LINK } from '../lib/typography'
 import {
   isAllowedLink,
   MAX_LINKS,
@@ -44,57 +50,81 @@ export default function LinksField({ links, setLinks }) {
   }
 
   return (
-    <Field>
+    <Field data-invalid={!!error}>
       <FieldLabel htmlFor="project-link">
         {t('project_create_edit.links')}
       </FieldLabel>
-      <p className="text-muted-foreground text-sm">
+      <FieldDescription>
         {t('project_create_edit.links_hint')}
-      </p>
+      </FieldDescription>
       <div className="flex gap-2">
         <Input
           id="project-link"
           type="url"
+          inputMode="url"
+          autoComplete="off"
+          spellCheck={false}
           value={value}
           onChange={(e) => {
             setValue(e.target.value)
             setError('')
           }}
-          placeholder="https://github.com/..."
-          aria-label={t('project_create_edit.links')}
+          onKeyDown={(e) => {
+            // Enter here means "add this link", not "submit the
+            // project". Only claim the key when there is something to
+            // add, so an empty box still submits like every other
+            // input on the form.
+            if (
+              e.key === 'Enter' &&
+              !e.nativeEvent.isComposing &&
+              value.trim()
+            ) {
+              addLink(e)
+            }
+          }}
+          placeholder="https://github.com/…"
+          aria-invalid={!!error}
         />
-        <Button type="button" onClick={addLink}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={addLink}
+          disabled={!value.trim()}
+        >
           {t('project_create_edit.links_add')}
         </Button>
       </div>
-      {error && (
-        <p className="text-destructive text-sm">{error}</p>
-      )}
+      {error && <FieldError>{error}</FieldError>}
       {links.length > 0 && (
-        <ul className="mt-2 flex flex-col space-y-2">
+        <ul className="mt-1 flex flex-col gap-2">
           {links.map((link, index) => (
             <li
               key={link}
-              className="bg-muted flex items-center justify-between rounded-lg px-3 py-2"
+              className="border-border/60 bg-muted/50 flex items-center justify-between gap-2 rounded-lg border px-3 py-1.5"
             >
               <a
                 href={link}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="text-sciteensGreen-regular hover:text-sciteensGreen-dark line-clamp-1 break-all"
+                className={`${INLINE_LINK} flex min-w-0 items-center gap-1.5 text-sm`}
               >
-                {link}
+                <ExternalLink
+                  className="h-3.5 w-3.5 shrink-0"
+                  aria-hidden="true"
+                />
+                <span className="truncate">{link}</span>
               </a>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon-xs"
                 aria-label={t(
                   'project_create_edit.links_remove'
                 )}
-                className="text-destructive ml-2 shrink-0"
                 onClick={(e) => removeLink(e, index)}
               >
-                <X className="h-4 w-4" />
-              </button>
+                <X className="text-destructive h-3.5 w-3.5" />
+              </Button>
             </li>
           ))}
         </ul>

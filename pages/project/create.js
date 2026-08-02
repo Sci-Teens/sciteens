@@ -50,6 +50,8 @@ import FileUploadField from '../../components/FileUploadField'
 import MemberInviteField from '../../components/MemberInviteField'
 import AuthCard from '../../components/AuthCard'
 import firebaseConfig from '../../firebaseConfig'
+import FormPageSkeleton from '../../components/FormPageSkeleton'
+import { useUnsavedChanges } from '../../lib/useUnsavedChanges'
 
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -71,6 +73,7 @@ import {
 export default function CreateProject() {
   const { t } = useTranslation('common')
   const [loading, setLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
   const [member, setMember] = useState('')
   const [members, setMembers] = useState([])
   const [field_values, setFieldValues] = useState(
@@ -147,8 +150,22 @@ export default function CreateProject() {
     },
   })
 
+  // Anything the user has typed or attached counts as work in
+  // progress, not just the react-hook-form fields — losing an
+  // eight-file upload list to a stray nav is the same loss.
+  const isDirty =
+    !submitted &&
+    (form.formState.isDirty ||
+      members.length > 0 ||
+      links.length > 0 ||
+      files.length > 0 ||
+      field_values.some(Boolean))
+
+  useUnsavedChanges(isDirty, t('form.unsaved_changes'))
+
   const onSubmit = async (values) => {
     setLoading(true)
+    setSubmitted(true)
     try {
       const res = await addDoc(
         collection(firestore, 'projects'),
@@ -275,6 +292,7 @@ export default function CreateProject() {
       })
       console.error(error)
       setLoading(false)
+      setSubmitted(false)
     }
   }
 
@@ -410,8 +428,8 @@ export default function CreateProject() {
                     {...field}
                     id="title"
                     type="text"
-                    aria-label="title"
-                    maxLength="100"
+                    autoComplete="off"
+                    maxLength={MAX_PROJECT_TITLE}
                     aria-invalid={fieldState.invalid}
                   />
                   {fieldState.invalid && (
@@ -489,8 +507,7 @@ export default function CreateProject() {
                     {...field}
                     id="abstract"
                     rows={5}
-                    aria-label="summary"
-                    maxLength="1000"
+                    maxLength={1000}
                     aria-invalid={fieldState.invalid}
                   />
                   {fieldState.invalid && (
@@ -565,11 +582,12 @@ export default function CreateProject() {
               type="submit"
               size="lg"
               className="h-11 w-full text-base"
+              aria-busy={loading}
               disabled={
                 !form.formState.isValid ||
                 form.formState.isSubmitting ||
                 loading ||
-                error_file
+                Boolean(error_file)
               }
             >
               {t('project_create_edit.create')}
@@ -584,7 +602,7 @@ export default function CreateProject() {
   } else if (status == 'error') {
     return <Error statusCode={404}></Error>
   } else {
-    return <div className="h-screen">loading...</div>
+    return <FormPageSkeleton />
   }
 }
 

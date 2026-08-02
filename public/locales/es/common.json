@@ -8,9 +8,13 @@
     "interview": "Entrevista",
     "by": "Por",
     "rate": "Disfrutaste este artículo?",
-    "related": "Más sobre este tema ...",
+    "related": "Más sobre este tema",
     "submit_own": "¿Quieres enviar tu propio artículo?",
-    "reach_out": "¡Contáctanos!"
+    "reach_out": "¡Contáctanos!",
+    "rate_yes": "Sí, disfruté este artículo",
+    "rate_no": "No, no disfruté este artículo",
+    "rate_thanks": "Gracias por tus comentarios.",
+    "topics": "Temas"
   },
   "course": {
     "starts": "Empieza",
@@ -45,7 +49,7 @@
     "update_your_profile": "Actualiza tu perfil",
     "why_update_your_profile": "Actualice su perfil para agregar más información sobre usted o para cambiar su información.",
     "about": "Sobre",
-    "tell_us_about": "Cuéntanos acerca de tí...",
+    "tell_us_about": "Cuéntanos acerca de tí…",
     "profile_photo": "Foto de perfil",
     "resume": "Currículum",
     "resume_hint": "Sube un currículum en PDF para compartir en tu perfil.",
@@ -53,7 +57,7 @@
     "resume_format_not_accepted": "El currículum debe ser un archivo PDF",
     "update": "Actualizar",
     "cancel": "Cancelar",
-    "loading": "Cargando...",
+    "loading": "Cargando…",
     "couldnt_update_profile": "No pudimos actualizar su perfil en este momento",
     "fill_out_about": "Por favor complete su sección Acerca de"
   },
@@ -63,20 +67,23 @@
     "educator": "Educador",
     "edit": "Editar",
     "projects": "Proyectos",
-    "projects_empty": "Este estudiante aún no ha creado ningún proyecto",
+    "projects_empty": "Este perfil todavía no tiene proyectos",
     "files": "Archivos",
     "view_resume": "Ver currículum",
-    "visit_platform": "Visitar {{platform}}"
+    "visit_platform": "Visitar {{platform}}",
+    "links": "Enlaces",
+    "files_empty": "Este perfil todavía no tiene archivos compartidos",
+    "about_empty": "Este perfil todavía no tiene una biografía"
   },
   "discussion": {
     "title": "Discusión",
     "comment_label": "Comentario",
-    "placeholder": "Inicia la conversación...",
+    "placeholder": "Inicia la conversación…",
     "cancel": "Cancelar",
     "post": "Publicar",
     "reply": "Responder",
     "reply_label": "Responder",
-    "reply_placeholder": "Responder..."
+    "reply_placeholder": "Responder…"
   },
   "project_create_edit": {
     "could_not_create": "No pudimos crear su proyecto en este momento",
@@ -107,7 +114,7 @@
     "links_remove": "Eliminar enlace",
     "links_too_many": "Puedes añadir hasta 10 enlaces",
     "links_not_allowed": "Solo se admiten enlaces a GitHub, YouTube, LinkedIn y Colab",
-    "drop_files": "Deje caer los archivos aquí ...",
+    "drop_files": "Deje caer los archivos aquí…",
     "drag_files": "Arrastre y suelte algunos archivos aquí",
     "suggest_photo": "Se sugiere que tenga al menos una foto para fines de pantalla",
     "multiple_photos": "Como tienes más de una foto, puedes",
@@ -121,7 +128,8 @@
     "cancel": "Cancelar",
     "could_not_update": "No pudimos actualizar su proyecto en este momento",
     "members_too_many": "Puedes invitar hasta 10 colaboradores",
-    "error_title_too_long": "El título del proyecto debe tener menos de 200 caracteres"
+    "error_title_too_long": "El título del proyecto debe tener menos de 200 caracteres",
+    "member_placeholder": "nombre@escuela.edu"
   },
   "file": {
     "unsupported_legacy": "Este tipo de archivo ya no es compatible y no se puede abrir aquí. Contáctenos si necesita convertirlo a PDF.",
@@ -204,7 +212,7 @@
     "more_info": "Más información",
     "student_info": "Regístrese como estudiante si actualmente se encuentra en la escuela secundaria o entre las edades de 13 y 18 años.",
     "educator_info": "Regístrese como educador si está en la academia o la industria, y desea ayudar a Stem High School Students.",
-    "and_other_options": "(Y otras opciones ...)",
+    "and_other_options": "(Y otras opciones…)",
     "neither_of_above": "¿Ninguno de los anteriores?",
     "involved_link": "Vea cómo puede involucrarse",
     "thanks_for_signing_up": "Gracias por registrarte!",
@@ -393,7 +401,11 @@
     "empty_filtered": "Ningún proyecto coincide con estos filtros. Prueba con un tema más amplio o un rango de fechas mayor.",
     "empty_default": "Todavía no se ha publicado ningún proyecto. Publica el primero.",
     "retry": "Reintentar",
-    "more_fields": "+{{count}} más"
+    "more_fields": "+{{count}} más",
+    "links": "Enlaces",
+    "files": "Archivos",
+    "no_files": "Todavía no se ha adjuntado ningún archivo a este proyecto.",
+    "visit_link": "Abrir {{host}} en una pestaña nueva"
   },
   "fields": {
     "all": "Todos",
@@ -458,7 +470,7 @@
   "unsubscribe": {
     "title": "Preferencias de correo electrónico",
     "intro": "Administra qué correos electrónicos de SciTeens recibes.",
-    "loading": "Actualizando tus preferencias de correo electrónico...",
+    "loading": "Actualizando tus preferencias de correo electrónico…",
     "invalid_link": "Este enlace para darte de baja no es válido o ha expirado.",
     "unsubscribed_confirmation": "Te has dado de baja de los correos de {{category}}.",
     "error": "Algo salió mal al actualizar tus preferencias. Por favor, inténtalo de nuevo.",
@@ -479,5 +491,9 @@
     "monthly_users": "Estudiantes activos mensuales",
     "schools": "escuelas",
     "countries": "países"
+  },
+  "form": {
+    "loading": "Cargando…",
+    "unsaved_changes": "Tienes cambios sin guardar. ¿Salir de esta página y perderlos?"
   }
 }

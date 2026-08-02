@@ -37,7 +37,6 @@ import {
 import firebaseConfig from '../../../firebaseConfig'
 import { db as firestore } from '../../../lib/firebase'
 
-import moment from 'moment'
 import { useSigninCheck } from '../../../context/AuthContext'
 import { AppContext } from '../../../context/context'
 import {
@@ -51,10 +50,16 @@ import FileGallery, {
 import ProjectCard from '../../../components/ProjectCard'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '../../../components/ui/skeleton'
+import { Skeleton } from '@/components/ui/skeleton'
+import HeadingRule from '../../../components/HeadingRule'
+import PageHeading from '../../../components/PageHeading'
+import {
+  DetailLabel,
+  DetailMain,
+  DetailSection,
+} from '../../../components/DetailLayout'
 import { normalizeProject } from '../../../lib/projects'
+import { formatMediumDate } from '../../../lib/formatDate'
 import { useFirestoreCollectionData } from '../../../lib/firestoreData'
 
 function Project({ profile }) {
@@ -143,16 +148,13 @@ function Project({ profile }) {
     loadProfileData()
   }, [profile.id])
 
-  useEffect(() => {}, [status])
-
-  const projectsComponent = projects.map((project) => (
-    <div key={project.id} className="mt-6 md:mt-8">
-      <ProjectCard
-        project={project}
-        showMemberLinks={false}
-      />
-    </div>
-  ))
+  const joinedDate = formatMediumDate(
+    profile.joined,
+    router?.locale
+  )
+  const isOwnProfile =
+    signInCheckResult?.signedIn &&
+    current_user_profile?.slug === router.query?.slug
 
   return (
     <>
@@ -166,169 +168,162 @@ function Project({ profile }) {
         eyebrow="Profile"
         path={router.asPath}
       />
-      <div className="text-foreground mx-auto mt-12 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
-        <Card className="animate-in border-border/60 fade-in slide-in-from-bottom-4 overflow-hidden duration-300">
-          <CardContent className="flex flex-col gap-6 p-6 sm:flex-row sm:items-center md:p-8">
-            <div className="ring-background size-20 md:size-28 shrink-0 self-start rounded-full shadow-sm ring-4 sm:self-center">
+      <DetailMain className="text-foreground">
+        <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-5">
+          <div className="flex min-w-0 flex-auto items-center gap-4">
+            <div className="ring-background size-16 md:size-20 shrink-0 rounded-full shadow-sm ring-4">
               <ProfilePhoto
                 uid={profile.id}
                 alt={profile.display}
-                sizes="(min-width: 768px) 112px, 80px"
+                sizes="(min-width: 768px) 80px, 64px"
               />
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                <h1 className="text-2xl font-semibold md:text-3xl">
-                  {profile.display}
-                </h1>
-                <Badge variant="secondary">
-                  {profile.mentor
-                    ? t('index_profile.educator')
-                    : t('index_profile.student')}
-                </Badge>
-              </div>
-              <p className="text-muted-foreground mt-2 flex items-center gap-1.5 text-sm">
-                <CalendarDays
-                  className="h-4 w-4"
-                  aria-hidden="true"
-                />
-                {t('index_profile.joined')}{' '}
-                {moment(profile.joined).calendar(null, {
-                  sameElse: 'MMMM DD, YYYY',
-                })}
-              </p>
-              {profileLinks.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {profileLinks.map(({ url, label }) => (
-                    <a
-                      key={url}
-                      href={url}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={t(
-                        'index_profile.visit_platform',
-                        { platform: label }
-                      )}
-                      className="border-border/60 text-muted-foreground hover:text-foreground hover:bg-accent flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm shadow-sm"
-                    >
-                      <Link2
-                        className="h-3.5 w-3.5"
-                        aria-hidden="true"
-                      />
-                      {label}
-                    </a>
-                  ))}
-                </div>
-              )}
+            <div className="min-w-0">
+              <PageHeading className="wrap-break-word lg:text-4xl">
+                {profile.display}
+              </PageHeading>
+              <HeadingRule className="w-28 md:w-40" />
             </div>
-            <div className="flex shrink-0 items-center gap-2 self-start sm:self-center">
-              {resumeRecord && (
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            {resumeRecord && (
+              <Button
+                render={
+                  <a
+                    href={resumeRecord.url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <FileText
+                      className="h-4 w-4"
+                      aria-hidden="true"
+                    />
+                    {t('index_profile.view_resume')}
+                  </a>
+                }
+                variant="outline"
+              />
+            )}
+            {status !== 'success' ? (
+              <Skeleton className="h-8 w-20 rounded-lg" />
+            ) : (
+              isOwnProfile && (
                 <Button
                   render={
-                    <a
-                      href={resumeRecord.url}
-                      target="_blank"
-                      rel="noreferrer"
+                    <Link
+                      href={`/profile/${router?.query?.slug}/edit`}
                     >
-                      <FileText
+                      <Pencil
                         className="h-4 w-4"
                         aria-hidden="true"
                       />
-                      {t('index_profile.view_resume')}
-                    </a>
+                      {t('index_profile.edit')}
+                    </Link>
                   }
                   variant="outline"
                 />
-              )}
-              {status !== 'success' ? (
-                <Skeleton className="h-8 w-24 rounded-lg" />
-              ) : (
-                signInCheckResult.signedIn &&
-                current_user_profile?.slug ===
-                  router.query?.slug && (
-                  <Button
-                    render={
-                      <Link
-                        href={`/profile/${router?.query?.slug}/edit`}
-                      >
-                        <Pencil
-                          className="h-4 w-4"
-                          aria-hidden="true"
-                        />
-                        {t('index_profile.edit')}
-                      </Link>
-                    }
-                    variant="outline"
-                  />
-                )
-              )}
-            </div>
-          </CardContent>
-          {profile.about && (
-            <>
-              <Separator />
-              <CardContent className="p-6 md:p-8">
-                <p className="text-muted-foreground">
-                  {profile.about}
-                </p>
-              </CardContent>
-            </>
-          )}
-        </Card>
-      </div>
-
-      <div className="mx-auto mt-12 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
-        <Separator />
-      </div>
-
-      {/* Projects */}
-      <div className="mx-auto mb-4 mt-8 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
-        <h2 className="mb-2 text-lg font-semibold md:text-2xl">
-          {t('index_profile.projects')}
-        </h2>
-        {projectsLoading ? (
-          <div className="flex flex-col gap-6 md:gap-8">
-            <Skeleton className="h-24 w-full md:h-40" />
-            <Skeleton className="h-24 w-full md:h-40" />
+              )
+            )}
           </div>
-        ) : projects?.length != 0 ? (
-          projectsComponent
-        ) : (
-          <p className="text-muted-foreground">
-            {t('index_profile.projects_empty')}
-          </p>
-        )}
-      </div>
+        </div>
 
-      <div className="mx-auto mt-12 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
-        <Separator />
-      </div>
-
-      {/* Files */}
-      <div className="mx-auto mb-4 mt-8 w-full px-4 md:w-2/3 lg:w-1/2 lg:px-0">
-        {(filesStatus === 'loading' ||
-          galleryFiles.length > 0) && (
-          <h2 className="mb-2 text-lg font-semibold md:text-2xl">
-            {t('index_profile.files')}
-          </h2>
-        )}
-        <div className="flex flex-col items-center space-y-2">
-          {filesStatus === 'loading' ? (
-            <FileGallerySkeleton />
-          ) : (
-            <FileGallery
-              files={galleryFiles.map((record) => ({
-                id: record.id,
-                name: record.name,
-                type: record.contentType,
-                size: record.size,
-                url: record.url,
-                thumbnailUrl: record.thumbnailUrl,
-              }))}
-            />
+        <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm md:mt-7">
+          <Badge variant="secondary">
+            {profile.mentor
+              ? t('index_profile.educator')
+              : t('index_profile.student')}
+          </Badge>
+          {joinedDate && (
+            <p className="text-muted-foreground flex items-center gap-1.5">
+              <CalendarDays
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
+              {t('index_profile.joined')} {joinedDate}
+            </p>
           )}
         </div>
-      </div>
+
+        <p className="text-muted-foreground text-pretty mt-6 text-base leading-relaxed md:mt-7 md:text-lg">
+          {profile.about || t('index_profile.about_empty')}
+        </p>
+
+        {profileLinks.length > 0 && (
+          <div className="mt-8">
+            <DetailLabel>
+              {t('index_profile.links')}
+            </DetailLabel>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {profileLinks.map(({ url, label }) => (
+                <a
+                  key={url}
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={t(
+                    'index_profile.visit_platform',
+                    { platform: label }
+                  )}
+                  className="border-border/60 bg-card text-foreground hover:bg-muted inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors"
+                >
+                  <Link2
+                    className="text-muted-foreground h-3.5 w-3.5 shrink-0"
+                    aria-hidden="true"
+                  />
+                  {label}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <DetailSection title={t('index_profile.projects')}>
+          {projectsLoading ? (
+            <div className="mt-4 flex flex-col gap-4">
+              <Skeleton className="h-28 w-full rounded-xl md:h-44" />
+              <Skeleton className="h-28 w-full rounded-xl md:h-44" />
+            </div>
+          ) : projects.length > 0 ? (
+            <ul className="mt-4 flex flex-col gap-4">
+              {projects.map((project) => (
+                <li key={project.id}>
+                  <ProjectCard
+                    project={project}
+                    showMemberLinks={false}
+                  />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-muted-foreground mt-4 text-sm">
+              {t('index_profile.projects_empty')}
+            </p>
+          )}
+        </DetailSection>
+
+        <DetailSection title={t('index_profile.files')}>
+          <div className="mt-4">
+            {filesStatus === 'loading' ? (
+              <FileGallerySkeleton />
+            ) : galleryFiles.length > 0 ? (
+              <FileGallery
+                files={galleryFiles.map((record) => ({
+                  id: record.id,
+                  name: record.name,
+                  type: record.contentType,
+                  size: record.size,
+                  url: record.url,
+                  thumbnailUrl: record.thumbnailUrl,
+                }))}
+              />
+            ) : (
+              <p className="text-muted-foreground text-sm">
+                {t('index_profile.files_empty')}
+              </p>
+            )}
+          </div>
+        </DetailSection>
+      </DetailMain>
     </>
   )
 }

@@ -14,9 +14,9 @@ import Article from '@/pages/article/[slug]'
 // Regression coverage for three of the reported visual bugs, all rooted in
 // the article detail page markup rather than the shared prismicImageLoader
 // fix (covered directly in lib/prismicImageLoader.test.js):
-// - tag "buttons" rendering as a bare `<p>` link (no `<button>` semantics,
+// - tag "buttons" rendering as a bare `<p>` link (no chip styling,
 //   underlined by the surrounding `.prose` typography styles) instead of
-//   the same field-filter Button used on /articles.
+//   the same field-filter chip used on the project detail page.
 // - avatar images missing a fixed-size, `object-cover` box, which is what
 //   let a mismatched loader aspect ratio stretch them.
 // - the "More on this topic" recommendations rendering as plain links
@@ -99,7 +99,7 @@ function buildRecommendations(count) {
 }
 
 describe('Article', () => {
-  it('renders each tag as a Button, not a bare underlined link', () => {
+  it('renders each tag as a chip link outside the prose flow', () => {
     render(
       <Article
         article={buildArticle()}
@@ -107,15 +107,22 @@ describe('Article', () => {
       />
     )
 
-    const tagButton = screen.getByRole('link', {
+    const tagLink = screen.getByRole('link', {
       name: 'fields.biology',
     })
-    // The Button primitive renders via a `render={<Link ... />}` prop,
-    // so the resulting element keeps the anchor's "link" role and its
-    // own `data-slot="button"` — the old markup was a plain,
-    // unstyled-by-Button <p> inside that same <Link>.
-    expect(tagButton).toHaveAttribute('data-slot', 'button')
-    expect(tagButton.closest('.not-prose')).toBeTruthy()
+    // The old markup put a bare <p> inside a <Link> inside `.prose`, so
+    // the tag picked up the prose link underline and none of the chip
+    // styling. The surface classes are asserted too: the Button this
+    // replaced also carried `rounded-full border`, so shape alone
+    // cannot tell the shared chip from what was here before.
+    expect(tagLink).toHaveClass(
+      'rounded-full',
+      'border',
+      'bg-card',
+      'px-3',
+      'py-1'
+    )
+    expect(tagLink.closest('.prose')).toBeNull()
   })
 
   it('falls back to the raw tag when no translation exists for it', () => {
@@ -131,7 +138,7 @@ describe('Article', () => {
     ).toBeInTheDocument()
   })
 
-  it('wraps every avatar image in a fixed-size, object-cover, not-prose box', () => {
+  it('wraps every avatar image in a fixed-size, object-cover, clipped box', () => {
     render(
       <Article
         article={buildArticle()}
@@ -139,19 +146,27 @@ describe('Article', () => {
       />
     )
 
-    const avatarImages = screen
-      .getAllByRole('img')
-      .filter((img) =>
-        img.getAttribute('src')?.includes('headshot.jpg')
-      )
+    // Queried by src, not by role: both avatars sit next to the name
+    // they belong to, so they carry `alt=""` and are correctly hidden
+    // from the accessibility tree.
+    const avatarImages = Array.from(
+      document.querySelectorAll('img')
+    ).filter((img) =>
+      img.getAttribute('src')?.includes('headshot.jpg')
+    )
     // One in the byline, one in the "About the Author" block.
     expect(avatarImages).toHaveLength(2)
     avatarImages.forEach((img) => {
+      // Empty alt is the contract, not an accident: the author's name
+      // sits next to both avatars, and the old markup dumped the whole
+      // bio into the alt text.
+      expect(img).toHaveAttribute('alt', '')
       expect(img).toHaveClass('object-cover')
       const box = img.parentElement
       expect(box).toHaveClass(
-        'not-prose',
-        'overflow-hidden'
+        'overflow-hidden',
+        'rounded-full',
+        'shrink-0'
       )
     })
   })

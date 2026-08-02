@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { UploadCloud } from 'lucide-react'
 import { useTranslation } from 'next-i18next'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
+  FieldError,
   FieldLegend,
   FieldSet,
 } from '@/components/ui/field'
@@ -37,22 +39,27 @@ export default function FileUploadField({
       <div
         {...getRootProps()}
         className={cn(
-          'flex h-32 w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed text-center text-sm transition-colors',
+          'flex h-32 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed text-center text-sm transition-colors',
           error
             ? 'border-destructive/40 bg-destructive/5 hover:bg-destructive/10 text-destructive'
             : 'border-border bg-muted/50 hover:bg-muted text-muted-foreground'
         )}
       >
+        {/* react-dropzone hides this input with `display: none`, so it
+            carries no accessible name; the labelled control is the
+            role="button" wrapper above. */}
         <input {...getInputProps()} />
+        <UploadCloud
+          className="size-6 opacity-70"
+          aria-hidden="true"
+        />
         <p>
           {isDragActive
             ? t('project_create_edit.drop_files')
             : t('project_create_edit.drag_files')}
         </p>
       </div>
-      {error && (
-        <p className="text-destructive text-sm">{error}</p>
-      )}
+      {error && <FieldError>{error}</FieldError>}
 
       {entries.length === 0 && emptyHint && (
         <p className="text-muted-foreground text-sm">
@@ -83,7 +90,7 @@ export default function FileUploadField({
                   onClick={() =>
                     setSelectMode((value) => !value)
                   }
-                  className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold"
+                  className="text-sciteensGreen-dark font-semibold underline-offset-4 hover:underline"
                 >
                   {t(
                     'project_create_edit.set_display_photo'

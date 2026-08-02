@@ -27,9 +27,13 @@ async function warmRoute(page, baseUrl, path) {
 }
 
 module.exports = async function globalSetup() {
+  // The link lists are seeded so the i18n smoke actually reaches
+  // `projects.links`/`visit_link` and `index_profile.links`, which only
+  // render when the entity has an allowlisted link.
   const owner = await seedStudent({
     firstName: 'Filter',
     lastName: 'Owner',
+    links: ['https://github.com/sciteens'],
   })
 
   // One legacy (pre-Title-Case) doc and one modern doc for the same
@@ -52,6 +56,7 @@ module.exports = async function globalSetup() {
     title: 'E2E Modern Biology Project',
     abstract: 'Seeded fixture, Title Case fields.',
     fields: ['Biology'],
+    links: ['https://github.com/sciteens'],
     member_uids: [owner.uid],
     member_arr: [
       {
@@ -86,4 +91,5 @@ module.exports = async function globalSetup() {
   // globalSetup, so they inherit it.
   process.env.E2E_FILTER_LEGACY_PROJECT_ID = legacyProjectId
   process.env.E2E_FILTER_MODERN_PROJECT_ID = modernProjectId
+  process.env.E2E_OWNER_PROFILE_SLUG = owner.slug
 }

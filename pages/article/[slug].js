@@ -2,8 +2,8 @@ import { RichText } from 'prismic-reactjs'
 import { useState } from 'react'
 var Prismic = require('@prismicio/client')
 import Link from 'next/link'
-import moment from 'moment'
 import Image from 'next/image'
+import { ThumbsDown, ThumbsUp } from 'lucide-react'
 import SocialMeta from '../../components/SocialMeta'
 import htmlSerializer from '../../htmlserializer'
 import Discussion from '../../components/Discussion'
@@ -14,7 +14,18 @@ import { logEvent, getAnalytics } from 'firebase/analytics'
 import { hasAnalyticsConsent } from '../../lib/consent'
 import { createCropImageLoader } from '../../lib/prismicImageLoader'
 import { getTranslatedFieldsDict } from '../../context/helpers'
+import { formatMediumDate } from '../../lib/formatDate'
+import { INLINE_LINK } from '../../lib/typography'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import HeadingRule from '../../components/HeadingRule'
+import PageHeading from '../../components/PageHeading'
+import {
+  DetailLabel,
+  DetailMain,
+  DetailSection,
+} from '../../components/DetailLayout'
 import {
   Carousel,
   CarouselContent,
@@ -25,7 +36,7 @@ import {
 
 function Article({ article, recommendations }) {
   const [vote, setVote] = useState(null)
-  const isAmp = false
+  const router = useRouter()
   const { t } = useTranslation('common')
   // Lazily fetched inside handleRate, never at module render — calling
   // getAnalytics() initializes GA4 and sets its cookies immediately, so it
@@ -69,317 +80,324 @@ function Article({ article, recommendations }) {
   )
   const translatedFields = getTranslatedFieldsDict(t)
 
-  function readingTime(article) {
-    let article_length = 0
-    article?.map((text) => {
-      if (text.type == 'paragraph' && text.text) {
-        article_length += text.text?.split(' ').length
-      }
-    })
-    let time_to_read = Math.max(
-      1,
-      Math.round(article_length / 200)
+  // Prismic stores the running text as blocks; only paragraphs carry
+  // prose, so headings and embeds must not inflate the estimate.
+  function readingTime(text) {
+    const words = (text ?? []).reduce(
+      (total, block) =>
+        block.type === 'paragraph' && block.text
+          ? total + block.text.split(' ').length
+          : total,
+      0
     )
+    const minutes = Math.max(1, Math.round(words / 200))
 
-    return `${time_to_read} minute read`
+    // Same key the listing card renders, so the estimate a reader saw
+    // on /articles is worded identically here.
+    return t('articles.reading_time', { minutes })
   }
 
-  const about_the_author = article.data.body.map(
-    (slice, index) => {
-      if (slice.slice_type == 'about_the_author') {
-        return (
-          <div key={index} className="inline-block">
-            <h3>{t('article.about_the_author')}</h3>
-            <div className="flex flex-col items-center gap-4 lg:flex-row">
-              <div className="not-prose relative h-20 w-20 shrink-0 overflow-hidden rounded-full">
-                <Image
-                  fill
-                  sizes="80px"
-                  className="object-cover"
-                  loader={avatarImageLoader}
-                  src={slice.primary.headshot.url}
-                  alt={RichText.asText(
-                    slice.primary.information
-                  )}
-                />
-              </div>
-              <p className="text-center lg:text-left">
-                {RichText.asText(slice.primary.information)}
-              </p>
-            </div>
-          </div>
-        )
-      } else {
-        return null
-      }
-    }
+  const authorSlice = article.data.body.find(
+    (slice) => slice.slice_type === 'about_the_author'
+  )
+  const interviewSlices = article.data.body.filter(
+    (slice) => slice.slice_type === 'interview'
+  )
+  const publishedDate = formatMediumDate(
+    article.data.date,
+    router?.locale
   )
 
-  const interviews = article.data.body.map((slice) => {
-    if (slice.slice_type == 'interview') {
-      return (
-        <>
-          <h3>{t('article.interview')}</h3>
-          {slice.items.map((interview, ix) => {
-            return (
-              <div key={ix} className="inline-block">
-                <div className="flex flex-col items-center gap-4 lg:flex-row">
-                  <div className="not-prose relative h-20 w-20 shrink-0 overflow-hidden rounded-full">
+  const authorAvatar = authorSlice && (
+    <div className="bg-muted relative h-12 w-12 shrink-0 overflow-hidden rounded-full">
+      <Image
+        fill
+        sizes="48px"
+        className="object-cover"
+        loader={avatarImageLoader}
+        src={authorSlice.primary.headshot.url}
+        alt=""
+      />
+    </div>
+  )
+
+  return (
+    <>
+      <SocialMeta
+        title={`${RichText.asText(
+          article.data.title
+        )} | SciTeens`}
+        description={article.data.description}
+        eyebrow="Article"
+        badge={article.data.author}
+        path={router.asPath}
+      />
+      <DetailMain>
+        <PageHeading>
+          {RichText.asText(article.data.title)}
+        </PageHeading>
+        <HeadingRule />
+
+        <div className="mt-6 flex items-center gap-3 md:mt-7">
+          {authorAvatar}
+          <div className="min-w-0 text-sm">
+            <p className="font-medium">
+              {t('article.by')} {article.data.author}
+            </p>
+            <p className="text-muted-foreground mt-0.5">
+              {publishedDate} ·{' '}
+              {readingTime(article.data.text)}
+            </p>
+          </div>
+        </div>
+
+        {article.data.description && (
+          <p className="text-muted-foreground text-pretty mt-6 text-base leading-relaxed md:mt-7 md:text-lg">
+            {article.data.description}
+          </p>
+        )}
+
+        {article.tags.length > 0 && (
+          <div className="mt-8">
+            <DetailLabel>{t('article.topics')}</DetailLabel>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {article.tags.map((tag) => (
+                <Link
+                  key={tag}
+                  href={{
+                    pathname: '/articles',
+                    query: { field: tag },
+                  }}
+                  className="border-border/60 bg-card text-foreground hover:bg-muted inline-flex items-center rounded-full border px-3 py-1 text-sm transition-colors"
+                >
+                  {translatedFields[tag] || tag}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <Image
+          loader={coverImageLoader}
+          src={article.data.image.url}
+          alt=""
+          width={670}
+          height={400}
+          sizes="(min-width: 768px) 768px, 100vw"
+          priority
+          className="border-border/60 mt-8 h-auto w-full rounded-xl border object-cover"
+        />
+
+        <article className="prose lg:prose-lg wrap-break-word mt-8 max-w-none">
+          <RichText
+            render={article.data.text}
+            htmlSerializer={htmlSerializer}
+          />
+
+          {interviewSlices.map((slice, index) => (
+            <section key={`interview-${index}`}>
+              <h2>{t('article.interview')}</h2>
+              {slice.items.map((interview, ix) => (
+                <div key={`interview-${index}-${ix}`}>
+                  <div className="flex flex-col items-center gap-4 sm:flex-row">
+                    <div className="not-prose bg-muted relative h-20 w-20 shrink-0 overflow-hidden rounded-full">
+                      <Image
+                        fill
+                        sizes="80px"
+                        className="object-cover"
+                        loader={avatarImageLoader}
+                        src={interview.headshot.url}
+                        alt=""
+                      />
+                    </div>
+                    <h3 className="my-0 text-center sm:text-left">
+                      {RichText.asText(
+                        interview.information
+                      )}
+                    </h3>
+                  </div>
+                  {RichText.render(interview.interview)}
+                </div>
+              ))}
+            </section>
+          ))}
+        </article>
+
+        <div className="mt-10 space-y-4">
+          {authorSlice && (
+            <Card className="border-border/60">
+              <CardContent className="p-5 md:p-6">
+                <h2 className="text-base font-semibold">
+                  {t('article.about_the_author')}
+                </h2>
+                <div className="mt-4 flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+                  <div className="bg-muted relative h-20 w-20 shrink-0 overflow-hidden rounded-full">
                     <Image
                       fill
                       sizes="80px"
                       className="object-cover"
                       loader={avatarImageLoader}
-                      src={interview.headshot.url}
-                      alt={RichText.asText(
-                        interview.information
-                      )}
+                      src={authorSlice.primary.headshot.url}
+                      alt=""
                     />
                   </div>
-                  <h4
-                    className="text-center lg:text-left"
-                    style={{
-                      marginTop: 0,
-                      marginBottom: 0,
-                    }}
-                  >
-                    {RichText.asText(interview.information)}
-                  </h4>
-                </div>
-                {RichText.render(interview.interview)}
-              </div>
-            )
-          })}
-        </>
-      )
-    } else {
-      return null
-    }
-  })
-
-  const author_image = article.data.body.map((slice) => {
-    if (slice.slice_type == 'about_the_author') {
-      return (
-        <div
-          key={slice.primary.headshot.url}
-          className="not-prose relative h-12 w-12 shrink-0 overflow-hidden rounded-full"
-        >
-          <Image
-            fill
-            sizes="48px"
-            className="object-cover"
-            loader={avatarImageLoader}
-            src={slice.primary.headshot.url}
-            alt={article.data.author}
-          />
-        </div>
-      )
-    } else {
-      return null
-    }
-  })
-
-  const recommendationsRendered = recommendations.map(
-    (a, index) => {
-      return (
-        <CarouselItem
-          key={index}
-          className="basis-3/4 md:basis-1/3"
-        >
-          <Link
-            href={`/article/${a.uid}`}
-            className="bg-card block cursor-pointer rounded-lg p-4 shadow-sm hover:shadow-md"
-          >
-            <div className="relative aspect-video w-full overflow-hidden rounded-lg">
-              <Image
-                fill
-                sizes="(min-width: 768px) 31vw, 75vw"
-                className="object-cover"
-                loader={recommendationImageLoader}
-                src={a.data.image.url}
-                alt={RichText.asText(a.data.title)}
-              />
-            </div>
-            <div>
-              <h3 className="line-clamp-1 text-lg font-semibold">
-                {RichText.asText(a.data.title)}
-              </h3>
-              <p className="line-clamp-3 mb-auto text-sm">
-                {a.data.description}
-              </p>
-              <p className="line-clamp-1 mt-2 hidden text-sm lg:flex">
-                By{' '}
-                {a.data.author +
-                  ' · ' +
-                  moment(a.data.date).format('ll') +
-                  ' · ' +
-                  readingTime(a.data.text)}
-              </p>
-            </div>
-          </Link>
-        </CarouselItem>
-      )
-    }
-  )
-
-  const router = useRouter()
-  return (
-    <>
-      {isAmp ? (
-        <h3>AMP article in progress...</h3>
-      ) : (
-        <>
-          <SocialMeta
-            title={`${RichText.asText(
-              article.data.title
-            )} | SciTeens`}
-            description={article.data.description}
-            eyebrow="Article"
-            badge={article.data.author}
-            path={router.asPath}
-          />
-          <main>
-            <article className="prose wrap-break-word lg:prose-lg mx-auto mt-8 overflow-hidden px-4">
-              <h1>{RichText.asText(article.data.title)}</h1>
-              <div>
-                <div className="mb-4 flex items-center">
-                  {author_image}
-                  <p className="text-foreground ml-6 text-lg ">
-                    {t('article.by')} {article.data.author}{' '}
-                    <br />
-                    <span className="text-muted-foreground">
-                      {' '}
-                      {moment(article.data.date).format(
-                        'MMMM DD, YYYY'
-                      )}{' '}
-                      · {readingTime(article.data.text)}{' '}
-                    </span>
+                  <p className="text-muted-foreground text-pretty text-center text-sm leading-relaxed sm:text-left">
+                    {RichText.asText(
+                      authorSlice.primary.information
+                    )}
                   </p>
                 </div>
-                <div className="not-prose flex flex-row flex-wrap">
-                  {article.tags.map((tag) => {
-                    return (
-                      <Button
-                        key={tag}
-                        variant="secondary"
-                        className="bg-card hover:bg-muted border-border mb-1 mr-4 rounded-full border shadow-sm"
-                        render={
-                          <Link
-                            href={{
-                              pathname: '/articles',
-                              query: { field: tag },
-                            }}
-                          >
-                            {translatedFields[tag] || tag}
-                          </Link>
-                        }
-                      />
-                    )
-                  })}
-                </div>
-              </div>
-              <div>
-                {/* Cover image */}
-                <Image
-                  loader={coverImageLoader}
-                  src={article.data.image.url}
-                  alt={RichText.asText(article.data.title)}
-                  width={670}
-                  height={400}
-                  sizes="(min-width: 1024px) 670px, 100vw"
-                  className="mt-0 h-auto w-full rounded-lg object-cover"
-                />
+              </CardContent>
+            </Card>
+          )}
 
-                <div>
-                  <RichText
-                    render={article.data.text}
-                    htmlSerializer={htmlSerializer}
+          <Card className="border-border/60">
+            <CardContent className="flex flex-col items-center justify-between gap-4 p-5 sm:flex-row md:p-6">
+              <p className="text-pretty font-semibold">
+                {t('article.rate')}
+              </p>
+              <div className="flex shrink-0 items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon-lg"
+                  aria-label={t('article.rate_yes')}
+                  aria-pressed={vote === 'positive'}
+                  onClick={() => handleRate('positive')}
+                  className={cn(
+                    vote === 'positive' &&
+                      'border-sciteensGreen-dark bg-sciteensGreen-dark/10 text-sciteensGreen-dark hover:bg-sciteensGreen-dark/15 hover:text-sciteensGreen-dark'
+                  )}
+                >
+                  <ThumbsUp
+                    className="size-4"
+                    aria-hidden="true"
                   />
-                </div>
-
-                {interviews}
-
-                {/* Thumbs Up / Thumbs Down Element */}
-                <div className="bg-card flex flex-col place-items-center justify-between rounded-lg shadow-sm md:flex-row md:rounded-full">
-                  <p className="text-foreground ml-0 text-sm font-semibold md:ml-14 md:text-lg lg:text-xl">
-                    {t('article.rate')}
-                  </p>
-                  <div className="my-auto mr-0 h-auto pb-4 md:mr-14 md:pb-0">
-                    <button
-                      className={`mr-12 rounded-lg border-2 p-2 hover:border-green-500 hover:bg-green-50 hover:text-green-500 ${
-                        vote === 'positive'
-                          ? 'border-green-500 text-green-500'
-                          : 'border-border text-muted-foreground'
-                      }`}
-                      onClick={() => handleRate('positive')}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        className="h-5 w-5 fill-current lg:h-7 lg:w-7"
-                      >
-                        <path d="M11 0h1v3l3 7v8a2 2 0 0 1-2 2H5c-1.1 0-2.31-.84-2.7-1.88L0 12v-2a2 2 0 0 1 2-2h7V2a2 2 0 0 1 2-2zm6 10h3v10h-3V10z" />
-                      </svg>
-                    </button>
-                    <button
-                      className={`rounded-lg border-2 p-2 hover:border-red-500 hover:bg-red-50 hover:text-red-500 ${
-                        vote === 'negative'
-                          ? 'border-red-500 text-red-500'
-                          : 'border-border text-muted-foreground'
-                      }`}
-                      onClick={() => handleRate('negative')}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        className="h-5 w-5 fill-current lg:h-7 lg:w-7"
-                      >
-                        <path d="M11 20a2 2 0 0 1-2-2v-6H2a2 2 0 0 1-2-2V8l2.3-6.12A3.11 3.11 0 0 1 5 0h8a2 2 0 0 1 2 2v8l-3 7v3h-1zm6-10V0h3v10h-3z" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Submit an article CTA */}
-                <div className="bg-card mt-4 rounded-lg p-4 text-center shadow-sm">
-                  <p className="text-foreground text-sm md:text-lg">
-                    {t('article.submit_own')}{' '}
-                    <a
-                      href="mailto:info@sciteens.org"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="font-bold"
-                    >
-                      {t('article.reach_out')}
-                    </a>
-                  </p>
-                </div>
-
-                {about_the_author}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon-lg"
+                  aria-label={t('article.rate_no')}
+                  aria-pressed={vote === 'negative'}
+                  onClick={() => handleRate('negative')}
+                  className={cn(
+                    vote === 'negative' &&
+                      'border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/15 hover:text-destructive'
+                  )}
+                >
+                  <ThumbsDown
+                    className="size-4"
+                    aria-hidden="true"
+                  />
+                </Button>
               </div>
-              {typeof window !== 'undefined' && (
-                <Discussion
-                  type={'article'}
-                  item_id={router.query.slug}
-                />
-              )}
-              <div className="bg-border my-2 h-px" />
-            </article>
-            <h3 className="mt-8 text-center text-2xl font-semibold md:text-5xl">
-              {t('article.related')}
-            </h3>
-            <div className="mx-auto w-11/12 max-w-4xl pb-8">
-              <Carousel opts={{ align: 'start' }}>
-                <CarouselContent>
-                  {recommendationsRendered}
-                </CarouselContent>
-                <CarouselPrevious className="left-2 lg:-left-12" />
-                <CarouselNext className="right-2 lg:-right-12" />
-              </Carousel>
-            </div>
-          </main>
-        </>
-      )}
+              {/* Screen-reader-only, matching ProjectUpvoteButton: the
+                pressed button colour is the sighted confirmation, and a
+                permanently mounted visible line would leave an empty
+                row in the card before any vote. */}
+              <span
+                role="status"
+                aria-live="polite"
+                className="sr-only"
+              >
+                {vote ? t('article.rate_thanks') : ''}
+              </span>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/60">
+            <CardContent className="p-5 text-center md:p-6">
+              <p className="text-pretty text-sm md:text-base">
+                {t('article.submit_own')}{' '}
+                <a
+                  href="mailto:info@sciteens.org"
+                  className={INLINE_LINK}
+                >
+                  {t('article.reach_out')}
+                </a>
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <DetailSection>
+          <Discussion
+            type="article"
+            item_id={router.query.slug}
+          />
+        </DetailSection>
+
+        {recommendations.length > 0 && (
+          <DetailSection title={t('article.related')}>
+            <Carousel
+              opts={{ align: 'start' }}
+              className="mt-4"
+            >
+              <CarouselContent>
+                {recommendations.map((recommendation) => (
+                  <CarouselItem
+                    key={recommendation.uid}
+                    className="basis-4/5 sm:basis-1/2 lg:basis-1/3"
+                  >
+                    <Card className="border-border/60 hover:border-border hover:bg-muted/40 relative isolate h-full overflow-hidden transition-colors">
+                      {/* Inset outline: Card clips overflow, so the
+                          global 2px-offset focus ring would be cut. */}
+                      <Link
+                        href={`/article/${recommendation.uid}`}
+                        aria-label={RichText.asText(
+                          recommendation.data.title
+                        )}
+                        className="focus-visible:outline-ring focus-visible:-outline-offset-2 absolute inset-0 z-10 rounded-xl focus-visible:outline-2"
+                      />
+                      <CardContent className="flex h-full flex-col gap-3">
+                        <div className="bg-muted relative aspect-video w-full shrink-0 overflow-hidden rounded-lg">
+                          <Image
+                            fill
+                            sizes="(min-width: 1024px) 240px, (min-width: 640px) 45vw, 75vw"
+                            className="object-cover"
+                            loader={
+                              recommendationImageLoader
+                            }
+                            src={
+                              recommendation.data.image.url
+                            }
+                            alt=""
+                            loading="lazy"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="line-clamp-2 text-pretty text-base font-semibold">
+                            {RichText.asText(
+                              recommendation.data.title
+                            )}
+                          </h3>
+                          <p className="text-muted-foreground line-clamp-2 mt-1.5 text-sm leading-relaxed">
+                            {
+                              recommendation.data
+                                .description
+                            }
+                          </p>
+                          <p className="text-muted-foreground line-clamp-1 mt-2 text-xs">
+                            {t('article.by')}{' '}
+                            {recommendation.data.author} ·{' '}
+                            {formatMediumDate(
+                              recommendation.data.date,
+                              router?.locale
+                            )}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-2 lg:-left-12" />
+              <CarouselNext className="right-2 lg:-right-12" />
+            </Carousel>
+          </DetailSection>
+        )}
+      </DetailMain>
     </>
   )
 }
