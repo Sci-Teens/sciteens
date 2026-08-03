@@ -8,7 +8,7 @@
 // but this server process (see infra/meilisearch/README.md's access
 // control section).
 import {
-  buildProjectSearchParams,
+  buildProjectSearchQueries,
   formatFieldFacets,
   mapSearchHitToProject,
 } from '@/lib/search'
@@ -26,7 +26,7 @@ function meiliHost() {
   return host ? host.replace(/\/+$/, '') : null
 }
 
-async function meiliSearch(params) {
+async function meiliMultiSearch(queries) {
   const host = meiliHost()
   if (!host) {
     throw Object.assign(
@@ -41,20 +41,17 @@ async function meiliSearch(params) {
     REQUEST_TIMEOUT_MS
   )
   try {
-    const res = await fetch(
-      `${host}/indexes/projects/search`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(searchKey && {
-            Authorization: `Bearer ${searchKey}`,
-          }),
-        },
-        body: JSON.stringify(params),
-        signal: controller.signal,
-      }
-    )
+    const res = await fetch(`${host}/multi-search`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(searchKey && {
+          Authorization: `Bearer ${searchKey}`,
+        }),
+      },
+      body: JSON.stringify({ queries }),
+      signal: controller.signal,
+    })
     if (!res.ok) {
       const text = await res.text().catch(() => '')
       throw Object.assign(
@@ -98,7 +95,7 @@ export default async function handler(req, res) {
 
   try {
     const pageParam = parsePageParam(firstParam(page))
-    const params = buildProjectSearchParams({
+    const queries = buildProjectSearchQueries({
       search: String(firstParam(q) ?? '').slice(
         0,
         MAX_QUERY_LENGTH
@@ -113,7 +110,8 @@ export default async function handler(req, res) {
       page: pageParam,
     })
 
-    const result = await meiliSearch(params)
+    const { results = [] } = await meiliMultiSearch(queries)
+    const [result = {}, facetResult = {}] = results
 
     res.setHeader('Cache-Control', 'private, no-store')
     res.status(200).json({
@@ -121,7 +119,9 @@ export default async function handler(req, res) {
         mapSearchHitToProject
       ),
       totalHits: result.estimatedTotalHits ?? 0,
-      facets: formatFieldFacets(result.facetDistribution),
+      facets: formatFieldFacets(
+        facetResult.facetDistribution
+      ),
       page: Math.floor(
         (result.offset ?? 0) / (result.limit || 1)
       ),

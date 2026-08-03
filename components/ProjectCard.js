@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useTranslation } from 'next-i18next'
@@ -10,6 +10,7 @@ import {
 } from '../context/helpers'
 import { normalizeProject } from '../lib/projects'
 import { getDefaultProjectImage } from '../lib/defaultProjectImage'
+import { splitHighlightedText } from '../lib/search'
 import ProfilePhoto from './ProfilePhoto'
 import ProjectUpvoteButton from './ProjectUpvoteButton'
 
@@ -40,6 +41,26 @@ function fieldLimit(fields) {
     : 3
 }
 
+// Renders a Meilisearch `_formatted` value as text plus <mark>s. Projects
+// that didn't come from a search hit have no highlight, so this falls back
+// to the plain value and the card looks exactly as it always has.
+function Highlighted({ highlighted, plain }) {
+  const segments = splitHighlightedText(highlighted)
+  if (segments.length === 0) return plain
+  return segments.map((segment, index) =>
+    segment.match ? (
+      <mark
+        key={index}
+        className="bg-sciteensLightGreen-regular/25 text-foreground rounded-sm px-0.5"
+      >
+        {segment.text}
+      </mark>
+    ) : (
+      <Fragment key={index}>{segment.text}</Fragment>
+    )
+  )
+}
+
 export default function ProjectCard({
   project,
   date,
@@ -60,6 +81,9 @@ export default function ProjectCard({
   const translatedFields = getTranslatedFieldsDict(t)
   const hasPhoto =
     Boolean(normalizedProject?.project_photo) && !photoError
+  // `highlight.abstract` is derived from the same indexed field, so it is
+  // never present when the plain abstract is empty.
+  const hasAbstract = Boolean(normalizedProject.abstract)
 
   return (
     <Card className="border-border/60 hover:border-border hover:bg-muted/40 relative isolate overflow-hidden transition-colors">
@@ -163,11 +187,21 @@ export default function ProjectCard({
             </div>
           )}
           <h3 className="line-clamp-2 text-pretty text-base font-semibold md:text-lg lg:text-xl">
-            {normalizedProject.title}
+            <Highlighted
+              highlighted={
+                normalizedProject.highlight?.title
+              }
+              plain={normalizedProject.title}
+            />
           </h3>
-          {normalizedProject.abstract && (
+          {hasAbstract && (
             <p className="text-muted-foreground md:line-clamp-2 max-md:hidden mt-1.5 max-w-[68ch] text-sm leading-relaxed">
-              {normalizedProject.abstract}
+              <Highlighted
+                highlighted={
+                  normalizedProject.highlight?.abstract
+                }
+                plain={normalizedProject.abstract}
+              />
             </p>
           )}
           {fields.length > 0 && (
