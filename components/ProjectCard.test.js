@@ -6,6 +6,10 @@ import {
   screen,
 } from '@testing-library/react'
 import ProjectCard from './ProjectCard'
+import {
+  HIGHLIGHT_POST_TAG,
+  HIGHLIGHT_PRE_TAG,
+} from '../lib/search'
 
 // Regression guard for the zero-member "By" label bug (the render gate
 // is `member_arr?.length > 0`, not a truthy-empty-array check — an
@@ -199,5 +203,81 @@ describe('ProjectCard', () => {
     const img = container.querySelector('img')
     expect(img).not.toBeNull()
     expect(img.getAttribute('alt')).toBe('Photo Project')
+  })
+
+  it('renders a project with no highlights as plain text', () => {
+    const { container } = render(
+      <ProjectCard
+        project={{
+          id: 'p10',
+          title: 'Plain Project',
+          abstract: 'A plain abstract.',
+        }}
+      />
+    )
+
+    expect(container.querySelector('mark')).toBeNull()
+    expect(screen.getByText('Plain Project')).toBeTruthy()
+    expect(
+      screen.getByText('A plain abstract.')
+    ).toBeTruthy()
+  })
+
+  it('marks the matched terms of a search hit', () => {
+    const { container } = render(
+      <ProjectCard
+        project={{
+          id: 'p11',
+          title: 'DNA Origami',
+          abstract: 'A study of DNA folding in plants.',
+          highlight: {
+            title: `${HIGHLIGHT_PRE_TAG}DNA${HIGHLIGHT_POST_TAG} Origami`,
+            abstract: `A study of ${HIGHLIGHT_PRE_TAG}DNA${HIGHLIGHT_POST_TAG} folding…`,
+          },
+        }}
+      />
+    )
+
+    expect(
+      [...container.querySelectorAll('mark')].map(
+        (mark) => mark.textContent
+      )
+    ).toEqual(['DNA', 'DNA'])
+    // The sentinels are structure, never content: none may reach the DOM.
+    expect(container.textContent).not.toContain(
+      HIGHLIGHT_PRE_TAG
+    )
+    expect(container.textContent).not.toContain(
+      HIGHLIGHT_POST_TAG
+    )
+    expect(container.textContent).toContain(
+      'A study of DNA folding…'
+    )
+  })
+
+  // aria-label and alt text feed screen readers and image fallbacks, so
+  // they take the plain title even when a highlighted one exists.
+  it('keeps highlight markup out of aria-label and alt text', () => {
+    const { container } = render(
+      <ProjectCard
+        project={{
+          id: 'p12',
+          title: 'DNA Origami',
+          project_photo: 'https://example.com/photo.jpg',
+          highlight: {
+            title: `${HIGHLIGHT_PRE_TAG}DNA${HIGHLIGHT_POST_TAG} Origami`,
+          },
+        }}
+      />
+    )
+
+    expect(
+      container
+        .querySelector('a[aria-label]')
+        .getAttribute('aria-label')
+    ).toBe('DNA Origami')
+    expect(
+      container.querySelector('img').getAttribute('alt')
+    ).toBe('DNA Origami')
   })
 })

@@ -385,6 +385,7 @@
     "sort_relevance": "Relevancia",
     "sort_newest": "Más recientes",
     "sort_oldest": "Más antiguos",
+    "sort_upvotes": "Más votados",
     "search_unavailable": "La búsqueda no está disponible temporalmente, así que no se pudieron cargar resultados.",
     "results_count_one": "{{count}} resultado",
     "results_count_other": "{{count}} resultados",

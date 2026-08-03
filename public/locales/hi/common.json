@@ -385,6 +385,7 @@
     "sort_relevance": "प्रासंगिकता",
     "sort_newest": "नवीनतम",
     "sort_oldest": "सबसे पुराने",
+    "sort_upvotes": "सर्वाधिक वोट किए गए",
     "search_unavailable": "खोज अस्थायी रूप से अनुपलब्ध है, इसलिए कोई परिणाम लोड नहीं हो सका।",
     "results_count_one": "{{count}} परिणाम",
     "results_count_other": "{{count}} परिणाम",

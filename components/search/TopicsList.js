@@ -7,6 +7,11 @@ import { cn } from '@/lib/utils'
 // sidebar/sheet on every page. `facets` is optional: pages backed by a
 // search index (projects) pass live counts, pages that aren't (courses,
 // articles) simply omit it and the counts don't render.
+//
+// Counts are scoped to the active search, and Meilisearch omits empty
+// buckets from a facet distribution, so a topic missing from a non-empty
+// `facets` means zero matches — rendered as "0" rather than left blank,
+// which would read as "unknown" next to siblings that do show a number.
 export default function TopicsList({
   topicsLabel,
   fields,
@@ -37,12 +42,12 @@ export default function TopicsList({
       <div className="flex flex-col gap-1">
         {Object.entries(fields).map(([key, value]) => {
           const count =
-            facets && key !== 'All'
+            facets?.length && key !== 'All'
               ? facets.find(
                   (facet) =>
                     facet.field.toLowerCase() ===
                     key.toLowerCase()
-                )?.count
+                )?.count ?? 0
               : undefined
           const active =
             key === 'All' ? !field : field === key

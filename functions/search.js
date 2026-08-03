@@ -74,6 +74,11 @@ function toSearchDocument(id, data) {
   const fields = Array.isArray(data.fields)
     ? data.fields
     : []
+  const memberArr = Array.isArray(data.member_arr)
+    ? data.member_arr
+    : Array.isArray(data.members)
+    ? data.members
+    : []
   return {
     id,
     title: data.title || data.name || '',
@@ -85,11 +90,21 @@ function toSearchDocument(id, data) {
         fields.map(normalizeField).filter(Boolean)
       ),
     ],
-    member_arr: Array.isArray(data.member_arr)
-      ? data.member_arr
-      : Array.isArray(data.members)
-      ? data.members
-      : [],
+    member_arr: memberArr,
+    // Flattened separately from member_arr so the searchable attribute
+    // can be just the names: indexing member_arr wholesale would also
+    // make uids and profile slugs match free-text queries.
+    member_names: [
+      ...new Set(
+        memberArr
+          .map((member) =>
+            typeof member?.display === 'string'
+              ? member.display.trim()
+              : ''
+          )
+          .filter(Boolean)
+      ),
+    ],
     date: toMillis(data.date),
     upvote_count:
       typeof data.upvote_count === 'number' &&
@@ -170,6 +185,7 @@ async function deleteProjectFromIndex(id) {
 }
 
 module.exports = {
+  CANONICAL_FIELDS,
   toSearchDocument,
   indexProject,
   deleteProjectFromIndex,

@@ -73,8 +73,8 @@ function mapProjectSnapshot(snapshot) {
   return projects
 }
 
-// Free-text search and/or a date range are answered by the self-hosted
-// Meilisearch index (pages/api/search/projects.js) — see
+// Free-text search, a date range, or upvote ordering are answered by the
+// self-hosted Meilisearch index (pages/api/search/projects.js) — see
 // lib/search.js#requiresSearchIndex. Plain browsing and single-topic
 // filtering stay on Firestore directly: it's already fast, needs no
 // search infra, and is what getStaticProps below seeds at build time.
@@ -119,7 +119,9 @@ async function fetchProjectsPage({
   sort,
   pageParam,
 }) {
-  if (requiresSearchIndex({ search, dateFrom, dateTo })) {
+  if (
+    requiresSearchIndex({ search, dateFrom, dateTo, sort })
+  ) {
     return fetchProjectsSearchPage({
       search,
       field,
@@ -171,9 +173,11 @@ async function fetchProjectsPage({
   }
 }
 
-// Independent of the listing query above: always asks Meilisearch for the
-// current facet counts (unfiltered) so the topic list can show live
-// numbers the moment the page loads, not just once a search is active.
+// Whole-index counts, used only when the listing itself came from
+// Firestore (plain browsing) and so carries no facet distribution of its
+// own. Once a search is active the page prefers the query-scoped counts
+// the API returns alongside the hits, which describe the result set on
+// screen rather than the entire index.
 // Failing silently (no counts shown) is the correct degrade — this must
 // never block or error the page.
 async function fetchProjectFacets() {
@@ -307,9 +311,11 @@ function Projects({ cached_projects }) {
   // understand: `?sort=anything` otherwise renders a blank Select
   // trigger and a chip that disagrees with the executed ordering.
   const rawSortParam = router.query?.sort || ''
-  const sortParam = ['newest', 'oldest'].includes(
-    rawSortParam
-  )
+  const sortParam = [
+    'newest',
+    'oldest',
+    'upvotes',
+  ].includes(rawSortParam)
     ? rawSortParam
     : ''
 
@@ -409,10 +415,29 @@ function Projects({ cached_projects }) {
   const facetsQuery = useQuery({
     queryKey: ['projectFacets'],
     queryFn: fetchProjectFacets,
+    // Only the Firestore browse path needs it. On a search the listing
+    // response already carries query-scoped counts, so firing this too would
+    // spend a second round trip (and possibly a cold start) on a
+    // distribution that is discarded a few lines below.
+    enabled:
+      router.isReady &&
+      !requiresSearchIndex({
+        search: searchParam,
+        dateFrom: dateFromParam,
+        dateTo: dateToParam,
+        sort: sortParam,
+      }),
     staleTime: 5 * 60 * 1000,
     retry: false,
   })
-  const facets = facetsQuery.data || []
+  // Query-scoped counts win whenever the listing came from the search
+  // index: "of these results, N are Biology" is the number that makes the
+  // topic list a usable next step. The whole-index counts only stand in
+  // for the Firestore browse path, which has no distribution to report.
+  const facets =
+    projectsQuery.data?.pages[0]?.facets ||
+    facetsQuery.data ||
+    []
 
   const projects = useMemo(
     () =>
@@ -508,6 +533,7 @@ function Projects({ cached_projects }) {
     relevance: t('projects.sort_relevance'),
     newest: t('projects.sort_newest'),
     oldest: t('projects.sort_oldest'),
+    upvotes: t('projects.sort_upvotes'),
   }
 
   const activeFilters = []
@@ -653,6 +679,9 @@ function Projects({ cached_projects }) {
               </SelectItem>
               <SelectItem value="oldest">
                 {t('projects.sort_oldest')}
+              </SelectItem>
+              <SelectItem value="upvotes">
+                {t('projects.sort_upvotes')}
               </SelectItem>
             </SelectContent>
           </Select>

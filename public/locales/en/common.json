@@ -385,6 +385,7 @@
     "sort_relevance": "Relevance",
     "sort_newest": "Newest",
     "sort_oldest": "Oldest",
+    "sort_upvotes": "Most upvoted",
     "search_unavailable": "Search is temporarily unavailable, so no results could be loaded.",
     "results_count_one": "{{count}} result",
     "results_count_other": "{{count}} results",

@@ -100,8 +100,17 @@ shadcn tokens.
   `functions/index.js`); `pages/api/search/projects.js` is the only thing
   that ever talks to Meilisearch — the client never sees `MEILI_HOST` or an
   API key. Plain browsing and single-topic filtering stay on Firestore
-  directly (see `lib/search.js#requiresSearchIndex`); only free-text search
-  and date-range filtering hit the index.
+  directly (see `lib/search.js#requiresSearchIndex`); free-text search,
+  date-range filtering and the "Most upvoted" ordering hit the index.
+  Relevance settings are split between
+  `scripts/lib/meilisearchIndexSettings.js` (index side: searchable
+  attributes, ranking rules, stop words, synonyms) and `lib/search.js`
+  (query side). Change them with numbers, not intuition:
+  `scripts/eval-meilisearch-relevance.js --baseline` scores both against the
+  fixture battery in `scripts/lib/relevanceBattery.js` and is documented in
+  `infra/meilisearch/README.md#relevance-tuning`. Changing what
+  `toSearchDocument` emits needs `scripts/reindex-meilisearch.js` to backfill
+  projects the triggers won't otherwise touch.
 - API routes (`pages/api/*`) are Next serverless functions, distinct from
   `functions/` (Firebase Cloud Functions). Keep server-only work (e.g. the
   Meilisearch admin/search keys) in API routes or `functions/`, never in

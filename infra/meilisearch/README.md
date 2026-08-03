@@ -99,6 +99,78 @@ is also the intended place to mint a scoped, search-only API key (Meilisearch
 `POST /keys` with `actions: ["search"]`, `indexes: ["projects"]`) for
 client-side/read-only callers, separate from the all-powerful master key.
 
+**3. Backfill after an indexer change.** The Firestore triggers in
+`functions/index.js` only reach a project when it is written, so a change to
+`functions/search.js#toSearchDocument` leaves every untouched project on the
+old shape. `scripts/reindex-meilisearch.js` re-applies the index settings and
+re-pushes every project (dry run by default, `--execute` to write).
+
+## Relevance tuning
+
+Index-side relevance lives in `scripts/lib/meilisearchIndexSettings.js`; the
+query-side half (highlighting, the relevance floor, sort mapping) lives in
+`lib/search.js`. Neither is tuned by taste. Both are measured by
+`scripts/eval-meilisearch-relevance.js` against the fixture corpus and query
+battery in `scripts/lib/relevanceBattery.js`:
+
+```sh
+docker run --rm -p 7701:7700 -e MEILI_MASTER_KEY=devkey \
+  getmeili/meilisearch:v1.48.2
+MEILI_HOST=http://127.0.0.1:7701 MEILI_MASTER_KEY=devkey \
+  node scripts/eval-meilisearch-relevance.js --baseline
+```
+
+It writes only to a scratch `projects-relevance-eval` index, deletes it
+afterwards, and refuses to run against a host that looks deployed. `--baseline`
+adds a run under the pre-tuning settings so a change reads as a delta.
+
+| Configuration     | P@5   | Recall | MRR   |
+| ----------------- | ----- | ------ | ----- |
+| Original settings | 0.350 | 0.346  | 0.536 |
+| Current settings  | 0.871 | 0.857  | 1.000 |
+
+What the individual pieces bought:
+
+- **`member_names` searchable, ranked above `abstract`.** Author queries
+  returned nothing at all before, because `member_arr` was stored but never
+  searched. The position matters as much as the presence: `attributeRank`
+  reads `searchableAttributes` in order, so with names below `abstract` a
+  project that merely cites someone outranks the one they authored.
+- **Stop words.** "how does sleep affect performance" returned four "How
+  Does ..." titles and not the sleep project at all; function words were
+  outvoting the content words.
+- **Synonyms.** "CO2", "comp sci" and "AI" each returned zero or one hit.
+  Student abstracts spell terms out; searchers type the abbreviation.
+- **`upvote_count:desc` below `exactness`, above `wordPosition`.** Orders
+  equally-relevant hits by community rating rather than by the near-arbitrary
+  "matched nearer the start of the field" signal, without letting a popular
+  near-match outrank a literal one.
+- **`rankingScoreThreshold: 0.2`.** Trims the tail where a long query matched
+  one incidental word, plus typo-tolerant near-misses ("neural" reaching
+  "neutral pH"). No relevant hit lost.
+
+Scalar averages hide ordering bugs, so the battery also asserts two rank-1
+expectations against documents planted for them, and the script exits
+non-zero if either fails:
+
+- "Priya Raman" must return the project she authored, not the one citing her.
+- "robot" must return the exact match, not the more upvoted "Robotics" title.
+
+Rejected on the evidence, recorded so they are not retried:
+
+- **`matchingStrategy: "frequency"`** regressed P@5 to 0.746. It keeps the
+  rarest query term, so "water pollution" dropped "water" and returned a
+  light-pollution project.
+- **`rankingScoreThreshold` above 0.2** started costing recall (0.786 at 0.3,
+  0.714 at 0.4).
+- **`photovoltaic -> solar`**, the reverse of a synonym that is kept one-way.
+  It matched nothing the literal token had not already found and pulled
+  "solar wind" space-science projects into a query about panels.
+
+The corpus is synthetic and small, so treat the absolute numbers as a
+regression baseline rather than a forecast for production. Re-run the battery
+before changing any of this.
+
 ## Access control: network-reachable, application-layer-gated
 
 This module grants `roles/run.invoker` to `allUsers` on the Cloud Run

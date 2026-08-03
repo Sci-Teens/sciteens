@@ -12,7 +12,15 @@
 // re-running only prints a *new* search key (Meilisearch does not let you
 // recover a key's plaintext after creation) — if you already have one
 // deployed, keep it and skip updating MEILI_SEARCH_KEY.
+//
+// Changing the settings below only affects how already-indexed documents are
+// searched. Adding a new *document* attribute (as `member_names` was) needs
+// scripts/reindex-meilisearch.js afterwards to backfill existing projects.
 'use strict'
+
+const {
+  PROJECTS_INDEX_SETTINGS,
+} = require('./lib/meilisearchIndexSettings')
 
 const host = (process.env.MEILI_HOST || '').replace(
   /\/+$/,
@@ -72,21 +80,7 @@ async function ensureIndex() {
 async function applySettings() {
   await meili('/indexes/projects/settings', {
     method: 'PATCH',
-    body: {
-      searchableAttributes: ['title', 'abstract', 'fields'],
-      filterableAttributes: ['fields_facet', 'date'],
-      sortableAttributes: ['date'],
-      // Rank an exact/near-exact title match above a loose abstract
-      // match, then fall back to Meilisearch's default relevance rules.
-      rankingRules: [
-        'words',
-        'typo',
-        'proximity',
-        'attribute',
-        'sort',
-        'exactness',
-      ],
-    },
+    body: PROJECTS_INDEX_SETTINGS,
   })
   console.log('Applied index settings.')
 }
