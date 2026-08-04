@@ -14,8 +14,9 @@ const LIVE_APP_PORT = 3101
 const FIRESTORE_EMULATOR_HOST = `${EMULATOR_HOST}:${FIRESTORE_EMULATOR_PORT}`
 const AUTH_EMULATOR_URL = `http://${EMULATOR_HOST}:${AUTH_EMULATOR_PORT}`
 
-// Fake config — never validated once every service is redirected to
-// an emulator via connect*Emulator (lib/firebase.js).
+// Fake config — never validated once every service is redirected to an
+// emulator via connect*Emulator (lib/firebase.js, lib/firestore.js,
+// lib/storage.js).
 const EMULATOR_FIREBASE_CONFIG = {
   NEXT_PUBLIC_USE_FIREBASE_EMULATORS: 'true',
   NEXT_PUBLIC_FIREBASE_EMULATOR_HOST: EMULATOR_HOST,

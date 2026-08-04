@@ -377,6 +377,7 @@ function Courses({ cached_courses }) {
                   <ListingCard
                     href={`/course/${course.uid}`}
                     title={title}
+                    fallbackLabel={t('courses.untitled')}
                     description={RichText.asText(
                       course.data.description
                     )}

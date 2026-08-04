@@ -11,10 +11,8 @@ import Link from 'next/link'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 
-import {
-  db as firestore,
-  storage,
-} from '../../../lib/firebase'
+import { db as firestore } from '../../../lib/firestore'
+import { storage } from '../../../lib/storage'
 import { useSigninCheck } from '../../../context/AuthContext'
 import {
   collection,

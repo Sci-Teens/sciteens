@@ -6,6 +6,7 @@ import {
   config,
 } from '@react-spring/web'
 import SocialMeta from '@/components/SocialMeta'
+import { INLINE_LINK } from '@/lib/typography'
 
 export default function Educators() {
   const { t } = useTranslation('common')
@@ -55,7 +56,7 @@ export default function Educators() {
             <a
               target="_blank"
               href="mailto:carlos@sciteens.org"
-              className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold"
+              className={INLINE_LINK}
               rel="noreferrer"
             >
               Carlos Mercado-Lara
@@ -66,7 +67,7 @@ export default function Educators() {
             <a
               target="_blank"
               href="mailto:aarti@sciteens.org"
-              className="text-sciteensLightGreen-regular hover:text-sciteensLightGreen-dark font-semibold"
+              className={INLINE_LINK}
               rel="noreferrer"
             >
               Aarti Kalamangalam

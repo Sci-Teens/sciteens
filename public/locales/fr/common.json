@@ -41,7 +41,7 @@
   "cookie_consent": {
     "heading": "Consentement aux cookies",
     "message": "Nous utilisons des cookies essentiels pour faire fonctionner ce site et, avec votre permission, des cookies analytiques pour comprendre son utilisation.",
-    "learn_more": "En savoir plus",
+    "policy_link": "Lire notre politique en matière de cookies",
     "accept": "Accepter",
     "reject": "Refuser les cookies non essentiels"
   },
@@ -291,7 +291,8 @@
     "load_failed": "Impossible de charger les articles. Vérifiez votre connexion, puis réessayez.",
     "results_count_one": "{{count}} résultat",
     "results_count_other": "{{count}} résultats",
-    "reading_time": "{{minutes}} min de lecture"
+    "reading_time": "{{minutes}} min de lecture",
+    "untitled": "Article sans titre"
   },
   "courses": {
     "courses": "Cours",
@@ -314,7 +315,8 @@
     "results_count_other": "{{count}} résultats",
     "load_more": "Charger plus de cours",
     "self_paced": "À votre rythme",
-    "starts_on": "Débute le"
+    "starts_on": "Débute le",
+    "untitled": "Cours sans titre"
   },
   "donate": {
     "annual_donation_appeal": "Appel de don annuel",
@@ -406,7 +408,8 @@
     "links": "Liens",
     "files": "Fichiers",
     "no_files": "Aucun fichier n'a encore été joint à ce projet.",
-    "visit_link": "Ouvrir {{host}} dans un nouvel onglet"
+    "visit_link": "Ouvrir {{host}} dans un nouvel onglet",
+    "untitled": "Projet sans titre"
   },
   "fields": {
     "all": "Tout",

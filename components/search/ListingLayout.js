@@ -17,7 +17,7 @@ export default function ListingLayout({
   children,
 }) {
   return (
-    <div className="text-foreground mx-auto mb-24 mt-8 min-h-screen w-full max-w-6xl px-4 md:px-6 lg:px-8">
+    <main className="text-foreground mx-auto mb-24 mt-8 min-h-screen w-full max-w-6xl px-4 md:px-6 lg:px-8">
       <header className="flex flex-col gap-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-8">
         <div className="min-w-0">
           <PageHeading className="text-left">
@@ -36,6 +36,6 @@ export default function ListingLayout({
         <div className="min-w-0 flex-1">{children}</div>
         <FilterAside>{aside}</FilterAside>
       </div>
-    </div>
+    </main>
   )
 }

@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { animated, useSpring } from '@react-spring/web'
@@ -11,7 +10,7 @@ import HeadingRule from '@/components/HeadingRule'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { GUTTER } from '@/lib/layout'
-import { fadeUp, useSectionReveal } from '@/lib/reveal'
+import { riseUp, useSectionReveal } from '@/lib/reveal'
 import { SITE_STATS } from '@/lib/siteStats'
 
 const SECTIONS = ['appeal']
@@ -22,14 +21,9 @@ const PAYPAL_URL =
 export default function Donate() {
   const { t } = useTranslation('common')
 
-  const [animateLanding, setAnimateLanding] =
-    useState(false)
-  useEffect(() => setAnimateLanding(true), [])
-
   const visible = useSectionReveal(SECTIONS)
 
-  const landingSpring = useSpring(fadeUp(animateLanding))
-  const appealSpring = useSpring(fadeUp(visible.appeal))
+  const appealSpring = useSpring(riseUp(visible.appeal))
 
   return (
     <div>
@@ -43,7 +37,7 @@ export default function Donate() {
         <section
           className={`${GUTTER} pb-16 pt-10 md:pb-20 md:pt-16`}
         >
-          <animated.div style={landingSpring}>
+          <div className="reveal-up">
             <PageHeading className="max-w-[16ch]">
               {t('donate.annual_donation_appeal')}
             </PageHeading>
@@ -51,7 +45,7 @@ export default function Donate() {
             <p className="text-muted-foreground text-pretty mt-6 max-w-[58ch] text-base md:mt-7 md:text-lg">
               {t('donate.lede')}
             </p>
-          </animated.div>
+          </div>
         </section>
 
         <section

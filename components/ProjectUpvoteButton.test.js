@@ -30,9 +30,7 @@ vi.mock('../context/AuthContext', () => ({
   useSigninCheck: vi.fn(),
 }))
 
-vi.mock('../lib/firebase', () => ({
-  db: {},
-}))
+vi.mock('../lib/firestore', () => ({ db: {} }))
 
 vi.mock('../lib/firestoreData', () => ({
   useFirestoreDocData: vi.fn(() => ({
@@ -86,7 +84,7 @@ describe('ProjectUpvoteButton', () => {
     render(<ProjectUpvoteButton projectId="p1" count={4} />)
     expect(screen.getByText('4')).toBeInTheDocument()
     const btn = screen.getByRole('button', {
-      name: 'projects.support',
+      name: 'projects.support 4',
     })
     expect(btn).toHaveAttribute('aria-pressed', 'false')
   })
@@ -98,7 +96,7 @@ describe('ProjectUpvoteButton', () => {
     })
     render(<ProjectUpvoteButton projectId="p1" count={2} />)
     const btn = screen.getByRole('button', {
-      name: 'projects.remove_support',
+      name: 'projects.remove_support 2',
     })
     expect(btn).toHaveAttribute('aria-pressed', 'true')
   })
@@ -111,7 +109,7 @@ describe('ProjectUpvoteButton', () => {
     render(<ProjectUpvoteButton projectId="p1" count={0} />)
     fireEvent.click(
       screen.getByRole('button', {
-        name: 'projects.support',
+        name: 'projects.support 0',
       })
     )
     expect(push).toHaveBeenCalledWith({
@@ -125,7 +123,7 @@ describe('ProjectUpvoteButton', () => {
     render(<ProjectUpvoteButton projectId="p1" count={0} />)
     fireEvent.click(
       screen.getByRole('button', {
-        name: 'projects.support',
+        name: 'projects.support 0',
       })
     )
     expect(screen.getByText('1')).toBeInTheDocument()
@@ -144,7 +142,7 @@ describe('ProjectUpvoteButton', () => {
     )
     fireEvent.click(
       screen.getByRole('button', {
-        name: 'projects.support',
+        name: 'projects.support 0',
       })
     )
 
@@ -163,7 +161,7 @@ describe('ProjectUpvoteButton', () => {
 
     expect(
       screen.getByRole('button', {
-        name: 'projects.remove_support',
+        name: 'projects.remove_support 1',
       })
     ).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByText('1')).toBeInTheDocument()
@@ -174,7 +172,7 @@ describe('ProjectUpvoteButton', () => {
     )
     expect(
       screen.getByRole('button', {
-        name: 'projects.remove_support',
+        name: 'projects.remove_support 1',
       })
     ).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByText('1')).toBeInTheDocument()
@@ -187,18 +185,18 @@ describe('ProjectUpvoteButton', () => {
     render(<ProjectUpvoteButton projectId="p1" count={0} />)
     fireEvent.click(
       screen.getByRole('button', {
-        name: 'projects.support',
+        name: 'projects.support 0',
       })
     )
     // Optimistic flip is immediate.
     expect(
       screen.getByRole('button', {
-        name: 'projects.remove_support',
+        name: 'projects.remove_support 1',
       })
     ).toHaveAttribute('aria-pressed', 'true')
 
     const btn = await screen.findByRole('button', {
-      name: 'projects.support',
+      name: 'projects.support 0',
     })
     expect(btn).toHaveAttribute('aria-pressed', 'false')
     expect(btn).toHaveAttribute('aria-invalid', 'true')

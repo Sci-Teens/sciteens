@@ -38,11 +38,14 @@ export default function CookieConsent() {
         <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-muted-foreground text-sm">
             {t('cookie_consent.message')}{' '}
+            {/* Names the destination rather than saying "Learn more":
+                Lighthouse's link-text audit matches the link's own text
+                against a blocklist and ignores aria-label. */}
             <Link
               href="/legal/gdpr"
               className="text-foreground underline underline-offset-2"
             >
-              {t('cookie_consent.learn_more')}
+              {t('cookie_consent.policy_link')}
             </Link>
           </p>
           <div className="flex shrink-0 gap-2">

@@ -63,6 +63,42 @@
     outline-offset: 2px;
   }
 }
+
+/* Entrance reveal for above-the-fold content.
+
+   Transform-only, no opacity fade, and that is the whole point. Anything
+   above the fold that starts at opacity 0 cannot be a first-contentful-paint
+   or LCP candidate until it fades in, so the old react-spring mount fade made
+   the hero copy the LCP element at 9.1s on throttled mobile, and a CSS fade
+   merely moved the stall from hydration to stylesheet parse (FCP 0.9s -> 1.5s
+   when measured). Sliding an already-opaque element costs nothing: transforms
+   are composited, so they neither delay paint nor register as layout shift.
+
+   Hand-rolled rather than tw-animate-css's `animate-in slide-in-from-bottom-6`
+   because that library ships no prefers-reduced-motion handling, and this
+   replaces react-spring's useReducedMotion for these elements. */
+@keyframes reveal-up {
+  from {
+    transform: translateY(20px);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* `@utility`, not a class inside `@layer utilities`: Tailwind v4 only wires
+   variants into utilities registered this way, so the plain-CSS form would
+   make `motion-safe:reveal-up` and friends silently emit nothing. */
+@utility reveal-up {
+  animation-name: reveal-up;
+  animation-duration: 700ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-delay: var(--reveal-delay, 0ms);
+  animation-fill-mode: both;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
 /*
   ---break---
 */
@@ -121,7 +157,9 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: #00c853; /* sciteensLightGreen-regular */
+  /* sciteensGreen-dark, not sciteensLightGreen. White on #00c853 measures
+     2.23:1, so every filled button and `link`-variant label failed WCAG AA. */
+  --primary: #236648;
   --primary-foreground: #ffffff;
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -132,7 +170,7 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: #00c853; /* sciteensLightGreen-regular */
+  --ring: #236648; /* sciteensGreen-dark, see --primary */
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);

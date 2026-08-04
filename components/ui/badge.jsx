@@ -9,8 +9,9 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
+        // See button.jsx: /80 leaves this 12px label under AA on hover.
         default:
-          'bg-primary text-primary-foreground [a]:hover:bg-primary/80',
+          'bg-primary text-primary-foreground [a]:hover:bg-primary/90',
         secondary:
           'bg-secondary text-secondary-foreground [a]:hover:bg-secondary/80',
         destructive:

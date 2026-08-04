@@ -2,7 +2,7 @@ import Image from 'next/image'
 import { UserRound } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { doc, getDoc } from 'firebase/firestore'
-import { db } from '../lib/firebase'
+import { db } from '../lib/firestore'
 
 export default function ProfilePhoto({
   uid,

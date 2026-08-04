@@ -35,9 +35,11 @@ describe('CookieConsent', () => {
         name: 'cookie_consent.heading',
       })
     ).toBeInTheDocument()
+    // Accessible name comes from the link's own text, which must name the
+    // destination: Lighthouse's link-text audit rejects "Learn more".
     expect(
       screen.getByRole('link', {
-        name: 'cookie_consent.learn_more',
+        name: 'cookie_consent.policy_link',
       })
     ).toHaveAttribute('href', '/legal/gdpr')
   })

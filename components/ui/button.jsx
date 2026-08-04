@@ -8,8 +8,10 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        // /90 not /80: primary composited at 80% over a light surface drops
+        // white text to 4.32:1, under AA for this 14px label.
         default:
-          'bg-primary text-primary-foreground hover:bg-primary/80',
+          'bg-primary text-primary-foreground hover:bg-primary/90',
         outline:
           'border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground',
         secondary:

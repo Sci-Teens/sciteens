@@ -6,7 +6,7 @@ import { Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useSigninCheck } from '../context/AuthContext'
-import { db } from '../lib/firebase'
+import { db } from '../lib/firestore'
 import { useFirestoreDocData } from '../lib/firestoreData'
 import {
   getProjectUpvoteRef,
@@ -137,7 +137,6 @@ export default function ProjectUpvoteButton({
         onClick={handleClick}
         disabled={busy}
         aria-pressed={upvoted}
-        aria-label={label}
         aria-invalid={error}
         title={title}
         className={cn(
@@ -156,6 +155,12 @@ export default function ProjectUpvoteButton({
           )}
           aria-hidden="true"
         />
+        {/* WCAG 2.5.3: the accessible name has to contain the
+            visible count, so the label ships as hidden text
+            rather than an aria-label that replaces it. The
+            separator has to be a sibling text node; name
+            computation trims each child on its own. */}
+        <span className="sr-only">{label}</span>{' '}
         <span
           className={cn(
             'min-w-[1ch] text-xs',

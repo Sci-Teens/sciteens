@@ -84,6 +84,10 @@ export default function ProjectCard({
   // `highlight.abstract` is derived from the same indexed field, so it is
   // never present when the plain abstract is empty.
   const hasAbstract = Boolean(normalizedProject.abstract)
+  // normalizeProject defaults an absent title to '', which would ship
+  // the overlay link with no accessible name at all.
+  const cardLabel =
+    normalizedProject.title || t('projects.untitled')
 
   return (
     <Card className="border-border/60 hover:border-border hover:bg-muted/40 relative isolate overflow-hidden transition-colors">
@@ -92,7 +96,7 @@ export default function ProjectCard({
           and disappears entirely. */}
       <Link
         href={`/project/${normalizedProject.id}`}
-        aria-label={normalizedProject.title}
+        aria-label={cardLabel}
         className="focus-visible:outline-ring focus-visible:-outline-offset-2 absolute inset-0 z-10 rounded-xl focus-visible:outline-2"
       />
       <div className="absolute right-2 top-2 z-20">
@@ -186,14 +190,14 @@ export default function ProjectCard({
               )}
             </div>
           )}
-          <h3 className="line-clamp-2 text-pretty text-base font-semibold md:text-lg lg:text-xl">
+          <h2 className="line-clamp-2 text-pretty text-base font-semibold md:text-lg lg:text-xl">
             <Highlighted
               highlighted={
                 normalizedProject.highlight?.title
               }
               plain={normalizedProject.title}
             />
-          </h3>
+          </h2>
           {hasAbstract && (
             <p className="text-muted-foreground md:line-clamp-2 max-md:hidden mt-1.5 max-w-[68ch] text-sm leading-relaxed">
               <Highlighted

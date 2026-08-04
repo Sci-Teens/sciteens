@@ -8,11 +8,8 @@ import {
 } from '@testing-library/react'
 import ProfilePhoto from './ProfilePhoto'
 
-vi.mock('../lib/firebase', () => ({
-  auth: {},
-  db: {},
-  storage: {},
-}))
+vi.mock('../lib/firebase', () => ({ auth: {} }))
+vi.mock('../lib/firestore', () => ({ db: {} }))
 
 const getDoc = vi.fn()
 vi.mock('firebase/firestore', () => ({

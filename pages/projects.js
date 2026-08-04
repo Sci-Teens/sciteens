@@ -10,7 +10,7 @@ import {
   getTranslatedFieldsDict,
 } from '../context/helpers'
 
-import { db as firestore } from '../lib/firebase'
+import { db as firestore } from '../lib/firestore'
 import firebaseConfig from '../firebaseConfig'
 import {
   getApp,

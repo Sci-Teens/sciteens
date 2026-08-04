@@ -1,6 +1,7 @@
 // File containing helper functions
 import { doc, getDoc } from '@firebase/firestore'
 import {
+  browserPopupRedirectResolver,
   signInWithPopup,
   GoogleAuthProvider,
   getAdditionalUserInfo,
@@ -47,7 +48,15 @@ export async function providerSignIn(
 ) {
   const provider = new GoogleAuthProvider()
   try {
-    const res = await signInWithPopup(auth, provider)
+    // Resolver passed per call, not baked into the Auth instance: see
+    // lib/firebase.js. This is the only code path that needs the
+    // firebaseapp.com helper iframe, so it is also the only one that
+    // should pay to load it.
+    const res = await signInWithPopup(
+      auth,
+      provider,
+      browserPopupRedirectResolver
+    )
     const addInfo = await getAdditionalUserInfo(res)
     if (addInfo.isNewUser) {
       // Complete profile

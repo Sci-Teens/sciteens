@@ -16,7 +16,7 @@ import {
   useFirestoreDocData,
 } from '../../../lib/firestoreData'
 import { useSigninCheck } from '../../../context/AuthContext'
-import { db } from '../../../lib/firebase'
+import { db } from '../../../lib/firestore'
 import { useRouter } from 'next/router'
 import SocialMeta from '../../../components/SocialMeta'
 import Image from 'next/image'
