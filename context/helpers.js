@@ -4,7 +4,7 @@ import {
   browserPopupRedirectResolver,
   signInWithPopup,
   GoogleAuthProvider,
-  getAdditionalUserInfo,
+  onAuthStateChanged,
 } from '@firebase/auth'
 import moment from 'moment'
 
@@ -40,6 +40,35 @@ export async function createUniqueSlug(
   }
 }
 
+// signInWithPopup races two things: the auth event coming back from the
+// popup, and a poller that rejects with auth/popup-closed-by-user once it
+// sees the popup window closed. Mobile browsers lose that race routinely
+// — the OAuth page opens as a sibling tab, the OS freezes this one while
+// it is backgrounded, and the poller only runs again after the popup is
+// already gone (firebase-js-sdk#7807). The event still lands and still
+// signs the user in, so the rejection says nothing about whether sign-in
+// succeeded; only the auth state does.
+const AUTH_SETTLE_MS = 3000
+
+function awaitSignedInUser(auth, before) {
+  if (auth.currentUser && auth.currentUser !== before)
+    return Promise.resolve(auth.currentUser)
+  return new Promise((resolve) => {
+    let timer
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user || user === before) return
+      clearTimeout(timer)
+      unsubscribe()
+      resolve(user)
+    })
+    timer = setTimeout(() => {
+      unsubscribe()
+      resolve(null)
+    }, AUTH_SETTLE_MS)
+  })
+}
+
+// Resolves false when sign-in genuinely failed, so the caller can say so.
 export async function providerSignIn(
   auth,
   firestore,
@@ -47,6 +76,12 @@ export async function providerSignIn(
   setProfile
 ) {
   const provider = new GoogleAuthProvider()
+  // A session can already be live here (back button, shared device), and
+  // it must never be mistaken for the result of this sign-in. Every
+  // successful sign-in installs a freshly built User, so identity
+  // comparison separates the two even when the same account re-auths.
+  const before = auth.currentUser
+  let user
   try {
     // Resolver passed per call, not baked into the Auth instance: see
     // lib/firebase.js. This is the only code path that needs the
@@ -57,37 +92,54 @@ export async function providerSignIn(
       provider,
       browserPopupRedirectResolver
     )
-    const addInfo = await getAdditionalUserInfo(res)
-    if (addInfo.isNewUser) {
-      // Complete profile
-      router.push(
-        `/signup/finish${
-          res.user.displayName
-            ? `?first_name=${
-                res.user.displayName.split(' ')[0]
-              }&last_name=${
-                res.user.displayName.split(' ')[1]
-              }`
-            : ''
-        }`
-      )
-    } else {
-      const prof = await getDoc(
-        doc(firestore, 'profiles', res.user.uid)
-      )
-      setProfile(prof.data())
-      const dest = resolveRefPath(router.query.ref)
-      router.push(
-        dest
-          ? dest
-          : prof.data()?.slug
-          ? `/profile/${prof.data().slug}`
-          : '/'
-      )
+    user = res.user
+  } catch (e) {
+    // A second tap supersedes this call; whichever one wins routes.
+    if (e.code === 'auth/cancelled-popup-request')
+      return true
+    user = await awaitSignedInUser(auth, before)
+    if (!user) {
+      console.error(e)
+      return false
     }
+  }
+
+  // Whether the profile doc exists, not getAdditionalUserInfo's
+  // isNewUser: the recovery path above has no UserCredential to read, and
+  // anyone who abandoned /signup/finish still needs sending back there
+  // rather than bouncing to a profile that was never created.
+  let prof
+  try {
+    prof = await getDoc(
+      doc(firestore, 'profiles', user.uid)
+    )
   } catch (e) {
     console.error(e)
+    return false
   }
+  if (!prof.exists()) {
+    const [first_name = '', last_name = ''] = (
+      user.displayName || ''
+    ).split(' ')
+    router.push({
+      pathname: '/signup/finish',
+      query: Object.fromEntries(
+        Object.entries({ first_name, last_name }).filter(
+          ([, v]) => v
+        )
+      ),
+    })
+    return true
+  }
+
+  setProfile(prof.data())
+  const dest = resolveRefPath(router.query.ref)
+  router.push(
+    dest ||
+      (prof.data().slug
+        ? `/profile/${prof.data().slug}`
+        : '/')
+  )
   return true
 }
 

@@ -521,22 +521,43 @@ export default function StudentSignUp() {
           type="button"
           size="lg"
           className="h-11 w-full text-base"
-          onClick={() =>
-            providerSignIn(
+          disabled={loading}
+          onClick={async () => {
+            setLoading(true)
+            const signedIn = await providerSignIn(
               auth,
               firestore,
               router,
               setProfile
             )
-          }
+            // Reset only on failure, as emailSignUp does: on success the
+            // route transition is already under way. Focused, not just
+            // rendered, because the email field is six fields up from
+            // this button and would otherwise be off-screen on a phone.
+            if (!signedIn) {
+              setLoading(false)
+              form.setError(
+                'email',
+                {
+                  type: 'server',
+                  message: t('auth.sign_in_failed'),
+                },
+                { shouldFocus: true }
+              )
+            }
+          }}
         >
-          <Image
-            src="/assets/logos/Google.png"
-            alt=""
-            width={20}
-            height={20}
-            className="size-5"
-          />
+          {loading ? (
+            <LoadingSpinner />
+          ) : (
+            <Image
+              src="/assets/logos/Google.png"
+              alt=""
+              width={20}
+              height={20}
+              className="size-5"
+            />
+          )}
           {t('auth.google_sign_in')}
         </Button>
       </AuthCard>

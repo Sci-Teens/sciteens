@@ -160,7 +160,9 @@ module.exports = {
               // (__/auth/iframe) that signInWithPopup/signInWithRedirect
               // uses to relay auth events — the project id varies per
               // deployment (dev/staging/prod) and isn't available to this
-              // config at container runtime, hence the wildcard.
+              // config at container runtime, hence the wildcard. The Auth
+              // emulator serves the same iframe from 127.0.0.1:9099, so
+              // dev/e2e Google sign-in needs it too.
               // firebasestorage.googleapis.com/storage.googleapis.com —
               // components/FileGallery.js embeds an uploaded PDF's own
               // download URL in an <iframe> for in-page viewing.
@@ -170,6 +172,10 @@ module.exports = {
               // without them here every embed is a blank frame.
               `frame-src https://www.google.com https://*.firebaseapp.com ${
                 authDomain ? `https://${authDomain} ` : ''
+              }${
+                isDevelopment
+                  ? 'http://127.0.0.1:9099 '
+                  : ''
               }https://firebasestorage.googleapis.com https://storage.googleapis.com https://*.firebasestorage.app https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://w.soundcloud.com https://open.spotify.com; ` +
               `connect-src ${connectSrc}; ` +
               "frame-ancestors 'self'; " +

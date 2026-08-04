@@ -37,10 +37,11 @@ vi.mock('@firebase/firestore', () => ({
 }))
 
 vi.mock('@firebase/auth', () => ({
+  browserPopupRedirectResolver: {},
   signInWithEmailAndPassword: vi.fn(),
   signInWithPopup: vi.fn(),
   GoogleAuthProvider: vi.fn(),
-  getAdditionalUserInfo: vi.fn(),
+  onAuthStateChanged: vi.fn(),
 }))
 
 afterEach(cleanup)

@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 
 import Link from 'next/link'
 import Image from 'next/image'
@@ -44,6 +44,7 @@ export default function StudentSignIn() {
   const { t } = useTranslation('common')
   const router = useRouter()
   const { setProfile } = useContext(AppContext)
+  const [googlePending, setGooglePending] = useState(false)
 
   const f_signin_errors = {
     'auth/invalid-email': t('auth.auth_invalid_email'),
@@ -210,22 +211,41 @@ export default function StudentSignIn() {
           type="button"
           size="lg"
           className="h-11 w-full gap-2 text-base"
-          onClick={() =>
-            providerSignIn(
+          disabled={googlePending}
+          onClick={async () => {
+            setGooglePending(true)
+            const signedIn = await providerSignIn(
               auth,
               firestore,
               router,
               setProfile
             )
-          }
+            // Left pending on success: the route transition is already
+            // under way, and re-enabling only flashes the button.
+            if (!signedIn) {
+              setGooglePending(false)
+              form.setError(
+                'email',
+                {
+                  type: 'server',
+                  message: t('auth.sign_in_failed'),
+                },
+                { shouldFocus: true }
+              )
+            }
+          }}
         >
-          <Image
-            src="/assets/logos/Google.png"
-            alt=""
-            width={20}
-            height={20}
-            className="size-5"
-          />
+          {googlePending ? (
+            <LoadingSpinner />
+          ) : (
+            <Image
+              src="/assets/logos/Google.png"
+              alt=""
+              width={20}
+              height={20}
+              className="size-5"
+            />
+          )}
           {t('auth.google_sign_in')}
         </Button>
       </AuthCard>

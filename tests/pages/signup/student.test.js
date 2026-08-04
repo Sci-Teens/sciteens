@@ -64,12 +64,13 @@ const mockRecaptchaRender = vi
   .mockResolvedValue(undefined)
 
 vi.mock('@firebase/auth', () => ({
+  browserPopupRedirectResolver: {},
   createUserWithEmailAndPassword: vi.fn(),
   updateProfile: vi.fn(),
   signInWithEmailAndPassword: vi.fn(),
   signInWithPopup: vi.fn(),
   GoogleAuthProvider: vi.fn(),
-  getAdditionalUserInfo: vi.fn(),
+  onAuthStateChanged: vi.fn(),
   // `mockImplementation` can't take an arrow function here — the
   // component calls `new RecaptchaVerifier(...)`, and arrow functions
   // aren't constructable.
