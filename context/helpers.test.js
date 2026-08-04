@@ -8,6 +8,10 @@ import {
 } from 'vitest'
 import { doc, getDoc } from '@firebase/firestore'
 import {
+  onAuthStateChanged,
+  signInWithPopup,
+} from '@firebase/auth'
+import {
   ALLOWED_LINK_HOSTS,
   ALLOWED_UPLOAD_MIME_TYPES,
   LEGACY_UNSUPPORTED_MIME_TYPES,
@@ -24,6 +28,7 @@ import {
   isAllowedLink,
   isLegacyUnsupportedFile,
   isSafeFileUrl,
+  providerSignIn,
   resolveRefPath,
   validatePassword,
 } from './helpers'
@@ -34,6 +39,13 @@ vi.mock('@firebase/firestore', () => ({
     slug,
   })),
   getDoc: vi.fn(),
+}))
+
+vi.mock('@firebase/auth', () => ({
+  browserPopupRedirectResolver: {},
+  GoogleAuthProvider: vi.fn(),
+  onAuthStateChanged: vi.fn(),
+  signInWithPopup: vi.fn(),
 }))
 
 // Identity translator: lets assertions check against the raw key.
@@ -440,6 +452,243 @@ describe('createUniqueSlug', () => {
     await expect(
       createUniqueSlug({}, 'user2000', 'profile-slugs', 1)
     ).resolves.toBe('user2000-2')
+  })
+})
+
+describe('providerSignIn', () => {
+  const googleUser = {
+    uid: 'uid-1',
+    displayName: 'Ada Lovelace',
+  }
+  const existingProfile = { slug: 'ada-lovelace' }
+
+  function router(query = {}) {
+    return { query, push: vi.fn() }
+  }
+
+  beforeEach(() => {
+    doc.mockClear()
+    getDoc.mockReset()
+    signInWithPopup.mockReset()
+    onAuthStateChanged.mockReset()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.restoreAllMocks()
+  })
+
+  it('sends an existing profile to its own page', async () => {
+    signInWithPopup.mockResolvedValue({ user: googleUser })
+    getDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => existingProfile,
+    })
+    const r = router()
+    const setProfile = vi.fn()
+
+    await expect(
+      providerSignIn({}, {}, r, setProfile)
+    ).resolves.toBe(true)
+
+    expect(setProfile).toHaveBeenCalledWith(existingProfile)
+    expect(r.push).toHaveBeenCalledWith(
+      '/profile/ada-lovelace'
+    )
+  })
+
+  it('prefers a ?ref= destination over the profile page', async () => {
+    signInWithPopup.mockResolvedValue({ user: googleUser })
+    getDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => existingProfile,
+    })
+    const r = router({ ref: 'project|abc123' })
+
+    await providerSignIn({}, {}, r, vi.fn())
+
+    expect(r.push).toHaveBeenCalledWith('/project/abc123')
+  })
+
+  it('sends a user with no profile doc to /signup/finish', async () => {
+    signInWithPopup.mockResolvedValue({ user: googleUser })
+    getDoc.mockResolvedValue({ exists: () => false })
+    const r = router()
+
+    await providerSignIn({}, {}, r, vi.fn())
+
+    expect(r.push).toHaveBeenCalledWith({
+      pathname: '/signup/finish',
+      query: { first_name: 'Ada', last_name: 'Lovelace' },
+    })
+  })
+
+  it('omits name query params when Google gives no display name', async () => {
+    signInWithPopup.mockResolvedValue({
+      user: { uid: 'uid-2', displayName: null },
+    })
+    getDoc.mockResolvedValue({ exists: () => false })
+    const r = router()
+
+    await providerSignIn({}, {}, r, vi.fn())
+
+    expect(r.push).toHaveBeenCalledWith({
+      pathname: '/signup/finish',
+      query: {},
+    })
+  })
+
+  // The mobile bug: the popup poller rejects with
+  // auth/popup-closed-by-user because this tab was frozen while the OAuth
+  // tab was in front, but the auth event still lands and signs the user
+  // in. Routing has to follow the auth state, not the rejection.
+  it('still routes when the popup rejects after sign-in succeeded', async () => {
+    signInWithPopup.mockRejectedValue(
+      Object.assign(new Error('popup closed'), {
+        code: 'auth/popup-closed-by-user',
+      })
+    )
+    const unsubscribe = vi.fn()
+    onAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb(null)
+      setTimeout(() => cb(googleUser), 0)
+      return unsubscribe
+    })
+    getDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => existingProfile,
+    })
+    const r = router()
+
+    await expect(
+      providerSignIn({ currentUser: null }, {}, r, vi.fn())
+    ).resolves.toBe(true)
+
+    expect(r.push).toHaveBeenCalledWith(
+      '/profile/ada-lovelace'
+    )
+    expect(unsubscribe).toHaveBeenCalled()
+  })
+
+  it('reports failure when the popup fails and no session appears', async () => {
+    vi.useFakeTimers()
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    signInWithPopup.mockRejectedValue(
+      Object.assign(new Error('popup blocked'), {
+        code: 'auth/popup-blocked',
+      })
+    )
+    const unsubscribe = vi.fn()
+    onAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb(null)
+      return unsubscribe
+    })
+    const r = router()
+
+    const pending = providerSignIn(
+      { currentUser: null },
+      {},
+      r,
+      vi.fn()
+    )
+    await vi.advanceTimersByTimeAsync(3000)
+
+    await expect(pending).resolves.toBe(false)
+    expect(r.push).not.toHaveBeenCalled()
+    expect(getDoc).not.toHaveBeenCalled()
+    expect(unsubscribe).toHaveBeenCalled()
+  })
+
+  // A live session on the sign-in page (back button, shared device) is
+  // not evidence that this sign-in worked.
+  it('does not mistake a pre-existing session for a successful sign-in', async () => {
+    vi.useFakeTimers()
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    const stale = {
+      uid: 'someone-else',
+      displayName: 'Stale',
+    }
+    signInWithPopup.mockRejectedValue(
+      Object.assign(new Error('popup closed'), {
+        code: 'auth/popup-closed-by-user',
+      })
+    )
+    onAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb(stale)
+      return vi.fn()
+    })
+    const r = router()
+    const setProfile = vi.fn()
+
+    const pending = providerSignIn(
+      { currentUser: stale },
+      {},
+      r,
+      setProfile
+    )
+    await vi.advanceTimersByTimeAsync(3000)
+
+    await expect(pending).resolves.toBe(false)
+    expect(r.push).not.toHaveBeenCalled()
+    expect(setProfile).not.toHaveBeenCalled()
+    expect(getDoc).not.toHaveBeenCalled()
+  })
+
+  it('accepts a fresh session that replaces a pre-existing one', async () => {
+    const stale = { uid: 'someone-else' }
+    signInWithPopup.mockRejectedValue(
+      Object.assign(new Error('popup closed'), {
+        code: 'auth/popup-closed-by-user',
+      })
+    )
+    onAuthStateChanged.mockImplementation((_auth, cb) => {
+      setTimeout(() => cb(googleUser), 0)
+      return vi.fn()
+    })
+    getDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => existingProfile,
+    })
+    const r = router()
+
+    await expect(
+      providerSignIn({ currentUser: stale }, {}, r, vi.fn())
+    ).resolves.toBe(true)
+
+    expect(r.push).toHaveBeenCalledWith(
+      '/profile/ada-lovelace'
+    )
+  })
+
+  // A second tap cancels the first request; the winner does the routing,
+  // so the superseded call must not paint an error over it.
+  it('stays quiet when a second tap supersedes the request', async () => {
+    signInWithPopup.mockRejectedValue(
+      Object.assign(new Error('cancelled'), {
+        code: 'auth/cancelled-popup-request',
+      })
+    )
+    const r = router()
+
+    await expect(
+      providerSignIn({ currentUser: null }, {}, r, vi.fn())
+    ).resolves.toBe(true)
+
+    expect(r.push).not.toHaveBeenCalled()
+    expect(onAuthStateChanged).not.toHaveBeenCalled()
+  })
+
+  it('reports failure when the profile lookup throws', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    signInWithPopup.mockResolvedValue({ user: googleUser })
+    getDoc.mockRejectedValue(new Error('unavailable'))
+    const r = router()
+
+    await expect(
+      providerSignIn({}, {}, r, vi.fn())
+    ).resolves.toBe(false)
+
+    expect(r.push).not.toHaveBeenCalled()
   })
 })
 
