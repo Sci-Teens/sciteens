@@ -21,6 +21,8 @@ import {
   UserPlus,
   Menu,
   CircleUserRound,
+  LogOut,
+  User,
 } from 'lucide-react'
 
 import {
@@ -82,6 +84,11 @@ const NAV_LINKS = [
     active: (p) => p.includes('donate'),
   },
 ]
+
+const mobileRowClass = (isActive = false) =>
+  `flex flex-row items-center gap-4 rounded-lg px-3 py-3 ${
+    isActive ? 'bg-muted underline' : ''
+  }`
 
 export default function NavBar() {
   const [showMobileNav, setShowMobileNav] = useState(false)
@@ -186,7 +193,6 @@ export default function NavBar() {
                           {signInCheckResult?.user
                             ?.photoURL ? (
                             <Image
-                              id="profile_photo"
                               src={
                                 signInCheckResult.user
                                   .photoURL
@@ -233,13 +239,13 @@ export default function NavBar() {
           </div>
           <SheetContent
             side="right"
-            className="text-foreground px-6 pt-16 text-lg"
+            className="text-foreground gap-0 px-4 pb-6 pt-16 text-lg"
             closeLabel={i18n.t('auth.close')}
           >
             <SheetTitle className="sr-only">
               {i18n.t('navigation.menu')}
             </SheetTitle>
-            <div className="flex flex-col">
+            <div className="flex flex-1 flex-col gap-1 overflow-y-auto">
               {NAV_LINKS.map(
                 ({ href, label, Icon, active }) => (
                   <SheetClose
@@ -247,13 +253,11 @@ export default function NavBar() {
                     render={
                       <Link
                         href={href}
-                        className={`mb-4 flex flex-row items-center rounded-lg px-6 py-3 ${
+                        className={mobileRowClass(
                           active(router.pathname)
-                            ? 'bg-muted underline'
-                            : ''
-                        }`}
+                        )}
                       >
-                        <Icon className="text-muted-foreground mr-4 h-6 w-6" />
+                        <Icon className="text-muted-foreground h-6 w-6 shrink-0" />
                         <span className="whitespace-nowrap">
                           {i18n.t(`navigation.${label}`)}
                         </span>
@@ -267,13 +271,11 @@ export default function NavBar() {
                   render={
                     <Link
                       href="/signup/student"
-                      className={`mb-4 flex flex-row items-center rounded-lg px-6 py-3 ${
+                      className={mobileRowClass(
                         router.pathname.includes('signup')
-                          ? 'bg-muted underline'
-                          : ''
-                      }`}
+                      )}
                     >
-                      <UserPlus className="text-muted-foreground mr-4 h-6 w-6" />
+                      <UserPlus className="text-muted-foreground h-6 w-6 shrink-0" />
                       <span className="whitespace-nowrap">
                         {i18n.t('navigation.sign_up')}
                       </span>
@@ -283,66 +285,61 @@ export default function NavBar() {
               )}
             </div>
             {signedIn && (
-              <>
-                <hr className="bg-border mx-auto w-[80%]" />
-                <div className="mx-8">
-                  <div className="mx-auto mb-2 mt-6 flex flex-row items-center">
-                    {signInCheckResult?.user?.photoURL ? (
-                      <span className="relative mr-6 block h-10 w-10 overflow-hidden rounded-full">
-                        <Image
-                          id="profile_photo"
-                          src={
-                            signInCheckResult.user.photoURL
-                          }
-                          alt=""
-                          fill
-                          sizes="40px"
-                          className="object-cover"
-                        />
-                      </span>
-                    ) : (
-                      <CircleUserRound className="text-muted-foreground mr-6 h-10 w-10" />
-                    )}
-                    <p className="my-auto text-xl">
-                      {signInCheckResult.user.displayName}
-                    </p>
-                  </div>
-                  <div className="ml-4 flex flex-col text-left">
-                    <SheetClose
-                      render={
-                        <Link
-                          href={profileHref}
-                          className="flex flex-row items-center"
-                        >
-                          <div
-                            className={`mr-6 h-auto w-0.5 ${
-                              router.pathname.includes(
-                                'profile'
-                              )
-                                ? 'bg-primary'
-                                : 'bg-muted-foreground/50'
-                            }`}
-                          />
-                          <span>
-                            {i18n.t('navigation.profile')}
-                          </span>
-                        </Link>
-                      }
-                    />
-                    <div className="bg-muted-foreground/50 h-2 w-0.5" />
-                    <div className="flex flex-row">
-                      <div className="bg-muted-foreground/50 mr-6 h-auto w-0.5" />
-                      <SheetClose
-                        render={
-                          <button onClick={handleSignOut}>
-                            {i18n.t('navigation.sign_out')}
-                          </button>
+              <div className="border-border/60 mt-4 flex shrink-0 flex-col gap-1 border-t pt-4">
+                <div className="flex flex-row items-center gap-4 px-3 py-2">
+                  {signInCheckResult?.user?.photoURL ? (
+                    <span className="relative block h-10 w-10 shrink-0 overflow-hidden rounded-full">
+                      <Image
+                        src={
+                          signInCheckResult.user.photoURL
                         }
+                        alt=""
+                        fill
+                        sizes="40px"
+                        className="object-cover"
                       />
-                    </div>
-                  </div>
+                    </span>
+                  ) : (
+                    <CircleUserRound className="text-muted-foreground h-10 w-10 shrink-0" />
+                  )}
+                  <p
+                    className="truncate text-lg font-medium"
+                    title={
+                      signInCheckResult.user.displayName
+                    }
+                  >
+                    {signInCheckResult.user.displayName}
+                  </p>
                 </div>
-              </>
+                <SheetClose
+                  render={
+                    <Link
+                      href={profileHref}
+                      className={mobileRowClass(
+                        router.pathname.includes('profile')
+                      )}
+                    >
+                      <User className="text-muted-foreground h-6 w-6 shrink-0" />
+                      <span className="whitespace-nowrap">
+                        {i18n.t('navigation.profile')}
+                      </span>
+                    </Link>
+                  }
+                />
+                <SheetClose
+                  render={
+                    <button
+                      onClick={handleSignOut}
+                      className={`${mobileRowClass()} text-left`}
+                    >
+                      <LogOut className="text-muted-foreground h-6 w-6 shrink-0" />
+                      <span className="whitespace-nowrap">
+                        {i18n.t('navigation.sign_out')}
+                      </span>
+                    </button>
+                  }
+                />
+              </div>
             )}
           </SheetContent>
         </Sheet>
