@@ -31,9 +31,9 @@ const scriptSrc = [
   'https://cdn.jsdelivr.net',
 ].join(' ')
 
-// Firebase talks to these hosts directly once lib/firebase.js's
-// connect*Emulator wiring redirects it — dev-only, a production CSP
-// has no business allowlisting localhost.
+// Firebase talks to these hosts directly once the connect*Emulator wiring in
+// lib/firebase.js, lib/firestore.js and lib/storage.js redirects it — dev-only,
+// a production CSP has no business allowlisting localhost.
 const connectSrc = [
   "'self'",
   'https://firestore.googleapis.com',

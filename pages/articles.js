@@ -396,6 +396,7 @@ function Articles({ cached_articles }) {
                   <ListingCard
                     href={`/article/${article.uid}`}
                     title={title}
+                    fallbackLabel={t('articles.untitled')}
                     description={article.data.description}
                     imageSrc={article.data.image?.url}
                     imageAlt={title}

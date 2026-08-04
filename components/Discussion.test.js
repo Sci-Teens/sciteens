@@ -33,7 +33,7 @@ vi.mock('next/router', () => ({
   }),
 }))
 
-vi.mock('../lib/firebase', () => ({ db: {} }))
+vi.mock('../lib/firestore', () => ({ db: {} }))
 
 vi.mock('firebase/firestore', () => ({
   collection: vi.fn(),

@@ -69,15 +69,33 @@ shadcn tokens.
 - **Loading states**: use `Skeleton` (`components/ui/skeleton.jsx`)
   for shimmer placeholders, not ad-hoc `bg-muted animate-pulse`
   divs.
+- **Entrance motion never hides content.** Anything that can land in
+  the initial viewport must paint opaque, or it cannot be a
+  first-contentful-paint/LCP candidate until it fades in. Above the
+  fold use the `.reveal-up` utility in `styles/globals.css` (CSS
+  keyframe, transform-only, no JS, honours
+  `prefers-reduced-motion`); for scroll-triggered sections use
+  `riseUp` + `useSectionReveal` from `lib/reveal.js`, which is
+  transform-only for the same reason. Never animate `opacity` from 0
+  on a page's own content.
 
 ## Architecture
 
 - One Next.js app: `pages/`, `components/`, `context/` + `lib/` (client
   singletons and hooks), `functions/` (Firebase Cloud Functions).
-- Firebase access goes through singletons in `lib/firebase.js`
-  (`app`, `auth`, `db`, `storage`); the guarded init
+- Firebase access goes through singletons split by SDK so that the
+  Firestore and Storage bundles stay out of the shared `_app` chunk:
+  `lib/firebase.js` (`app`, `auth`), `lib/firestore.js` (`db`),
+  `lib/storage.js` (`storage`). The guarded init
   (`getApps().length ? getApp() : initializeApp(config)`) lets SSR/SSG reuse
-  one app instance. No ad-hoc `initializeApp`.
+  one app instance. No ad-hoc `initializeApp`, and never re-export `db` or
+  `storage` from `lib/firebase.js` to shorten an import.
+- `auth` is built with `initializeAuth`, not `getAuth`, specifically to leave
+  `popupRedirectResolver` unset: `getAuth` would eagerly fetch the
+  `*.firebaseapp.com/__/auth/iframe.js` helper (plus gapi) on every page as
+  soon as `onAuthStateChanged` subscribes. `context/helpers.js#providerSignIn`
+  passes `browserPopupRedirectResolver` to `signInWithPopup` instead, so only
+  Google sign-in pays for it.
 - Auth state: `AuthProvider` in `context/AuthContext.js`, one
   `onAuthStateChanged` listener. Use its hooks (`useSigninCheck`, `useUser`),
   not per-component listeners.

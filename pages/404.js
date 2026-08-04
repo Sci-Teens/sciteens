@@ -22,7 +22,7 @@ export default function FourOhFour() {
         </p>
         <Link
           href="/"
-          className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark rounded-lg px-4 py-2 text-xl text-white shadow-sm"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg px-4 py-2 text-xl shadow-sm"
         >
           Return Home
         </Link>

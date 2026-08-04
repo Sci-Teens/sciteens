@@ -11,7 +11,7 @@ import HeadingRule from '@/components/HeadingRule'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { GUTTER } from '@/lib/layout'
-import { fadeUp, useSectionReveal } from '@/lib/reveal'
+import { riseUp, useSectionReveal } from '@/lib/reveal'
 
 const SECTIONS = ['mission', 'team', 'join']
 
@@ -212,6 +212,7 @@ function MemberGrid({ members }) {
                 alt=""
                 width={112}
                 height={112}
+                sizes="56px"
                 className="size-14 shrink-0 rounded-full object-cover"
               />
               <div className="min-w-0">
@@ -234,22 +235,18 @@ export default function About() {
   const { t } = useTranslation('common')
 
   const [members, setMembers] = useState(MEMBERS)
-  const [animateLanding, setAnimateLanding] =
-    useState(false)
 
   useEffect(() => {
     // Shuffled on the client only, so the roster never reads as a
     // ranking and the prerendered HTML stays stable.
     setMembers(shuffle(MEMBERS))
-    setAnimateLanding(true)
   }, [])
 
   const visible = useSectionReveal(SECTIONS)
 
-  const landingSpring = useSpring(fadeUp(animateLanding))
-  const missionSpring = useSpring(fadeUp(visible.mission))
-  const teamSpring = useSpring(fadeUp(visible.team))
-  const joinSpring = useSpring(fadeUp(visible.join))
+  const missionSpring = useSpring(riseUp(visible.mission))
+  const teamSpring = useSpring(riseUp(visible.team))
+  const joinSpring = useSpring(riseUp(visible.join))
 
   const currentMembers = members.filter((m) => m.current)
   const previousMembers = members.filter((m) => !m.current)
@@ -266,7 +263,7 @@ export default function About() {
         <section
           className={`${GUTTER} pb-16 pt-10 md:pb-20 md:pt-16`}
         >
-          <animated.div style={landingSpring}>
+          <div className="reveal-up">
             <PageHeading className="max-w-[16ch]">
               {t('about.on_a_mission')}
             </PageHeading>
@@ -292,7 +289,7 @@ export default function About() {
                 {t('navigation.donate')}
               </Button>
             </div>
-          </animated.div>
+          </div>
         </section>
 
         <section

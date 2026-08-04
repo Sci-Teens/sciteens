@@ -1,6 +1,5 @@
 import SocialMeta from '@/components/SocialMeta'
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import {
@@ -27,7 +26,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import HeadingRule from '@/components/HeadingRule'
 import { GUTTER } from '@/lib/layout'
-import { fadeUp, useSectionReveal } from '@/lib/reveal'
+import { riseUp, useSectionReveal } from '@/lib/reveal'
 import { SITE_STATS } from '@/lib/siteStats'
 
 const AnimatedImage = animated(Image)
@@ -158,13 +157,7 @@ export default function Home() {
   const { t } = useTranslation('common')
   const { locale } = useRouter()
 
-  const [animateLanding, setAnimateLanding] =
-    useState(false)
   const visible = useSectionReveal(SECTIONS)
-
-  useEffect(() => {
-    setAnimateLanding(true)
-  }, [])
 
   const formatDate = (iso) =>
     new Intl.DateTimeFormat(locale, {
@@ -174,45 +167,35 @@ export default function Home() {
       timeZone: 'UTC',
     }).format(new Date(`${iso}T00:00:00Z`))
 
-  const landingSpring = useSpring(
-    fadeUp(animateLanding, {
-      delay: 100,
-      config: config.slow,
-    })
-  )
-  const fieldsTrail = useTrail(
-    FIELDS.length,
-    fadeUp(animateLanding, { delay: 250 })
-  )
   const partnersTrail = useTrail(
     PARTNERS.length,
-    fadeUp(visible.partners)
+    riseUp(visible.partners)
   )
   const missionImageSpring = useSpring(
-    fadeUp(visible.mission, { config: config.slow })
+    riseUp(visible.mission, { config: config.slow })
   )
   const missionSpring = useSpring(
-    fadeUp(visible.mission, { delay: 150 })
+    riseUp(visible.mission, { delay: 150 })
   )
   const testimonialsTitleSpring = useSpring(
-    fadeUp(visible.testimonials)
+    riseUp(visible.testimonials)
   )
   const testimonialsTrail = useTrail(
     TESTIMONIALS.length,
-    fadeUp(visible.testimonials, { delay: 200 })
+    riseUp(visible.testimonials, { delay: 200 })
   )
   const statsSpring = useSpring(
-    fadeUp(visible.testimonials, { delay: 400 })
+    riseUp(visible.testimonials, { delay: 400 })
   )
   const { countUp } = useSpring({
     countUp: visible.testimonials ? 1 : 0,
     delay: 500,
     config: { duration: 1400 },
   })
-  const mediaTitleSpring = useSpring(fadeUp(visible.media))
+  const mediaTitleSpring = useSpring(riseUp(visible.media))
   const mediaTrail = useTrail(
     MEDIA.length,
-    fadeUp(visible.media, { delay: 200 })
+    riseUp(visible.media, { delay: 200 })
   )
 
   return (
@@ -229,7 +212,7 @@ export default function Home() {
         className={`${GUTTER} pb-16 pt-10 md:pb-24 md:pt-16`}
       >
         <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_1fr] lg:gap-16">
-          <animated.div style={landingSpring}>
+          <div className="reveal-up">
             <h1 className="text-balance text-4xl font-extrabold tracking-tight md:text-6xl lg:text-7xl">
               {t('index.science_simplified')}
             </h1>
@@ -255,20 +238,24 @@ export default function Home() {
                 {t('navigation.about')}
               </Button>
             </div>
-          </animated.div>
+          </div>
 
           <nav aria-label={t('projects.topics')}>
             <div className="grid grid-cols-2 gap-3 md:gap-4">
-              {fieldsTrail.map((styles, index) => {
-                const {
-                  field,
-                  label,
-                  icon: Icon,
-                  image,
-                } = FIELDS[index]
-
-                return (
-                  <animated.div key={field} style={styles}>
+              {FIELDS.map(
+                (
+                  { field, label, icon: Icon, image },
+                  index
+                ) => (
+                  <div
+                    key={field}
+                    className="reveal-up"
+                    style={{
+                      '--reveal-delay': `${
+                        150 + index * 60
+                      }ms`,
+                    }}
+                  >
                     <Link
                       href={{
                         pathname: '/projects',
@@ -292,9 +279,9 @@ export default function Home() {
                         {t(label)}
                       </span>
                     </Link>
-                  </animated.div>
+                  </div>
                 )
-              })}
+              )}
             </div>
           </nav>
         </div>
@@ -327,6 +314,9 @@ export default function Home() {
                     width={partner.width}
                     height={partner.height}
                     className="mx-auto h-8 w-auto opacity-50 brightness-0 grayscale transition duration-300 group-hover:opacity-100 group-hover:brightness-100 group-hover:grayscale-0 md:h-10"
+                    // Height-constrained (h-8/md:h-10, w-auto), so the
+                    // widest logo tops out near 118 CSS px.
+                    sizes="120px"
                   />
                 </animated.a>
               )

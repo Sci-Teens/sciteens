@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import {
   animated,
@@ -14,7 +13,7 @@ import HeadingRule from '@/components/HeadingRule'
 import { Button } from '@/components/ui/button'
 import { GUTTER } from '@/lib/layout'
 import { INLINE_LINK } from '@/lib/typography'
-import { fadeUp, useSectionReveal } from '@/lib/reveal'
+import { riseUp, useSectionReveal } from '@/lib/reveal'
 
 const SECTIONS = ['paths', 'contact']
 
@@ -76,18 +75,13 @@ const ctaTarget = (path) =>
 export default function GetInvolved() {
   const { t } = useTranslation('common')
 
-  const [animateLanding, setAnimateLanding] =
-    useState(false)
-  useEffect(() => setAnimateLanding(true), [])
-
   const visible = useSectionReveal(SECTIONS)
 
-  const landingSpring = useSpring(fadeUp(animateLanding))
   const pathsTrail = useTrail(
     PATHS.length,
-    fadeUp(visible.paths)
+    riseUp(visible.paths)
   )
-  const contactSpring = useSpring(fadeUp(visible.contact))
+  const contactSpring = useSpring(riseUp(visible.contact))
 
   return (
     <div>
@@ -101,7 +95,7 @@ export default function GetInvolved() {
         <section
           className={`${GUTTER} pb-14 pt-10 md:pb-16 md:pt-16`}
         >
-          <animated.div style={landingSpring}>
+          <div className="reveal-up">
             <PageHeading className="max-w-[16ch]">
               {t('get_involved.want_to_get_involved')}
             </PageHeading>
@@ -109,7 +103,7 @@ export default function GetInvolved() {
             <p className="text-muted-foreground text-pretty mt-6 max-w-[58ch] text-base md:mt-7 md:text-lg">
               {t('get_involved.lede')}
             </p>
-          </animated.div>
+          </div>
         </section>
 
         <section id="paths" className={GUTTER}>

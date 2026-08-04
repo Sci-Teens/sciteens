@@ -25,11 +25,8 @@ vi.mock('next-i18next', () => ({
   useTranslation: () => ({ t: (key) => key }),
 }))
 
-vi.mock('@/lib/firebase', () => ({
-  auth: {},
-  db: {},
-  storage: {},
-}))
+vi.mock('@/lib/firebase', () => ({ auth: {} }))
+vi.mock('@/lib/firestore', () => ({ db: {} }))
 
 vi.mock('@firebase/firestore', () => ({
   doc: vi.fn(),

@@ -13,7 +13,8 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 
-import { auth, db as firestore } from '../../lib/firebase'
+import { auth } from '../../lib/firebase'
+import { db as firestore } from '../../lib/firestore'
 import { doc, setDoc } from '@firebase/firestore'
 import {
   createUserWithEmailAndPassword,

@@ -35,7 +35,7 @@ import {
   initializeApp,
 } from 'firebase/app'
 import firebaseConfig from '../../../firebaseConfig'
-import { db as firestore } from '../../../lib/firebase'
+import { db as firestore } from '../../../lib/firestore'
 
 import { useSigninCheck } from '../../../context/AuthContext'
 import { AppContext } from '../../../context/context'

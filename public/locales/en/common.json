@@ -37,7 +37,7 @@
   "cookie_consent": {
     "heading": "Cookie consent",
     "message": "We use essential cookies to run this site, and, with your permission, analytics cookies to understand how it's used.",
-    "learn_more": "Learn more",
+    "policy_link": "Read our cookie policy",
     "accept": "Accept",
     "reject": "Reject non-essential"
   },
@@ -291,7 +291,8 @@
     "load_failed": "We couldn't load articles. Check your connection, then try again.",
     "results_count_one": "{{count}} result",
     "results_count_other": "{{count}} results",
-    "reading_time": "{{minutes}} min read"
+    "reading_time": "{{minutes}} min read",
+    "untitled": "Untitled article"
   },
   "courses": {
     "courses": "Courses",
@@ -314,7 +315,8 @@
     "results_count_other": "{{count}} results",
     "load_more": "Load more courses",
     "self_paced": "Self-paced",
-    "starts_on": "Starts"
+    "starts_on": "Starts",
+    "untitled": "Untitled course"
   },
   "donate": {
     "annual_donation_appeal": "Annual Donation Appeal",
@@ -406,7 +408,8 @@
     "links": "Links",
     "files": "Files",
     "no_files": "No files have been attached to this project yet.",
-    "visit_link": "Open {{host}} in a new tab"
+    "visit_link": "Open {{host}} in a new tab",
+    "untitled": "Untitled project"
   },
   "fields": {
     "all": "All",

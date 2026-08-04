@@ -14,10 +14,8 @@ import { useTranslation } from 'next-i18next'
 import { FileUp } from 'lucide-react'
 
 import { useSigninCheck } from '../../../context/AuthContext'
-import {
-  db as firestore,
-  storage,
-} from '../../../lib/firebase'
+import { db as firestore } from '../../../lib/firestore'
+import { storage } from '../../../lib/storage'
 import {
   getApp,
   getApps,

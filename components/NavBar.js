@@ -229,7 +229,7 @@ export default function NavBar() {
                 ) : (
                   <Link
                     href="/signup/student"
-                    className="bg-sciteensLightGreen-regular hover:bg-sciteensLightGreen-dark mr-2 hidden whitespace-nowrap rounded-lg p-2 text-white shadow-sm lg:block"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 mr-2 hidden whitespace-nowrap rounded-lg p-2 shadow-sm lg:block"
                   >
                     {i18n.t('navigation.sign_up')}
                   </Link>
