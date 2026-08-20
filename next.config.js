@@ -14,7 +14,6 @@ const scriptSrc = [
   // lib/toxicityWorker.js.
   "'wasm-unsafe-eval'",
   ...(isDevelopment ? ["'unsafe-eval'"] : []),
-  'https://images.prismic.io',
   'https://www.googletagmanager.com',
   'https://www.google.com',
   // Firebase Auth's signInWithPopup/signInWithRedirect loads the gapi
@@ -54,7 +53,6 @@ const connectSrc = [
   'https://hf.co',
   'https://*.hf.co',
   'https://cdn.jsdelivr.net',
-  'https://sciteens.cdn.prismic.io',
   'https://www.google-analytics.com',
   'https://region1.google-analytics.com',
   'https://analytics.google.com',
@@ -78,7 +76,6 @@ module.exports = {
   i18n,
   images: {
     remotePatterns: [
-      { protocol: 'https', hostname: 'images.prismic.io' },
       {
         protocol: 'https',
         hostname: 'source.unsplash.com',
@@ -117,12 +114,48 @@ module.exports = {
         destination: '/signup/student',
         permanent: true,
       },
+      // Articles and courses are English-only content: content/articles and
+      // content/courses hold one markdown file per item, with no locale
+      // variants. getStaticPaths therefore prerenders the default locale
+      // only, so /es/article/<slug> used to 404 while /es/articles happily
+      // linked to it. Send those to the English page rather than build four
+      // copies of the same English prose.
+      //
+      // 307, not 308: if translated articles ever land, a permanent redirect
+      // would already be cached in readers' browsers.
+      {
+        source: '/:locale(es|fr|hi)/article/:slug',
+        destination: '/article/:slug',
+        permanent: false,
+        locale: false,
+      },
+      {
+        source: '/:locale(es|fr|hi)/course/:slug',
+        destination: '/course/:slug',
+        permanent: false,
+        locale: false,
+      },
     ]
   },
   async headers() {
     return [
       {
         source: '/assets/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        // Article and course media. Every filename ends in a hash of the
+        // source bytes (see the exporter that seeded content/), so a changed
+        // image is a changed url and this can never serve a stale asset.
+        // Matters more than usual here: these files are served straight from
+        // public/ by the Node process rather than through /_next/image, so
+        // the browser cache is the only thing between a reader and Cloud Run.
+        source: '/content/media/:path*',
         headers: [
           {
             key: 'Cache-Control',
@@ -154,7 +187,7 @@ module.exports = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
               // blob: — components/File.js previews dropped/loaded
               // project files via URL.createObjectURL before upload.
-              "img-src 'self' data: blob: https://images.prismic.io https://source.unsplash.com https://*.googleusercontent.com https://firebasestorage.googleapis.com https://storage.googleapis.com https://*.firebasestorage.app; " +
+              "img-src 'self' data: blob: https://source.unsplash.com https://*.googleusercontent.com https://firebasestorage.googleapis.com https://storage.googleapis.com https://*.firebasestorage.app; " +
               "font-src 'self' https://fonts.gstatic.com; " +
               // *.firebaseapp.com hosts the Firebase Auth helper iframe
               // (__/auth/iframe) that signInWithPopup/signInWithRedirect

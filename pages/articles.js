@@ -1,200 +1,105 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import SocialMeta from '@/components/SocialMeta'
-import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import InfiniteScrollTrigger from '@/components/InfiniteScrollTrigger'
 
-var Prismic = require('@prismicio/client')
-import { RichText } from 'prismic-reactjs'
-
-import { useInfiniteQuery } from '@tanstack/react-query'
 import {
   getFieldLabel,
   getTranslatedFieldsDict,
 } from '../context/helpers'
 import { formatMediumDate } from '../lib/formatDate'
-import { Button } from '@/components/ui/button'
+import {
+  ARTICLES_PAGE_SIZE,
+  filterArticles,
+  toCorpusMap,
+} from '../lib/contentSearch'
 import ActiveFilters from '@/components/search/ActiveFilters'
 import EmptyState from '@/components/search/EmptyState'
 import ListingCard from '@/components/search/ListingCard'
 import ListingLayout from '@/components/search/ListingLayout'
-import ListingSkeleton from '@/components/search/ListingSkeleton'
 import ResultsCount from '@/components/search/ResultsCount'
 import SearchToolbar from '@/components/search/SearchToolbar'
 import TopicsList from '@/components/search/TopicsList'
 
-const ARTICLES_PAGE_SIZE = 10
-const WORDS_PER_MINUTE = 200
+// Body-text search parity with Prismic's `fulltext` predicate. The corpus is
+// ~256 KB gzipped, so it is fetched once, lazily, the first time a reader
+// actually searches — never on a plain visit or a topic filter.
+const SEARCH_CORPUS_URL = '/content/article-search.json'
 
-async function fetchArticlesPage({
-  search,
-  field,
-  pageParam,
-}) {
-  const apiEndpoint =
-    'https://sciteens.cdn.prismic.io/api/v2'
-  const client = Prismic.default.client(apiEndpoint)
-  let predicates = []
-
-  if (search) {
-    predicates.push(
-      Prismic.default.Predicates.fulltext(
-        'document',
-        search
-      )
-    )
-  }
-  if (field) {
-    predicates.push(
-      Prismic.default.Predicates.at('document.tags', [
-        field,
-      ])
-    )
-  }
-
-  const articles = await client.query(
-    [
-      Prismic.default.Predicates.at(
-        'document.type',
-        'blog'
-      ),
-      ...predicates,
-    ],
-    {
-      orderings: `[document.first_publication_date desc]`,
-      pageSize: ARTICLES_PAGE_SIZE,
-      page: pageParam,
-    }
-  )
-
-  return {
-    articles: articles.results,
-    nextPage:
-      articles.page < articles.total_pages
-        ? articles.page + 1
-        : null,
-    totalResults: articles.total_results_size,
-  }
-}
-
-function readingMinutes(richText) {
-  const words = (richText || []).reduce((total, block) => {
-    if (block.type === 'paragraph' && block.text) {
-      return total + block.text.split(' ').length
-    }
-    return total
-  }, 0)
-
-  return Math.max(1, Math.round(words / WORDS_PER_MINUTE))
-}
-
-function imageLoader({ src, width, height }) {
-  return `${src}?fit=crop&crop=faces&w=${width || 256}&h=${
-    height || 256
-  }`
-}
-
-function authorHeadshot(article) {
-  const slice = (article.data.body || []).find(
-    (candidate) =>
-      candidate.slice_type === 'about_the_author'
-  )
-
-  return slice?.primary?.headshot?.url || ''
-}
-
-function Articles({ cached_articles }) {
+function Articles({ articles }) {
   const router = useRouter()
   const { t } = useTranslation('common')
   const [search, setSearch] = useState('')
   const [field, setField] = useState('')
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [corpus, setCorpus] = useState(null)
+  const [corpusFailed, setCorpusFailed] = useState(false)
+  const [visibleCount, setVisibleCount] = useState(
+    ARTICLES_PAGE_SIZE
+  )
 
   const searchParam = router.query?.search || ''
   const fieldParam =
     router.query?.field && router.query.field !== 'All'
       ? router.query.field
       : ''
-  const queryPage = Number(router.query?.page || 1)
-  const firstPage =
-    Number.isFinite(queryPage) && queryPage > 0
-      ? queryPage
-      : 1
 
   const hasActiveFilters = Boolean(
     searchParam || fieldParam
   )
 
-  const initialData = useMemo(() => {
-    if (
-      searchParam ||
-      fieldParam ||
-      firstPage !== 1 ||
-      !cached_articles?.results
-    ) {
-      return undefined
+  // Only a real query needs the corpus; a topic filter matches on tags that
+  // already arrived in props.
+  useEffect(() => {
+    if (!searchParam || corpus || corpusFailed) return
+    let cancelled = false
+    async function loadCorpus() {
+      try {
+        const res = await fetch(SEARCH_CORPUS_URL)
+        if (!res.ok) throw new Error(`corpus ${res.status}`)
+        const entries = await res.json()
+        if (!cancelled) setCorpus(toCorpusMap(entries))
+      } catch (error) {
+        // Search still works against titles, descriptions, authors and
+        // tags; it just stops reaching into body text.
+        console.error(
+          'Failed to load the article search corpus:',
+          error
+        )
+        if (!cancelled) setCorpusFailed(true)
+      }
     }
-
-    return {
-      pages: [
-        {
-          articles: cached_articles.results,
-          nextPage:
-            cached_articles.page <
-            cached_articles.total_pages
-              ? cached_articles.page + 1
-              : null,
-          totalResults: cached_articles.total_results_size,
-        },
-      ],
-      pageParams: [1],
+    loadCorpus()
+    return () => {
+      cancelled = true
     }
-  }, [searchParam, fieldParam, firstPage, cached_articles])
+  }, [searchParam, corpus, corpusFailed])
 
-  const articlesQuery = useInfiniteQuery({
-    queryKey: [
-      'articles',
-      searchParam,
-      fieldParam,
-      firstPage,
-    ],
-    enabled: router.isReady,
-    initialPageParam: firstPage,
-    initialData,
-    queryFn: ({ pageParam }) =>
-      fetchArticlesPage({
+  const results = useMemo(
+    () =>
+      filterArticles(articles, {
         search: searchParam,
         field: fieldParam,
-        pageParam,
+        corpus,
       }),
-    getNextPageParam: (lastPage) => lastPage.nextPage,
-  })
-
-  const articles = useMemo(
-    () =>
-      articlesQuery.data?.pages.flatMap(
-        (page) => page.articles
-      ) || [],
-    [articlesQuery.data]
+    [articles, searchParam, fieldParam, corpus]
   )
-  const totalResults =
-    articlesQuery.data?.pages[0]?.totalResults
-  const loading =
-    articlesQuery.isLoading && articles.length === 0
-  const { hasNextPage, isFetchingNextPage, fetchNextPage } =
-    articlesQuery
 
+  // Reset paging whenever the result set changes, so changing a filter does
+  // not leave a reader scrolled into a page that no longer exists.
   useEffect(() => {
-    if (articlesQuery.isError) {
-      console.error(
-        'Failed to load articles:',
-        articlesQuery.error
-      )
-    }
-  }, [articlesQuery.isError, articlesQuery.error])
+    setVisibleCount(ARTICLES_PAGE_SIZE)
+  }, [searchParam, fieldParam])
+
+  const visible = results.slice(0, visibleCount)
+  const hasNextPage = visibleCount < results.length
+  // A search is still "loading" only while the corpus it needs is in flight.
+  const awaitingCorpus = Boolean(
+    searchParam && !corpus && !corpusFailed
+  )
 
   useEffect(() => {
     if (router?.isReady) {
@@ -328,125 +233,90 @@ function Articles({ cached_articles }) {
         />
 
         <ResultsCount>
-          {loading
+          {awaitingCorpus
             ? t('articles.loading')
-            : !articlesQuery.isError &&
-              typeof totalResults === 'number' &&
-              t('articles.results_count', {
-                count: totalResults,
+            : t('articles.results_count', {
+                count: results.length,
               })}
         </ResultsCount>
 
-        {articlesQuery.isError && (
-          <div className="border-destructive/30 bg-destructive/5 rounded-xl border px-4 py-4 text-sm">
-            <p className="text-destructive">
-              {t('articles.load_failed')}
-            </p>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="mt-3"
-              onClick={() => articlesQuery.refetch()}
-            >
-              {t('articles.retry')}
-            </Button>
-          </div>
-        )}
-
-        {/* The banner above sits alongside whatever already loaded: a
-            failed next-page fetch must not unmount the pages the
-            visitor has already scrolled through. */}
-        {loading ? (
-          <ListingSkeleton />
-        ) : articles.length === 0 ? (
-          !articlesQuery.isError && (
-            <EmptyState
-              title={t('articles.empty_title')}
-              description={
-                hasActiveFilters
-                  ? t('articles.empty_filtered')
-                  : t('articles.empty_default')
-              }
-              actionLabel={
-                hasActiveFilters
-                  ? t('articles.clear_filters')
-                  : undefined
-              }
-              onAction={
-                hasActiveFilters
-                  ? handleClearFilters
-                  : undefined
-              }
-            />
-          )
+        {results.length === 0 && !awaitingCorpus ? (
+          <EmptyState
+            title={t('articles.empty_title')}
+            description={
+              hasActiveFilters
+                ? t('articles.empty_filtered')
+                : t('articles.empty_default')
+            }
+            actionLabel={
+              hasActiveFilters
+                ? t('articles.clear_filters')
+                : undefined
+            }
+            onAction={
+              hasActiveFilters
+                ? handleClearFilters
+                : undefined
+            }
+          />
         ) : (
           <div className="w-full">
-            {articles.map((article, index) => {
-              const title = RichText.asText(
-                article.data.title
-              )
-              const headshot = authorHeadshot(article)
-
-              return (
-                <div
-                  key={article.id}
-                  className="w-full pt-6 md:pt-8"
-                >
-                  <ListingCard
-                    href={`/article/${article.uid}`}
-                    title={title}
-                    fallbackLabel={t('articles.untitled')}
-                    description={article.data.description}
-                    imageSrc={article.data.image?.url}
-                    imageAlt={title}
-                    imageLoader={imageLoader}
-                    priority={index === 0}
-                    byline={
-                      <div className="mb-2 flex flex-row items-center gap-2">
-                        {headshot && (
-                          <Image
-                            alt=""
-                            className="h-6 w-6 rounded-full object-cover"
-                            height={24}
-                            width={24}
-                            loader={imageLoader}
-                            src={headshot}
-                          />
-                        )}
-                        <p className="text-muted-foreground truncate text-sm">
-                          {article.data.author}
-                        </p>
-                      </div>
-                    }
-                    meta={[
-                      formatMediumDate(
-                        article.data.date,
-                        router.locale
-                      ),
-                      t('articles.reading_time', {
-                        minutes: readingMinutes(
-                          article.data.text
-                        ),
-                      }),
-                    ]
-                      .filter(Boolean)
-                      .join(' · ')}
-                  />
-                </div>
-              )
-            })}
+            {visible.map((article, index) => (
+              <div
+                key={article.slug}
+                className="w-full pt-6 md:pt-8"
+              >
+                <ListingCard
+                  href={`/article/${article.slug}`}
+                  title={article.title}
+                  fallbackLabel={t('articles.untitled')}
+                  description={article.description}
+                  imageSrc={article.cover}
+                  imageAlt={article.title}
+                  priority={index === 0}
+                  byline={
+                    <div className="mb-2 flex flex-row items-center gap-2">
+                      {article.headshot && (
+                        <img
+                          alt=""
+                          className="h-6 w-6 rounded-full object-cover"
+                          height={24}
+                          width={24}
+                          loading="lazy"
+                          decoding="async"
+                          src={article.headshot}
+                        />
+                      )}
+                      <p className="text-muted-foreground truncate text-sm">
+                        {article.author}
+                      </p>
+                    </div>
+                  }
+                  meta={[
+                    formatMediumDate(
+                      article.date,
+                      router.locale
+                    ),
+                    t('articles.reading_time', {
+                      minutes: article.minutes,
+                    }),
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+                />
+              </div>
+            ))}
           </div>
-        )}
-
-        {isFetchingNextPage && (
-          <ListingSkeleton count={2} />
         )}
 
         <InfiniteScrollTrigger
           hasNextPage={hasNextPage}
-          isLoading={isFetchingNextPage}
-          onLoadMore={fetchNextPage}
+          isLoading={false}
+          onLoadMore={() =>
+            setVisibleCount(
+              (count) => count + ARTICLES_PAGE_SIZE
+            )
+          }
           label={t('articles.load_more')}
         />
       </ListingLayout>
@@ -454,30 +324,18 @@ function Articles({ cached_articles }) {
   )
 }
 
+// The whole listing ships in the page props: 135 summaries are ~20 KB
+// gzipped, which is less than one round trip to the CMS this replaces, and it
+// makes every filter and page change instant with no network at all.
 export async function getStaticProps({ locale }) {
-  const translations = await serverSideTranslations(
-    locale,
-    ['common']
+  const { getArticleSummaries } = await import(
+    '../lib/content'
   )
-
-  try {
-    const apiEndpoint =
-      'https://sciteens.cdn.prismic.io/api/v2'
-    const client = Prismic.client(apiEndpoint)
-    const articles = await client.query(
-      [Prismic.Predicates.at('document.type', 'blog')],
-      {
-        orderings: `[document.first_publication_date desc]`,
-        pageSize: ARTICLES_PAGE_SIZE,
-      }
-    )
-
-    return {
-      props: { cached_articles: articles, ...translations },
-    }
-  } catch (e) {
-    console.error(e)
-    return { notFound: true }
+  return {
+    props: {
+      articles: getArticleSummaries(),
+      ...(await serverSideTranslations(locale, ['common'])),
+    },
   }
 }
 

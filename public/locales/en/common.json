@@ -1,4 +1,8 @@
 {
+  "404": {
+    "sorry": "404 - Sorry, we couldn't find that",
+    "cool_video": "Here's a cool video to watch instead"
+  },
   "article": {
     "about_the_author": "About The Author",
     "interview": "Interview",
@@ -11,6 +15,10 @@
     "rate_no": "No, I did not enjoy this article",
     "rate_thanks": "Thanks for the feedback.",
     "topics": "Topics"
+  },
+  "banner": {
+    "message": "A note from our founders",
+    "link_text": "Read it here"
   },
   "course": {
     "starts": "Starts",
@@ -230,10 +238,6 @@
     "show_password": "Show password",
     "hide_password": "Hide password"
   },
-  "404": {
-    "sorry": "404 - Sorry, we couldn't find that",
-    "cool_video": "Here's a cool video to watch instead"
-  },
   "about": {
     "on_a_mission": "We’re on a mission.",
     "we_strive": "We strive to bridge the gap between education and opportunity, particularly for students from low-resource areas who do not have an extensive STEM support network.",
@@ -287,8 +291,6 @@
     "empty_title": "No Articles Found",
     "empty_filtered": "No article matches these filters. Try a different search term or another topic.",
     "empty_default": "No articles have been published yet. Check back soon.",
-    "retry": "Try Again",
-    "load_failed": "We couldn't load articles. Check your connection, then try again.",
     "results_count_one": "{{count}} result",
     "results_count_other": "{{count}} results",
     "reading_time": "{{minutes}} min read",
@@ -305,12 +307,9 @@
     "clear_search": "Clear search",
     "active_filters": "Active filters",
     "remove_filter": "Remove filter: {{filter}}",
-    "loading": "Loading courses…",
     "empty_title": "No Courses Found",
     "empty_filtered": "No course matches these filters. Try a different search term or another topic.",
     "empty_default": "No courses have been published yet. Check back soon.",
-    "retry": "Try Again",
-    "load_failed": "We couldn't load courses. Check your connection, then try again.",
     "results_count_one": "{{count}} result",
     "results_count_other": "{{count}} results",
     "load_more": "Load more courses",

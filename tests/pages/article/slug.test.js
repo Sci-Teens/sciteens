@@ -5,6 +5,7 @@ import {
   render,
   screen,
 } from '@testing-library/react'
+import { markdownToHast } from '@/lib/markdown.mjs'
 import Article from '@/pages/article/[slug]'
 
 // Lives under tests/pages/ rather than pages/article/ — see the comment in
@@ -12,13 +13,12 @@ import Article from '@/pages/article/[slug]'
 // every `.js` under `pages/` as a route).
 //
 // Regression coverage for three of the reported visual bugs, all rooted in
-// the article detail page markup rather than the shared prismicImageLoader
-// fix (covered directly in lib/prismicImageLoader.test.js):
+// the article detail page markup:
 // - tag "buttons" rendering as a bare `<p>` link (no chip styling,
 //   underlined by the surrounding `.prose` typography styles) instead of
 //   the same field-filter chip used on the project detail page.
 // - avatar images missing a fixed-size, `object-cover` box, which is what
-//   let a mismatched loader aspect ratio stretch them.
+//   let a mismatched image aspect ratio stretch them.
 // - the "More on this topic" recommendations rendering as plain links
 //   instead of the shadcn Carousel's swipeable items.
 
@@ -31,8 +31,8 @@ vi.mock('next-i18next', () => ({
 }))
 
 vi.mock('firebase/analytics', () => ({
-  getAnalytics: vi.fn(),
-  logEvent: vi.fn(),
+  getAnalytics: () => ({}),
+  logEvent: () => {},
 }))
 
 // Fetches Firestore comments through onSnapshot; irrelevant to the
@@ -43,58 +43,41 @@ vi.mock('@/components/Discussion', () => ({
 
 afterEach(cleanup)
 
+const image = (src) => ({ src, width: 256, height: 256 })
+
 function buildArticle() {
   return {
-    uid: 'test-article',
+    slug: 'test-article',
+    title: 'Test Article',
+    description: 'A test article',
+    author: 'Test Author',
+    date: '2024-01-01',
     tags: ['Biology', 'Made Up Tag'],
-    data: {
-      title: [{ type: 'heading1', text: 'Test Article' }],
-      description: 'A test article',
-      author: 'Test Author',
-      date: '2024-01-01',
-      image: {
-        url: 'https://images.prismic.io/test/cover.jpg',
-      },
-      text: [
-        {
-          type: 'paragraph',
-          text: 'Body text',
-          spans: [],
-        },
-      ],
-      body: [
-        {
-          slice_type: 'about_the_author',
-          primary: {
-            headshot: {
-              url: 'https://images.prismic.io/test/headshot.jpg',
-            },
-            information: [
-              { type: 'paragraph', text: 'Author bio' },
-            ],
-          },
-        },
-      ],
+    cover: {
+      src: '/content/media/cover-abcd1234.webp',
+      width: 1200,
+      height: 800,
     },
+    authorBio: markdownToHast('Author bio'),
+    authorHeadshot: image(
+      '/content/media/headshot-abcd1234.webp'
+    ),
+    body: markdownToHast('Body text'),
+    minutes: 3,
   }
 }
 
 function buildRecommendations(count) {
   return Array.from({ length: count }, (_, i) => ({
-    uid: `rec-${i}`,
-    data: {
-      title: [
-        { type: 'heading1', text: `Recommendation ${i}` },
-      ],
-      description: 'A recommendation',
-      author: 'Rec Author',
-      date: '2024-01-01',
-      image: {
-        url: 'https://images.prismic.io/test/rec.jpg',
-      },
-      image_slider: [],
-      text: [],
-    },
+    slug: `rec-${i}`,
+    title: `Recommendation ${i}`,
+    description: 'A recommendation',
+    author: 'Rec Author',
+    date: '2024-01-01',
+    tags: [],
+    cover: `/content/media/rec-${i}.webp`,
+    headshot: null,
+    minutes: 2,
   }))
 }
 
@@ -152,7 +135,7 @@ describe('Article', () => {
     const avatarImages = Array.from(
       document.querySelectorAll('img')
     ).filter((img) =>
-      img.getAttribute('src')?.includes('headshot.jpg')
+      img.getAttribute('src')?.includes('headshot-')
     )
     // One in the byline, one in the "About the Author" block.
     expect(avatarImages).toHaveLength(2)
@@ -186,5 +169,49 @@ describe('Article', () => {
     expect(
       screen.getByRole('link', { name: /Recommendation 0/ })
     ).toHaveAttribute('href', '/article/rec-0')
+  })
+
+  // The cover is the LCP candidate on this page, and it is deliberately not a
+  // next/image: the file is already WebP at the rendered width, so
+  // /_next/image would re-encode it on every Cloud Run cold start.
+  it('serves the cover eagerly and straight from public/', () => {
+    render(
+      <Article
+        article={buildArticle()}
+        recommendations={buildRecommendations(5)}
+      />
+    )
+
+    const cover = Array.from(
+      document.querySelectorAll('img')
+    ).find((img) =>
+      img.getAttribute('src')?.includes('cover-')
+    )
+    expect(cover).toHaveAttribute(
+      'src',
+      '/content/media/cover-abcd1234.webp'
+    )
+    expect(cover).toHaveAttribute('loading', 'eager')
+    expect(cover).toHaveAttribute('width', '1200')
+    expect(cover).toHaveAttribute('height', '800')
+  })
+
+  // The Prismic page ran the bio through RichText.asText, which dropped
+  // every link inside it. The bio is markdown now, so links survive.
+  it('renders links inside the author bio', () => {
+    const article = buildArticle()
+    article.authorBio = markdownToHast(
+      'Reach me at [my site](https://example.com/me).'
+    )
+    render(
+      <Article
+        article={article}
+        recommendations={buildRecommendations(5)}
+      />
+    )
+
+    expect(
+      screen.getByRole('link', { name: 'my site' })
+    ).toHaveAttribute('href', 'https://example.com/me')
   })
 })
