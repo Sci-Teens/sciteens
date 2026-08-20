@@ -104,6 +104,23 @@ steps:
         '--region',
         'us-east1',
       ]
+  # Hosting last: the `**` rewrite in firebase.json targets the Cloud Run
+  # service, so that service has to be live and serving the new revision
+  # before Hosting starts pointing traffic at it. Needs
+  # roles/firebasehosting.admin on the Cloud Build service account.
+  # See infra/hosting/README.md — inert until the domain is moved to Hosting.
+  - name: 'node:24-alpine'
+    entrypoint: npx
+    args:
+      [
+        'firebase-tools@15.23.0',
+        'deploy',
+        '--only',
+        'hosting',
+        '--project',
+        '${_NEXT_PUBLIC_FB_PROJECT_ID}',
+        '--non-interactive',
+      ]
 timeout: 1200s
 images:
   - gcr.io/${_NEXT_PUBLIC_FB_PROJECT_ID}/website
