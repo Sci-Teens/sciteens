@@ -5,8 +5,8 @@ rules_version = '2';
 // Enforcement model: the client performs only owner-scoped writes. Every
 // mutation is gated on the authenticated user's uid and, where relevant,
 // on documented ownership (member_uids for projects). Collections that
-// are only written by Cloud Functions (newProgram, newCourse,
-// updateUserStats) are denied to clients entirely.
+// are only written by Cloud Functions (newProgram, updateUserStats) are
+// denied to clients entirely.
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -20,6 +20,44 @@ service cloud.firestore {
     function isValidLinks(data) {
       return !('links' in data)
         || (data.links is list && data.links.size() <= 10);
+    }
+
+    // Shared by every discussion subcollection: projects, articles and
+    // courses all render the same comment thread through
+    // components/Discussion.js, so they get one shape and one set of
+    // guards rather than three copies that drift apart.
+    function isValidNewComment() {
+      return request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(
+          ['date', 'uid', 'display', 'comment', 'reply_to_id', 'reply_to_name'])
+        && request.resource.data.keys().hasAll(['date', 'uid', 'display', 'comment'])
+        // `display` is the author name rendered next to every comment.
+        // Pinned to the account's own token claim so a commenter can't
+        // post under a name that isn't theirs; a user with no
+        // displayName sends null, which matches the absent claim.
+        && request.resource.data.display == request.auth.token.get('name', null)
+        && request.resource.data.comment is string
+        && request.resource.data.comment.size() <= 1000
+        && request.resource.data.date is string
+        // Both reply fields land in a Firestore document path in
+        // newDiscussion (functions/index.js), so a separator or a
+        // non-string there retargets that read.
+        && request.resource.data.get('reply_to_id', '') is string
+        && request.resource.data.get('reply_to_id', '').size() <= 128
+        && request.resource.data.get('reply_to_name', '') is string
+        && request.resource.data.get('reply_to_name', '').size() <= 200;
+    }
+
+    // Editing may only touch the body. Without this the create-time
+    // guards are a one-write speed bump: post a clean comment, then
+    // rewrite `display` and `comment` to anything at all.
+    function isCommentBodyEdit() {
+      return request.auth.uid == resource.data.uid
+        && request.resource.data.diff(resource.data)
+            .affectedKeys().hasOnly(['comment'])
+        && request.resource.data.comment is string
+        && request.resource.data.comment.size() <= 1000;
     }
 
     // A file record's `url`/`thumbnailUrl` are rendered straight into an
@@ -225,34 +263,8 @@ service cloud.firestore {
       // ---- Project discussion ------------------------------------------
       match /discussion/{feedbackId} {
         allow read: if true;
-        allow create: if request.auth != null
-          && request.resource.data.uid == request.auth.uid
-          && request.resource.data.keys().hasOnly(
-            ['date', 'uid', 'display', 'comment', 'reply_to_id', 'reply_to_name'])
-          && request.resource.data.keys().hasAll(['date', 'uid', 'display', 'comment'])
-          // `display` is the author name rendered next to every comment.
-          // Pinned to the account's own token claim so a commenter can't
-          // post under a name that isn't theirs; a user with no
-          // displayName sends null, which matches the absent claim.
-          && request.resource.data.display == request.auth.token.get('name', null)
-          && request.resource.data.comment is string
-          && request.resource.data.comment.size() <= 1000
-          && request.resource.data.date is string
-          // Both reply fields land in a Firestore document path in
-          // newDiscussion (functions/index.js), so a separator or a
-          // non-string there retargets that read.
-          && request.resource.data.get('reply_to_id', '') is string
-          && request.resource.data.get('reply_to_id', '').size() <= 128
-          && request.resource.data.get('reply_to_name', '') is string
-          && request.resource.data.get('reply_to_name', '').size() <= 200;
-        // Editing may only touch the body. Without this the create-time
-        // guards above are a one-write speed bump: post a clean comment,
-        // then rewrite `display` and `comment` to anything at all.
-        allow update: if request.auth.uid == resource.data.uid
-          && request.resource.data.diff(resource.data)
-              .affectedKeys().hasOnly(['comment'])
-          && request.resource.data.comment is string
-          && request.resource.data.comment.size() <= 1000;
+        allow create: if isValidNewComment();
+        allow update: if isCommentBodyEdit();
         allow delete: if request.auth.uid == resource.data.uid;
       }
 
@@ -354,10 +366,42 @@ service cloud.firestore {
     }
 
     // ---- Courses --------------------------------------------------------
-    // Server-managed (newCourse webhook from Prismic).
+    // Enrollment records only. Course content moved to content/courses/*.md,
+    // and the Prismic webhook that used to mirror names and dates in here is
+    // gone, so nothing writes these docs any more. Kept closed to clients,
+    // and kept at all because the `enrolled` arrays are live data.
     match /courses/{slug} {
       allow read: if true;
       allow write: if false;
+    }
+
+    // ---- Article and course discussion ----------------------------------
+    // Comment threads on the markdown content in content/articles and
+    // content/courses. Until now no rule matched these paths at all, so the
+    // catch-all denied them and both threads were silently broken: a reader
+    // could neither post nor see a comment.
+    //
+    // The collection names are singular because that is what
+    // components/Discussion.js is given (`type="article"` in
+    // pages/article/[slug].js, `type={'course'}` in pages/course/[slug].js).
+    // `course` here is not the same collection as `courses` above, which
+    // holds enrollment records and stays closed.
+    //
+    // The parent document is never created. The slug is the markdown
+    // filename, so there is nothing to store at article/{slug} itself, and
+    // the catch-all still denies writes to it.
+    match /article/{slug}/discussion/{commentId} {
+      allow read: if true;
+      allow create: if isValidNewComment();
+      allow update: if isCommentBodyEdit();
+      allow delete: if request.auth.uid == resource.data.uid;
+    }
+
+    match /course/{slug}/discussion/{commentId} {
+      allow read: if true;
+      allow create: if isValidNewComment();
+      allow update: if isCommentBodyEdit();
+      allow delete: if request.auth.uid == resource.data.uid;
     }
 
     // ---- Statistics -----------------------------------------------------
