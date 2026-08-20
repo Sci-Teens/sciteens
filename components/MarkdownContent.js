@@ -1,32 +1,20 @@
-import { Fragment, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useTranslation } from 'next-i18next'
-import {
-  Fragment as JsxFragment,
-  jsx,
-  jsxs,
-} from 'react/jsx-runtime'
+import { Fragment, jsx, jsxs } from 'react/jsx-runtime'
 import { toJsxRuntime } from 'hast-util-to-jsx-runtime'
 import {
   isAllowedEmbedUrl,
   isSafeContentUrl,
 } from '../lib/contentUrls.mjs'
 import { INLINE_LINK } from '../lib/typography'
-import { cn } from '@/lib/utils'
 
-// Renders the hast tree lib/content.js produced at build time. No markdown
-// parser reaches the browser: this walks plain JSON.
-//
-// Every url is checked again here even though lib/markdown.mjs already checked
-// it. That is deliberate. This component is the only place a url becomes an
-// href, an <img src> or an <iframe src>, so the check belongs next to the sink
-// as well as at the source. If the two ever disagree, the sink wins.
+// Renders the hast tree lib/content.js built at build time. Urls are checked
+// again here because this is where they become an href, an <img src> or an
+// <iframe src>; if the two checks ever disagree, the sink wins.
 
-// Article and course media is pre-converted to WebP at exactly the widths the
-// layout needs, so it is served as a plain <img> straight from public/ rather
-// than through next/image. Cloud Run runs `min-instances 0` with an ephemeral
-// per-instance image cache, so /_next/image would re-encode the same file
-// after every cold start and on every new instance, burning billed CPU to
-// produce a file we already generated.
+// Content media is pre-converted WebP at the width it renders, so it skips
+// next/image: Cloud Run runs min-instances 0 with a per-instance optimizer
+// cache, and /_next/image would re-encode after every cold start.
 function ContentImage({ src, alt, width, height, title }) {
   if (!isSafeContentUrl(src)) return null
   return (
@@ -46,12 +34,11 @@ function ContentImage({ src, alt, width, height, title }) {
 function ContentLink({ href, children, ...rest }) {
   if (!isSafeContentUrl(href))
     return <span {...rest}>{children}</span>
-  const external = /^https?:/i.test(href)
   return (
     <a
       href={href}
       className={INLINE_LINK}
-      {...(external
+      {...(/^https?:/i.test(href)
         ? { target: '_blank', rel: 'noopener noreferrer' }
         : {})}
       {...rest}
@@ -61,11 +48,8 @@ function ContentLink({ href, children, ...rest }) {
   )
 }
 
-// Our own iframe, built from a validated origin. The provider's own oEmbed
-// markup is never injected: that was the dangerouslySetInnerHTML sink the
-// Prismic serializer existed to remove, and script-src still carries
-// 'unsafe-inline' for Next's bootstrap, so inline handlers or a `srcdoc` in
-// provider markup would execute same-origin.
+// Our own iframe from a validated origin. Provider oEmbed markup is never
+// injected, which is what removes the dangerouslySetInnerHTML sink.
 function ContentEmbed({ url, title }) {
   if (!isAllowedEmbedUrl(url)) return null
   return (
@@ -82,9 +66,6 @@ function ContentEmbed({ url, title }) {
   )
 }
 
-// `:::interview{name=… headshot=…}` from the markdown body. Replaces the
-// Prismic `interview` slice and renders in the same position, including the
-// "Interview" heading that slice used to supply.
 function ContentInterview({
   name,
   headshot,
@@ -133,22 +114,19 @@ export default function MarkdownContent({
   className,
   as: Wrapper = 'div',
 }) {
-  const rendered = useMemo(() => {
-    if (!hast || !hast.children?.length) return null
-    return toJsxRuntime(hast, {
-      Fragment: JsxFragment,
-      jsx,
-      jsxs,
-      components,
-      // hast property names are already React-shaped for the tags we emit;
-      // custom elements keep their attributes verbatim.
-      passNode: false,
-    })
-  }, [hast])
+  const rendered = useMemo(
+    () =>
+      hast?.children?.length
+        ? toJsxRuntime(hast, {
+            Fragment,
+            jsx,
+            jsxs,
+            components,
+          })
+        : null,
+    [hast]
+  )
 
   if (!rendered) return null
-  if (Wrapper === Fragment) return rendered
-  return (
-    <Wrapper className={cn(className)}>{rendered}</Wrapper>
-  )
+  return <Wrapper className={className}>{rendered}</Wrapper>
 }

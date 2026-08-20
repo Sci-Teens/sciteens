@@ -149,12 +149,9 @@ module.exports = {
         ],
       },
       {
-        // Article and course media. Every filename ends in a hash of the
-        // source bytes (see the exporter that seeded content/), so a changed
-        // image is a changed url and this can never serve a stale asset.
-        // Matters more than usual here: these files are served straight from
-        // public/ by the Node process rather than through /_next/image, so
-        // the browser cache is the only thing between a reader and Cloud Run.
+        // Content-hashed filenames, so a changed image is a changed url and
+        // this can never serve a stale asset. These bypass /_next/image, so
+        // the browser cache is all that sits between a reader and Cloud Run.
         source: '/content/media/:path*',
         headers: [
           {
@@ -199,10 +196,10 @@ module.exports = {
               // firebasestorage.googleapis.com/storage.googleapis.com —
               // components/FileGallery.js embeds an uploaded PDF's own
               // download URL in an <iframe> for in-page viewing.
-              // The media hosts match htmlserializer.js's
-              // EMBED_SRC_HOSTS: article/course oEmbeds are rendered as
-              // our own iframe pointing at one of those origins, and
-              // without them here every embed is a blank frame.
+              // The media hosts match EMBED_SRC_HOSTS in
+              // lib/contentUrls.mjs: article and course embeds render as our
+              // own iframe pointing at one of those origins, and without them
+              // here every embed is a blank frame.
               `frame-src https://www.google.com https://*.firebaseapp.com ${
                 authDomain ? `https://${authDomain} ` : ''
               }${

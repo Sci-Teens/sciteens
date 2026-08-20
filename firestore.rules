@@ -22,10 +22,8 @@ service cloud.firestore {
         || (data.links is list && data.links.size() <= 10);
     }
 
-    // Shared by every discussion subcollection: projects, articles and
-    // courses all render the same comment thread through
-    // components/Discussion.js, so they get one shape and one set of
-    // guards rather than three copies that drift apart.
+    // Shared by every discussion subcollection so the three threads cannot
+    // drift apart.
     function isValidNewComment() {
       return request.auth != null
         && request.resource.data.uid == request.auth.uid
@@ -376,20 +374,10 @@ service cloud.firestore {
     }
 
     // ---- Article and course discussion ----------------------------------
-    // Comment threads on the markdown content in content/articles and
-    // content/courses. Until now no rule matched these paths at all, so the
-    // catch-all denied them and both threads were silently broken: a reader
-    // could neither post nor see a comment.
-    //
-    // The collection names are singular because that is what
-    // components/Discussion.js is given (`type="article"` in
-    // pages/article/[slug].js, `type={'course'}` in pages/course/[slug].js).
-    // `course` here is not the same collection as `courses` above, which
-    // holds enrollment records and stays closed.
-    //
-    // The parent document is never created. The slug is the markdown
-    // filename, so there is nothing to store at article/{slug} itself, and
-    // the catch-all still denies writes to it.
+    // Singular names, matching the `type` each page hands
+    // components/Discussion.js; `course` is not the `courses` collection
+    // above. The parent document is never created because the slug is a
+    // markdown filename.
     match /article/{slug}/discussion/{commentId} {
       allow read: if true;
       allow create: if isValidNewComment();

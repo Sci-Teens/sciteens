@@ -7,6 +7,7 @@ import FileGallery from '../../components/FileGallery'
 import Discussion from '../../components/Discussion'
 import MarkdownContent from '../../components/MarkdownContent'
 import { formatMediumDate } from '../../lib/formatDate'
+import { isSafeContentUrl } from '../../lib/contentUrls.mjs'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
@@ -16,13 +17,12 @@ function Course({ course }) {
   const { t } = useTranslation('common')
   const router = useRouter()
 
-  // FileGallery classifies on a Blob or a Cloud Storage url
-  // (context/helpers.js#isSafeFileUrl), and these are same-origin static
-  // files, so they are fetched into blobs rather than widening that
-  // allowlist for a handful of course PDFs.
+  // Fetched into blobs because FileGallery classifies on a Blob or a Cloud
+  // Storage url, and widening that allowlist for three PDFs is not worth it.
   useEffect(() => {
     let cancelled = false
     async function loadFiles() {
+      const loaded = []
       for (const record of course.files) {
         if (!record.path) continue
         try {
@@ -30,8 +30,7 @@ function Course({ course }) {
           if (!res.ok) continue
           const blob = await res.blob()
           blob.name = record.name
-          if (!cancelled)
-            setFiles((current) => [...current, blob])
+          loaded.push(blob)
         } catch (error) {
           console.error(
             `Failed to load course file ${record.name}:`,
@@ -39,6 +38,9 @@ function Course({ course }) {
           )
         }
       }
+      // Assigned once rather than appended per file, so navigating between
+      // two courses cannot leave the previous one's files on screen.
+      if (!cancelled) setFiles(loaded)
     }
     loadFiles()
     return () => {
@@ -140,7 +142,9 @@ function Course({ course }) {
                               {lesson.title}
                             </td>
                             <td className="p-3 text-center">
-                              {lesson.link && (
+                              {isSafeContentUrl(
+                                lesson.link
+                              ) && (
                                 <Button
                                   variant="link"
                                   size="sm"
@@ -148,7 +152,7 @@ function Course({ course }) {
                                     <a
                                       href={lesson.link}
                                       target="_blank"
-                                      rel="noreferrer"
+                                      rel="noopener noreferrer"
                                       aria-label="View"
                                     />
                                   }

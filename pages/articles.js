@@ -18,15 +18,15 @@ import {
 } from '../lib/contentSearch'
 import ActiveFilters from '@/components/search/ActiveFilters'
 import EmptyState from '@/components/search/EmptyState'
+import ListingSkeleton from '@/components/search/ListingSkeleton'
 import ListingCard from '@/components/search/ListingCard'
 import ListingLayout from '@/components/search/ListingLayout'
 import ResultsCount from '@/components/search/ResultsCount'
 import SearchToolbar from '@/components/search/SearchToolbar'
 import TopicsList from '@/components/search/TopicsList'
 
-// Body-text search parity with Prismic's `fulltext` predicate. The corpus is
-// ~256 KB gzipped, so it is fetched once, lazily, the first time a reader
-// actually searches — never on a plain visit or a topic filter.
+// Fetched lazily on the first real query, never on a plain visit or a topic
+// filter, because it is ~256 KB gzipped.
 const SEARCH_CORPUS_URL = '/content/article-search.json'
 
 function Articles({ articles }) {
@@ -60,11 +60,13 @@ function Articles({ articles }) {
       try {
         const res = await fetch(SEARCH_CORPUS_URL)
         if (!res.ok) throw new Error(`corpus ${res.status}`)
-        const entries = await res.json()
-        if (!cancelled) setCorpus(toCorpusMap(entries))
+        const map = toCorpusMap(await res.json())
+        // A 200 carrying something other than an array would otherwise leave
+        // `corpus` null forever, and the page loading forever with it.
+        if (!map) throw new Error('corpus was not an array')
+        if (!cancelled) setCorpus(map)
       } catch (error) {
-        // Search still works against titles, descriptions, authors and
-        // tags; it just stops reaching into body text.
+        // Search degrades to the summary fields rather than breaking.
         console.error(
           'Failed to load the article search corpus:',
           error
@@ -88,15 +90,16 @@ function Articles({ articles }) {
     [articles, searchParam, fieldParam, corpus]
   )
 
-  // Reset paging whenever the result set changes, so changing a filter does
-  // not leave a reader scrolled into a page that no longer exists.
+  // Otherwise a filter change can leave a reader on a page that no longer
+  // exists.
   useEffect(() => {
     setVisibleCount(ARTICLES_PAGE_SIZE)
   }, [searchParam, fieldParam])
 
   const visible = results.slice(0, visibleCount)
   const hasNextPage = visibleCount < results.length
-  // A search is still "loading" only while the corpus it needs is in flight.
+  // Showing summary-only matches here would swap the list out from under the
+  // reader once the corpus lands.
   const awaitingCorpus = Boolean(
     searchParam && !corpus && !corpusFailed
   )
@@ -240,7 +243,9 @@ function Articles({ articles }) {
               })}
         </ResultsCount>
 
-        {results.length === 0 && !awaitingCorpus ? (
+        {awaitingCorpus ? (
+          <ListingSkeleton />
+        ) : results.length === 0 ? (
           <EmptyState
             title={t('articles.empty_title')}
             description={
@@ -310,8 +315,8 @@ function Articles({ articles }) {
         )}
 
         <InfiniteScrollTrigger
-          hasNextPage={hasNextPage}
-          isLoading={false}
+          hasNextPage={hasNextPage && !awaitingCorpus}
+          isLoading={awaitingCorpus}
           onLoadMore={() =>
             setVisibleCount(
               (count) => count + ARTICLES_PAGE_SIZE
@@ -324,9 +329,8 @@ function Articles({ articles }) {
   )
 }
 
-// The whole listing ships in the page props: 135 summaries are ~20 KB
-// gzipped, which is less than one round trip to the CMS this replaces, and it
-// makes every filter and page change instant with no network at all.
+// The whole listing ships in props (~20 kB gzipped) so filtering and paging
+// need no network at all.
 export async function getStaticProps({ locale }) {
   const { getArticleSummaries } = await import(
     '../lib/content'

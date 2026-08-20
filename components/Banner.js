@@ -4,13 +4,9 @@ import { useTranslation } from 'next-i18next'
 import banner from '../content/banner.json'
 import { isSafeContentUrl } from '../lib/contentUrls.mjs'
 
-// The banner used to fetch a Prismic single type from an effect in
-// components/Layout.js, which meant a third-party request on every page load
-// just to discover the banner was switched off. It is now a two-field JSON
-// file bundled at build time: no request, no flash of a late-arriving bar.
-//
-// Copy lives in public/locales/*/common.json like every other user-facing
-// string, so only the toggle and the link target are content.
+// Bundled at build time rather than fetched, so no request and no flash of a
+// late-arriving bar. Copy lives in the locale bundles like every other
+// user-facing string; only the toggle and link target are content.
 function Banner({ closeBanner }) {
   const { t } = useTranslation('common')
 

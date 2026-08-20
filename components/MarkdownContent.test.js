@@ -206,6 +206,23 @@ describe('interview directives', () => {
     expect(container.querySelector('img')).toBeNull()
     expect(container.textContent).toContain('Body.')
   })
+
+  // Dropped in the pipeline, not only at the sink, so nothing downstream ever
+  // sees the value. A merely non-local headshot is a different case: it is an
+  // author mistake and lib/content.js fails the build by name for it.
+  it('strips a dangerous headshot from the tree itself', () => {
+    const hast = markdownToHast(
+      [
+        ':::interview{name="X" headshot="javascript:1"}', // eslint-disable-line no-script-url
+        'Body.',
+        ':::',
+      ].join('\n')
+    )
+    const interview = hast.children.find(
+      (node) => node.tagName === 'x-interview'
+    )
+    expect(interview.properties.headshot).toBeUndefined()
+  })
 })
 
 describe('ordinary markdown', () => {
