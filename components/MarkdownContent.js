@@ -71,12 +71,13 @@ function ContentInterview({
   headshot,
   headshotWidth,
   headshotHeight,
+  lead,
   children,
 }) {
   const { t } = useTranslation('common')
   return (
     <section>
-      <h2>{t('article.interview')}</h2>
+      {lead && <h2>{t('article.interview')}</h2>}
       <div className="flex flex-col items-center gap-4 sm:flex-row">
         {isSafeContentUrl(headshot) && (
           <span className="not-prose bg-muted relative block h-20 w-20 shrink-0 overflow-hidden rounded-full">

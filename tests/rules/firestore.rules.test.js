@@ -1200,16 +1200,23 @@ describe.each([
 })
 
 describe('/courses/{slug} enrollment records', () => {
-  it('stay readable and closed to every client write', async () => {
+  // The slug is a public url, so a readable roster would let anyone list the
+  // students in a course.
+  it('are closed to every client read and write', async () => {
     await seed((db) =>
       setDoc(doc(db, 'courses/solid-biology'), {
         slug: 'solid-biology',
-        enrolled: [],
+        enrolled: ['alice'],
       })
     )
-    await assertSucceeds(
+    await assertFails(
       getDoc(
         doc(ctxFirestore(null), 'courses/solid-biology')
+      )
+    )
+    await assertFails(
+      getDoc(
+        doc(ctxFirestore('bob'), 'courses/solid-biology')
       )
     )
     await assertFails(
@@ -1451,13 +1458,13 @@ describe('/project-invites/{projectId}', () => {
   })
 })
 
-// programs / programs-minified / courses / statistics are all
-// server-managed (see AGENTS.md's enforcement comment): public read,
-// but every client write is denied outright regardless of auth.
+// programs / programs-minified / statistics are all server-managed (see
+// AGENTS.md's enforcement comment): public read, but every client write is
+// denied outright regardless of auth. `courses` used to belong here and now
+// denies reads too; it has its own block above.
 describe.each([
   ['programs', 'p1'],
   ['programs-minified', 'p1'],
-  ['courses', 'c1'],
   ['statistics', 's1'],
 ])('/%s/{id} is server-managed', (collectionName, id) => {
   it('is publicly readable but rejects any client write', async () => {

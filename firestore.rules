@@ -31,17 +31,19 @@ service cloud.firestore {
           ['date', 'uid', 'display', 'comment', 'reply_to_id', 'reply_to_name'])
         && request.resource.data.keys().hasAll(['date', 'uid', 'display', 'comment'])
         // `display` is the author name rendered next to every comment.
-        // Pinned to the account's own token claim so a commenter can't
-        // post under a name that isn't theirs; a user with no
-        // displayName sends null, which matches the absent claim.
+        // Pinned to the account's own token claim so one write cannot post
+        // under another account's name. A user can still rename their own
+        // account, so this is not an anti-impersonation control; a user
+        // with no displayName sends null, which matches the absent claim.
         && request.resource.data.display == request.auth.token.get('name', null)
         && request.resource.data.comment is string
         && request.resource.data.comment.size() <= 1000
         && request.resource.data.date is string
-        // Both reply fields land in a Firestore document path in
-        // newDiscussion (functions/index.js), so a separator or a
-        // non-string there retargets that read.
+        // reply_to_id is interpolated into a Firestore document path in
+        // newDiscussion (functions/index.js), so it is constrained to the
+        // shape of a document id: a `/` in here retargets that read.
         && request.resource.data.get('reply_to_id', '') is string
+        && request.resource.data.get('reply_to_id', '').matches('^[A-Za-z0-9]*$')
         && request.resource.data.get('reply_to_id', '').size() <= 128
         && request.resource.data.get('reply_to_name', '') is string
         && request.resource.data.get('reply_to_name', '').size() <= 200;
@@ -366,11 +368,12 @@ service cloud.firestore {
     // ---- Courses --------------------------------------------------------
     // Enrollment records only. Course content moved to content/courses/*.md,
     // and the Prismic webhook that used to mirror names and dates in here is
-    // gone, so nothing writes these docs any more. Kept closed to clients,
-    // and kept at all because the `enrolled` arrays are live data.
+    // gone, so nothing writes these docs any more. The public read went with
+    // the content: what is left is `enrolled`, a roster of student uids, and
+    // no client reads it. Slugs are public urls, so an open read here let
+    // anyone enumerate who is in a course.
     match /courses/{slug} {
-      allow read: if true;
-      allow write: if false;
+      allow read, write: if false;
     }
 
     // ---- Article and course discussion ----------------------------------

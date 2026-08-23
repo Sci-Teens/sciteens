@@ -30,6 +30,71 @@ const scriptSrc = [
   'https://cdn.jsdelivr.net',
 ].join(' ')
 
+// Article and course embeds (components/MarkdownContent.js) render as our own
+// iframe pointing at one of these origins. lib/contentUrls.mjs#EMBED_SRC_HOSTS
+// must list exactly the same hosts, which tests/config/embedHosts.test.js
+// asserts.
+const EMBED_SRC_HOSTS = [
+  'www.youtube.com',
+  'www.youtube-nocookie.com',
+  'player.vimeo.com',
+  'w.soundcloud.com',
+  'open.spotify.com',
+]
+const embedFrameSrc = EMBED_SRC_HOSTS.map(
+  (host) => `https://${host}`
+).join(' ')
+
+// A child frame only receives a feature its parent delegates to that origin,
+// so the embed iframe's `allow` and allowFullScreen are inert unless these
+// name the embed hosts.
+const embedAllowlist = [
+  'self',
+  ...EMBED_SRC_HOSTS.map((host) => `"https://${host}"`),
+].join(' ')
+const EMBED_FEATURES = [
+  'accelerometer',
+  'autoplay',
+  'clipboard-write',
+  'encrypted-media',
+  'fullscreen',
+  'gyroscope',
+  'picture-in-picture',
+]
+const SELF_ONLY_FEATURES = [
+  'ambient-light-sensor',
+  'battery',
+  'camera',
+  'cross-origin-isolated',
+  'display-capture',
+  'document-domain',
+  'execution-while-not-rendered',
+  'execution-while-out-of-viewport',
+  'geolocation',
+  'keyboard-map',
+  'magnetometer',
+  'microphone',
+  'midi',
+  'navigation-override',
+  'payment',
+  'publickey-credentials-get',
+  'screen-wake-lock',
+  'sync-xhr',
+  'usb',
+  'web-share',
+  'xr-spatial-tracking',
+]
+const permissionsPolicy = [
+  ...EMBED_FEATURES.map(
+    (feature) => `${feature}=(${embedAllowlist})`
+  ),
+  ...SELF_ONLY_FEATURES.map(
+    (feature) => `${feature}=(self)`
+  ),
+]
+  .sort()
+  .join(', ')
+
 // Firebase talks to these hosts directly once the connect*Emulator wiring in
 // lib/firebase.js, lib/firestore.js and lib/storage.js redirects it — dev-only,
 // a production CSP has no business allowlisting localhost.
@@ -196,9 +261,7 @@ module.exports = {
               // firebasestorage.googleapis.com/storage.googleapis.com —
               // components/FileGallery.js embeds an uploaded PDF's own
               // download URL in an <iframe> for in-page viewing.
-              // The media hosts match EMBED_SRC_HOSTS in
-              // lib/contentUrls.mjs: article and course embeds render as our
-              // own iframe pointing at one of those origins, and without them
+              // The embed hosts come from EMBED_SRC_HOSTS above; without them
               // here every embed is a blank frame.
               `frame-src https://www.google.com https://*.firebaseapp.com ${
                 authDomain ? `https://${authDomain} ` : ''
@@ -206,7 +269,7 @@ module.exports = {
                 isDevelopment
                   ? 'http://127.0.0.1:9099 '
                   : ''
-              }https://firebasestorage.googleapis.com https://storage.googleapis.com https://*.firebasestorage.app https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://w.soundcloud.com https://open.spotify.com; ` +
+              }https://firebasestorage.googleapis.com https://storage.googleapis.com https://*.firebasestorage.app ${embedFrameSrc}; ` +
               `connect-src ${connectSrc}; ` +
               "frame-ancestors 'self'; " +
               "base-uri 'self'; " +
@@ -218,8 +281,7 @@ module.exports = {
           },
           {
             key: 'Permissions-Policy',
-            value:
-              'accelerometer=(self), ambient-light-sensor=(self), autoplay=(self), battery=(self), camera=(self), cross-origin-isolated=(self), display-capture=(self), document-domain=(self), encrypted-media=(self), execution-while-not-rendered=(self), execution-while-out-of-viewport=(self), fullscreen=(self), geolocation=(self), gyroscope=(self), keyboard-map=(self), magnetometer=(self), microphone=(self), midi=(self), navigation-override=(self), payment=(self), picture-in-picture=(self), publickey-credentials-get=(self), screen-wake-lock=(self), sync-xhr=(self), usb=(self), web-share=(self), xr-spatial-tracking=(self)',
+            value: permissionsPolicy,
           },
           {
             key: 'X-DNS-Prefetch-Control',

@@ -7,10 +7,10 @@
 // Generated, so gitignored.
 import fs from 'node:fs'
 import path from 'node:path'
-import matter from 'gray-matter'
 import {
   hastToText,
   markdownToHast,
+  parseFrontmatter,
 } from '../lib/markdown.mjs'
 
 const ROOT = path.join(import.meta.dirname, '..')
@@ -26,7 +26,7 @@ const files = fs.existsSync(ARTICLE_DIR)
 
 const entries = files.map((file) => {
   const slug = file.replace(/\.md$/, '')
-  const parsed = matter(
+  const parsed = parseFrontmatter(
     fs.readFileSync(path.join(ARTICLE_DIR, file), 'utf8')
   )
   // Lowercased once so the client does not redo it per keystroke. The full

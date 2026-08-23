@@ -223,6 +223,38 @@ describe('interview directives', () => {
     )
     expect(interview.properties.headshot).toBeUndefined()
   })
+
+  // One Prismic interview slice held several people under a single
+  // "Interview" heading. extracurriculars-science-olympiad migrated to three
+  // adjacent directives, so a heading per directive would repeat it.
+  it('heads a run of adjacent interviews once', () => {
+    const person = (name) =>
+      [`:::interview{name="${name}"}`, 'Body.', ':::'].join(
+        '\n'
+      )
+    const { container } = renderMarkdown(
+      [person('Akash'), person('Sina'), person('Ohm')].join(
+        '\n\n'
+      )
+    )
+    expect(container.querySelectorAll('h2')).toHaveLength(1)
+    expect(
+      container.querySelectorAll('section')
+    ).toHaveLength(3)
+    for (const name of ['Akash', 'Sina', 'Ohm'])
+      expect(container.textContent).toContain(name)
+  })
+
+  it('heads a lone interview and a later separated one', () => {
+    const { container } = renderMarkdown(
+      [
+        ':::interview{name="A"}\nBody.\n:::',
+        'A paragraph between them.',
+        ':::interview{name="B"}\nBody.\n:::',
+      ].join('\n\n')
+    )
+    expect(container.querySelectorAll('h2')).toHaveLength(2)
+  })
 })
 
 describe('ordinary markdown', () => {

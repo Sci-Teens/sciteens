@@ -51,6 +51,15 @@ function Articles({ articles }) {
     searchParam || fieldParam
   )
 
+  // `?page=N` is the paging contract the Prismic listing published, and
+  // bookmarks still carry it. It seeds how much of the list is revealed;
+  // infinite scroll takes over from there.
+  const pageParam = Number.parseInt(router.query?.page, 10)
+  const initialCount =
+    Number.isInteger(pageParam) && pageParam > 1
+      ? pageParam * ARTICLES_PAGE_SIZE
+      : ARTICLES_PAGE_SIZE
+
   // Only a real query needs the corpus; a topic filter matches on tags that
   // already arrived in props.
   useEffect(() => {
@@ -91,10 +100,11 @@ function Articles({ articles }) {
   )
 
   // Otherwise a filter change can leave a reader on a page that no longer
-  // exists.
+  // exists. This also applies `?page=` once the router hydrates it, because a
+  // statically rendered first paint has no query.
   useEffect(() => {
-    setVisibleCount(ARTICLES_PAGE_SIZE)
-  }, [searchParam, fieldParam])
+    setVisibleCount(initialCount)
+  }, [searchParam, fieldParam, initialCount])
 
   const visible = results.slice(0, visibleCount)
   const hasNextPage = visibleCount < results.length

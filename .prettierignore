@@ -33,3 +33,7 @@ MIGRATION-PHASES.md
 # pdfjs-dist worker, copied verbatim from node_modules — vendor code,
 # never hand-edited (see scripts/copy-pdf-worker.js)
 public/pdf.worker.min.mjs
+
+# generated body-text search corpus, minified JSON by design
+# (scripts/build-search-index.mjs)
+public/content/article-search.json

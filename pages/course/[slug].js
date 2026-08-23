@@ -21,26 +21,30 @@ function Course({ course }) {
   // Storage url, and widening that allowlist for three PDFs is not worth it.
   useEffect(() => {
     let cancelled = false
-    async function loadFiles() {
-      const loaded = []
-      for (const record of course.files) {
-        if (!record.path) continue
-        try {
-          const res = await fetch(record.path)
-          if (!res.ok) continue
-          const blob = await res.blob()
-          blob.name = record.name
-          loaded.push(blob)
-        } catch (error) {
-          console.error(
-            `Failed to load course file ${record.name}:`,
-            error
-          )
-        }
+    async function loadFile(record) {
+      try {
+        const res = await fetch(record.path)
+        if (!res.ok) return null
+        const blob = await res.blob()
+        blob.name = record.name
+        return blob
+      } catch (error) {
+        console.error(
+          `Failed to load course file ${record.name}:`,
+          error
+        )
+        return null
       }
+    }
+    async function loadFiles() {
+      const loaded = await Promise.all(
+        course.files
+          .filter((record) => record.path)
+          .map(loadFile)
+      )
       // Assigned once rather than appended per file, so navigating between
       // two courses cannot leave the previous one's files on screen.
-      if (!cancelled) setFiles(loaded)
+      if (!cancelled) setFiles(loaded.filter(Boolean))
     }
     loadFiles()
     return () => {

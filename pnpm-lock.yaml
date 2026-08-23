@@ -81,9 +81,6 @@ importers:
       next-i18next:
         specifier: ^15.4.3
         version: 15.4.3(@types/react@19.2.17)(i18next@26.3.6)(next@15.5.22)(react-i18next@17.0.11)(react@18.3.1)
-      next-slicezone:
-        specifier: ^0.2.6
-        version: 0.2.6(react-dom@18.3.1)(react@18.3.1)
       pdfjs-dist:
         specifier: ^6.1.200
         version: 6.1.200
@@ -4359,10 +4356,6 @@ packages:
       - supports-color
     dev: true
 
-  /consola@2.15.3:
-    resolution: {integrity: sha512-9vAdYbHj6x2fLKC4+oPH0kFzY/orMZyG2Aj+kNylHxKGJ/Ed4dpNyAQYwJOdqO4zdM7XpVHmyejQDcQHrnuXbw==}
-    dev: false
-
   /content-disposition@0.5.4:
     resolution: {integrity: sha512-FveZTNuGw04cxlAiWbzi6zTAL/lhehaWbTtgluJh4/E95DqMwTmha3KZN1aAWA8cFIhHzMZUvLevkw5Rqk+tSQ==}
     engines: {node: '>= 0.6'}
@@ -4644,6 +4637,7 @@ packages:
   /deepmerge@4.3.1:
     resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
     engines: {node: '>=0.10.0'}
+    dev: true
 
   /default-browser-id@5.0.1:
     resolution: {integrity: sha512-x1VCxdX4t+8wVfd1so/9w+vQ4vx7lKd2Qp5tDRutErwmR85OgmfX7RlLRMWafRMY7hbEiXIbudNrjOAPa/hL8Q==}
@@ -5400,10 +5394,6 @@ packages:
     resolution: {integrity: sha512-KfYbmpRm0VbLjEvVa9yGwCi9GI34xvi7A/HXYWQO65CSD2u3MczUJSuwXKFIxlGsgBQizV9q5J9NHj4VG0n+pA==}
     engines: {node: '>=12.0.0'}
     dev: true
-
-  /expect.js@0.3.1:
-    resolution: {integrity: sha512-okDF/FAPEul1ZFLae4hrgpIqAeapoo5TRdcg/lD0iN9S3GWrBFIJwNezGH1DMtIz+RxU4RrFmMq7WUUvDg3J6A==}
-    dev: false
 
   /exponential-backoff@3.1.3:
     resolution: {integrity: sha512-ZgEeZXj30q+I0EN+CbSSpIyPaJ5HVQD18Z1m+u1FXbAeT94mr1zw50q4q6jiiC447Nl/YTcIYSAftiGqetwXCA==}
@@ -8336,18 +8326,6 @@ packages:
       next: 15.5.22(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@18.3.1)(react@18.3.1)
     dev: true
 
-  /next-slicezone@0.2.6(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-FmLkyOXNTSw1aAsp9RE7wh+diaFjHI2TVehOeX46kQX6tVsQ7orQCUMgecz9+UUbz84xo1ke0wo+RoXkDWK67Q==}
-    peerDependencies:
-      react: '>=16.14.0'
-      react-dom: '>=16.14.0'
-    dependencies:
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      slash: 3.0.0
-      sm-commons: 0.1.6
-    dev: false
-
   /next@15.5.22(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-mrtal1sRxO4YrlDS98sDuIvGZivKbFix8w7oAL9ZynfOgc3cADQOQgvwtMooc18Qr8bKzvQAcHwHZ0mbJ7zcfQ==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
@@ -10036,11 +10014,6 @@ packages:
       unicode-emoji-modifier-base: 1.0.0
     dev: true
 
-  /slash@3.0.0:
-    resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
-    engines: {node: '>=8'}
-    dev: false
-
   /slice-ansi@4.0.0:
     resolution: {integrity: sha512-qMCMfhY040cVHT43K9BFygqYbUPFZKHOg7K73mtTWJRb8pyP3fzf4Ixd5SzdEJQ6MRUg/WBnOLxghZtKKurENQ==}
     engines: {node: '>=10'}
@@ -10053,14 +10026,6 @@ packages:
   /slugify@1.6.9:
     resolution: {integrity: sha512-vZ7rfeehZui7wQs438JXBckYLkIIdfHOXsaVEUMyS5fHo1483l1bMdo0EDSWYclY0yZKFOipDy4KHuKs6ssvdg==}
     engines: {node: '>=8.0.0'}
-    dev: false
-
-  /sm-commons@0.1.6:
-    resolution: {integrity: sha512-koFAXghHIa28Nnwh2mighltNsx2FZy6eizINO5K0IOImYwCrEzUsTrAZjv6D2Ul+XNz61jqPnmGNLeKnSIZ3SQ==}
-    dependencies:
-      consola: 2.15.3
-      deepmerge: 4.3.1
-      expect.js: 0.3.1
     dev: false
 
   /smart-buffer@4.2.0:
