@@ -57,8 +57,28 @@ reaches Cloud Run, which is the whole point.
 deploy, so the rewrite target always exists before Hosting starts pointing at
 it.
 
+## Prerequisites the build does not create for you
+
 The Cloud Build service account needs `roles/firebasehosting.admin` in addition
-to the `roles/firebaserules.admin` the rules deploy already requires.
+to the `roles/firebaserules.admin` the rules deploy already requires. Without
+it the build deploys Cloud Run and then fails on the last step with
+`Failed to get Firebase project <id>`, which reads like a missing project but
+is a missing role. The rules step keeps working because
+`roles/firebaserules.admin` already carries the project-read permission every
+Firebase predefined role includes.
+
+```bash
+PROJECT=<project-id>
+NUMBER=$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')
+gcloud projects add-iam-policy-binding "$PROJECT" \
+  --member="serviceAccount:${NUMBER}@cloudbuild.gserviceaccount.com" \
+  --role=roles/firebasehosting.admin
+```
+
+Hosting also needs a site to exist on the project. `firebase deploy --only
+hosting` does not create one. Confirm with
+`firebase hosting:sites:list --project <project-id>`, and create the default
+site in the Firebase console if the list is empty.
 
 ## This is inert until DNS moves
 
