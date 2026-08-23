@@ -15,7 +15,6 @@ import {
   Info,
   Newspaper,
   Folder,
-  GraduationCap,
   Users,
   HandHeart,
   UserPlus,
@@ -40,6 +39,8 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 
+// /courses and /course/[slug] stay live and indexable but are deliberately
+// absent here: the routes are reachable by direct link only.
 const NAV_LINKS = [
   {
     href: '/',
@@ -64,12 +65,6 @@ const NAV_LINKS = [
     label: 'projects',
     Icon: Folder,
     active: (p) => p.includes('projects'),
-  },
-  {
-    href: '/courses',
-    label: 'courses',
-    Icon: GraduationCap,
-    active: (p) => p.includes('courses'),
   },
   {
     href: '/get-involved',

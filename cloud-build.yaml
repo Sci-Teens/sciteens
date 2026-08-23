@@ -104,6 +104,20 @@ steps:
         '--region',
         'us-east1',
       ]
+  # Last, because the `**` rewrite needs the Cloud Run revision already live.
+  # Needs roles/firebasehosting.admin. See infra/hosting/README.md.
+  - name: 'node:24-alpine'
+    entrypoint: npx
+    args:
+      [
+        'firebase-tools@15.23.0',
+        'deploy',
+        '--only',
+        'hosting',
+        '--project',
+        '${_NEXT_PUBLIC_FB_PROJECT_ID}',
+        '--non-interactive',
+      ]
 timeout: 1200s
 images:
   - gcr.io/${_NEXT_PUBLIC_FB_PROJECT_ID}/website

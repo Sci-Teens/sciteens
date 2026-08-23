@@ -18,7 +18,6 @@ export default function ListingCard({
   description,
   imageSrc,
   imageAlt,
-  imageLoader,
   priority = false,
   byline,
   meta,
@@ -45,7 +44,6 @@ export default function ListingCard({
               fill
               sizes="(min-width: 768px) 144px, 96px"
               className="object-cover"
-              loader={imageLoader}
               priority={priority}
             />
           )}

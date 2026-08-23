@@ -60,7 +60,7 @@ const CURRENT_ALLOWED_MIME_TYPES = [
   'application/pdf',
 ]
 
-// courses/{slug}/<filename> is server-managed (Prismic webhook /
+// courses/{slug}/<filename> is server-managed (the
 // fileUpload function) — never scanned for conversion or deletion.
 const EXCLUDED_PATH_PREFIX = 'courses/'
 

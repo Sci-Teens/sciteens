@@ -10,7 +10,7 @@
 
 const path = require('node:path')
 
-// courses/{slug}/<filename> is server-managed (Prismic webhook /
+// courses/{slug}/<filename> is server-managed (the
 // fileUpload function) — never scanned for backfill.
 const EXCLUDED_PATH_PREFIX = 'courses/'
 

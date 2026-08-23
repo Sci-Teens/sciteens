@@ -27,7 +27,7 @@ function isThumbnailObjectPath(objectPath) {
 
 // profiles/{uid}/... or projects/{projectId}/... (flat, or the
 // /photo/ subpath above), excluding /thumbnails/ — the only prefixes
-// this migration/trigger ever resizes. courses/ (Prismic-managed) and
+// this migration/trigger ever resizes. courses/ (server-managed) and
 // the legacy singular profilephoto//project/ prefixes are left
 // untouched.
 function isResizeEligiblePath(objectPath) {

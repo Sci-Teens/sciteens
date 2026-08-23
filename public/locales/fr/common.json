@@ -16,6 +16,10 @@
     "rate_thanks": "Merci pour votre retour.",
     "topics": "Sujets"
   },
+  "banner": {
+    "message": "Un mot de nos fondateurs",
+    "link_text": "À lire ici"
+  },
   "course": {
     "starts": "Départs",
     "enroll_by": "S'inscrire par",
@@ -287,8 +291,6 @@
     "empty_title": "Aucun article trouvé",
     "empty_filtered": "Aucun article ne correspond à ces filtres. Essayez un autre terme ou un autre thème.",
     "empty_default": "Aucun article n'a encore été publié. Revenez bientôt.",
-    "retry": "Réessayer",
-    "load_failed": "Impossible de charger les articles. Vérifiez votre connexion, puis réessayez.",
     "results_count_one": "{{count}} résultat",
     "results_count_other": "{{count}} résultats",
     "reading_time": "{{minutes}} min de lecture",
@@ -305,12 +307,9 @@
     "clear_search": "Effacer la recherche",
     "active_filters": "Filtres actifs",
     "remove_filter": "Retirer le filtre : {{filter}}",
-    "loading": "Chargement des cours…",
     "empty_title": "Aucun cours trouvé",
     "empty_filtered": "Aucun cours ne correspond à ces filtres. Essayez un autre terme ou un autre thème.",
     "empty_default": "Aucun cours n'a encore été publié. Revenez bientôt.",
-    "retry": "Réessayer",
-    "load_failed": "Impossible de charger les cours. Vérifiez votre connexion, puis réessayez.",
     "results_count_one": "{{count}} résultat",
     "results_count_other": "{{count}} résultats",
     "load_more": "Charger plus de cours",

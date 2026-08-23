@@ -1,5 +1,10 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# Local agent skills — vendored third-party skill packs (currently the
+# React/Next/UI subset of vercel-labs/agent-skills), rewritten for this
+# harness. Per-developer tooling, not part of the app.
+/.agents/
+
 # dependencies
 /node_modules
 /.pnp
@@ -66,6 +71,11 @@ public/sitemap.xml
 # pdfjs-dist worker, copied from node_modules at build/dev time
 # (scripts/copy-pdf-worker.js) — see components/PdfThumbnail.js
 public/pdf.worker.min.mjs
+
+# Article body-text search corpus, derived from content/articles at
+# build/dev time (scripts/build-search-index.mjs) — see pages/articles.js.
+# The markdown in content/ is the source of truth; this is a build artifact.
+public/content/article-search.json
 
 # Terraform — local execution artifacts only. .terraform.lock.hcl (the
 # provider version lock) IS committed on purpose; state itself has no
