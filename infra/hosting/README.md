@@ -164,9 +164,34 @@ To cut over:
 5. Check that a repeat request for an image is edge-cached: request
    `/content/media/<file>.webp` twice and look for `cache-control:
 ..., immutable` plus an `x-cache` or `age` header on the second response.
-6. Add the custom domain in the Firebase Hosting console and follow its DNS
+6. Confirm the shared cache does not answer `/` from a stored copy that
+   ignores the request language. This is the check that turns the reasoning
+   behind `localeDetection: false` in `next-i18next.config.js` into a
+   measurement, so run it even though detection is off:
+
+   ```bash
+   for AL in en es hi fr; do
+     curl -sI -H "Accept-Language: $AL" https://<project-id>.web.app/ \
+       | grep -iE '^(HTTP|location|cache-control|vary|age)'
+   done
+   ```
+
+   Every language must get the same status. A `307` for one language and a
+   `200` for another under one url means a header-varying response is being
+   shared, and detection must stay off.
+
+7. **Settle the production hostname before attaching the domain.** The
+   repository disagrees with itself: `AGENTS.md` and the root `README.md` say
+   `sciteens.com`, while `next-sitemap.js#siteUrl` and `lib/ogImage.js#SITE_URL`
+   hardcode `https://sciteens.org`. Those two feed every `rel=canonical`, the
+   sitemap and `robots.txt`. Attaching a custom domain that disagrees with them
+   publishes a live site whose every page names a different origin as
+   canonical, which is how a site deindexes itself. Pick one, make all four
+   agree, and pass `NEXT_PUBLIC_SITE_URL` as a build arg in `cloud-build.yaml`
+   if it has to vary per environment. Do not skip to step 8 with this open.
+8. Add the custom domain in the Firebase Hosting console and follow its DNS
    instructions.
-7. Remove the old Cloud Run domain mapping once DNS has propagated.
+9. Remove the old Cloud Run domain mapping once DNS has propagated.
 
 Keep the Cloud Run service `--allow-unauthenticated`. Hosting reaches it as an
 anonymous caller.
