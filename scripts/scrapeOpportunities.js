@@ -1,0 +1,539 @@
+#!/usr/bin/env node
+// Tier 1 weekly scraper -- reads active `opportunity-sources` docs from
+// Firestore, runs the (Phase-0-validated) agentic Claude + Playwright
+// extraction loop against each one, and upserts the result into
+// `opportunities`. Meant to run unattended on a schedule (GitHub Actions),
+// but is equally runnable by hand.
+//
+// Image handling is intentionally NOT part of this first version --
+// imageUrl stays null and the frontend falls back to the existing
+// OpportunityFieldIcons treatment. Real images need to land in Firebase
+// Storage (not public/, which only updates on a full site rebuild) and
+// that's a separate piece of infra worth its own verification pass, added
+// as a follow-up rather than bundled into this already-multi-part script.
+//
+// Per-source outcome handling (see project plan):
+//   - fetch/extraction genuinely fails (network, timeout, blocked, model
+//     never produces valid output even after retry) -> don't touch the
+//     opportunities/{slug} doc at all. Only update opportunity-sources
+//     bookkeeping (lastStatus, lastError, consecutiveFailures++).
+//   - extraction succeeds -> upsert opportunities/{slug} with the fresh
+//     data (whatever deadlineStatus it reports -- dated/rolling/unclear
+//     are all valid successful outcomes, not failures), and reset
+//     consecutiveFailures to 0.
+//
+// Usage:
+//   node scripts/scrapeOpportunities.js [--project <id>] [--dry-run] [slug ...]
+//
+// Runs for real (writes to Firestore) by default -- this is meant to run
+// unattended, so it can't require an opt-in flag the way the one-off admin
+// scripts in this repo do. Pass --dry-run to preview without writing.
+'use strict'
+
+const fs = require('node:fs')
+const os = require('node:os')
+const path = require('node:path')
+const crypto = require('node:crypto')
+const { execFileSync } = require('node:child_process')
+const { chromium } = require('playwright')
+const cheerio = require('cheerio')
+const { z } = require('zod')
+const Anthropic = require('@anthropic-ai/sdk')
+
+const MODEL = 'claude-sonnet-5'
+const MAX_FETCHES_PER_SOURCE = 5
+const CONCURRENCY = 3
+
+const FIELD_TAXONOMY = [
+  'Biology',
+  'Chemistry',
+  'Cognitive Science',
+  'Computer Science',
+  'Earth Science',
+  'Electrical Engineering',
+  'Environmental Science',
+  'Mathematics',
+  'Mechanical Engineering',
+  'Medicine',
+  'Physics',
+  'Space Science',
+]
+
+const ExtractionSchema = z.object({
+  name: z.string(),
+  about: z.string(),
+  location: z.string().nullable(),
+  startDate: z.string().nullable(),
+  endDate: z.string().nullable(),
+  applicationDeadline: z.string().nullable(),
+  applicationOpensDate: z.string().nullable(),
+  deadlineStatus: z.enum(['dated', 'rolling', 'upcoming', 'unclear']),
+  gradeRangeLow: z.number().nullable(),
+  gradeRangeHigh: z.number().nullable(),
+  fields: z.array(z.enum(FIELD_TAXONOMY)),
+  eligibilityNotes: z.string().nullable(),
+  applicationUrl: z.string(),
+  reasoning: z.string(),
+})
+
+const FETCH_TOOL = {
+  name: 'fetch_page',
+  description:
+    'Fetch a webpage with a real, JavaScript-rendering browser and return its title, og:image URL (if any), cleaned visible text, and a list of links (url + visible text) found on the page. Use this to read the seed URL, and optionally follow a specific link (e.g. "Apply", "Key Dates", "Admissions", "How to Apply", "Eligibility") if the current page lacks deadline or eligibility detail. Prefer following a real link found on the page over guessing a URL.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      url: { type: 'string', description: 'Absolute URL to fetch' },
+    },
+    required: ['url'],
+  },
+}
+
+const SUBMIT_TOOL = {
+  name: 'submit_extraction',
+  description:
+    "Submit your final structured extraction once you have enough information, or have made a good-faith effort and still can't find a clear answer.",
+  input_schema: {
+    type: 'object',
+    properties: {
+      name: { type: 'string', description: 'Official program/competition name' },
+      about: {
+        type: 'string',
+        description: '2-4 sentence plain-language description of what this program is and who it is for',
+      },
+      location: {
+        type: ['string', 'null'],
+        description:
+          'Where the program takes place, e.g. "Cambridge, MA" for an in-person/residential program, "Virtual" for fully remote, or null if not stated / not applicable',
+      },
+      startDate: {
+        type: ['string', 'null'],
+        description: 'Program start date, ISO 8601 (YYYY-MM-DD), or null if not stated/not applicable',
+      },
+      endDate: { type: ['string', 'null'], description: 'Program end date, ISO 8601, or null' },
+      applicationDeadline: {
+        type: ['string', 'null'],
+        description:
+          'Application deadline, ISO 8601, ONLY if deadlineStatus is "dated". Report the real deadline exactly as stated even if it looks like it has already passed -- do not judge freshness yourself, just report the true value. Otherwise null.',
+      },
+      applicationOpensDate: {
+        type: ['string', 'null'],
+        description:
+          'Date applications open, ISO 8601, ONLY if deadlineStatus is "upcoming" (the page explicitly states a specific future date when applications will open, with no deadline stated yet). Otherwise null.',
+      },
+      deadlineStatus: {
+        type: 'string',
+        enum: ['dated', 'rolling', 'upcoming', 'unclear'],
+        description:
+          '"dated" if the page unambiguously states a real application deadline -- whether that date is before or after today does not matter, report it as "dated" either way. "rolling" only if the page explicitly states rolling/ongoing admissions with no deadline. "upcoming" only if the page explicitly states a specific future date when applications open (not yet open, no deadline posted yet) -- a vague "check back later" or "applications open in the fall" with no specific date is NOT enough, that stays "unclear". "unclear" if none of the above confidently applies -- including when the only date on the page is not actually an application deadline at all (e.g. a game-reveal or event date), or when you cannot tell what a date refers to.',
+      },
+      gradeRangeLow: {
+        type: ['number', 'null'],
+        description: 'Lowest eligible US grade level (9-12), or null if not grade-restricted/not stated',
+      },
+      gradeRangeHigh: { type: ['number', 'null'], description: 'Highest eligible US grade level (9-12), or null' },
+      fields: {
+        type: 'array',
+        items: { type: 'string', enum: FIELD_TAXONOMY },
+        description: 'One or more STEM fields this program covers, from the fixed list',
+      },
+      eligibilityNotes: {
+        type: ['string', 'null'],
+        description:
+          'Any residency, cost, or other eligibility restriction worth surfacing (e.g. "New Jersey residents only", "$500 fee, need-based aid available"), or null if none',
+      },
+      applicationUrl: {
+        type: 'string',
+        description:
+          'The best direct URL for a student to start an application, or the program homepage if no dedicated apply page was found',
+      },
+      reasoning: {
+        type: 'string',
+        description:
+          'Brief (1-3 sentence) explanation of how you determined deadlineStatus, especially if choosing "unclear" or rejecting a misleading date on the page. Kept for operator debugging in opportunity-sources, not shown to end users.',
+      },
+    },
+    required: [
+      'name',
+      'about',
+      'location',
+      'startDate',
+      'endDate',
+      'applicationDeadline',
+      'applicationOpensDate',
+      'deadlineStatus',
+      'gradeRangeLow',
+      'gradeRangeHigh',
+      'fields',
+      'eligibilityNotes',
+      'applicationUrl',
+      'reasoning',
+    ],
+  },
+}
+
+function buildSystemPrompt() {
+  const today = new Date().toISOString().slice(0, 10)
+  return `You are extracting structured data about a STEM enrichment program or competition for U.S. high schoolers, for a nonprofit's opportunities listing.
+
+Today's date is ${today}. This system publishes based on live queries over the dates you report, not your own judgment of "is this fresh" -- so report real dates exactly as stated, and don't withhold or reclassify a real deadline just because it looks old to you. Freshness is judged later by comparing your reported date to the current date at read time, not by you.
+
+Use the fetch_page tool to read the seed URL. If the page doesn't clearly show an application deadline, eligibility, or grade range, you may follow at most a few relevant links (e.g. "Apply", "Key Dates", "Admissions", "Eligibility") using fetch_page again.
+
+Classifying deadlineStatus -- this is the part that actually requires judgment:
+- "dated": the page unambiguously states a real application deadline. Report it as "dated" with the true date whether that date is before or after ${today} -- do not suppress or reclassify a real deadline just because it has already passed.
+- "rolling": the page explicitly states admissions are rolling/ongoing, with no deadline.
+- "upcoming": applications are not yet open, and the page states a SPECIFIC future date when they will open (e.g. "Applications open October 1, 2026"). A vague "check back later" or "opens in the fall" with no specific date is not enough for this -- that's "unclear" instead. Many established annual programs publish next cycle's opening date well before applications actually open, even if last cycle's deadline (now in the past) is also still visible on the page -- look for this specifically, since it's easy to miss if you stop at the first (stale) date you see.
+- "unclear": none of the above confidently applies -- including when the only date on the page is not actually an application deadline at all (e.g. a competition's "kickoff" or "game reveal" date, an unrelated event date), or when you genuinely cannot tell what a date refers to. Guessing wrong is worse than admitting you don't know.
+
+When you have enough information (or have made a good-faith effort and still can't find a clear answer), call submit_extraction with your final answer.`
+}
+
+function extractPageContent(html, baseUrl) {
+  const $ = cheerio.load(html)
+  $('script, style, noscript, svg, nav, footer, header, iframe').remove()
+
+  const title = $('title').first().text().trim()
+  const ogImage = $('meta[property="og:image"]').attr('content') || ''
+  const bodyText = $('body').text().replace(/\s+/g, ' ').trim().slice(0, 8000)
+
+  const links = []
+  const seen = new Set()
+  $('a[href]').each((_, el) => {
+    const href = $(el).attr('href')
+    const text = $(el).text().replace(/\s+/g, ' ').trim()
+    if (!href || !text) return
+    let abs
+    try {
+      abs = new URL(href, baseUrl).toString()
+    } catch {
+      return
+    }
+    if (seen.has(abs)) return
+    seen.add(abs)
+    links.push({ url: abs, text: text.slice(0, 80) })
+  })
+
+  return { title, ogImage, bodyText, links: links.slice(0, 60) }
+}
+
+async function fetchPage(browser, url) {
+  const context = await browser.newContext()
+  const page = await context.newPage()
+  try {
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 20000 })
+    await page.waitForTimeout(1500)
+    const html = await page.content()
+    return { ok: true, ...extractPageContent(html, url) }
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err) }
+  } finally {
+    await context.close()
+  }
+}
+
+async function runExtraction(browser, anthropic, seedUrl) {
+  const messages = [
+    {
+      role: 'user',
+      content: `Extract structured information about this STEM opportunity. Starting URL: ${seedUrl}\n\nUse fetch_page to read it, then call submit_extraction with your final answer.`,
+    },
+  ]
+
+  const visited = []
+  let fetchCount = 0
+
+  for (let turn = 0; turn < 8; turn++) {
+    const atFetchLimit = fetchCount >= MAX_FETCHES_PER_SOURCE
+    const response = await anthropic.messages.create({
+      model: MODEL,
+      max_tokens: 8192,
+      system: buildSystemPrompt(),
+      tools: atFetchLimit ? [SUBMIT_TOOL] : [FETCH_TOOL, SUBMIT_TOOL],
+      tool_choice: atFetchLimit ? { type: 'tool', name: 'submit_extraction' } : { type: 'auto' },
+      messages,
+    })
+
+    messages.push({ role: 'assistant', content: response.content })
+
+    const toolUses = response.content.filter((b) => b.type === 'tool_use')
+    if (toolUses.length === 0) {
+      return { visited, error: 'model returned no tool call' }
+    }
+
+    const submitCall = toolUses.find((t) => t.name === 'submit_extraction')
+    if (submitCall) {
+      const parsed = ExtractionSchema.safeParse(submitCall.input)
+      return {
+        visited,
+        valid: parsed.success,
+        data: parsed.success ? parsed.data : submitCall.input,
+        zodError: parsed.success ? null : parsed.error.format(),
+      }
+    }
+
+    const resultBlocks = []
+    for (const toolUse of toolUses) {
+      fetchCount += 1
+      const url = toolUse.input.url
+      visited.push(url)
+      const result = await fetchPage(browser, url)
+      resultBlocks.push({
+        type: 'tool_result',
+        tool_use_id: toolUse.id,
+        content: JSON.stringify(result).slice(0, 20000),
+      })
+    }
+    messages.push({ role: 'user', content: resultBlocks })
+  }
+
+  return { visited, error: 'max turns exceeded' }
+}
+
+// A schema-validation failure (or a thrown error) gets one fresh retry --
+// often just a one-off model formatting slip, not a repeatable problem
+// with the source. Still failing after the retry is treated as a real
+// fetch failure: the caller leaves the existing opportunities doc alone.
+async function runExtractionWithRetry(browser, anthropic, url) {
+  let first
+  try {
+    first = await runExtraction(browser, anthropic, url)
+  } catch (err) {
+    first = { visited: [], error: String(err && err.message ? err.message : err) }
+  }
+  if (!first.error && first.valid) return first
+
+  let second
+  try {
+    second = await runExtraction(browser, anthropic, url)
+  } catch (err) {
+    second = { visited: [], error: String(err && err.message ? err.message : err) }
+  }
+  second.retried = true
+  second.firstAttemptError = first.error || 'schema validation failure'
+  return second
+}
+
+function loadEnvLocal(repoRoot) {
+  const envPath = path.join(repoRoot, '.env.local')
+  if (!fs.existsSync(envPath)) return
+  const contents = fs.readFileSync(envPath, 'utf8')
+  for (const rawLine of contents.split('\n')) {
+    const line = rawLine.trim()
+    if (!line || line.startsWith('#')) continue
+    const eq = line.indexOf('=')
+    if (eq === -1) continue
+    const key = line.slice(0, eq).trim()
+    let value = line.slice(eq + 1).trim()
+    const quoted =
+      (value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))
+    if (quoted) value = value.slice(1, -1)
+    if (!(key in process.env)) process.env[key] = value
+  }
+}
+
+// Same credential resolution as scripts/seed-opportunity-sources.js.
+function resolveCredential(admin) {
+  const adcEnv = process.env.GOOGLE_APPLICATION_CREDENTIALS
+  const adcDefaultPath = path.join(os.homedir(), '.config', 'gcloud', 'application_default_credentials.json')
+  if ((adcEnv && fs.existsSync(adcEnv)) || fs.existsSync(adcDefaultPath)) {
+    return admin.credential.applicationDefault()
+  }
+  if (process.env.GCLOUD_ACCESS_TOKEN) {
+    const token = process.env.GCLOUD_ACCESS_TOKEN
+    return { getAccessToken: async () => ({ access_token: token, expires_in: 3600 }) }
+  }
+  try {
+    execFileSync('gcloud', ['--version'], { stdio: 'pipe' })
+  } catch {
+    throw new Error(
+      'No Application Default Credentials found, and the gcloud CLI is not on PATH.\n' +
+        'Set GOOGLE_APPLICATION_CREDENTIALS to a service account key (see .env.local), ' +
+        'or run `gcloud auth application-default login`.'
+    )
+  }
+  return {
+    getAccessToken: async () => {
+      const token = execFileSync('gcloud', ['auth', 'print-access-token'], {
+        stdio: ['ignore', 'pipe', 'pipe'],
+      })
+        .toString()
+        .trim()
+      return { access_token: token, expires_in: 3600 }
+    },
+  }
+}
+
+function parseArgs(argv) {
+  const args = { dryRun: false, project: undefined, slugs: [] }
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i]
+    if (arg === '--dry-run') {
+      args.dryRun = true
+    } else if (arg === '--project') {
+      args.project = argv[++i]
+    } else {
+      args.slugs.push(arg)
+    }
+  }
+  return args
+}
+
+// Runs `items` through `worker` with at most `limit` in flight at once.
+async function mapWithConcurrency(items, limit, worker) {
+  const results = new Array(items.length)
+  let next = 0
+  async function runOne() {
+    while (next < items.length) {
+      const i = next++
+      results[i] = await worker(items[i], i)
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, runOne))
+  return results
+}
+
+function contentHashFor(data) {
+  return crypto.createHash('sha256').update(JSON.stringify(data)).digest('hex')
+}
+
+// Both applicationDeadline and applicationOpensDate drive real Firestore
+// range queries (Open Now / Opening Soon / Closed Recently), which
+// requires them to actually be Timestamps -- a string field sorts/
+// compares lexicographically, which silently breaks both correctness
+// (mixed UTC offsets don't sort right) and the range query itself
+// (comparing a string field against a Timestamp query bound doesn't match
+// anything).
+function toTimestampOrNull(admin, slug, fieldName, isoString) {
+  if (!isoString) return null
+  const parsed = new Date(isoString)
+  if (Number.isNaN(parsed.getTime())) {
+    console.log(`  [WARN] ${slug}: unparseable ${fieldName} "${isoString}", storing null`)
+    return null
+  }
+  return admin.firestore.Timestamp.fromDate(parsed)
+}
+
+async function main() {
+  const args = parseArgs(process.argv.slice(2))
+  const repoRoot = path.resolve(__dirname, '..')
+  loadEnvLocal(repoRoot)
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error('Missing ANTHROPIC_API_KEY (checked process.env and .env.local)')
+  }
+  const projectId = args.project || process.env.NEXT_PUBLIC_FB_PROJECT_ID
+  if (!projectId) {
+    throw new Error('No project id: pass --project <id> or set NEXT_PUBLIC_FB_PROJECT_ID.')
+  }
+
+  const admin = require('firebase-admin')
+  admin.initializeApp({ credential: resolveCredential(admin), projectId })
+  const db = admin.firestore()
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+
+  let sourcesSnap = await db.collection('opportunity-sources').where('status', '==', 'active').get()
+  let sources = sourcesSnap.docs.map((d) => ({ slug: d.id, ...d.data() }))
+  if (args.slugs.length) {
+    sources = sources.filter((s) => args.slugs.includes(s.slug))
+  }
+
+  if (sources.length === 0) {
+    console.log('No active sources to scrape (check --dry-run filters or opportunity-sources status).')
+    return
+  }
+
+  console.log(`Scraping ${sources.length} source(s), concurrency ${CONCURRENCY}, dryRun=${args.dryRun}`)
+
+  const browser = await chromium.launch({ headless: true })
+  let succeeded = 0
+  let failed = 0
+
+  try {
+    await mapWithConcurrency(sources, CONCURRENCY, async (source) => {
+      const { slug, url } = source
+      const start = Date.now()
+      const result = await runExtractionWithRetry(browser, anthropic, url)
+      const elapsed = ((Date.now() - start) / 1000).toFixed(1)
+
+      const now = admin.firestore.FieldValue.serverTimestamp()
+
+      if (result.error || !result.valid) {
+        failed += 1
+        const errorMessage = result.error || `schema validation failed: ${JSON.stringify(result.zodError)}`
+        console.log(`  [FAIL] ${slug} (${elapsed}s): ${errorMessage}`)
+        if (process.env.DEBUG_RAW) {
+          console.log(`  RAW DATA for ${slug}:`, JSON.stringify(result.data))
+        }
+        if (!args.dryRun) {
+          await db
+            .collection('opportunity-sources')
+            .doc(slug)
+            .update({
+              lastStatus: 'fetch_failed',
+              lastScrapedAt: now,
+              lastError: errorMessage.slice(0, 500),
+              consecutiveFailures: admin.firestore.FieldValue.increment(1),
+            })
+        }
+        return
+      }
+
+      succeeded += 1
+      const { reasoning, ...extracted } = result.data
+      console.log(`  [OK]   ${slug} (${elapsed}s): deadlineStatus=${extracted.deadlineStatus}`)
+
+      // startDate/endDate are display-only, so they stay as plain ISO
+      // strings -- see toTimestampOrNull for why the two queried date
+      // fields can't.
+      const applicationDeadline = toTimestampOrNull(
+        admin,
+        slug,
+        'applicationDeadline',
+        extracted.applicationDeadline
+      )
+      const applicationOpensDate = toTimestampOrNull(
+        admin,
+        slug,
+        'applicationOpensDate',
+        extracted.applicationOpensDate
+      )
+
+      if (!args.dryRun) {
+        const batch = db.batch()
+        batch.set(
+          db.collection('opportunities').doc(slug),
+          {
+            ...extracted,
+            applicationDeadline,
+            applicationOpensDate,
+            sourceUrl: url,
+            imageUrl: null,
+            imageFit: 'cover',
+            sourceType: source.sourceType || 'curated',
+            lastScrapedAt: now,
+            contentHash: contentHashFor(extracted),
+          },
+          { merge: true }
+        )
+        batch.update(db.collection('opportunity-sources').doc(slug), {
+          lastStatus: 'ok',
+          lastScrapedAt: now,
+          lastError: null,
+          consecutiveFailures: 0,
+          verificationReasoning: reasoning,
+        })
+        await batch.commit()
+      }
+    })
+  } finally {
+    await browser.close()
+  }
+
+  console.log(`\nDone: ${succeeded} succeeded, ${failed} failed, out of ${sources.length}.`)
+}
+
+main().catch((err) => {
+  console.error(err)
+  process.exit(1)
+})
