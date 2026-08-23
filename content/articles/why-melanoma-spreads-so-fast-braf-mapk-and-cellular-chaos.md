@@ -64,13 +64,13 @@ Melanoma is not dangerous because it appears suddenly-but because once it appear
 
 ### **Sources**
 
-1. Why Is Melanoma Deadly? How It Spreads and Resists Treatment - ScienceInsights
+1. [Why Is Melanoma Deadly? How It Spreads and Resists Treatment - ScienceInsights](https://scienceinsights.org/why-is-melanoma-deadly-how-it-spreads-and-resists-treatment/)
 2. [Melanoma: symptoms, stages, treatment](https://mymedicineadvisor.com/health/melanoma-symptoms-stages-treatment/)
 3. Planchard, D., Sanborn, R.E., Negrao, M.V. _et al._ BRAF V600E-mutant metastatic NSCLC: disease overview and treatment landscape. _npj Precis. Onc._ 8, 90 (2024). [https://doi.org/10.1038/s41698-024-00552-7](https://doi.org/10.1038/s41698-024-00552-7)
-4. Wellbrock C and Arozarena I (2016) The Complexity of the ERK/MAP-Kinase Pathway and the Treatment of Melanoma Skin Cancer. Front. Cell Dev. Biol. 4:33. doi: 10.3389/fcell.2016.00033
+4. Wellbrock C and Arozarena I (2016) The Complexity of the ERK/MAP-Kinase Pathway and the Treatment of Melanoma Skin Cancer. Front. Cell Dev. Biol. 4:33. [doi: 10.3389/fcell.2016.00033](https://doi.org/10.3389/fcell.2016.00033)
 5. Darabi, Sourat, Phillip Stafford, David R. Braxton, Carlos E. Zuazo, Taylor J. Brodie, and Michael J. Demeure. 2025. "_BRAF_ V600E Mutation Has Variable Tumor-Specific Effects on Expression of MAPK Pathway Genes That Could Affect Patient Outcome" _International Journal of Molecular Sciences_ 26, no. 16: 7910. [https://doi.org/10.3390/ijms26167910](https://doi.org/10.3390/ijms26167910)
 6. Becker, Alyssa L., and Arup K. Indra. 2023. "Oxidative Stress in Melanoma: Beneficial Antioxidant and Pro-Oxidant Therapeutic Strategies" _Cancers_ 15, no. 11: 3038. [https://doi.org/10.3390/cancers15113038](https://doi.org/10.3390/cancers15113038)
-7. Metastatic Melanoma: Causes, Symptoms, and Treatment
-8. Why Does Melanoma Spread So Fast? A Biological Explanation - Biology Insights
-9. How Fast Does Melanoma Spread? Rates by Subtype - ScienceInsights
+7. [Metastatic Melanoma: Causes, Symptoms, and Treatment](https://www.webmd.com/melanoma-skin-cancer/metastatic-melanoma)
+8. [Why Does Melanoma Spread So Fast? A Biological Explanation - Biology Insights](https://biologyinsights.com/why-does-melanoma-spread-so-fast-a-biological-explanation/)
+9. [How Fast Does Melanoma Spread? Rates by Subtype - ScienceInsights](https://scienceinsights.org/how-fast-does-melanoma-spread-rates-by-subtype/)
 10. Akter, S., Madhuvilakku, R., Kar, A.K. _et al._ Reactive oxygen species (ROS) in cancer: from mechanism to therapeutic implications. _Sig Transduct Target Ther_ **11**, 111 (2026). [https://doi.org/10.1038/s41392-026-02583-x](https://doi.org/10.1038/s41392-026-02583-x)
