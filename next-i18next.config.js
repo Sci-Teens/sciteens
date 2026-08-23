@@ -5,8 +5,9 @@ module.exports = {
     defaultLocale: 'en',
     locales: ['en', 'es', 'hi', 'fr'],
     // Off because `/` would otherwise answer either a prerendered 200 or a
-    // 307 to /es, /fr or /hi purely from Accept-Language. Measured against
-    // the production server: that 200 carries s-maxage=31536000 and
+    // 307 to /es, /fr or /hi purely from Accept-Language. Measured against a
+    // local production build (`pnpm build && pnpm start`), not the deployed
+    // service: that 200 carries s-maxage=31536000 and
     // `Vary: Accept-Encoding`, naming nothing it actually varies on, so any
     // shared cache may reuse it for a request in another language. That much
     // is a response defect regardless of what sits in front. Firebase Hosting
