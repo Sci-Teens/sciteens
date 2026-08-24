@@ -249,14 +249,29 @@ function isPrivateIpv4(host) {
   return false
 }
 
+function ipv4FromMappedIpv6(addr) {
+  const mapped = addr.match(/^(?:::ffff:)(.+)$/)
+  if (!mapped) return null
+  const tail = mapped[1]
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(tail)) return tail
+  const hextets = tail.match(
+    /^([0-9a-f]{1,4}):([0-9a-f]{1,4})$/
+  )
+  if (!hextets) return null
+  const high = parseInt(hextets[1], 16)
+  const low = parseInt(hextets[2], 16)
+  return [high >> 8, high & 255, low >> 8, low & 255].join(
+    '.'
+  )
+}
+
 function isPrivateIpv6(host) {
   const addr = host.replace(/^\[|\]$/g, '').toLowerCase()
-  return (
-    addr === '::1' ||
-    addr === '::' ||
-    /^f[cd]/.test(addr) ||
-    /^fe80/.test(addr)
-  )
+  if (addr === '::1' || addr === '::') return true
+  if (/^f[cd]/.test(addr)) return true
+  if (/^fe[89ab]/.test(addr)) return true
+  const mappedIpv4 = ipv4FromMappedIpv6(addr)
+  return mappedIpv4 ? isPrivateIpv4(mappedIpv4) : false
 }
 
 function isPrivateHost(host) {
@@ -519,6 +534,21 @@ function extractionToolConfig(atFetchLimit) {
     : { mode: FunctionCallingConfigMode.AUTO }
 }
 
+function modelTurnContent(response, calls) {
+  const candidate = (response.candidates || [])[0]
+  if (
+    candidate &&
+    candidate.content &&
+    candidate.content.parts
+  ) {
+    return candidate.content
+  }
+  return {
+    role: 'model',
+    parts: calls.map((call) => ({ functionCall: call })),
+  }
+}
+
 function toFunctionResponsePart(call, result) {
   const functionResponse = {
     name: call.name,
@@ -576,10 +606,7 @@ async function runExtraction(browser, genai, seedUrl) {
       }
     }
 
-    contents.push({
-      role: 'model',
-      parts: calls.map((call) => ({ functionCall: call })),
-    })
+    contents.push(modelTurnContent(response, calls))
 
     const submitCall = calls.find(
       (call) => call.name === 'submit_extraction'
