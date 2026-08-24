@@ -23,8 +23,8 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.120.0",
     "@base-ui/react": "^1.6.0",
+    "@google/genai": "^2.18.0",
     "@hookform/resolvers": "^5.4.0",
     "@next/third-parties": "^16.3.2",
     "@react-spring/web": "^9.7.5",

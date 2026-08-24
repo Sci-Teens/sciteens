@@ -10,9 +10,15 @@ const { chromium } = require('playwright')
 const cheerio = require('cheerio')
 const sharp = require('sharp')
 const { z } = require('zod')
-const Anthropic = require('@anthropic-ai/sdk')
+const dns = require('node:dns').promises
+const {
+  GoogleGenAI,
+  FunctionCallingConfigMode,
+} = require('@google/genai')
 
-const MODEL = 'claude-sonnet-5'
+const MODEL = 'gemini-3.7-flash'
+const DEFAULT_VERTEX_LOCATION = 'global'
+const MAX_OUTPUT_TOKENS = 8192
 const MAX_FETCHES_PER_SOURCE = 5
 const CONCURRENCY = 3
 
@@ -64,7 +70,7 @@ const FETCH_TOOL = {
   name: 'fetch_page',
   description:
     'Fetch a webpage with a real, JavaScript-rendering browser and return its title, og:image URL (if any), cleaned visible text, and a list of links (url + visible text) found on the page. Use this to read the seed URL, and optionally follow a specific link (e.g. "Apply", "Key Dates", "Admissions", "How to Apply", "Eligibility") if the current page lacks deadline or eligibility detail. Prefer following a real link found on the page over guessing a URL.',
-  input_schema: {
+  parametersJsonSchema: {
     type: 'object',
     properties: {
       url: {
@@ -80,7 +86,7 @@ const SUBMIT_TOOL = {
   name: 'submit_extraction',
   description:
     "Submit your final structured extraction once you have enough information, or have made a good-faith effort and still can't find a clear answer.",
-  input_schema: {
+  parametersJsonSchema: {
     type: 'object',
     properties: {
       name: {
@@ -230,17 +236,131 @@ function extractPageContent(html, baseUrl) {
   }
 }
 
+function isPrivateIpv4(host) {
+  const octets = host.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/)
+  if (!octets) return false
+  const a = Number(octets[1])
+  const b = Number(octets[2])
+  if (a === 0 || a === 10 || a === 127) return true
+  if (a === 169 && b === 254) return true
+  if (a === 192 && b === 168) return true
+  if (a === 172 && b >= 16 && b <= 31) return true
+  if (a === 100 && b >= 64 && b <= 127) return true
+  return false
+}
+
+function isPrivateIpv6(host) {
+  const addr = host.replace(/^\[|\]$/g, '').toLowerCase()
+  return (
+    addr === '::1' ||
+    addr === '::' ||
+    /^f[cd]/.test(addr) ||
+    /^fe80/.test(addr)
+  )
+}
+
+function isPrivateHost(host) {
+  const name = host.replace(/^\[|\]$/g, '').toLowerCase()
+  if (
+    name === 'localhost' ||
+    name.endsWith('.localhost') ||
+    name.endsWith('.internal') ||
+    name.endsWith('.local')
+  ) {
+    return true
+  }
+  return isPrivateIpv4(name) || isPrivateIpv6(name)
+}
+
+const privateHostnameCache = new Map()
+
+async function resolvesToPrivateAddress(hostname) {
+  const cached = privateHostnameCache.get(hostname)
+  if (cached !== undefined) return cached
+  let isPrivate
+  try {
+    const records = await dns.lookup(hostname, {
+      all: true,
+    })
+    isPrivate = records.some((record) =>
+      record.family === 6
+        ? isPrivateIpv6(record.address)
+        : isPrivateIpv4(record.address)
+    )
+  } catch {
+    isPrivate = true
+  }
+  privateHostnameCache.set(hostname, isPrivate)
+  return isPrivate
+}
+
+function isNonNetworkScheme(protocol) {
+  return (
+    protocol === 'data:' ||
+    protocol === 'about:' ||
+    protocol === 'blob:'
+  )
+}
+
+async function publicHttpUrlOrNull(rawUrl) {
+  let parsed
+  try {
+    parsed = new URL(String(rawUrl))
+  } catch {
+    return null
+  }
+  if (
+    parsed.protocol !== 'http:' &&
+    parsed.protocol !== 'https:'
+  ) {
+    return null
+  }
+  if (isPrivateHost(parsed.hostname)) return null
+  if (await resolvesToPrivateAddress(parsed.hostname)) {
+    return null
+  }
+  return parsed.toString()
+}
+
 async function fetchPage(browser, url) {
+  const safeUrl = await publicHttpUrlOrNull(url)
+  if (!safeUrl) {
+    return {
+      ok: false,
+      error: `refused to fetch non-public URL: ${String(
+        url
+      ).slice(0, 200)}`,
+    }
+  }
   const context = await browser.newContext()
+  await context.route('**/*', async (route) => {
+    const requestUrl = route.request().url()
+    let parsed
+    try {
+      parsed = new URL(requestUrl)
+    } catch {
+      return route.abort('blockedbyclient')
+    }
+    if (isNonNetworkScheme(parsed.protocol)) {
+      return route.continue()
+    }
+    const allowed = await publicHttpUrlOrNull(requestUrl)
+    return allowed
+      ? route.continue()
+      : route.abort('blockedbyclient')
+  })
   const page = await context.newPage()
   try {
-    await page.goto(url, {
+    await page.goto(safeUrl, {
       waitUntil: 'domcontentloaded',
       timeout: 20000,
     })
     await page.waitForTimeout(1500)
     const html = await page.content()
-    return { ok: true, ...extractPageContent(html, url) }
+    return {
+      ok: true,
+      ...extractPageContent(html, safeUrl),
+    }
   } catch (err) {
     return {
       ok: false,
@@ -390,11 +510,35 @@ async function fetchAndUploadImage(
   return null
 }
 
-async function runExtraction(browser, anthropic, seedUrl) {
-  const messages = [
+function extractionToolConfig(atFetchLimit) {
+  return atFetchLimit
+    ? {
+        mode: FunctionCallingConfigMode.ANY,
+        allowedFunctionNames: ['submit_extraction'],
+      }
+    : { mode: FunctionCallingConfigMode.AUTO }
+}
+
+function toFunctionResponsePart(call, result) {
+  const functionResponse = {
+    name: call.name,
+    response: {
+      result: JSON.stringify(result).slice(0, 20000),
+    },
+  }
+  if (call.id) functionResponse.id = call.id
+  return { functionResponse }
+}
+
+async function runExtraction(browser, genai, seedUrl) {
+  const contents = [
     {
       role: 'user',
-      content: `Extract structured information about this STEM opportunity. Starting URL: ${seedUrl}\n\nUse fetch_page to read it, then call submit_extraction with your final answer.`,
+      parts: [
+        {
+          text: `Extract structured information about this STEM opportunity. Starting URL: ${seedUrl}\n\nUse fetch_page to read it, then call submit_extraction with your final answer.`,
+        },
+      ],
     },
   ]
 
@@ -404,74 +548,77 @@ async function runExtraction(browser, anthropic, seedUrl) {
   for (let turn = 0; turn < 8; turn++) {
     const atFetchLimit =
       fetchCount >= MAX_FETCHES_PER_SOURCE
-    const response = await anthropic.messages.create({
+    const response = await genai.models.generateContent({
       model: MODEL,
-      max_tokens: 8192,
-      system: buildSystemPrompt(),
-      tools: atFetchLimit
-        ? [SUBMIT_TOOL]
-        : [FETCH_TOOL, SUBMIT_TOOL],
-      tool_choice: atFetchLimit
-        ? { type: 'tool', name: 'submit_extraction' }
-        : { type: 'auto' },
-      messages,
+      contents,
+      config: {
+        systemInstruction: buildSystemPrompt(),
+        maxOutputTokens: MAX_OUTPUT_TOKENS,
+        tools: [
+          {
+            functionDeclarations: atFetchLimit
+              ? [SUBMIT_TOOL]
+              : [FETCH_TOOL, SUBMIT_TOOL],
+          },
+        ],
+        toolConfig: {
+          functionCallingConfig:
+            extractionToolConfig(atFetchLimit),
+        },
+      },
     })
 
-    messages.push({
-      role: 'assistant',
-      content: response.content,
-    })
-
-    const toolUses = response.content.filter(
-      (b) => b.type === 'tool_use'
-    )
-    if (toolUses.length === 0) {
+    const calls = response.functionCalls || []
+    if (calls.length === 0) {
       return {
         visited,
         error: 'model returned no tool call',
       }
     }
 
-    const submitCall = toolUses.find(
-      (t) => t.name === 'submit_extraction'
+    contents.push({
+      role: 'model',
+      parts: calls.map((call) => ({ functionCall: call })),
+    })
+
+    const submitCall = calls.find(
+      (call) => call.name === 'submit_extraction'
     )
     if (submitCall) {
       const parsed = ExtractionSchema.safeParse(
-        submitCall.input
+        submitCall.args
       )
       return {
         visited,
         valid: parsed.success,
         data: parsed.success
           ? parsed.data
-          : submitCall.input,
+          : submitCall.args,
         zodError: parsed.success
           ? null
           : parsed.error.format(),
       }
     }
 
-    const resultBlocks = []
-    for (const toolUse of toolUses) {
+    const responseParts = []
+    for (const call of calls) {
       fetchCount += 1
-      const url = toolUse.input.url
+      const url = call.args && call.args.url
       visited.push(url)
       const result = await fetchPage(browser, url)
-      resultBlocks.push({
-        type: 'tool_result',
-        tool_use_id: toolUse.id,
-        content: JSON.stringify(result).slice(0, 20000),
-      })
+      responseParts.push(
+        toFunctionResponsePart(call, result)
+      )
     }
-    messages.push({ role: 'user', content: resultBlocks })
+    contents.push({ role: 'user', parts: responseParts })
   }
 
   return { visited, error: 'max turns exceeded' }
 }
 
-async function attemptExtraction(browser, anthropic, url) {
+async function attemptExtraction(browser, genai, url) {
   try {
-    return await runExtraction(browser, anthropic, url)
+    return await runExtraction(browser, genai, url)
   } catch (err) {
     return {
       visited: [],
@@ -482,21 +629,13 @@ async function attemptExtraction(browser, anthropic, url) {
 
 async function runExtractionWithOneRetry(
   browser,
-  anthropic,
+  genai,
   url
 ) {
-  const first = await attemptExtraction(
-    browser,
-    anthropic,
-    url
-  )
+  const first = await attemptExtraction(browser, genai, url)
   if (!first.error && first.valid) return first
 
-  const retry = await attemptExtraction(
-    browser,
-    anthropic,
-    url
-  )
+  const retry = await attemptExtraction(browser, genai, url)
   retry.retried = true
   retry.firstAttemptError =
     first.error || 'schema validation failure'
@@ -739,13 +878,13 @@ async function commitOpportunityUpsert({
 }
 
 async function scrapeSource(runContext, source) {
-  const { admin, db, bucket, browser, anthropic, dryRun } =
+  const { admin, db, bucket, browser, genai, dryRun } =
     runContext
   const { slug, url } = source
   const startedAt = Date.now()
   const result = await runExtractionWithOneRetry(
     browser,
-    anthropic,
+    genai,
     url
   )
   const elapsed = ((Date.now() - startedAt) / 1000).toFixed(
@@ -813,11 +952,6 @@ async function main() {
   const repoRoot = path.resolve(__dirname, '..')
   loadEnvLocal(repoRoot)
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error(
-      'Missing ANTHROPIC_API_KEY (checked process.env and .env.local)'
-    )
-  }
   const projectId =
     args.project || process.env.NEXT_PUBLIC_FB_PROJECT_ID
   if (!projectId) {
@@ -835,8 +969,12 @@ async function main() {
   })
   const db = admin.firestore()
   const bucket = admin.storage().bucket()
-  const anthropic = new Anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY,
+  const genai = new GoogleGenAI({
+    vertexai: true,
+    project: process.env.GOOGLE_CLOUD_PROJECT || projectId,
+    location:
+      process.env.GOOGLE_CLOUD_LOCATION ||
+      DEFAULT_VERTEX_LOCATION,
   })
 
   let sourcesSnap = await db
@@ -873,7 +1011,7 @@ async function main() {
     db,
     bucket,
     browser,
-    anthropic,
+    genai,
     dryRun: args.dryRun,
   }
 
