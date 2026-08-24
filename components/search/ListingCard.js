@@ -19,7 +19,6 @@ export default function ListingCard({
   description,
   imageSrc,
   imageAlt,
-  imageLoader,
   // 'cover' fills the box and crops (right for real photos — Projects/
   // Courses/Articles). 'contain' letterboxes instead: opportunity
   // program logos range from square marks to wide wordmarks, and
@@ -66,7 +65,6 @@ export default function ListingCard({
                       ? 'object-contain p-3'
                       : 'object-cover'
                   }
-                  loader={imageLoader}
                   priority={priority}
                 />
               )}

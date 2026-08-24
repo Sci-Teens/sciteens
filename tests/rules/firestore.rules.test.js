@@ -1080,6 +1080,154 @@ describe('/projects/{id}/discussion/{feedbackId}', () => {
   })
 })
 
+// Regression coverage for a thread that was silently dead: no rule matched
+// article/{slug}/discussion or course/{slug}/discussion, so the catch-all
+// denied every read and write. The article and course pages rendered a
+// comment form that could not post and a list that could not load.
+//
+// Both collections are singular, matching the `type` prop each page hands
+// components/Discussion.js. The parent document never exists: the slug is a
+// markdown filename under content/, so these subcollections stand alone.
+describe.each([
+  [
+    'article',
+    'article/tldr-science-prosthetics/discussion',
+  ],
+  ['course', 'course/solid-biology/discussion'],
+])('/%s/{slug}/discussion/{commentId}', (_label, base) => {
+  const asBob = () => ctxFirestore('bob', { name: 'Bob' })
+
+  const comment = (overrides = {}) => ({
+    date: new Date().toISOString(),
+    uid: 'bob',
+    display: 'Bob',
+    comment: 'hi',
+    ...overrides,
+  })
+
+  it('anyone can read the thread', async () => {
+    await seed((db) =>
+      setDoc(doc(db, `${base}/c1`), comment())
+    )
+    await assertSucceeds(
+      getDoc(doc(ctxFirestore(null), `${base}/c1`))
+    )
+  })
+
+  it('a signed-in reader can post, with no parent document present', async () => {
+    await assertSucceeds(
+      setDoc(doc(asBob(), `${base}/c1`), comment())
+    )
+  })
+
+  it('accepts the reply fields the client actually sends', async () => {
+    await assertSucceeds(
+      setDoc(
+        doc(asBob(), `${base}/c2`),
+        comment({ reply_to_id: 'c1', reply_to_name: 'Ada' })
+      )
+    )
+  })
+
+  it('rejects an anonymous post', async () => {
+    await assertFails(
+      setDoc(
+        doc(ctxFirestore(null), `${base}/c1`),
+        comment()
+      )
+    )
+  })
+
+  it.each([
+    ['uid that is not the caller', { uid: 'mallory' }],
+    [
+      'display name they do not own',
+      { display: 'SciTeens Staff' },
+    ],
+    ['comment past the cap', { comment: 'x'.repeat(1001) }],
+    ['undeclared extra field', { pinned: true }],
+    ['non-string reply_to_id', { reply_to_id: 42 }],
+  ])('rejects a post with a %s', async (_case, patch) => {
+    await assertFails(
+      setDoc(doc(asBob(), `${base}/c1`), comment(patch))
+    )
+  })
+
+  it('lets only the author edit the body, and only the body', async () => {
+    await seed((db) =>
+      setDoc(doc(db, `${base}/c1`), comment())
+    )
+    await assertFails(
+      updateDoc(
+        doc(ctxFirestore('mallory'), `${base}/c1`),
+        { comment: 'pwned' }
+      )
+    )
+    await assertFails(
+      updateDoc(doc(asBob(), `${base}/c1`), {
+        display: 'SciTeens Staff',
+      })
+    )
+    await assertSucceeds(
+      updateDoc(doc(asBob(), `${base}/c1`), {
+        comment: 'edited',
+      })
+    )
+  })
+
+  it('lets only the author delete it', async () => {
+    await seed((db) =>
+      setDoc(doc(db, `${base}/c1`), comment())
+    )
+    await assertFails(
+      deleteDoc(doc(ctxFirestore('mallory'), `${base}/c1`))
+    )
+    await assertSucceeds(
+      deleteDoc(doc(asBob(), `${base}/c1`))
+    )
+  })
+
+  // The discussion rules must not have opened up the parent path or the
+  // separate `courses` collection that holds enrollment records.
+  it('still denies writes to the parent document', async () => {
+    await assertFails(
+      setDoc(
+        doc(asBob(), base.replace('/discussion', '')),
+        { hijacked: true }
+      )
+    )
+  })
+})
+
+describe('/courses/{slug} enrollment records', () => {
+  // The slug is a public url, so a readable roster would let anyone list the
+  // students in a course.
+  it('are closed to every client read and write', async () => {
+    await seed((db) =>
+      setDoc(doc(db, 'courses/solid-biology'), {
+        slug: 'solid-biology',
+        enrolled: ['alice'],
+      })
+    )
+    await assertFails(
+      getDoc(
+        doc(ctxFirestore(null), 'courses/solid-biology')
+      )
+    )
+    await assertFails(
+      getDoc(
+        doc(ctxFirestore('bob'), 'courses/solid-biology')
+      )
+    )
+    await assertFails(
+      updateDoc(
+        doc(ctxFirestore('bob'), 'courses/solid-biology'),
+        { enrolled: ['bob'] }
+      )
+    )
+  })
+})
+
 describe('/projects/{projectId}/files/{fileId}', () => {
   const seedProject = (member_uids = ['alice']) =>
     seed((db) =>
@@ -1310,13 +1458,13 @@ describe('/project-invites/{projectId}', () => {
   })
 })
 
-// programs / programs-minified / courses / statistics are all
-// server-managed (see AGENTS.md's enforcement comment): public read,
-// but every client write is denied outright regardless of auth.
+// programs / programs-minified / statistics are all server-managed (see
+// AGENTS.md's enforcement comment): public read, but every client write is
+// denied outright regardless of auth. `courses` used to belong here and now
+// denies reads too; it has its own block above.
 describe.each([
   ['programs', 'p1'],
   ['programs-minified', 'p1'],
-  ['courses', 'c1'],
   ['statistics', 's1'],
 ])('/%s/{id} is server-managed', (collectionName, id) => {
   it('is publicly readable but rejects any client write', async () => {

@@ -10,6 +10,23 @@
   "storage": {
     "rules": "storage.rules"
   },
+  "hosting": {
+    "public": "infra/hosting/public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "website",
+          "region": "us-east1"
+        }
+      }
+    ]
+  },
   "emulators": {
     "auth": {
       "port": 9099

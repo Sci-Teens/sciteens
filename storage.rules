@@ -9,7 +9,7 @@ rules_version = '2';
 //   projects/{projectId}/photo/<filename> — project display photo
 // Upload paths (server / legacy):
 //   profilephoto/{uid}.<ext>             — legacy profile photo
-//   courses/{slug}/<filename>            — course assets (Prismic webhook)
+//   courses/{slug}/<filename>            — course assets (fileUpload function)
 //
 // All reads are public (profile/project images are displayed publicly via
 // getDownloadURL). Writes are restricted to the resource owner.
@@ -121,7 +121,8 @@ service firebase.storage {
     }
 
     // ---- Course assets ---------------------------------------------------
-    // Server-managed (Prismic webhook / fileUpload function).
+    // Server-managed (fileUpload function). The Prismic webhook that used to
+    // write here is gone; course content is content/courses/*.md now.
     match /courses/{slug}/{fileName=**} {
       allow read: if true;
       allow write, delete: if false;

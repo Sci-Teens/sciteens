@@ -16,6 +16,10 @@
     "rate_thanks": "Thanks for the feedback.",
     "topics": "Topics"
   },
+  "banner": {
+    "message": "A note from our founders",
+    "link_text": "Read it here"
+  },
   "course": {
     "starts": "Starts",
     "enroll_by": "Enroll By",
@@ -287,8 +291,6 @@
     "empty_title": "No Articles Found",
     "empty_filtered": "No article matches these filters. Try a different search term or another topic.",
     "empty_default": "No articles have been published yet. Check back soon.",
-    "retry": "Try Again",
-    "load_failed": "We couldn't load articles. Check your connection, then try again.",
     "results_count_one": "{{count}} result",
     "results_count_other": "{{count}} results",
     "reading_time": "{{minutes}} min read",
@@ -305,12 +307,9 @@
     "clear_search": "Clear search",
     "active_filters": "Active filters",
     "remove_filter": "Remove filter: {{filter}}",
-    "loading": "Loading courses…",
     "empty_title": "No Courses Found",
     "empty_filtered": "No course matches these filters. Try a different search term or another topic.",
     "empty_default": "No courses have been published yet. Check back soon.",
-    "retry": "Try Again",
-    "load_failed": "We couldn't load courses. Check your connection, then try again.",
     "results_count_one": "{{count}} result",
     "results_count_other": "{{count}} results",
     "load_more": "Load more courses",

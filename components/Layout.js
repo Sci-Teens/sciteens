@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import Banner from '../components/Banner'
-import MyPageViewLogger from './Analytics'
+import Analytics from './Analytics'
 import { useScrollDirection } from '../lib/useScrollDirection'
 
 const NavBar = dynamic(() => import('./NavBar'), {
@@ -77,7 +77,7 @@ export default function Layout({ children }) {
       </div>
       <Footer />
       <CookieConsent />
-      <MyPageViewLogger />
+      <Analytics />
     </>
   )
 }

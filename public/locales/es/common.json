@@ -16,6 +16,10 @@
     "rate_thanks": "Gracias por tus comentarios.",
     "topics": "Temas"
   },
+  "banner": {
+    "message": "Una nota de nuestros fundadores",
+    "link_text": "Léela aquí"
+  },
   "course": {
     "starts": "Empieza",
     "enroll_by": "Inscribir",
@@ -287,8 +291,6 @@
     "empty_title": "No se encontraron artículos",
     "empty_filtered": "Ningún artículo coincide con estos filtros. Prueba con otro término de búsqueda u otro tema.",
     "empty_default": "Todavía no se ha publicado ningún artículo. Vuelve pronto.",
-    "retry": "Reintentar",
-    "load_failed": "No pudimos cargar los artículos. Revisa tu conexión y vuelve a intentarlo.",
     "results_count_one": "{{count}} resultado",
     "results_count_other": "{{count}} resultados",
     "reading_time": "{{minutes}} min de lectura",
@@ -305,12 +307,9 @@
     "clear_search": "Borrar búsqueda",
     "active_filters": "Filtros activos",
     "remove_filter": "Quitar filtro: {{filter}}",
-    "loading": "Cargando cursos…",
     "empty_title": "No se encontraron cursos",
     "empty_filtered": "Ningún curso coincide con estos filtros. Prueba con otro término de búsqueda u otro tema.",
     "empty_default": "Todavía no se ha publicado ningún curso. Vuelve pronto.",
-    "retry": "Reintentar",
-    "load_failed": "No pudimos cargar los cursos. Revisa tu conexión y vuelve a intentarlo.",
     "results_count_one": "{{count}} resultado",
     "results_count_other": "{{count}} resultados",
     "load_more": "Cargar más cursos",

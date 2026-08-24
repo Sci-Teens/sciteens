@@ -1,16 +1,13 @@
-import { RichText } from 'prismic-reactjs'
-var Prismic = require('@prismicio/client')
-import moment from 'moment'
-import Image from 'next/image'
-import SocialMeta from '../../components/SocialMeta'
-import htmlSerializer from '../../htmlserializer'
 import { useState, useEffect } from 'react'
-import FileGallery from '../../components/FileGallery'
-import Discussion from '../../components/Discussion'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
-import { createCropImageLoader } from '../../lib/prismicImageLoader'
+import SocialMeta from '../../components/SocialMeta'
+import FileGallery from '../../components/FileGallery'
+import Discussion from '../../components/Discussion'
+import MarkdownContent from '../../components/MarkdownContent'
+import { formatMediumDate } from '../../lib/formatDate'
+import { isSafeContentUrl } from '../../lib/contentUrls.mjs'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
@@ -18,170 +15,165 @@ import { Button } from '@/components/ui/button'
 function Course({ course }) {
   const [files, setFiles] = useState([])
   const { t } = useTranslation('common')
+  const router = useRouter()
 
-  const imageLoader = createCropImageLoader(670, 400)
-
+  // Fetched into blobs because FileGallery classifies on a Blob or a Cloud
+  // Storage url, and widening that allowlist for three PDFs is not worth it.
   useEffect(() => {
-    async function loadFiles() {
+    let cancelled = false
+    async function loadFile(record) {
       try {
-        for (const r of course.data.files) {
-          const url = r.file?.url
-          if (!url) continue
-          const xhr = new XMLHttpRequest()
-          xhr.responseType = 'blob'
-          xhr.onload = () => {
-            const blob = xhr.response
-            if (xhr.status == 200) {
-              blob.name = r.file.name
-              setFiles((fs) => [...fs, blob])
-            }
-          }
-          xhr.open('GET', url)
-          xhr.send()
-        }
-      } catch (e) {
-        console.error(e)
+        const res = await fetch(record.path)
+        if (!res.ok) return null
+        const blob = await res.blob()
+        blob.name = record.name
+        return blob
+      } catch (error) {
+        console.error(
+          `Failed to load course file ${record.name}:`,
+          error
+        )
+        return null
       }
+    }
+    async function loadFiles() {
+      const loaded = await Promise.all(
+        course.files
+          .filter((record) => record.path)
+          .map(loadFile)
+      )
+      // Assigned once rather than appended per file, so navigating between
+      // two courses cannot leave the previous one's files on screen.
+      if (!cancelled) setFiles(loaded.filter(Boolean))
     }
     loadFiles()
-  }, [])
-
-  const lessonComponent = course.data.body.map(
-    (slice, index) => {
-      let lessonDate = moment(slice.primary.date).calendar(
-        null,
-        { sameElse: 'MMMM DD, YYYY' }
-      )
-      let lessonDateDisplay = <p></p>
-      if (lessonDate == 'Invalid date') {
-        lessonDateDisplay = (
-          <td className="p-3 text-center">N/A</td>
-        )
-      } else {
-        lessonDateDisplay = (
-          <td className="p-3 text-center">{lessonDate}</td>
-        )
-      }
-
-      if (slice.slice_type == 'lesson') {
-        return (
-          <tr
-            key={index}
-            className="hover:bg-muted/50 transition-colors"
-          >
-            {lessonDateDisplay}
-            <td className="p-3 font-medium">
-              {RichText.asText(slice.primary.title)}
-            </td>
-            <td className="p-3 text-center">
-              <Button
-                variant="link"
-                size="sm"
-                render={
-                  <a
-                    href={slice.primary.lesson_link.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label="View"
-                  />
-                }
-              >
-                View
-              </Button>
-            </td>
-          </tr>
-        )
-      }
+    return () => {
+      cancelled = true
     }
+  }, [course.files])
+
+  const startDate = formatMediumDate(
+    course.start,
+    router?.locale
   )
-  const router = useRouter()
-  let courseStart = moment(course.data.start).calendar(
-    null,
-    { sameElse: 'MMMM DD, YYYY' }
+  const endDate = formatMediumDate(
+    course.end,
+    router?.locale
   )
-  let courseDateDisplay = <p></p>
-  if (courseStart == 'Invalid date') {
-    courseDateDisplay = (
-      <p className="font-semibold">
-        Asynchronous course - no start or end dates
-      </p>
-    )
-  } else {
-    courseDateDisplay = (
-      <p className="font-semibold">
-        {t('course.starts')} {courseStart}, Ends{' '}
-        {moment(course.data.end).calendar(null, {
-          sameElse: 'MMMM DD, YYYY',
-        })}{' '}
-        <br />
-        {t('course.enroll_by')}{' '}
-        {moment(course.data.enroll_by).calendar(null, {
-          sameElse: 'MMMM DD, YYYY',
-        })}
-      </p>
-    )
-  }
+  const enrollByDate = formatMediumDate(
+    course.enrollBy,
+    router?.locale
+  )
 
   return (
     <>
       <SocialMeta
-        title={`${RichText.asText(
-          course.data.name
-        )} | SciTeens`}
-        description={RichText.asText(
-          course.data.description
-        )}
+        title={`${course.title} | SciTeens`}
+        description={course.description}
         eyebrow="Course"
         path={router.asPath}
       />
       <main>
         <article className="prose wrap-break-word lg:prose-lg mx-auto mt-8 overflow-hidden px-4">
-          <h1>{RichText.asText(course.data.name)}</h1>
-          {courseDateDisplay}
-          <i>{RichText.asText(course.data.description)}</i>
+          <h1>{course.title}</h1>
+          {startDate ? (
+            <p className="font-semibold">
+              {t('course.starts')} {startDate}, Ends{' '}
+              {endDate}
+              <br />
+              {t('course.enroll_by')} {enrollByDate}
+            </p>
+          ) : (
+            <p className="font-semibold">
+              Asynchronous course - no start or end dates
+            </p>
+          )}
+          {course.description && (
+            <i>{course.description}</i>
+          )}
           <Separator className="mt-2" />
-          <Image
-            loader={imageLoader}
-            src={course.data.image_main.url}
-            alt={RichText.asText(course.data.name)}
-            width={670}
-            height={400}
-            sizes="(min-width: 1024px) 670px, 100vw"
+          {/* Pre-converted WebP at the width this column renders, served
+              straight from public/. See components/MarkdownContent.js for
+              why article and course media skips /_next/image. */}
+          <img
+            src={course.cover.src}
+            alt={course.title}
+            width={course.cover.width}
+            height={course.cover.height}
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
             className="mt-6 h-auto w-full rounded-lg object-cover"
           />
-          <div>
-            <RichText
-              render={course.data.about}
-              htmlSerializer={htmlSerializer}
-            />
-          </div>
+          <MarkdownContent hast={course.body} />
         </article>
         <div className="mx-auto w-full max-w-prose px-4">
-          <h2 className="mb-2 text-lg font-semibold">
-            {t('course.lessons')}
-          </h2>
-          <Card className="border-border/60 mb-8 overflow-hidden">
-            <CardContent className="p-0">
-              <table className="w-full table-auto text-sm">
-                <thead>
-                  <tr className="border-border bg-muted text-muted-foreground border-b text-center text-xs font-semibold uppercase tracking-wide">
-                    <th className="p-3">
-                      {t('course.date')}
-                    </th>
-                    <th className="p-3">
-                      {t('course.lesson')}
-                    </th>
-                    <th className="p-3">
-                      {t('course.notebook')}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-border divide-y">
-                  {lessonComponent}
-                </tbody>
-              </table>
-            </CardContent>
-          </Card>
+          {course.lessons.length > 0 && (
+            <>
+              <h2 className="mb-2 text-lg font-semibold">
+                {t('course.lessons')}
+              </h2>
+              <Card className="border-border/60 mb-8 overflow-hidden">
+                <CardContent className="p-0">
+                  <table className="w-full table-auto text-sm">
+                    <thead>
+                      <tr className="border-border bg-muted text-muted-foreground border-b text-center text-xs font-semibold uppercase tracking-wide">
+                        <th className="p-3">
+                          {t('course.date')}
+                        </th>
+                        <th className="p-3">
+                          {t('course.lesson')}
+                        </th>
+                        <th className="p-3">
+                          {t('course.notebook')}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-border divide-y">
+                      {course.lessons.map(
+                        (lesson, index) => (
+                          <tr
+                            key={`${lesson.title}-${index}`}
+                            className="hover:bg-muted/50 transition-colors"
+                          >
+                            <td className="p-3 text-center">
+                              {formatMediumDate(
+                                lesson.date,
+                                router?.locale
+                              ) || 'N/A'}
+                            </td>
+                            <td className="p-3 font-medium">
+                              {lesson.title}
+                            </td>
+                            <td className="p-3 text-center">
+                              {isSafeContentUrl(
+                                lesson.link
+                              ) && (
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  render={
+                                    <a
+                                      href={lesson.link}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      aria-label="View"
+                                    />
+                                  }
+                                >
+                                  View
+                                </Button>
+                              )}
+                            </td>
+                          </tr>
+                        )
+                      )}
+                    </tbody>
+                  </table>
+                </CardContent>
+              </Card>
+            </>
+          )}
           {files?.length > 0 && (
             <>
               <h2 className="mb-2 text-lg font-semibold">
@@ -207,45 +199,27 @@ function Course({ course }) {
 }
 
 export async function getStaticPaths() {
-  const apiEndpoint =
-    'https://sciteens.cdn.prismic.io/api/v2'
-  const client = Prismic.client(apiEndpoint)
-  const res = await client.query(
-    Prismic.Predicates.at('document.type', 'course')
+  const { getCourseSlugs } = await import(
+    '../../lib/content'
   )
-  const pages = await Promise.all(
-    Array.from({ length: res.total_pages }, (_, i) =>
-      client.query(
-        Prismic.Predicates.at('document.type', 'course'),
-        { pageSize: 20, page: i + 1 }
-      )
-    )
-  )
-  const paths = pages.flatMap((page) =>
-    page.results.map((course) => ({
-      params: { slug: course.uid },
-    }))
-  )
-  return { paths, fallback: false }
+  return {
+    paths: getCourseSlugs().map((slug) => ({
+      params: { slug },
+    })),
+    fallback: false,
+  }
 }
 
 export async function getStaticProps({ params, locale }) {
-  try {
-    const apiEndpoint =
-      'https://sciteens.cdn.prismic.io/api/v2'
-    const client = Prismic.client(apiEndpoint)
-    const [translations, course] = await Promise.all([
-      serverSideTranslations(locale, ['common']),
-      client.getByUID('course', params?.slug),
-    ])
-    return {
-      props: { course, ...translations },
-    }
-  } catch (e) {
-    console.log(e)
-    return {
-      notFound: true,
-    }
+  const { getCourse } = await import('../../lib/content')
+  const course = getCourse(params?.slug)
+  if (!course) return { notFound: true }
+
+  return {
+    props: {
+      course,
+      ...(await serverSideTranslations(locale, ['common'])),
+    },
   }
 }
 

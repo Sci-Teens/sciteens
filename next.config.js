@@ -14,7 +14,6 @@ const scriptSrc = [
   // lib/toxicityWorker.js.
   "'wasm-unsafe-eval'",
   ...(isDevelopment ? ["'unsafe-eval'"] : []),
-  'https://images.prismic.io',
   'https://www.googletagmanager.com',
   'https://www.google.com',
   // Firebase Auth's signInWithPopup/signInWithRedirect loads the gapi
@@ -30,6 +29,71 @@ const scriptSrc = [
   // module code); see the comment in that file for the full rationale.
   'https://cdn.jsdelivr.net',
 ].join(' ')
+
+// Article and course embeds (components/MarkdownContent.js) render as our own
+// iframe pointing at one of these origins. lib/contentUrls.mjs#EMBED_SRC_HOSTS
+// must list exactly the same hosts, which tests/config/embedHosts.test.js
+// asserts.
+const EMBED_SRC_HOSTS = [
+  'www.youtube.com',
+  'www.youtube-nocookie.com',
+  'player.vimeo.com',
+  'w.soundcloud.com',
+  'open.spotify.com',
+]
+const embedFrameSrc = EMBED_SRC_HOSTS.map(
+  (host) => `https://${host}`
+).join(' ')
+
+// A child frame only receives a feature its parent delegates to that origin,
+// so the embed iframe's `allow` and allowFullScreen are inert unless these
+// name the embed hosts.
+const embedAllowlist = [
+  'self',
+  ...EMBED_SRC_HOSTS.map((host) => `"https://${host}"`),
+].join(' ')
+const EMBED_FEATURES = [
+  'accelerometer',
+  'autoplay',
+  'clipboard-write',
+  'encrypted-media',
+  'fullscreen',
+  'gyroscope',
+  'picture-in-picture',
+]
+const SELF_ONLY_FEATURES = [
+  'ambient-light-sensor',
+  'battery',
+  'camera',
+  'cross-origin-isolated',
+  'display-capture',
+  'document-domain',
+  'execution-while-not-rendered',
+  'execution-while-out-of-viewport',
+  'geolocation',
+  'keyboard-map',
+  'magnetometer',
+  'microphone',
+  'midi',
+  'navigation-override',
+  'payment',
+  'publickey-credentials-get',
+  'screen-wake-lock',
+  'sync-xhr',
+  'usb',
+  'web-share',
+  'xr-spatial-tracking',
+]
+const permissionsPolicy = [
+  ...EMBED_FEATURES.map(
+    (feature) => `${feature}=(${embedAllowlist})`
+  ),
+  ...SELF_ONLY_FEATURES.map(
+    (feature) => `${feature}=(self)`
+  ),
+]
+  .sort()
+  .join(', ')
 
 // Firebase talks to these hosts directly once the connect*Emulator wiring in
 // lib/firebase.js, lib/firestore.js and lib/storage.js redirects it — dev-only,
@@ -54,7 +118,6 @@ const connectSrc = [
   'https://hf.co',
   'https://*.hf.co',
   'https://cdn.jsdelivr.net',
-  'https://sciteens.cdn.prismic.io',
   'https://www.google-analytics.com',
   'https://region1.google-analytics.com',
   'https://analytics.google.com',
@@ -85,7 +148,6 @@ module.exports = {
   i18n,
   images: {
     remotePatterns: [
-      { protocol: 'https', hostname: 'images.prismic.io' },
       {
         protocol: 'https',
         hostname: 'source.unsplash.com',
@@ -124,12 +186,45 @@ module.exports = {
         destination: '/signup/student',
         permanent: true,
       },
+      // Articles and courses are English-only content: content/articles and
+      // content/courses hold one markdown file per item, with no locale
+      // variants. getStaticPaths therefore prerenders the default locale
+      // only, so /es/article/<slug> used to 404 while /es/articles happily
+      // linked to it. Send those to the English page rather than build four
+      // copies of the same English prose.
+      //
+      // 307, not 308: if translated articles ever land, a permanent redirect
+      // would already be cached in readers' browsers.
+      {
+        source: '/:locale(es|fr|hi)/article/:slug',
+        destination: '/article/:slug',
+        permanent: false,
+        locale: false,
+      },
+      {
+        source: '/:locale(es|fr|hi)/course/:slug',
+        destination: '/course/:slug',
+        permanent: false,
+        locale: false,
+      },
     ]
   },
   async headers() {
     return [
       {
         source: '/assets/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        // Content-hashed filenames, so a changed image is a changed url and
+        // this can never serve a stale asset. These bypass /_next/image, so
+        // the browser cache is all that sits between a reader and Cloud Run.
+        source: '/content/media/:path*',
         headers: [
           {
             key: 'Cache-Control',
@@ -161,7 +256,7 @@ module.exports = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
               // blob: — components/File.js previews dropped/loaded
               // project files via URL.createObjectURL before upload.
-              "img-src 'self' data: blob: https://images.prismic.io https://source.unsplash.com https://*.googleusercontent.com https://firebasestorage.googleapis.com https://storage.googleapis.com https://*.firebasestorage.app; " +
+              "img-src 'self' data: blob: https://source.unsplash.com https://*.googleusercontent.com https://firebasestorage.googleapis.com https://storage.googleapis.com https://*.firebasestorage.app; " +
               "font-src 'self' https://fonts.gstatic.com; " +
               // *.firebaseapp.com hosts the Firebase Auth helper iframe
               // (__/auth/iframe) that signInWithPopup/signInWithRedirect
@@ -173,17 +268,15 @@ module.exports = {
               // firebasestorage.googleapis.com/storage.googleapis.com —
               // components/FileGallery.js embeds an uploaded PDF's own
               // download URL in an <iframe> for in-page viewing.
-              // The media hosts match htmlserializer.js's
-              // EMBED_SRC_HOSTS: article/course oEmbeds are rendered as
-              // our own iframe pointing at one of those origins, and
-              // without them here every embed is a blank frame.
+              // The embed hosts come from EMBED_SRC_HOSTS above; without them
+              // here every embed is a blank frame.
               `frame-src https://www.google.com https://*.firebaseapp.com ${
                 authDomain ? `https://${authDomain} ` : ''
               }${
                 isDevelopment
                   ? 'http://127.0.0.1:9099 '
                   : ''
-              }https://firebasestorage.googleapis.com https://storage.googleapis.com https://*.firebasestorage.app https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://w.soundcloud.com https://open.spotify.com; ` +
+              }https://firebasestorage.googleapis.com https://storage.googleapis.com https://*.firebasestorage.app ${embedFrameSrc}; ` +
               `connect-src ${connectSrc}; ` +
               "frame-ancestors 'self'; " +
               "base-uri 'self'; " +
@@ -195,8 +288,7 @@ module.exports = {
           },
           {
             key: 'Permissions-Policy',
-            value:
-              'accelerometer=(self), ambient-light-sensor=(self), autoplay=(self), battery=(self), camera=(self), cross-origin-isolated=(self), display-capture=(self), document-domain=(self), encrypted-media=(self), execution-while-not-rendered=(self), execution-while-out-of-viewport=(self), fullscreen=(self), geolocation=(self), gyroscope=(self), keyboard-map=(self), magnetometer=(self), microphone=(self), midi=(self), navigation-override=(self), payment=(self), picture-in-picture=(self), publickey-credentials-get=(self), screen-wake-lock=(self), sync-xhr=(self), usb=(self), web-share=(self), xr-spatial-tracking=(self)',
+            value: permissionsPolicy,
           },
           {
             key: 'X-DNS-Prefetch-Control',

@@ -1,9 +1,22 @@
+# One-time IAM setup, before the first build of a new project. The Cloud Build
+# service account (<project-number>@cloudbuild.gserviceaccount.com) needs both
+# Firebase roles below; firebase-tools picks that identity up from the ambient
+# Application Default Credentials. Every Firebase predefined role also carries
+# firebase.projects.get, which is what lets the CLI resolve --project.
+#
+#   PROJECT=<project-id>
+#   NUMBER=$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')
+#   for ROLE in roles/firebaserules.admin roles/firebasehosting.admin; do
+#     gcloud projects add-iam-policy-binding "$PROJECT" \
+#       --member="serviceAccount:${NUMBER}@cloudbuild.gserviceaccount.com" \
+#       --role="$ROLE"
+#   done
+#
+# Miss firebasehosting.admin and every build still deploys Cloud Run, then
+# fails on the last step with "Failed to get Firebase project".
+#
 # Rules deploy first: app code merged alongside a rules change must never
 # ship before the rules are live. Idempotent — a no-op if unchanged.
-# One-time setup: grant the Cloud Build service account
-# (<project-number>@cloudbuild.gserviceaccount.com) `roles/firebaserules.admin`
-# so it can push firestore.rules/storage.rules; firebase-tools picks up
-# that identity from the ambient Application Default Credentials.
 
 steps:
   - name: 'node:24-alpine'
@@ -103,6 +116,20 @@ steps:
         'managed',
         '--region',
         'us-east1',
+      ]
+  # Last, because the `**` rewrite needs the Cloud Run revision already live.
+  # Needs roles/firebasehosting.admin. See infra/hosting/README.md.
+  - name: 'node:24-alpine'
+    entrypoint: npx
+    args:
+      [
+        'firebase-tools@15.23.0',
+        'deploy',
+        '--only',
+        'hosting',
+        '--project',
+        '${_NEXT_PUBLIC_FB_PROJECT_ID}',
+        '--non-interactive',
       ]
 timeout: 1200s
 images:

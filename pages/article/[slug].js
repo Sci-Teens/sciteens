@@ -1,18 +1,15 @@
-import { RichText } from 'prismic-reactjs'
 import { useState } from 'react'
-var Prismic = require('@prismicio/client')
-import Link from 'next/link'
 import Image from 'next/image'
+import Link from 'next/link'
 import { ThumbsDown, ThumbsUp } from 'lucide-react'
 import SocialMeta from '../../components/SocialMeta'
-import htmlSerializer from '../../htmlserializer'
 import Discussion from '../../components/Discussion'
+import MarkdownContent from '../../components/MarkdownContent'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
-import { logEvent, getAnalytics } from 'firebase/analytics'
+import { sendGAEvent } from '@next/third-parties/google'
 import { hasAnalyticsConsent } from '../../lib/consent'
-import { createCropImageLoader } from '../../lib/prismicImageLoader'
 import { getTranslatedFieldsDict } from '../../context/helpers'
 import { formatMediumDate } from '../../lib/formatDate'
 import { INLINE_LINK } from '../../lib/typography'
@@ -38,122 +35,79 @@ function Article({ article, recommendations }) {
   const [vote, setVote] = useState(null)
   const router = useRouter()
   const { t } = useTranslation('common')
-  // Lazily fetched inside handleRate, never at module render — calling
-  // getAnalytics() initializes GA4 and sets its cookies immediately, so it
-  // must stay behind the same consent gate as page-view logging
-  // (components/Analytics.js).
-
-  async function handleRate(type) {
+  function handleRate(type) {
     if (
       typeof window !== 'undefined' &&
       hasAnalyticsConsent()
     ) {
-      const analytics = getAnalytics()
       if (type == 'positive') {
         setVote('positive')
-        return logEvent(analytics, 'rate_positive', {
-          page_location: window.location.href
-            ? window.location.href
-            : RichText.asText(article.data.title),
+        return sendGAEvent('event', 'rate_positive', {
+          page_location:
+            window.location.href || article.title,
         })
       } else {
         setVote('negative')
-        return logEvent(analytics, 'rage_negative', {
-          page_location: window.location.href
-            ? window.location.href
-            : RichText.asText(article.data.title),
+        return sendGAEvent('event', 'rage_negative', {
+          page_location:
+            window.location.href || article.title,
         })
       }
     }
     setVote(type)
   }
 
-  // Each usage below gets its own loader tuned to its own display
-  // aspect ratio (cover, square avatars, 16:9 recommendation
-  // thumbnails) — sharing one loader across mismatched shapes is
-  // what previously stretched avatars and thumbnails out of shape.
-  const coverImageLoader = createCropImageLoader(670, 400)
-  const avatarImageLoader = createCropImageLoader(256, 256)
-  const recommendationImageLoader = createCropImageLoader(
-    1280,
-    720
-  )
   const translatedFields = getTranslatedFieldsDict(t)
-
-  // Prismic stores the running text as blocks; only paragraphs carry
-  // prose, so headings and embeds must not inflate the estimate.
-  function readingTime(text) {
-    const words = (text ?? []).reduce(
-      (total, block) =>
-        block.type === 'paragraph' && block.text
-          ? total + block.text.split(' ').length
-          : total,
-      0
-    )
-    const minutes = Math.max(1, Math.round(words / 200))
-
-    // Same key the listing card renders, so the estimate a reader saw
-    // on /articles is worded identically here.
-    return t('articles.reading_time', { minutes })
-  }
-
-  const authorSlice = article.data.body.find(
-    (slice) => slice.slice_type === 'about_the_author'
-  )
-  const interviewSlices = article.data.body.filter(
-    (slice) => slice.slice_type === 'interview'
-  )
   const publishedDate = formatMediumDate(
-    article.data.date,
+    article.date,
     router?.locale
   )
 
-  const authorAvatar = authorSlice && (
-    <div className="bg-muted relative h-12 w-12 shrink-0 overflow-hidden rounded-full">
-      <Image
-        fill
-        sizes="48px"
-        className="object-cover"
-        loader={avatarImageLoader}
-        src={authorSlice.primary.headshot.url}
+  const authorAvatar = article.authorHeadshot && (
+    <span className="bg-muted relative block h-12 w-12 shrink-0 overflow-hidden rounded-full">
+      <img
+        src={article.authorHeadshot.src}
         alt=""
+        width={article.authorHeadshot.width}
+        height={article.authorHeadshot.height}
+        loading="lazy"
+        decoding="async"
+        className="h-full w-full object-cover"
       />
-    </div>
+    </span>
   )
 
   return (
     <>
       <SocialMeta
-        title={`${RichText.asText(
-          article.data.title
-        )} | SciTeens`}
-        description={article.data.description}
+        title={`${article.title} | SciTeens`}
+        description={article.description}
         eyebrow="Article"
-        badge={article.data.author}
+        badge={article.author}
         path={router.asPath}
       />
       <DetailMain>
-        <PageHeading>
-          {RichText.asText(article.data.title)}
-        </PageHeading>
+        <PageHeading>{article.title}</PageHeading>
         <HeadingRule />
 
         <div className="mt-6 flex items-center gap-3 md:mt-7">
           {authorAvatar}
           <div className="min-w-0 text-sm">
             <p className="font-medium">
-              {t('article.by')} {article.data.author}
+              {t('article.by')} {article.author}
             </p>
             <p className="text-muted-foreground mt-0.5">
               {publishedDate} ·{' '}
-              {readingTime(article.data.text)}
+              {t('articles.reading_time', {
+                minutes: article.minutes,
+              })}
             </p>
           </div>
         </div>
 
-        {article.data.description && (
+        {article.description && (
           <p className="text-muted-foreground text-pretty mt-6 text-base leading-relaxed md:mt-7 md:text-lg">
-            {article.data.description}
+            {article.description}
           </p>
         )}
 
@@ -177,75 +131,57 @@ function Article({ article, recommendations }) {
           </div>
         )}
 
-        <Image
-          loader={coverImageLoader}
-          src={article.data.image.url}
+        {/* Plain <img>, not next/image: the file is already WebP at the
+            width this column renders, and /_next/image would re-encode it
+            on every Cloud Run cold start for no gain. Eager and
+            high-priority because this is the LCP candidate. */}
+        <img
+          src={article.cover.src}
           alt=""
-          width={670}
-          height={400}
-          sizes="(min-width: 768px) 768px, 100vw"
-          priority
+          width={article.cover.width}
+          height={article.cover.height}
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
           className="border-border/60 mt-8 h-auto w-full rounded-xl border object-cover"
         />
 
-        <article className="prose lg:prose-lg wrap-break-word mt-8 max-w-none">
-          <RichText
-            render={article.data.text}
-            htmlSerializer={htmlSerializer}
-          />
-
-          {interviewSlices.map((slice, index) => (
-            <section key={`interview-${index}`}>
-              <h2>{t('article.interview')}</h2>
-              {slice.items.map((interview, ix) => (
-                <div key={`interview-${index}-${ix}`}>
-                  <div className="flex flex-col items-center gap-4 sm:flex-row">
-                    <div className="not-prose bg-muted relative h-20 w-20 shrink-0 overflow-hidden rounded-full">
-                      <Image
-                        fill
-                        sizes="80px"
-                        className="object-cover"
-                        loader={avatarImageLoader}
-                        src={interview.headshot.url}
-                        alt=""
-                      />
-                    </div>
-                    <h3 className="my-0 text-center sm:text-left">
-                      {RichText.asText(
-                        interview.information
-                      )}
-                    </h3>
-                  </div>
-                  {RichText.render(interview.interview)}
-                </div>
-              ))}
-            </section>
-          ))}
-        </article>
+        <MarkdownContent
+          as="article"
+          hast={article.body}
+          className="prose lg:prose-lg wrap-break-word mt-8 max-w-none"
+        />
 
         <div className="mt-10 space-y-4">
-          {authorSlice && (
+          {article.authorBio && (
             <Card className="border-border/60">
               <CardContent className="p-5 md:p-6">
                 <h2 className="text-base font-semibold">
                   {t('article.about_the_author')}
                 </h2>
                 <div className="mt-4 flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-                  <div className="bg-muted relative h-20 w-20 shrink-0 overflow-hidden rounded-full">
-                    <Image
-                      fill
-                      sizes="80px"
-                      className="object-cover"
-                      loader={avatarImageLoader}
-                      src={authorSlice.primary.headshot.url}
-                      alt=""
-                    />
-                  </div>
-                  <p className="text-muted-foreground text-pretty text-center text-sm leading-relaxed sm:text-left">
-                    {RichText.asText(
-                      authorSlice.primary.information
-                    )}
-                  </p>
+                  {article.authorHeadshot && (
+                    <span className="bg-muted relative block h-20 w-20 shrink-0 overflow-hidden rounded-full">
+                      <img
+                        src={article.authorHeadshot.src}
+                        alt=""
+                        width={article.authorHeadshot.width}
+                        height={
+                          article.authorHeadshot.height
+                        }
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-cover"
+                      />
+                    </span>
+                  )}
+                  {/* Markdown, not flattened text: the Prismic page ran
+                      the bio through RichText.asText, which silently
+                      dropped every link in it. */}
+                  <MarkdownContent
+                    hast={article.authorBio}
+                    className="prose prose-sm text-muted-foreground max-w-none text-center sm:text-left"
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -337,52 +273,44 @@ function Article({ article, recommendations }) {
               <CarouselContent>
                 {recommendations.map((recommendation) => (
                   <CarouselItem
-                    key={recommendation.uid}
+                    key={recommendation.slug}
                     className="basis-4/5 sm:basis-1/2 lg:basis-1/3"
                   >
                     <Card className="border-border/60 hover:border-border hover:bg-muted/40 relative isolate h-full overflow-hidden transition-colors">
                       {/* Inset outline: Card clips overflow, so the
                           global 2px-offset focus ring would be cut. */}
                       <Link
-                        href={`/article/${recommendation.uid}`}
-                        aria-label={RichText.asText(
-                          recommendation.data.title
-                        )}
+                        href={`/article/${recommendation.slug}`}
+                        aria-label={recommendation.title}
                         className="focus-visible:outline-ring focus-visible:-outline-offset-2 absolute inset-0 z-10 rounded-xl focus-visible:outline-2"
                       />
                       <CardContent className="flex h-full flex-col gap-3">
                         <div className="bg-muted relative aspect-video w-full shrink-0 overflow-hidden rounded-lg">
+                          {/* Small slot, and the source cover is 1200w,
+                              so this one is worth resizing through
+                              next/image. The full-width cover above is
+                              already the right size and is not. */}
                           <Image
+                            src={recommendation.cover}
+                            alt=""
                             fill
                             sizes="(min-width: 1024px) 240px, (min-width: 640px) 45vw, 75vw"
                             className="object-cover"
-                            loader={
-                              recommendationImageLoader
-                            }
-                            src={
-                              recommendation.data.image.url
-                            }
-                            alt=""
                             loading="lazy"
                           />
                         </div>
                         <div className="min-w-0">
                           <h3 className="line-clamp-2 text-pretty text-base font-semibold">
-                            {RichText.asText(
-                              recommendation.data.title
-                            )}
+                            {recommendation.title}
                           </h3>
                           <p className="text-muted-foreground line-clamp-2 mt-1.5 text-sm leading-relaxed">
-                            {
-                              recommendation.data
-                                .description
-                            }
+                            {recommendation.description}
                           </p>
                           <p className="text-muted-foreground line-clamp-1 mt-2 text-xs">
                             {t('article.by')}{' '}
-                            {recommendation.data.author} ·{' '}
+                            {recommendation.author} ·{' '}
                             {formatMediumDate(
-                              recommendation.data.date,
+                              recommendation.date,
                               router?.locale
                             )}
                           </p>
@@ -403,67 +331,30 @@ function Article({ article, recommendations }) {
 }
 
 export async function getStaticPaths() {
-  const apiEndpoint =
-    'https://sciteens.cdn.prismic.io/api/v2'
-  const client = Prismic.client(apiEndpoint)
-  const res = await client.query(
-    Prismic.Predicates.at('document.type', 'blog')
+  const { getArticleSlugs } = await import(
+    '../../lib/content'
   )
-  const pages = await Promise.all(
-    Array.from({ length: res.total_pages }, (_, i) =>
-      client.query(
-        Prismic.Predicates.at('document.type', 'blog'),
-        { pageSize: 20, page: i + 1 }
-      )
-    )
-  )
-  const paths = pages.flatMap((page) =>
-    page.results.map((article) => ({
-      params: { slug: article.uid },
-    }))
-  )
-  return { paths, fallback: false }
+  return {
+    paths: getArticleSlugs().map((slug) => ({
+      params: { slug },
+    })),
+    fallback: false,
+  }
 }
 
 export async function getStaticProps({ params, locale }) {
-  try {
-    const apiEndpoint =
-      'https://sciteens.cdn.prismic.io/api/v2'
-    const client = Prismic.client(apiEndpoint)
-    const [translations, article] = await Promise.all([
-      serverSideTranslations(locale, ['common']),
-      client.getByUID('blog', params?.slug),
-    ])
-    const recommendationsQuery = await client.query([
-      Prismic.Predicates.at('document.type', 'blog'),
-      Prismic.Predicates.any('document.tags', article.tags),
-    ])
-    let recommendations = []
-    let index = 0
-    do {
-      if (
-        recommendationsQuery.results[index].uid !=
-        article.uid
-      ) {
-        recommendations.push(
-          recommendationsQuery.results[index]
-        )
-      }
-      index++
-    } while (recommendations.length < 5)
+  const { getArticle, getRecommendations } = await import(
+    '../../lib/content'
+  )
+  const article = getArticle(params?.slug)
+  if (!article) return { notFound: true }
 
-    return {
-      props: {
-        article: article,
-        recommendations: recommendations,
-        ...translations,
-      },
-    }
-  } catch (e) {
-    console.log(e)
-    return {
-      notFound: true,
-    }
+  return {
+    props: {
+      article,
+      recommendations: getRecommendations(article.slug),
+      ...(await serverSideTranslations(locale, ['common'])),
+    },
   }
 }
 
