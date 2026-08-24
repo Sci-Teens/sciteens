@@ -2,11 +2,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   cleanup,
+  fireEvent,
   render,
   screen,
 } from '@testing-library/react'
 import { markdownToHast } from '@/lib/markdown.mjs'
 import Article from '@/pages/article/[slug]'
+import { setConsent } from '@/lib/consent'
 
 // Lives under tests/pages/ rather than pages/article/ — see the comment in
 // tests/pages/signup/student.test.js for why (Next's Pages Router treats
@@ -29,10 +31,12 @@ vi.mock('next/router', () => ({
 vi.mock('next-i18next', () => ({
   useTranslation: () => ({ t: (key) => key }),
 }))
+const { sendGAEvent } = vi.hoisted(() => ({
+  sendGAEvent: vi.fn(),
+}))
 
-vi.mock('firebase/analytics', () => ({
-  getAnalytics: () => ({}),
-  logEvent: () => {},
+vi.mock('@next/third-parties/google', () => ({
+  sendGAEvent,
 }))
 
 // Fetches Firestore comments through onSnapshot; irrelevant to the
@@ -41,7 +45,11 @@ vi.mock('@/components/Discussion', () => ({
   default: () => null,
 }))
 
-afterEach(cleanup)
+afterEach(() => {
+  cleanup()
+  window.localStorage.clear()
+  sendGAEvent.mockClear()
+})
 
 const image = (src) => ({ src, width: 256, height: 256 })
 
@@ -152,6 +160,30 @@ describe('Article', () => {
         'shrink-0'
       )
     })
+  })
+
+  it('sends article ratings through the Google Analytics data layer', () => {
+    setConsent(true)
+    render(
+      <Article
+        article={buildArticle()}
+        recommendations={buildRecommendations(5)}
+      />
+    )
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'article.rate_yes',
+      })
+    )
+
+    expect(sendGAEvent).toHaveBeenCalledWith(
+      'event',
+      'rate_positive',
+      {
+        page_location: window.location.href,
+      }
+    )
   })
 
   it('renders the recommendations as carousel slides', () => {

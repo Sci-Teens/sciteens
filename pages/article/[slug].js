@@ -8,7 +8,7 @@ import MarkdownContent from '../../components/MarkdownContent'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
-import { logEvent, getAnalytics } from 'firebase/analytics'
+import { sendGAEvent } from '@next/third-parties/google'
 import { hasAnalyticsConsent } from '../../lib/consent'
 import { getTranslatedFieldsDict } from '../../context/helpers'
 import { formatMediumDate } from '../../lib/formatDate'
@@ -35,30 +35,22 @@ function Article({ article, recommendations }) {
   const [vote, setVote] = useState(null)
   const router = useRouter()
   const { t } = useTranslation('common')
-  // Lazily fetched inside handleRate, never at module render — calling
-  // getAnalytics() initializes GA4 and sets its cookies immediately, so it
-  // must stay behind the same consent gate as page-view logging
-  // (components/Analytics.js).
-
-  async function handleRate(type) {
+  function handleRate(type) {
     if (
       typeof window !== 'undefined' &&
       hasAnalyticsConsent()
     ) {
-      const analytics = getAnalytics()
       if (type == 'positive') {
         setVote('positive')
-        return logEvent(analytics, 'rate_positive', {
-          page_location: window.location.href
-            ? window.location.href
-            : article.title,
+        return sendGAEvent('event', 'rate_positive', {
+          page_location:
+            window.location.href || article.title,
         })
       } else {
         setVote('negative')
-        return logEvent(analytics, 'rage_negative', {
-          page_location: window.location.href
-            ? window.location.href
-            : article.title,
+        return sendGAEvent('event', 'rage_negative', {
+          page_location:
+            window.location.href || article.title,
         })
       }
     }
