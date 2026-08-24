@@ -19,11 +19,6 @@ export default function ListingCard({
   description,
   imageSrc,
   imageAlt,
-  // 'cover' fills the box and crops (right for real photos — Projects/
-  // Courses/Articles). 'contain' letterboxes instead: opportunity
-  // program logos range from square marks to wide wordmarks, and
-  // covering a wide-short logo into a square box zooms in and crops
-  // most of the wordmark away, leaving an unrecognizable text fragment.
   imageFit = 'cover',
   priority = false,
   byline,

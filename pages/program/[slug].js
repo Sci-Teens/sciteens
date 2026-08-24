@@ -201,11 +201,6 @@ function Program({ program }) {
   )
 }
 
-// fallback: 'blocking' rather than pre-listing every slug: the catalog
-// changes weekly via the scraper, independent of when the site itself
-// gets redeployed, so a new program's page needs to work on first visit
-// without a rebuild. Next.js generates and caches it on that first
-// request instead.
 export async function getStaticPaths() {
   return { paths: [], fallback: 'blocking' }
 }

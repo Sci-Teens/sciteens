@@ -1,29 +1,4 @@
 #!/usr/bin/env node
-// One-time (and safely re-runnable) seed of the `opportunity-sources`
-// Firestore collection with the 33 hand-verified curated program URLs from
-// the project plan's Appendix. This is the operator-managed list the
-// weekly Tier 1 scraper (scripts/scrapeOpportunities.js) reads from --
-// seeding it here is what makes that scraper have something to run
-// against.
-//
-// Each source's doc id is the same slug used elsewhere in the codebase
-// (lib/mockPrograms.js, lib/programImages.js, scripts/fetch-program-images.js)
-// so a source, its eventual `opportunities/{slug}` doc, and its logo file
-// under public/assets/programs/ all line up under one readable id --
-// simpler to debug by hand than a URL hash, and just as idempotent since
-// the same source always maps to the same slug.
-//
-// Safe to re-run: only creates docs that don't already exist, and never
-// overwrites bookkeeping fields (status, lastStatus, consecutiveFailures,
-// etc.) on a source the scraper has already run against -- so re-running
-// this after adding a new source to the list below only adds that one new
-// doc, it doesn't reset anything already in progress.
-//
-// Usage:
-//   node scripts/seed-opportunity-sources.js [--execute] [--project <id>]
-//
-// Defaults to a dry run (prints what would be created, makes zero writes).
-// Pass --execute to actually write to Firestore.
 'use strict'
 
 const fs = require('node:fs')
@@ -31,213 +6,224 @@ const os = require('node:os')
 const path = require('node:path')
 const { execFileSync } = require('node:child_process')
 
-// Slug, URL, human label, category -- category matches the grouping in the
-// project plan's Appendix, kept only for operator reference (never shown
-// to end users; opportunity-sources is not client-readable).
+const OPPORTUNITY_SOURCES_COLLECTION = 'opportunity-sources'
+
+const APPENDIX_CATEGORY = {
+  mitAffiliated: 'MIT-affiliated',
+  universityResearch: 'University research programs',
+  nationalLabsAndGovernment: 'National labs / government',
+  stateGovernorsSchools:
+    "State-run Governor's Schools / academic talent",
+  codingAndTech: 'Coding / tech-focused',
+  competitions: 'Competitions',
+}
+
 const SOURCES = [
-  [
-    'rsi',
-    'https://www.cee.org/programs/research-science-institute-rsi',
-    'Research Science Institute (RSI)',
-    'MIT-affiliated',
-  ],
-  [
-    'mites-summer',
-    'https://mites.mit.edu/mites-summer/',
-    'MITES Summer',
-    'MIT-affiliated',
-  ],
-  [
-    'mit-primes',
-    'https://math.mit.edu/research/highschool/primes/',
-    'MIT PRIMES',
-    'MIT-affiliated',
-  ],
-  [
-    'wtp',
-    'https://wtp.mit.edu/',
-    "Women's Technology Program (WTP)",
-    'MIT-affiliated',
-  ],
-  [
-    'mathroots',
-    'https://math.mit.edu/mathroots/',
-    'MIT mathroots',
-    'MIT-affiliated',
-  ],
+  {
+    programSlug: 'rsi',
+    url: 'https://www.cee.org/programs/research-science-institute-rsi',
+    label: 'Research Science Institute (RSI)',
+    category: APPENDIX_CATEGORY.mitAffiliated,
+  },
+  {
+    programSlug: 'mites-summer',
+    url: 'https://mites.mit.edu/mites-summer/',
+    label: 'MITES Summer',
+    category: APPENDIX_CATEGORY.mitAffiliated,
+  },
+  {
+    programSlug: 'mit-primes',
+    url: 'https://math.mit.edu/research/highschool/primes/',
+    label: 'MIT PRIMES',
+    category: APPENDIX_CATEGORY.mitAffiliated,
+  },
+  {
+    programSlug: 'wtp',
+    url: 'https://wtp.mit.edu/',
+    label: "Women's Technology Program (WTP)",
+    category: APPENDIX_CATEGORY.mitAffiliated,
+  },
+  {
+    programSlug: 'mathroots',
+    url: 'https://math.mit.edu/mathroots/',
+    label: 'MIT mathroots',
+    category: APPENDIX_CATEGORY.mitAffiliated,
+  },
 
-  [
-    'ssp',
-    'https://ssp.org/',
-    'Summer Science Program (SSP)',
-    'University research programs',
-  ],
-  [
-    'bu-rise',
-    'https://www.bu.edu/summer/high-school-programs/rise/',
-    'BU RISE',
-    'University research programs',
-  ],
-  [
-    'cmu-sams',
-    'https://www.cmu.edu/pre-college/academic-programs/sams.html',
-    'CMU SAMS',
-    'University research programs',
-  ],
-  [
-    'clark-scholars',
-    'https://www.depts.ttu.edu/clarkscholars/',
-    'Clark Scholars (Texas Tech)',
-    'University research programs',
-  ],
-  [
-    'bnl-hsrp',
-    'https://www.bnl.gov/education/programs/program.php?q=274',
-    'Brookhaven National Lab HSRP',
-    'University research programs',
-  ],
-  [
-    'stanford-aimi',
-    'https://aimi.stanford.edu/education/aimi-summer-internship',
-    'Stanford AIMI Summer Research',
-    'University research programs',
-  ],
-  [
-    'stanford-cnix',
-    'https://med.stanford.edu/cninx.html',
-    'Stanford CNI-X',
-    'University research programs',
-  ],
-  [
-    'ucla-summer-sessions',
-    'https://www.summer.ucla.edu/high-school-programs',
-    'UCLA Summer Sessions (pre-college)',
-    'University research programs',
-  ],
-  [
-    'wpi-frontiers',
-    'https://www.wpi.edu/academics/pre-collegiate/stem-residential/frontiers/',
-    'WPI Frontiers Program',
-    'University research programs',
-  ],
-  [
-    'jhu-cty',
-    'https://cty.jhu.edu',
-    'Johns Hopkins CTY',
-    'University research programs',
-  ],
+  {
+    programSlug: 'ssp',
+    url: 'https://ssp.org/',
+    label: 'Summer Science Program (SSP)',
+    category: APPENDIX_CATEGORY.universityResearch,
+  },
+  {
+    programSlug: 'bu-rise',
+    url: 'https://www.bu.edu/summer/high-school-programs/rise/',
+    label: 'BU RISE',
+    category: APPENDIX_CATEGORY.universityResearch,
+  },
+  {
+    programSlug: 'cmu-sams',
+    url: 'https://www.cmu.edu/pre-college/academic-programs/sams.html',
+    label: 'CMU SAMS',
+    category: APPENDIX_CATEGORY.universityResearch,
+  },
+  {
+    programSlug: 'clark-scholars',
+    url: 'https://www.depts.ttu.edu/clarkscholars/',
+    label: 'Clark Scholars (Texas Tech)',
+    category: APPENDIX_CATEGORY.universityResearch,
+  },
+  {
+    programSlug: 'bnl-hsrp',
+    url: 'https://www.bnl.gov/education/programs/program.php?q=274',
+    label: 'Brookhaven National Lab HSRP',
+    category: APPENDIX_CATEGORY.universityResearch,
+  },
+  {
+    programSlug: 'stanford-aimi',
+    url: 'https://aimi.stanford.edu/education/aimi-summer-internship',
+    label: 'Stanford AIMI Summer Research',
+    category: APPENDIX_CATEGORY.universityResearch,
+  },
+  {
+    programSlug: 'stanford-cnix',
+    url: 'https://med.stanford.edu/cninx.html',
+    label: 'Stanford CNI-X',
+    category: APPENDIX_CATEGORY.universityResearch,
+  },
+  {
+    programSlug: 'ucla-summer-sessions',
+    url: 'https://www.summer.ucla.edu/high-school-programs',
+    label: 'UCLA Summer Sessions (pre-college)',
+    category: APPENDIX_CATEGORY.universityResearch,
+  },
+  {
+    programSlug: 'wpi-frontiers',
+    url: 'https://www.wpi.edu/academics/pre-collegiate/stem-residential/frontiers/',
+    label: 'WPI Frontiers Program',
+    category: APPENDIX_CATEGORY.universityResearch,
+  },
+  {
+    programSlug: 'jhu-cty',
+    url: 'https://cty.jhu.edu',
+    label: 'Johns Hopkins CTY',
+    category: APPENDIX_CATEGORY.universityResearch,
+  },
 
-  [
-    'nasa-internships',
-    'https://intern.nasa.gov/',
-    'NASA high school internships',
-    'National labs / government',
-  ],
-  [
-    'simons-summer-research',
-    'https://www.stonybrook.edu/commcms/simons/program/',
-    'Simons Summer Research (Stony Brook)',
-    'National labs / government',
-  ],
-  [
-    'nih-hs-research',
-    'https://www.training.nih.gov/programs/hs_srp',
-    'NIH high school research',
-    'National labs / government',
-  ],
-  [
-    'fermilab-prism',
-    'https://internships.fnal.gov/fermilab-program-for-research-innovation-and-stem-mentorship-prism/',
-    'Fermilab PRISM',
-    'National labs / government',
-  ],
+  {
+    programSlug: 'nasa-internships',
+    url: 'https://intern.nasa.gov/',
+    label: 'NASA high school internships',
+    category: APPENDIX_CATEGORY.nationalLabsAndGovernment,
+  },
+  {
+    programSlug: 'simons-summer-research',
+    url: 'https://www.stonybrook.edu/commcms/simons/program/',
+    label: 'Simons Summer Research (Stony Brook)',
+    category: APPENDIX_CATEGORY.nationalLabsAndGovernment,
+  },
+  {
+    programSlug: 'nih-hs-research',
+    url: 'https://www.training.nih.gov/programs/hs_srp',
+    label: 'NIH high school research',
+    category: APPENDIX_CATEGORY.nationalLabsAndGovernment,
+  },
+  {
+    programSlug: 'fermilab-prism',
+    url: 'https://internships.fnal.gov/fermilab-program-for-research-innovation-and-stem-mentorship-prism/',
+    label: 'Fermilab PRISM',
+    category: APPENDIX_CATEGORY.nationalLabsAndGovernment,
+  },
 
-  [
-    'nj-gset',
-    'https://gset.rutgers.edu',
-    "NJ Governor's School of Engineering & Technology (GSET)",
-    "State-run Governor's Schools / academic talent",
-  ],
-  [
-    'cosmos',
-    'https://cosmos-ucop.ucdavis.edu',
-    'COSMOS (CA State Summer School for Math & Science)',
-    "State-run Governor's Schools / academic talent",
-  ],
-  [
-    'ncssm-summer-ventures',
-    'https://www.ncssm.edu/summer/summer-ventures',
-    'NCSSM Summer Ventures',
-    "State-run Governor's Schools / academic talent",
-  ],
+  {
+    programSlug: 'nj-gset',
+    url: 'https://gset.rutgers.edu',
+    label:
+      "NJ Governor's School of Engineering & Technology (GSET)",
+    category: APPENDIX_CATEGORY.stateGovernorsSchools,
+  },
+  {
+    programSlug: 'cosmos',
+    url: 'https://cosmos-ucop.ucdavis.edu',
+    label:
+      'COSMOS (CA State Summer School for Math & Science)',
+    category: APPENDIX_CATEGORY.stateGovernorsSchools,
+  },
+  {
+    programSlug: 'ncssm-summer-ventures',
+    url: 'https://www.ncssm.edu/summer/summer-ventures',
+    label: 'NCSSM Summer Ventures',
+    category: APPENDIX_CATEGORY.stateGovernorsSchools,
+  },
 
-  [
-    'girls-who-code-pathways',
-    'https://girlswhocode.com/programs/pathways',
-    'Girls Who Code -- Pathways',
-    'Coding / tech-focused',
-  ],
-  [
-    'kode-with-klossy',
-    'https://www.kodewithklossy.com',
-    'Kode With Klossy',
-    'Coding / tech-focused',
-  ],
-  [
-    'all-star-code',
-    'https://www.allstarcode.org',
-    'All Star Code',
-    'Coding / tech-focused',
-  ],
-  [
-    'inspirit-ai',
-    'https://www.inspiritai.com',
-    'Inspirit AI Scholars Program',
-    'Coding / tech-focused',
-  ],
+  {
+    programSlug: 'girls-who-code-pathways',
+    url: 'https://girlswhocode.com/programs/pathways',
+    label: 'Girls Who Code -- Pathways',
+    category: APPENDIX_CATEGORY.codingAndTech,
+  },
+  {
+    programSlug: 'kode-with-klossy',
+    url: 'https://www.kodewithklossy.com',
+    label: 'Kode With Klossy',
+    category: APPENDIX_CATEGORY.codingAndTech,
+  },
+  {
+    programSlug: 'all-star-code',
+    url: 'https://www.allstarcode.org',
+    label: 'All Star Code',
+    category: APPENDIX_CATEGORY.codingAndTech,
+  },
+  {
+    programSlug: 'inspirit-ai',
+    url: 'https://www.inspiritai.com',
+    label: 'Inspirit AI Scholars Program',
+    category: APPENDIX_CATEGORY.codingAndTech,
+  },
 
-  [
-    'regeneron-sts',
-    'https://www.societyforscience.org/regeneron-sts/',
-    'Regeneron Science Talent Search',
-    'Competitions',
-  ],
-  [
-    'regeneron-isef',
-    'https://www.societyforscience.org/isef/',
-    'Regeneron ISEF',
-    'Competitions',
-  ],
-  [
-    'technovation-girls',
-    'https://technovationchallenge.org',
-    'Technovation Girls',
-    'Competitions',
-  ],
-  [
-    'conrad-challenge',
-    'https://www.conradchallenge.org',
-    'Conrad Challenge',
-    'Competitions',
-  ],
-  [
-    'ecybermission',
-    'https://www.usaeop.com/program/ecybermission/',
-    'eCYBERMISSION',
-    'Competitions',
-  ],
-  [
-    'breakthrough-junior-challenge',
-    'https://breakthroughjuniorchallenge.org',
-    'Breakthrough Junior Challenge',
-    'Competitions',
-  ],
-  [
-    'first-robotics',
-    'https://www.firstinspires.org/programs/frc/',
-    'FIRST Robotics Competition',
-    'Competitions',
-  ],
+  {
+    programSlug: 'regeneron-sts',
+    url: 'https://www.societyforscience.org/regeneron-sts/',
+    label: 'Regeneron Science Talent Search',
+    category: APPENDIX_CATEGORY.competitions,
+  },
+  {
+    programSlug: 'regeneron-isef',
+    url: 'https://www.societyforscience.org/isef/',
+    label: 'Regeneron ISEF',
+    category: APPENDIX_CATEGORY.competitions,
+  },
+  {
+    programSlug: 'technovation-girls',
+    url: 'https://technovationchallenge.org',
+    label: 'Technovation Girls',
+    category: APPENDIX_CATEGORY.competitions,
+  },
+  {
+    programSlug: 'conrad-challenge',
+    url: 'https://www.conradchallenge.org',
+    label: 'Conrad Challenge',
+    category: APPENDIX_CATEGORY.competitions,
+  },
+  {
+    programSlug: 'ecybermission',
+    url: 'https://www.usaeop.com/program/ecybermission/',
+    label: 'eCYBERMISSION',
+    category: APPENDIX_CATEGORY.competitions,
+  },
+  {
+    programSlug: 'breakthrough-junior-challenge',
+    url: 'https://breakthroughjuniorchallenge.org',
+    label: 'Breakthrough Junior Challenge',
+    category: APPENDIX_CATEGORY.competitions,
+  },
+  {
+    programSlug: 'first-robotics',
+    url: 'https://www.firstinspires.org/programs/frc/',
+    label: 'FIRST Robotics Competition',
+    category: APPENDIX_CATEGORY.competitions,
+  },
 ]
 
 function parseArgs(argv) {
@@ -255,11 +241,7 @@ function parseArgs(argv) {
   return args
 }
 
-// Same dependency-free .env.local loader used by the other admin scripts
-// in this repo (e.g. scripts/backfill-file-records.js) -- these scripts
-// run standalone via plain `node`, not the Next build, so dotenv isn't
-// pulled in as a dependency.
-function loadEnvLocal(repoRoot) {
+function loadEnvLocalWithoutDotenv(repoRoot) {
   const envPath = path.join(repoRoot, '.env.local')
   if (!fs.existsSync(envPath)) return
   const contents = fs.readFileSync(envPath, 'utf8')
@@ -278,11 +260,7 @@ function loadEnvLocal(repoRoot) {
   }
 }
 
-// Same credential resolution as scripts/backfill-file-records.js: real
-// Application Default Credentials first, then a pre-fetched
-// GCLOUD_ACCESS_TOKEN, then falling back to shelling out to the gcloud
-// CLI's own login on every token fetch.
-function resolveCredential(admin) {
+function applicationDefaultCredential(admin) {
   const adcEnv = process.env.GOOGLE_APPLICATION_CREDENTIALS
   const adcDefaultPath = path.join(
     os.homedir(),
@@ -296,20 +274,24 @@ function resolveCredential(admin) {
   ) {
     return admin.credential.applicationDefault()
   }
+  return null
+}
 
-  if (process.env.GCLOUD_ACCESS_TOKEN) {
-    console.log(
-      'No Application Default Credentials found -- using the static GCLOUD_ACCESS_TOKEN env var.'
-    )
-    const token = process.env.GCLOUD_ACCESS_TOKEN
-    return {
-      getAccessToken: async () => ({
-        access_token: token,
-        expires_in: 3600,
-      }),
-    }
+function staticAccessTokenCredential() {
+  const token = process.env.GCLOUD_ACCESS_TOKEN
+  if (!token) return null
+  console.log(
+    'No Application Default Credentials found -- using the static GCLOUD_ACCESS_TOKEN env var.'
+  )
+  return {
+    getAccessToken: async () => ({
+      access_token: token,
+      expires_in: 3600,
+    }),
   }
+}
 
+function gcloudCliLoginCredential() {
   try {
     execFileSync('gcloud', ['--version'], { stdio: 'pipe' })
   } catch {
@@ -339,10 +321,63 @@ function resolveCredential(admin) {
   }
 }
 
+function resolveCredential(admin) {
+  return (
+    applicationDefaultCredential(admin) ||
+    staticAccessTokenCredential() ||
+    gcloudCliLoginCredential()
+  )
+}
+
+function assertSlugsAreUnique(sources) {
+  const slugs = new Set()
+  for (const { programSlug } of sources) {
+    if (slugs.has(programSlug))
+      throw new Error(
+        `Duplicate slug in SOURCES: ${programSlug}`
+      )
+    slugs.add(programSlug)
+  }
+}
+
+async function createSourceIfMissing(db, source, execute) {
+  const ref = db
+    .collection(OPPORTUNITY_SOURCES_COLLECTION)
+    .doc(source.programSlug)
+  const existing = await ref.get()
+  if (existing.exists) {
+    console.log(
+      `  skip (already exists): ${source.programSlug}`
+    )
+    return false
+  }
+
+  console.log(
+    `  ${execute ? 'create' : '[dry run] would create'}: ${
+      source.programSlug
+    } -- ${source.label}`
+  )
+  if (execute) {
+    await ref.set({
+      url: source.url,
+      label: source.label,
+      category: source.category,
+      sourceType: 'curated',
+      status: 'active',
+      verificationReasoning: null,
+      lastStatus: null,
+      lastScrapedAt: null,
+      lastError: null,
+      consecutiveFailures: 0,
+    })
+  }
+  return true
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2))
   const repoRoot = path.resolve(__dirname, '..')
-  loadEnvLocal(repoRoot)
+  loadEnvLocalWithoutDotenv(repoRoot)
 
   const projectId =
     args.project || process.env.NEXT_PUBLIC_FB_PROJECT_ID
@@ -359,47 +394,19 @@ async function main() {
   })
   const db = admin.firestore()
 
-  const slugs = new Set()
-  for (const [slug] of SOURCES) {
-    if (slugs.has(slug))
-      throw new Error(`Duplicate slug in SOURCES: ${slug}`)
-    slugs.add(slug)
-  }
+  assertSlugsAreUnique(SOURCES)
 
   let created = 0
   let skipped = 0
 
-  for (const [slug, url, label, category] of SOURCES) {
-    const ref = db
-      .collection('opportunity-sources')
-      .doc(slug)
-    const existing = await ref.get()
-    if (existing.exists) {
-      skipped += 1
-      console.log(`  skip (already exists): ${slug}`)
-      continue
-    }
-
-    created += 1
-    console.log(
-      `  ${
-        args.execute ? 'create' : '[dry run] would create'
-      }: ${slug} -- ${label}`
+  for (const source of SOURCES) {
+    const wasCreated = await createSourceIfMissing(
+      db,
+      source,
+      args.execute
     )
-    if (args.execute) {
-      await ref.set({
-        url,
-        label,
-        category,
-        sourceType: 'curated',
-        status: 'active',
-        verificationReasoning: null,
-        lastStatus: null,
-        lastScrapedAt: null,
-        lastError: null,
-        consecutiveFailures: 0,
-      })
-    }
+    if (wasCreated) created += 1
+    else skipped += 1
   }
 
   console.log(

@@ -18,7 +18,7 @@ import {
   getTranslatedFieldsDict,
 } from '../context/helpers'
 import { formatMediumDate } from '../lib/formatDate'
-import { db as firestore } from '../lib/firebase'
+import { db as firestore } from '../lib/firestore'
 import firebaseConfig from '../firebaseConfig'
 import {
   fetchClosedRecentlyOpportunities,
@@ -61,7 +61,7 @@ function matchesSearch(program, search) {
   )
 }
 
-function programMeta(program, locale, t) {
+function metaLine(program, timingLabel, t) {
   const parts = []
   const gradeLabel = formatGradeRange(
     program.gradeRangeLow,
@@ -69,63 +69,50 @@ function programMeta(program, locale, t) {
     t
   )
   if (gradeLabel) parts.push(gradeLabel)
-  const deadline = program.applicationDeadline
-    ? formatMediumDate(program.applicationDeadline, locale)
-    : ''
-  parts.push(
-    deadline
-      ? `${t('opportunities.deadline')} ${deadline}`
-      : t('opportunities.rolling')
-  )
+  if (timingLabel) parts.push(timingLabel)
   if (program.location) parts.push(program.location)
   return parts.join(' · ')
 }
 
-// Opening Soon cards show when applications open, not a "Deadline" label —
-// there's nothing to apply to yet, only a date worth watching for.
-function openingSoonMeta(program, locale, t) {
-  const parts = []
-  const gradeLabel = formatGradeRange(
-    program.gradeRangeLow,
-    program.gradeRangeHigh,
+function upcomingDeadlineMeta(program, locale, t) {
+  const deadline = program.applicationDeadline
+    ? formatMediumDate(program.applicationDeadline, locale)
+    : ''
+  return metaLine(
+    program,
+    deadline
+      ? `${t('opportunities.deadline')} ${deadline}`
+      : t('opportunities.rolling'),
     t
   )
-  if (gradeLabel) parts.push(gradeLabel)
+}
+
+function applicationOpensMeta(program, locale, t) {
   const opens = program.applicationOpensDate
     ? formatMediumDate(program.applicationOpensDate, locale)
     : ''
-  if (opens)
-    parts.push(t('opportunities.opens_on', { date: opens }))
-  if (program.location) parts.push(program.location)
-  return parts.join(' · ')
-}
-
-// Closed Recently cards show when the deadline was, not a fresh "Deadline"
-// label — the program isn't actionable right now, and phrasing it as an
-// upcoming deadline would read as a live, apply-able listing.
-function closedMeta(program, locale, t) {
-  const parts = []
-  const gradeLabel = formatGradeRange(
-    program.gradeRangeLow,
-    program.gradeRangeHigh,
+  return metaLine(
+    program,
+    opens
+      ? t('opportunities.opens_on', { date: opens })
+      : '',
     t
   )
-  if (gradeLabel) parts.push(gradeLabel)
+}
+
+function pastDeadlineMeta(program, locale, t) {
   const deadline = program.applicationDeadline
     ? formatMediumDate(program.applicationDeadline, locale)
     : ''
-  if (deadline) {
-    parts.push(
-      t('opportunities.closed_on', { date: deadline })
-    )
-  }
-  if (program.location) parts.push(program.location)
-  return parts.join(' · ')
+  return metaLine(
+    program,
+    deadline
+      ? t('opportunities.closed_on', { date: deadline })
+      : '',
+    t
+  )
 }
 
-// A colored pill per field, shown on every card (not just the ones
-// missing a photo, where OpportunityFieldIcons already fills the media
-// slot) so a program's topics are scannable at a glance either way.
 function TopicBadges({ fields, translatedFields }) {
   return (
     <div className="flex flex-wrap gap-1.5">
@@ -149,9 +136,6 @@ function TopicBadges({ fields, translatedFields }) {
   )
 }
 
-// Shared by both sections below — only the meta line (deadline vs. closed
-// date) and a muted treatment differ between "Open Now" and "Closed
-// Recently", so both cards forward through the same markup.
 function OpportunityCard({
   program,
   meta,
@@ -186,9 +170,6 @@ function OpportunityCard({
   )
 }
 
-// Shared between the always-visible desktop sidebar and the mobile filter
-// Sheet — one implementation, two places it's mounted (same pattern as
-// /projects' FilterPanel).
 function FilterPanel({
   t,
   field,
@@ -250,35 +231,18 @@ function FilterPanel({
   )
 }
 
-// Both queries are re-run live on the client (seeded with the
-// getStaticProps snapshot below just to avoid an empty-state flash on
-// first paint) so the page always reflects the most recent weekly scrape
-// without needing a site rebuild.
-function useOpenNowOpportunities(initialData) {
-  return useQuery({
-    queryKey: ['opportunities', 'openNow'],
-    queryFn: () => fetchOpenNowOpportunities(firestore),
-    initialData,
-    staleTime: 60 * 1000,
-  })
-}
+const LIVE_REFETCH_STALE_TIME_MS = 60 * 1000
 
-function useOpeningSoonOpportunities(initialData) {
+function useLiveOpportunities(
+  section,
+  fetchSection,
+  buildTimeSnapshot
+) {
   return useQuery({
-    queryKey: ['opportunities', 'openingSoon'],
-    queryFn: () => fetchOpeningSoonOpportunities(firestore),
-    initialData,
-    staleTime: 60 * 1000,
-  })
-}
-
-function useClosedRecentlyOpportunities(initialData) {
-  return useQuery({
-    queryKey: ['opportunities', 'closedRecently'],
-    queryFn: () =>
-      fetchClosedRecentlyOpportunities(firestore),
-    initialData,
-    staleTime: 60 * 1000,
+    queryKey: ['opportunities', section],
+    queryFn: () => fetchSection(firestore),
+    initialData: buildTimeSnapshot,
+    staleTime: LIVE_REFETCH_STALE_TIME_MS,
   })
 }
 
@@ -303,6 +267,21 @@ function filterPrograms(
   })
 }
 
+function useFilteredPrograms(
+  programs,
+  { searchParam, fieldParam, gradeParam }
+) {
+  return useMemo(
+    () =>
+      filterPrograms(programs || [], {
+        searchParam,
+        fieldParam,
+        gradeParam,
+      }),
+    [programs, searchParam, fieldParam, gradeParam]
+  )
+}
+
 function Opportunities({
   initialOpenNow,
   initialOpeningSoon,
@@ -311,13 +290,21 @@ function Opportunities({
   const router = useRouter()
   const { t } = useTranslation('common')
 
-  const openNowQuery =
-    useOpenNowOpportunities(initialOpenNow)
-  const openingSoonQuery = useOpeningSoonOpportunities(
+  const openNowQuery = useLiveOpportunities(
+    'openNow',
+    fetchOpenNowOpportunities,
+    initialOpenNow
+  )
+  const openingSoonQuery = useLiveOpportunities(
+    'openingSoon',
+    fetchOpeningSoonOpportunities,
     initialOpeningSoon
   )
-  const closedRecentlyQuery =
-    useClosedRecentlyOpportunities(initialClosedRecently)
+  const closedRecentlyQuery = useLiveOpportunities(
+    'closedRecently',
+    fetchClosedRecentlyOpportunities,
+    initialClosedRecently
+  )
 
   const [search, setSearch] = useState('')
   const [filtersOpen, setFiltersOpen] = useState(false)
@@ -334,11 +321,11 @@ function Opportunities({
     ? router.query.status
     : DEFAULT_STATUS
 
+  const routerIsReady = router.isReady
   useEffect(() => {
-    if (!router?.isReady) return
+    if (!routerIsReady) return
     setSearch(searchParam)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.isReady, searchParam])
+  }, [routerIsReady, searchParam])
 
   const hasActiveFilters = Boolean(
     searchParam || fieldParam || gradeParam
@@ -352,47 +339,22 @@ function Opportunities({
     12: t('opportunities.grade_12'),
   }
 
-  // No pagination/infinite-scroll: the catalog is small (dozens, growing
-  // to maybe a couple hundred once Tier 2 discovery is running), so plain
-  // client-side filtering over both already-sorted, already-live Firestore
-  // results is enough — no need for search-index infra like /projects
-  // uses at a much larger scale.
-  const filteredOpenNow = useMemo(
-    () =>
-      filterPrograms(openNowQuery.data || [], {
-        searchParam,
-        fieldParam,
-        gradeParam,
-      }),
-    [openNowQuery.data, searchParam, fieldParam, gradeParam]
+  const filterParams = {
+    searchParam,
+    fieldParam,
+    gradeParam,
+  }
+  const filteredOpenNow = useFilteredPrograms(
+    openNowQuery.data,
+    filterParams
   )
-  const filteredOpeningSoon = useMemo(
-    () =>
-      filterPrograms(openingSoonQuery.data || [], {
-        searchParam,
-        fieldParam,
-        gradeParam,
-      }),
-    [
-      openingSoonQuery.data,
-      searchParam,
-      fieldParam,
-      gradeParam,
-    ]
+  const filteredOpeningSoon = useFilteredPrograms(
+    openingSoonQuery.data,
+    filterParams
   )
-  const filteredClosedRecently = useMemo(
-    () =>
-      filterPrograms(closedRecentlyQuery.data || [], {
-        searchParam,
-        fieldParam,
-        gradeParam,
-      }),
-    [
-      closedRecentlyQuery.data,
-      searchParam,
-      fieldParam,
-      gradeParam,
-    ]
+  const filteredClosedRecently = useFilteredPrograms(
+    closedRecentlyQuery.data,
+    filterParams
   )
 
   function pushFilters(overrides = {}) {
@@ -454,17 +416,17 @@ function Opportunities({
   const activeView = {
     open: {
       list: filteredOpenNow,
-      meta: programMeta,
+      meta: upcomingDeadlineMeta,
       muted: false,
     },
     opening_soon: {
       list: filteredOpeningSoon,
-      meta: openingSoonMeta,
+      meta: applicationOpensMeta,
       muted: false,
     },
     closed_recently: {
       list: filteredClosedRecently,
-      meta: closedMeta,
+      meta: pastDeadlineMeta,
       muted: true,
     },
   }[statusParam]

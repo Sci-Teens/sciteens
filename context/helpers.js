@@ -192,12 +192,10 @@ export function getFieldLabel(translatedFields, field) {
   return key ? translatedFields[key] : field
 }
 
-// Shared by the opportunities listing card and program detail page —
-// single-grade programs (e.g. RSI: rising seniors only) read oddly as a
-// same-to-same range ("Grades 11–11").
 export function formatGradeRange(low, high, t) {
   if (!low || !high) return ''
-  return low === high
+  const isSingleGradeProgram = low === high
+  return isSingleGradeProgram
     ? t('opportunities.grade_single', { grade: low })
     : t('opportunities.grades', { low, high })
 }

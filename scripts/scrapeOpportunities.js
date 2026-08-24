@@ -1,34 +1,4 @@
 #!/usr/bin/env node
-// Tier 1 weekly scraper -- reads active `opportunity-sources` docs from
-// Firestore, runs the (Phase-0-validated) agentic Claude + Playwright
-// extraction loop against each one, and upserts the result into
-// `opportunities`. Meant to run unattended on a schedule (GitHub Actions),
-// but is equally runnable by hand.
-//
-// Images: og:image (read via a fresh Playwright fetch of the source URL,
-// not the /public folder -- a GitHub Actions run can't touch the deployed
-// site's static files) falling back to Google's favicon service, same
-// cascade proven out in scripts/fetch-program-images.js for the mock-data
-// phase, uploaded to Firebase Storage under opportunities/{slug}/cover.*.
-// A source whose image fetch fails just keeps whatever image it already
-// had (or none) -- never blocks the text extraction from succeeding.
-//
-// Per-source outcome handling (see project plan):
-//   - fetch/extraction genuinely fails (network, timeout, blocked, model
-//     never produces valid output even after retry) -> don't touch the
-//     opportunities/{slug} doc at all. Only update opportunity-sources
-//     bookkeeping (lastStatus, lastError, consecutiveFailures++).
-//   - extraction succeeds -> upsert opportunities/{slug} with the fresh
-//     data (whatever deadlineStatus it reports -- dated/rolling/unclear
-//     are all valid successful outcomes, not failures), and reset
-//     consecutiveFailures to 0.
-//
-// Usage:
-//   node scripts/scrapeOpportunities.js [--project <id>] [--dry-run] [slug ...]
-//
-// Runs for real (writes to Firestore) by default -- this is meant to run
-// unattended, so it can't require an opt-in flag the way the one-off admin
-// scripts in this repo do. Pass --dry-run to preview without writing.
 'use strict'
 
 const fs = require('node:fs')
@@ -46,11 +16,9 @@ const MODEL = 'claude-sonnet-5'
 const MAX_FETCHES_PER_SOURCE = 5
 const CONCURRENCY = 3
 
-// Image cascade constants -- same values proven out in
-// scripts/fetch-program-images.js against these same 33 sources.
-const IMAGE_MIN_BYTES = 500 // guards against 1x1 tracking pixels / error stubs
-const IMAGE_MIN_DIMENSION = 96 // below this, a stretched favicon just looks broken
-const IMAGE_CONTAIN_ABOVE_RATIO = 1.8 // past this aspect ratio, cover crops wordmarks unreadable
+const IMAGE_MIN_BYTES = 500
+const IMAGE_MIN_DIMENSION = 96
+const IMAGE_CONTAIN_ABOVE_RATIO = 1.8
 const IMAGE_FETCH_TIMEOUT_MS = 12000
 const IMAGE_USER_AGENT =
   'Mozilla/5.0 (compatible; SciTeensImageFetcher/1.0; +https://sciteens.org)'
@@ -358,56 +326,64 @@ async function downloadImageBuffer(imageUrl) {
   return { buffer, ext, fit }
 }
 
-// Tries og:image (via a fresh Playwright load of the source URL -- catches
-// JS-injected meta tags a plain fetch would miss) first, falling back to
-// Google's favicon service. Uploads to Firebase Storage and returns a
-// public download URL + fit classification, or null if nothing usable was
-// found -- callers should treat null as "leave imageUrl as it was", not as
-// a hard failure, since a missing image should never block the real
-// extracted data (deadlines, eligibility, etc.) from being saved.
+async function ogImageUrl(browser, sourceUrl) {
+  try {
+    const page = await fetchPage(browser, sourceUrl)
+    if (page.ok && page.ogImage) {
+      return new URL(page.ogImage, sourceUrl).toString()
+    }
+  } catch {
+    return null
+  }
+  return null
+}
+
+async function imageCandidateUrls(browser, sourceUrl) {
+  const ogImage = await ogImageUrl(browser, sourceUrl)
+  const favicon = faviconFallbackUrl(sourceUrl)
+  return ogImage ? [ogImage, favicon] : [favicon]
+}
+
+async function uploadCoverImage(
+  bucket,
+  slug,
+  candidateUrl
+) {
+  const { buffer, ext, fit } = await downloadImageBuffer(
+    candidateUrl
+  )
+  const objectPath = `opportunities/${slug}/cover.${ext}`
+  const file = bucket.file(objectPath)
+  await file.save(buffer, {
+    contentType: `image/${ext === 'jpg' ? 'jpeg' : ext}`,
+    metadata: {
+      cacheControl: 'public, max-age=604800',
+    },
+  })
+  const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${
+    bucket.name
+  }/o/${encodeURIComponent(objectPath)}?alt=media`
+  return { imageUrl, imageFit: fit }
+}
+
 async function fetchAndUploadImage(
   browser,
   bucket,
   slug,
   sourceUrl
 ) {
-  let candidateUrl = null
-  try {
-    const page = await fetchPage(browser, sourceUrl)
-    if (page.ok && page.ogImage) {
-      candidateUrl = new URL(
-        page.ogImage,
-        sourceUrl
-      ).toString()
-    }
-  } catch {
-    // fall through to favicon
-  }
-
-  const attempts = candidateUrl
-    ? [candidateUrl, faviconFallbackUrl(sourceUrl)]
-    : [faviconFallbackUrl(sourceUrl)]
-
-  for (const url of attempts) {
+  const candidates = await imageCandidateUrls(
+    browser,
+    sourceUrl
+  )
+  for (const candidateUrl of candidates) {
     try {
-      const { buffer, ext, fit } =
-        await downloadImageBuffer(url)
-      const objectPath = `opportunities/${slug}/cover.${ext}`
-      const file = bucket.file(objectPath)
-      await file.save(buffer, {
-        contentType: `image/${
-          ext === 'jpg' ? 'jpeg' : ext
-        }`,
-        metadata: {
-          cacheControl: 'public, max-age=604800',
-        },
-      })
-      const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${
-        bucket.name
-      }/o/${encodeURIComponent(objectPath)}?alt=media`
-      return { imageUrl, imageFit: fit }
+      return await uploadCoverImage(
+        bucket,
+        slug,
+        candidateUrl
+      )
     } catch {
-      // try the next candidate (favicon after og:image), or give up
       continue
     }
   }
@@ -493,39 +469,38 @@ async function runExtraction(browser, anthropic, seedUrl) {
   return { visited, error: 'max turns exceeded' }
 }
 
-// A schema-validation failure (or a thrown error) gets one fresh retry --
-// often just a one-off model formatting slip, not a repeatable problem
-// with the source. Still failing after the retry is treated as a real
-// fetch failure: the caller leaves the existing opportunities doc alone.
-async function runExtractionWithRetry(
+async function attemptExtraction(browser, anthropic, url) {
+  try {
+    return await runExtraction(browser, anthropic, url)
+  } catch (err) {
+    return {
+      visited: [],
+      error: String(err && err.message ? err.message : err),
+    }
+  }
+}
+
+async function runExtractionWithOneRetry(
   browser,
   anthropic,
   url
 ) {
-  let first
-  try {
-    first = await runExtraction(browser, anthropic, url)
-  } catch (err) {
-    first = {
-      visited: [],
-      error: String(err && err.message ? err.message : err),
-    }
-  }
+  const first = await attemptExtraction(
+    browser,
+    anthropic,
+    url
+  )
   if (!first.error && first.valid) return first
 
-  let second
-  try {
-    second = await runExtraction(browser, anthropic, url)
-  } catch (err) {
-    second = {
-      visited: [],
-      error: String(err && err.message ? err.message : err),
-    }
-  }
-  second.retried = true
-  second.firstAttemptError =
+  const retry = await attemptExtraction(
+    browser,
+    anthropic,
+    url
+  )
+  retry.retried = true
+  retry.firstAttemptError =
     first.error || 'schema validation failure'
-  return second
+  return retry
 }
 
 function loadEnvLocal(repoRoot) {
@@ -547,7 +522,6 @@ function loadEnvLocal(repoRoot) {
   }
 }
 
-// Same credential resolution as scripts/seed-opportunity-sources.js.
 function resolveCredential(admin) {
   const adcEnv = process.env.GOOGLE_APPLICATION_CREDENTIALS
   const adcDefaultPath = path.join(
@@ -618,7 +592,6 @@ function parseArgs(argv) {
   return args
 }
 
-// Runs `items` through `worker` with at most `limit` in flight at once.
 async function mapWithConcurrency(items, limit, worker) {
   const results = new Array(items.length)
   let next = 0
@@ -644,14 +617,7 @@ function contentHashFor(data) {
     .digest('hex')
 }
 
-// Both applicationDeadline and applicationOpensDate drive real Firestore
-// range queries (Open Now / Opening Soon / Closed Recently), which
-// requires them to actually be Timestamps -- a string field sorts/
-// compares lexicographically, which silently breaks both correctness
-// (mixed UTC offsets don't sort right) and the range query itself
-// (comparing a string field against a Timestamp query bound doesn't match
-// anything).
-function toTimestampOrNull(
+function toQueryableTimestampOrNull(
   admin,
   slug,
   fieldName,
@@ -666,6 +632,180 @@ function toTimestampOrNull(
     return null
   }
   return admin.firestore.Timestamp.fromDate(parsed)
+}
+
+function toQueryableDates(admin, slug, extracted) {
+  return {
+    applicationDeadline: toQueryableTimestampOrNull(
+      admin,
+      slug,
+      'applicationDeadline',
+      extracted.applicationDeadline
+    ),
+    applicationOpensDate: toQueryableTimestampOrNull(
+      admin,
+      slug,
+      'applicationOpensDate',
+      extracted.applicationOpensDate
+    ),
+  }
+}
+
+function extractionFailureMessage(result) {
+  return (
+    result.error ||
+    `schema validation failed: ${JSON.stringify(
+      result.zodError
+    )}`
+  )
+}
+
+async function recordSourceFailure(
+  admin,
+  db,
+  slug,
+  errorMessage,
+  now
+) {
+  await db
+    .collection('opportunity-sources')
+    .doc(slug)
+    .update({
+      lastStatus: 'fetch_failed',
+      lastScrapedAt: now,
+      lastError: errorMessage.slice(0, 500),
+      consecutiveFailures:
+        admin.firestore.FieldValue.increment(1),
+    })
+}
+
+async function imagePatchOrEmpty(
+  browser,
+  bucket,
+  slug,
+  sourceUrl
+) {
+  try {
+    const image = await fetchAndUploadImage(
+      browser,
+      bucket,
+      slug,
+      sourceUrl
+    )
+    return image || {}
+  } catch (err) {
+    console.log(
+      `  [WARN] ${slug}: image fetch failed, keeping existing image: ${err.message}`
+    )
+    return {}
+  }
+}
+
+async function commitOpportunityUpsert({
+  db,
+  source,
+  extracted,
+  queryableDates,
+  imagePatch,
+  reasoning,
+  now,
+}) {
+  const { slug, url } = source
+  const batch = db.batch()
+  batch.set(
+    db.collection('opportunities').doc(slug),
+    {
+      ...extracted,
+      ...queryableDates,
+      sourceUrl: url,
+      ...imagePatch,
+      sourceType: source.sourceType || 'curated',
+      lastScrapedAt: now,
+      contentHash: contentHashFor(extracted),
+    },
+    { merge: true }
+  )
+  batch.update(
+    db.collection('opportunity-sources').doc(slug),
+    {
+      lastStatus: 'ok',
+      lastScrapedAt: now,
+      lastError: null,
+      consecutiveFailures: 0,
+      verificationReasoning: reasoning,
+    }
+  )
+  await batch.commit()
+}
+
+async function scrapeSource(runContext, source) {
+  const { admin, db, bucket, browser, anthropic, dryRun } =
+    runContext
+  const { slug, url } = source
+  const startedAt = Date.now()
+  const result = await runExtractionWithOneRetry(
+    browser,
+    anthropic,
+    url
+  )
+  const elapsed = ((Date.now() - startedAt) / 1000).toFixed(
+    1
+  )
+
+  const now = admin.firestore.FieldValue.serverTimestamp()
+
+  if (result.error || !result.valid) {
+    const errorMessage = extractionFailureMessage(result)
+    console.log(
+      `  [FAIL] ${slug} (${elapsed}s): ${errorMessage}`
+    )
+    if (process.env.DEBUG_RAW) {
+      console.log(
+        `  RAW DATA for ${slug}:`,
+        JSON.stringify(result.data)
+      )
+    }
+    if (!dryRun) {
+      await recordSourceFailure(
+        admin,
+        db,
+        slug,
+        errorMessage,
+        now
+      )
+    }
+    return false
+  }
+
+  const { reasoning, ...extracted } = result.data
+  console.log(
+    `  [OK]   ${slug} (${elapsed}s): deadlineStatus=${extracted.deadlineStatus}`
+  )
+
+  const queryableDates = toQueryableDates(
+    admin,
+    slug,
+    extracted
+  )
+
+  if (!dryRun) {
+    const imagePatch = await imagePatchOrEmpty(
+      browser,
+      bucket,
+      slug,
+      url
+    )
+    await commitOpportunityUpsert({
+      db,
+      source,
+      extracted,
+      queryableDates,
+      imagePatch,
+      reasoning,
+      now,
+    })
+  }
+  return true
 }
 
 async function main() {
@@ -728,128 +868,23 @@ async function main() {
   let succeeded = 0
   let failed = 0
 
+  const runContext = {
+    admin,
+    db,
+    bucket,
+    browser,
+    anthropic,
+    dryRun: args.dryRun,
+  }
+
   try {
     await mapWithConcurrency(
       sources,
       CONCURRENCY,
       async (source) => {
-        const { slug, url } = source
-        const start = Date.now()
-        const result = await runExtractionWithRetry(
-          browser,
-          anthropic,
-          url
-        )
-        const elapsed = (
-          (Date.now() - start) /
-          1000
-        ).toFixed(1)
-
-        const now =
-          admin.firestore.FieldValue.serverTimestamp()
-
-        if (result.error || !result.valid) {
-          failed += 1
-          const errorMessage =
-            result.error ||
-            `schema validation failed: ${JSON.stringify(
-              result.zodError
-            )}`
-          console.log(
-            `  [FAIL] ${slug} (${elapsed}s): ${errorMessage}`
-          )
-          if (process.env.DEBUG_RAW) {
-            console.log(
-              `  RAW DATA for ${slug}:`,
-              JSON.stringify(result.data)
-            )
-          }
-          if (!args.dryRun) {
-            await db
-              .collection('opportunity-sources')
-              .doc(slug)
-              .update({
-                lastStatus: 'fetch_failed',
-                lastScrapedAt: now,
-                lastError: errorMessage.slice(0, 500),
-                consecutiveFailures:
-                  admin.firestore.FieldValue.increment(1),
-              })
-          }
-          return
-        }
-
-        succeeded += 1
-        const { reasoning, ...extracted } = result.data
-        console.log(
-          `  [OK]   ${slug} (${elapsed}s): deadlineStatus=${extracted.deadlineStatus}`
-        )
-
-        // startDate/endDate are display-only, so they stay as plain ISO
-        // strings -- see toTimestampOrNull for why the two queried date
-        // fields can't.
-        const applicationDeadline = toTimestampOrNull(
-          admin,
-          slug,
-          'applicationDeadline',
-          extracted.applicationDeadline
-        )
-        const applicationOpensDate = toTimestampOrNull(
-          admin,
-          slug,
-          'applicationOpensDate',
-          extracted.applicationOpensDate
-        )
-
-        if (!args.dryRun) {
-          // A failed image fetch just omits imageUrl/imageFit from the patch
-          // entirely (merge:true then leaves whatever was there before) --
-          // never blocks the real extracted data from being saved, and never
-          // wipes out a previously-found image over a transient failure.
-          // Only attempted for real runs -- this uploads to Storage, a real
-          // side effect --dry-run must not have.
-          let imagePatch = {}
-          try {
-            const image = await fetchAndUploadImage(
-              browser,
-              bucket,
-              slug,
-              url
-            )
-            if (image) imagePatch = image
-          } catch (err) {
-            console.log(
-              `  [WARN] ${slug}: image fetch failed, keeping existing image: ${err.message}`
-            )
-          }
-
-          const batch = db.batch()
-          batch.set(
-            db.collection('opportunities').doc(slug),
-            {
-              ...extracted,
-              applicationDeadline,
-              applicationOpensDate,
-              sourceUrl: url,
-              ...imagePatch,
-              sourceType: source.sourceType || 'curated',
-              lastScrapedAt: now,
-              contentHash: contentHashFor(extracted),
-            },
-            { merge: true }
-          )
-          batch.update(
-            db.collection('opportunity-sources').doc(slug),
-            {
-              lastStatus: 'ok',
-              lastScrapedAt: now,
-              lastError: null,
-              consecutiveFailures: 0,
-              verificationReasoning: reasoning,
-            }
-          )
-          await batch.commit()
-        }
+        const ok = await scrapeSource(runContext, source)
+        if (ok) succeeded += 1
+        else failed += 1
       }
     )
   } finally {

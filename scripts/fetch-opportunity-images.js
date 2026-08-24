@@ -1,22 +1,4 @@
 #!/usr/bin/env node
-// Fetches a cover image for each real `opportunities` doc in Firestore
-// and writes it into public/assets/programs/ + the doc's imageUrl/imageFit
-// fields directly. This is the local-file cascade already proven out in
-// scripts/fetch-program-images.js (mock-data phase) -- same logic, just
-// reading real (slug, sourceUrl) pairs from opportunity-sources instead of
-// a hardcoded list, and writing the result to Firestore instead of a JS
-// manifest file.
-//
-// Deliberately NOT Firebase Storage: this repo's scrapeOpportunities.js
-// already has a Storage-based image pipeline ready for when this project
-// moves onto real production infrastructure, but that needs a Storage
-// bucket provisioned first. Until then, local files under public/ work
-// fine for a sandbox/dev environment (just won't survive an unattended
-// GitHub Actions run without a redeploy -- a limitation to revisit later,
-// not now).
-//
-// Usage:
-//   node scripts/fetch-opportunity-images.js [--project <id>] [slug ...]
 'use strict'
 
 const fs = require('node:fs')
@@ -28,10 +10,7 @@ const sharp = require('sharp')
 const GENERIC_BROWSER_UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36'
 
-// Hand-found direct logo URLs for sources the automated og:image/favicon
-// cascade can't reach -- same list already proven out in
-// scripts/fetch-program-images.js against these same sources.
-const MANUAL_OVERRIDES = {
+const HAND_FOUND_LOGO_URLS = {
   'bu-rise': {
     url: 'https://www.bu.edu/cdn/images/logos/masterplate112x50.png',
   },
@@ -53,19 +32,34 @@ const MANUAL_OVERRIDES = {
   },
 }
 
-const OUT_DIR = path.join(
+const PROGRAM_IMAGE_DIR = path.join(
   __dirname,
   '..',
   'public',
   'assets',
   'programs'
 )
+const PROGRAM_IMAGE_URL_DIR = '/assets/programs'
 const USER_AGENT =
   'Mozilla/5.0 (compatible; SciTeensImageFetcher/1.0; +https://sciteens.org)'
 const TIMEOUT_MS = 12000
 const MIN_BYTES = 500
 const MIN_DIMENSION = 96
 const CONTAIN_ABOVE_RATIO = 1.8
+const RETRY_DELAY_MS = 1500
+const BETWEEN_SOURCES_DELAY_MS = 300
+
+function programImagePathWithoutExt(slug) {
+  return path.join(PROGRAM_IMAGE_DIR, slug)
+}
+
+function programImageUrl(filename) {
+  return `${PROGRAM_IMAGE_URL_DIR}/${filename}`
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
 
 async function fetchWithTimeout(url, opts = {}) {
   const controller = new AbortController()
@@ -185,40 +179,59 @@ async function downloadImage(
   return { filename: path.basename(dest), fit }
 }
 
-async function attemptOnce(slug, url) {
-  const override = MANUAL_OVERRIDES[slug]
-  if (override) {
-    const { filename, fit } = await downloadImage(
-      override.url,
-      path.join(OUT_DIR, slug),
-      {
-        skipDimensionGate: true,
-        headers: override.headers,
-      }
-    )
-    return { filename, fit, source: 'manual override' }
-  }
+async function tryHandFoundLogo(slug) {
+  const logo = HAND_FOUND_LOGO_URLS[slug]
+  if (!logo) return null
+  const { filename, fit } = await downloadImage(
+    logo.url,
+    programImagePathWithoutExt(slug),
+    {
+      skipDimensionGate: true,
+      headers: logo.headers,
+    }
+  )
+  return { filename, fit, source: 'manual override' }
+}
 
-  const ogImageUrl = await getOgImageUrl(url).catch(
+async function tryOgImage(slug, pageUrl) {
+  const ogImageUrl = await getOgImageUrl(pageUrl).catch(
     () => null
   )
-  if (ogImageUrl) {
-    try {
-      const { filename, fit } = await downloadImage(
-        ogImageUrl,
-        path.join(OUT_DIR, slug)
-      )
-      return { filename, fit, source: 'og:image' }
-    } catch {
-      // fall through to favicon -- a bad og:image tag shouldn't take
-      // down the whole attempt when favicon might still work
-    }
+  if (!ogImageUrl) return null
+  try {
+    const { filename, fit } = await downloadImage(
+      ogImageUrl,
+      programImagePathWithoutExt(slug)
+    )
+    return { filename, fit, source: 'og:image' }
+  } catch {
+    return null
   }
+}
+
+async function downloadFavicon(slug, pageUrl) {
   const { filename, fit } = await downloadImage(
-    faviconFallbackUrl(url),
-    path.join(OUT_DIR, slug)
+    faviconFallbackUrl(pageUrl),
+    programImagePathWithoutExt(slug)
   )
   return { filename, fit, source: 'favicon fallback' }
+}
+
+async function attemptOnce(slug, url) {
+  return (
+    (await tryHandFoundLogo(slug)) ||
+    (await tryOgImage(slug, url)) ||
+    (await downloadFavicon(slug, url))
+  )
+}
+
+async function attemptWithOneRetry(slug, url) {
+  try {
+    return await attemptOnce(slug, url)
+  } catch {
+    await delay(RETRY_DELAY_MS)
+    return await attemptOnce(slug, url)
+  }
 }
 
 function loadEnvLocal(repoRoot) {
@@ -281,22 +294,74 @@ function resolveCredential(admin) {
   }
 }
 
+function parseArgs(argv) {
+  let project
+  const requestedSlugs = []
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === '--project') {
+      project = argv[++i]
+    } else {
+      requestedSlugs.push(argv[i])
+    }
+  }
+  return { project, requestedSlugs }
+}
+
+async function loadActiveSources(db, requestedSlugs) {
+  const snap = await db
+    .collection('opportunity-sources')
+    .where('status', '==', 'active')
+    .get()
+  const sources = snap.docs.map((d) => ({
+    slug: d.id,
+    url: d.data().url,
+  }))
+  if (!requestedSlugs.length) return sources
+  return sources.filter((s) =>
+    requestedSlugs.includes(s.slug)
+  )
+}
+
+async function partitionByOpportunityDoc(db, sources) {
+  const opportunities = await db
+    .collection('opportunities')
+    .get()
+  const slugsWithDoc = new Set(
+    opportunities.docs.map((d) => d.id)
+  )
+  return {
+    withOpportunityDoc: sources.filter((s) =>
+      slugsWithDoc.has(s.slug)
+    ),
+    withoutOpportunityDoc: sources.filter(
+      (s) => !slugsWithDoc.has(s.slug)
+    ),
+  }
+}
+
+async function writeImageFields(db, slug, image) {
+  await db
+    .collection('opportunities')
+    .doc(slug)
+    .set(
+      {
+        imageUrl: programImageUrl(image.filename),
+        imageFit: image.fit,
+      },
+      { merge: true }
+    )
+}
+
 async function main() {
   const repoRoot = path.resolve(__dirname, '..')
   loadEnvLocal(repoRoot)
-  fs.mkdirSync(OUT_DIR, { recursive: true })
+  fs.mkdirSync(PROGRAM_IMAGE_DIR, { recursive: true })
 
-  const args = process.argv.slice(2)
-  let project
-  const requestedSlugs = []
-  for (let i = 0; i < args.length; i++) {
-    if (args[i] === '--project') {
-      project = args[++i]
-    } else {
-      requestedSlugs.push(args[i])
-    }
-  }
-  project = project || process.env.NEXT_PUBLIC_FB_PROJECT_ID
+  const { project: projectArg, requestedSlugs } = parseArgs(
+    process.argv.slice(2)
+  )
+  const project =
+    projectArg || process.env.NEXT_PUBLIC_FB_PROJECT_ID
   if (!project)
     throw new Error(
       'No project id: pass --project <id> or set NEXT_PUBLIC_FB_PROJECT_ID.'
@@ -309,73 +374,33 @@ async function main() {
   })
   const db = admin.firestore()
 
-  let sourcesSnap = await db
-    .collection('opportunity-sources')
-    .where('status', '==', 'active')
-    .get()
-  let sources = sourcesSnap.docs.map((d) => ({
-    slug: d.id,
-    url: d.data().url,
-  }))
-  if (requestedSlugs.length) {
-    sources = sources.filter((s) =>
-      requestedSlugs.includes(s.slug)
-    )
-  }
-
-  // Only fetch images for sources that already have a real opportunities
-  // doc -- writing imageUrl/imageFit for a slug with no doc yet (e.g. a
-  // source that has never successfully scraped) would create a broken
-  // partial record with an image but no name/deadline/etc.
-  const existingOpps = await db
-    .collection('opportunities')
-    .get()
-  const existingSlugs = new Set(
-    existingOpps.docs.map((d) => d.id)
+  const requestedSources = await loadActiveSources(
+    db,
+    requestedSlugs
   )
-  const skippedNoDoc = sources.filter(
-    (s) => !existingSlugs.has(s.slug)
-  )
-  sources = sources.filter((s) => existingSlugs.has(s.slug))
-  if (skippedNoDoc.length) {
+  const { withOpportunityDoc, withoutOpportunityDoc } =
+    await partitionByOpportunityDoc(db, requestedSources)
+  if (withoutOpportunityDoc.length) {
+    const skippedSlugs = withoutOpportunityDoc
+      .map((s) => s.slug)
+      .join(', ')
     console.log(
-      `Skipping ${
-        skippedNoDoc.length
-      } source(s) with no opportunities doc yet: ${skippedNoDoc
-        .map((s) => s.slug)
-        .join(', ')}`
+      `Skipping ${withoutOpportunityDoc.length} source(s) with no opportunities doc yet: ${skippedSlugs}`
     )
   }
 
   console.log(
-    `Fetching images for ${sources.length} source(s)...`
+    `Fetching images for ${withOpportunityDoc.length} source(s)...`
   )
 
   let succeeded = 0
   const failures = []
 
-  for (const { slug, url } of sources) {
+  for (const { slug, url } of withOpportunityDoc) {
     process.stdout.write(`${slug}: `)
     try {
-      let result
-      try {
-        result = await attemptOnce(slug, url)
-      } catch {
-        await new Promise((resolve) =>
-          setTimeout(resolve, 1500)
-        )
-        result = await attemptOnce(slug, url)
-      }
-      await db
-        .collection('opportunities')
-        .doc(slug)
-        .set(
-          {
-            imageUrl: `/assets/programs/${result.filename}`,
-            imageFit: result.fit,
-          },
-          { merge: true }
-        )
+      const result = await attemptWithOneRetry(slug, url)
+      await writeImageFields(db, slug, result)
       succeeded += 1
       console.log(
         `OK (${result.source}, ${result.fit}) -> ${result.filename}`
@@ -384,11 +409,11 @@ async function main() {
       failures.push({ slug, error: err.message })
       console.log(`SKIPPED (${err.message})`)
     }
-    await new Promise((resolve) => setTimeout(resolve, 300))
+    await delay(BETWEEN_SOURCES_DELAY_MS)
   }
 
   console.log(
-    `\n${succeeded}/${sources.length} images fetched and written to Firestore.`
+    `\n${succeeded}/${withOpportunityDoc.length} images fetched and written to Firestore.`
   )
   if (failures.length) {
     console.log('\nFailed (left on icon fallback):')
