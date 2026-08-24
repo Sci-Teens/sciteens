@@ -21,6 +21,48 @@
         },
         { "fieldPath": "date", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "opportunities",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "deadlineStatus",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationDeadline",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "opportunities",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "deadlineStatus",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationDeadline",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "opportunities",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "deadlineStatus",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "applicationOpensDate",
+          "order": "ASCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": []

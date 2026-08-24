@@ -16,6 +16,7 @@ import {
   Newspaper,
   Folder,
   GraduationCap,
+  Compass,
   Users,
   HandHeart,
   UserPlus,
@@ -70,6 +71,13 @@ const NAV_LINKS = [
     label: 'courses',
     Icon: GraduationCap,
     active: (p) => p.includes('courses'),
+  },
+  {
+    href: '/opportunities',
+    label: 'opportunities',
+    Icon: Compass,
+    active: (p) =>
+      p.includes('opportunities') || p.includes('program'),
   },
   {
     href: '/get-involved',

@@ -70,6 +70,13 @@ const connectSrc = [
 
 module.exports = {
   output: 'standalone',
+  // Without this, Next infers the workspace root by walking up for the
+  // nearest lockfile — an orphaned package-lock.json in a parent
+  // directory gets picked over this repo's own pnpm-lock.yaml, and file
+  // tracing/watching scans that whole parent tree instead of just this
+  // repo (slow, especially on Windows). Pin it explicitly so a stray
+  // lockfile anywhere above this folder can never do that again.
+  outputFileTracingRoot: __dirname,
   // Isolates webpack's persistent cache per Firebase config —
   // without this, two `next dev` processes sharing distDir can leak
   // a client bundle compiled under the other config (see
