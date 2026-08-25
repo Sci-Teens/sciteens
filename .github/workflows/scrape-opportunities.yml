@@ -12,6 +12,9 @@ concurrency:
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
 
@@ -29,7 +32,9 @@ jobs:
       - id: auth
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.OPPORTUNITIES_GCP_SA_KEY }}
+          project_id: directed-relic-266701
+          workload_identity_provider: projects/872009864607/locations/global/workloadIdentityPools/github-actions/providers/github
+          service_account: opportunities-scraper@directed-relic-266701.iam.gserviceaccount.com
 
       - name: Run scraper
-        run: node scripts/scrapeOpportunities.js --project ${{ vars.FIREBASE_PROJECT_ID }}
+        run: node scripts/scrapeOpportunities.js --project directed-relic-266701
