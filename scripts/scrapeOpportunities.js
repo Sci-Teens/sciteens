@@ -4,7 +4,6 @@
 const fs = require('node:fs')
 const os = require('node:os')
 const path = require('node:path')
-const crypto = require('node:crypto')
 const { execFileSync } = require('node:child_process')
 const { chromium } = require('playwright')
 const cheerio = require('cheerio')
@@ -635,13 +634,6 @@ async function mapWithConcurrency(items, limit, worker) {
   return results
 }
 
-function contentHashFor(data) {
-  return crypto
-    .createHash('sha256')
-    .update(JSON.stringify(data))
-    .digest('hex')
-}
-
 function toQueryableTimestampOrNull(
   admin,
   slug,
@@ -769,7 +761,6 @@ async function commitOpportunityUpsert({
       ...imagePatch,
       sourceType: source.sourceType || 'curated',
       lastScrapedAt: now,
-      contentHash: contentHashFor(extracted),
     },
     { merge: true }
   )

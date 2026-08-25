@@ -346,6 +346,7 @@
     "results_count_one": "{{count}} opportunité",
     "results_count_other": "{{count}} opportunités",
     "deadline": "Date limite",
+    "deadline_unknown": "Date limite non confirmée",
     "rolling": "Admission continue",
     "grades": "Niveaux {{low}}–{{high}}",
     "grade_single": "Niveau {{grade}}",

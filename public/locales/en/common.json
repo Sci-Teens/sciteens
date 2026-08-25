@@ -346,6 +346,7 @@
     "results_count_one": "{{count}} opportunity",
     "results_count_other": "{{count}} opportunities",
     "deadline": "Deadline",
+    "deadline_unknown": "Deadline unconfirmed",
     "rolling": "Rolling admission",
     "grades": "Grades {{low}}–{{high}}",
     "grade_single": "Grade {{grade}}",

@@ -31,7 +31,10 @@ import {
   getTranslatedFieldsDict,
 } from '../../context/helpers'
 import { formatMediumDate } from '../../lib/formatDate'
-import { normalizeOpportunity } from '../../lib/opportunities'
+import {
+  deadlineDisplay,
+  normalizeOpportunity,
+} from '../../lib/opportunities'
 import firebaseConfig from '../../firebaseConfig'
 import { INLINE_LINK } from '../../lib/typography'
 
@@ -40,20 +43,20 @@ function Program({ program }) {
   const { t } = useTranslation('common')
   const translatedFields = getTranslatedFieldsDict(t)
 
-  const deadline = program.applicationDeadline
-    ? formatMediumDate(
-        program.applicationDeadline,
-        router.locale
-      )
-    : program.deadlineStatus === 'upcoming' &&
-      program.applicationOpensDate
-    ? t('opportunities.opens_on', {
-        date: formatMediumDate(
-          program.applicationOpensDate,
-          router.locale
-        ),
-      })
-    : t('opportunities.rolling')
+  const deadlineParts = deadlineDisplay(program)
+  const deadline =
+    deadlineParts.kind === 'dated'
+      ? formatMediumDate(deadlineParts.date, router.locale)
+      : deadlineParts.kind === 'opens'
+      ? t('opportunities.opens_on', {
+          date: formatMediumDate(
+            deadlineParts.date,
+            router.locale
+          ),
+        })
+      : deadlineParts.kind === 'rolling'
+      ? t('opportunities.rolling')
+      : t('opportunities.deadline_unknown')
   const dates =
     program.startDate && program.endDate
       ? `${formatMediumDate(

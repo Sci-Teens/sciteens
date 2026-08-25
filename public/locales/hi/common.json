@@ -346,6 +346,7 @@
     "results_count_one": "{{count}} अवसर",
     "results_count_other": "{{count}} अवसर",
     "deadline": "अंतिम तिथि",
+    "deadline_unknown": "समय सीमा अपुष्ट",
     "rolling": "सतत प्रवेश",
     "grades": "ग्रेड {{low}}–{{high}}",
     "grade_single": "ग्रेड {{grade}}",

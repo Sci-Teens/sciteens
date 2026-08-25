@@ -21,7 +21,9 @@ import { formatMediumDate } from '../lib/formatDate'
 import { db as firestore } from '../lib/firestore'
 import firebaseConfig from '../firebaseConfig'
 import {
+  deadlineDisplay,
   fetchClosedRecentlyOpportunities,
+  fetchDeadlineUnknownOpportunities,
   fetchOpenNowOpportunities,
   fetchOpeningSoonOpportunities,
 } from '../lib/opportunities'
@@ -49,6 +51,7 @@ const STATUS_OPTIONS = [
   'open',
   'opening_soon',
   'closed_recently',
+  'deadline_unknown',
 ]
 const DEFAULT_STATUS = 'open'
 
@@ -75,14 +78,30 @@ function metaLine(program, timingLabel, t) {
 }
 
 function upcomingDeadlineMeta(program, locale, t) {
-  const deadline = program.applicationDeadline
-    ? formatMediumDate(program.applicationDeadline, locale)
-    : ''
+  const { kind, date } = deadlineDisplay(program)
+  if (kind === 'dated') {
+    return metaLine(
+      program,
+      `${t('opportunities.deadline')} ${formatMediumDate(
+        date,
+        locale
+      )}`,
+      t
+    )
+  }
   return metaLine(
     program,
-    deadline
-      ? `${t('opportunities.deadline')} ${deadline}`
-      : t('opportunities.rolling'),
+    kind === 'rolling'
+      ? t('opportunities.rolling')
+      : t('opportunities.deadline_unknown'),
+    t
+  )
+}
+
+function deadlineUnknownMeta(program, locale, t) {
+  return metaLine(
+    program,
+    t('opportunities.deadline_unknown'),
     t
   )
 }
@@ -286,6 +305,7 @@ function Opportunities({
   initialOpenNow,
   initialOpeningSoon,
   initialClosedRecently,
+  initialDeadlineUnknown,
 }) {
   const router = useRouter()
   const { t } = useTranslation('common')
@@ -304,6 +324,11 @@ function Opportunities({
     'closedRecently',
     fetchClosedRecentlyOpportunities,
     initialClosedRecently
+  )
+  const deadlineUnknownQuery = useLiveOpportunities(
+    'deadlineUnknown',
+    fetchDeadlineUnknownOpportunities,
+    initialDeadlineUnknown
   )
 
   const [search, setSearch] = useState('')
@@ -354,6 +379,10 @@ function Opportunities({
   )
   const filteredClosedRecently = useFilteredPrograms(
     closedRecentlyQuery.data,
+    filterParams
+  )
+  const filteredDeadlineUnknown = useFilteredPrograms(
+    deadlineUnknownQuery.data,
     filterParams
   )
 
@@ -411,6 +440,7 @@ function Opportunities({
     open: t('opportunities.open_now'),
     opening_soon: t('opportunities.opening_soon'),
     closed_recently: t('opportunities.closed_recently'),
+    deadline_unknown: t('opportunities.deadline_unknown'),
   }
 
   const activeView = {
@@ -428,6 +458,11 @@ function Opportunities({
       list: filteredClosedRecently,
       meta: pastDeadlineMeta,
       muted: true,
+    },
+    deadline_unknown: {
+      list: filteredDeadlineUnknown,
+      meta: deadlineUnknownMeta,
+      muted: false,
     },
   }[statusParam]
 
@@ -617,11 +652,13 @@ export async function getStaticProps({ locale }) {
     initialOpenNow,
     initialOpeningSoon,
     initialClosedRecently,
+    initialDeadlineUnknown,
   ] = await Promise.all([
     translationsPromise,
     fetchOpenNowOpportunities(buildFirestore),
     fetchOpeningSoonOpportunities(buildFirestore),
     fetchClosedRecentlyOpportunities(buildFirestore),
+    fetchDeadlineUnknownOpportunities(buildFirestore),
   ])
 
   return {
@@ -629,6 +666,7 @@ export async function getStaticProps({ locale }) {
       initialOpenNow,
       initialOpeningSoon,
       initialClosedRecently,
+      initialDeadlineUnknown,
       ...translations,
     },
   }
