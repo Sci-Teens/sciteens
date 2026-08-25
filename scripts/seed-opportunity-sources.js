@@ -8,223 +8,34 @@ const { execFileSync } = require('node:child_process')
 
 const OPPORTUNITY_SOURCES_COLLECTION = 'opportunity-sources'
 
-const APPENDIX_CATEGORY = {
-  mitAffiliated: 'MIT-affiliated',
-  universityResearch: 'University research programs',
-  nationalLabsAndGovernment: 'National labs / government',
-  stateGovernorsSchools:
-    "State-run Governor's Schools / academic talent",
-  codingAndTech: 'Coding / tech-focused',
-  competitions: 'Competitions',
+const SOURCES_DATA_FILE = path.join(
+  __dirname,
+  'data',
+  'opportunity-sources.json'
+)
+
+function loadSources() {
+  const sources = JSON.parse(
+    fs.readFileSync(SOURCES_DATA_FILE, 'utf8')
+  )
+  if (!Array.isArray(sources) || sources.length === 0) {
+    throw new Error(
+      `No sources found in ${SOURCES_DATA_FILE}`
+    )
+  }
+  for (const source of sources) {
+    for (const required of ['slug', 'url', 'label']) {
+      if (!source[required]) {
+        throw new Error(
+          `Source is missing ${required}: ${JSON.stringify(
+            source
+          )}`
+        )
+      }
+    }
+  }
+  return sources
 }
-
-const SOURCES = [
-  {
-    programSlug: 'rsi',
-    url: 'https://www.cee.org/programs/research-science-institute-rsi',
-    label: 'Research Science Institute (RSI)',
-    category: APPENDIX_CATEGORY.mitAffiliated,
-  },
-  {
-    programSlug: 'mites-summer',
-    url: 'https://mites.mit.edu/mites-summer/',
-    label: 'MITES Summer',
-    category: APPENDIX_CATEGORY.mitAffiliated,
-  },
-  {
-    programSlug: 'mit-primes',
-    url: 'https://math.mit.edu/research/highschool/primes/',
-    label: 'MIT PRIMES',
-    category: APPENDIX_CATEGORY.mitAffiliated,
-  },
-  {
-    programSlug: 'wtp',
-    url: 'https://wtp.mit.edu/',
-    label: "Women's Technology Program (WTP)",
-    category: APPENDIX_CATEGORY.mitAffiliated,
-  },
-  {
-    programSlug: 'mathroots',
-    url: 'https://math.mit.edu/mathroots/',
-    label: 'MIT mathroots',
-    category: APPENDIX_CATEGORY.mitAffiliated,
-  },
-
-  {
-    programSlug: 'ssp',
-    url: 'https://ssp.org/',
-    label: 'Summer Science Program (SSP)',
-    category: APPENDIX_CATEGORY.universityResearch,
-  },
-  {
-    programSlug: 'bu-rise',
-    url: 'https://www.bu.edu/summer/high-school-programs/rise/',
-    label: 'BU RISE',
-    category: APPENDIX_CATEGORY.universityResearch,
-  },
-  {
-    programSlug: 'cmu-sams',
-    url: 'https://www.cmu.edu/pre-college/academic-programs/sams.html',
-    label: 'CMU SAMS',
-    category: APPENDIX_CATEGORY.universityResearch,
-  },
-  {
-    programSlug: 'clark-scholars',
-    url: 'https://www.depts.ttu.edu/clarkscholars/',
-    label: 'Clark Scholars (Texas Tech)',
-    category: APPENDIX_CATEGORY.universityResearch,
-  },
-  {
-    programSlug: 'bnl-hsrp',
-    url: 'https://www.bnl.gov/education/programs/program.php?q=274',
-    label: 'Brookhaven National Lab HSRP',
-    category: APPENDIX_CATEGORY.universityResearch,
-  },
-  {
-    programSlug: 'stanford-aimi',
-    url: 'https://aimi.stanford.edu/education/aimi-summer-internship',
-    label: 'Stanford AIMI Summer Research',
-    category: APPENDIX_CATEGORY.universityResearch,
-  },
-  {
-    programSlug: 'stanford-cnix',
-    url: 'https://med.stanford.edu/cninx.html',
-    label: 'Stanford CNI-X',
-    category: APPENDIX_CATEGORY.universityResearch,
-  },
-  {
-    programSlug: 'ucla-summer-sessions',
-    url: 'https://www.summer.ucla.edu/high-school-programs',
-    label: 'UCLA Summer Sessions (pre-college)',
-    category: APPENDIX_CATEGORY.universityResearch,
-  },
-  {
-    programSlug: 'wpi-frontiers',
-    url: 'https://www.wpi.edu/academics/pre-collegiate/stem-residential/frontiers/',
-    label: 'WPI Frontiers Program',
-    category: APPENDIX_CATEGORY.universityResearch,
-  },
-  {
-    programSlug: 'jhu-cty',
-    url: 'https://cty.jhu.edu',
-    label: 'Johns Hopkins CTY',
-    category: APPENDIX_CATEGORY.universityResearch,
-  },
-
-  {
-    programSlug: 'nasa-internships',
-    url: 'https://intern.nasa.gov/',
-    label: 'NASA high school internships',
-    category: APPENDIX_CATEGORY.nationalLabsAndGovernment,
-  },
-  {
-    programSlug: 'simons-summer-research',
-    url: 'https://www.stonybrook.edu/commcms/simons/program/',
-    label: 'Simons Summer Research (Stony Brook)',
-    category: APPENDIX_CATEGORY.nationalLabsAndGovernment,
-  },
-  {
-    programSlug: 'nih-hs-research',
-    url: 'https://www.training.nih.gov/programs/hs_srp',
-    label: 'NIH high school research',
-    category: APPENDIX_CATEGORY.nationalLabsAndGovernment,
-  },
-  {
-    programSlug: 'fermilab-prism',
-    url: 'https://internships.fnal.gov/fermilab-program-for-research-innovation-and-stem-mentorship-prism/',
-    label: 'Fermilab PRISM',
-    category: APPENDIX_CATEGORY.nationalLabsAndGovernment,
-  },
-
-  {
-    programSlug: 'nj-gset',
-    url: 'https://gset.rutgers.edu',
-    label:
-      "NJ Governor's School of Engineering & Technology (GSET)",
-    category: APPENDIX_CATEGORY.stateGovernorsSchools,
-  },
-  {
-    programSlug: 'cosmos',
-    url: 'https://cosmos-ucop.ucdavis.edu',
-    label:
-      'COSMOS (CA State Summer School for Math & Science)',
-    category: APPENDIX_CATEGORY.stateGovernorsSchools,
-  },
-  {
-    programSlug: 'ncssm-summer-ventures',
-    url: 'https://www.ncssm.edu/summer/summer-ventures',
-    label: 'NCSSM Summer Ventures',
-    category: APPENDIX_CATEGORY.stateGovernorsSchools,
-  },
-
-  {
-    programSlug: 'girls-who-code-pathways',
-    url: 'https://girlswhocode.com/programs/pathways',
-    label: 'Girls Who Code -- Pathways',
-    category: APPENDIX_CATEGORY.codingAndTech,
-  },
-  {
-    programSlug: 'kode-with-klossy',
-    url: 'https://www.kodewithklossy.com',
-    label: 'Kode With Klossy',
-    category: APPENDIX_CATEGORY.codingAndTech,
-  },
-  {
-    programSlug: 'all-star-code',
-    url: 'https://www.allstarcode.org',
-    label: 'All Star Code',
-    category: APPENDIX_CATEGORY.codingAndTech,
-  },
-  {
-    programSlug: 'inspirit-ai',
-    url: 'https://www.inspiritai.com',
-    label: 'Inspirit AI Scholars Program',
-    category: APPENDIX_CATEGORY.codingAndTech,
-  },
-
-  {
-    programSlug: 'regeneron-sts',
-    url: 'https://www.societyforscience.org/regeneron-sts/',
-    label: 'Regeneron Science Talent Search',
-    category: APPENDIX_CATEGORY.competitions,
-  },
-  {
-    programSlug: 'regeneron-isef',
-    url: 'https://www.societyforscience.org/isef/',
-    label: 'Regeneron ISEF',
-    category: APPENDIX_CATEGORY.competitions,
-  },
-  {
-    programSlug: 'technovation-girls',
-    url: 'https://technovationchallenge.org',
-    label: 'Technovation Girls',
-    category: APPENDIX_CATEGORY.competitions,
-  },
-  {
-    programSlug: 'conrad-challenge',
-    url: 'https://www.conradchallenge.org',
-    label: 'Conrad Challenge',
-    category: APPENDIX_CATEGORY.competitions,
-  },
-  {
-    programSlug: 'ecybermission',
-    url: 'https://www.usaeop.com/program/ecybermission/',
-    label: 'eCYBERMISSION',
-    category: APPENDIX_CATEGORY.competitions,
-  },
-  {
-    programSlug: 'breakthrough-junior-challenge',
-    url: 'https://breakthroughjuniorchallenge.org',
-    label: 'Breakthrough Junior Challenge',
-    category: APPENDIX_CATEGORY.competitions,
-  },
-  {
-    programSlug: 'first-robotics',
-    url: 'https://www.firstinspires.org/programs/frc/',
-    label: 'FIRST Robotics Competition',
-    category: APPENDIX_CATEGORY.competitions,
-  },
-]
 
 function parseArgs(argv) {
   const args = { execute: false, project: undefined }
@@ -331,30 +142,27 @@ function resolveCredential(admin) {
 
 function assertSlugsAreUnique(sources) {
   const slugs = new Set()
-  for (const { programSlug } of sources) {
-    if (slugs.has(programSlug))
-      throw new Error(
-        `Duplicate slug in SOURCES: ${programSlug}`
-      )
-    slugs.add(programSlug)
+  for (const { slug } of sources) {
+    if (slugs.has(slug)) {
+      throw new Error(`Duplicate slug in SOURCES: ${slug}`)
+    }
+    slugs.add(slug)
   }
 }
 
 async function createSourceIfMissing(db, source, execute) {
   const ref = db
     .collection(OPPORTUNITY_SOURCES_COLLECTION)
-    .doc(source.programSlug)
+    .doc(source.slug)
   const existing = await ref.get()
   if (existing.exists) {
-    console.log(
-      `  skip (already exists): ${source.programSlug}`
-    )
+    console.log(`  skip (already exists): ${source.slug}`)
     return false
   }
 
   console.log(
     `  ${execute ? 'create' : '[dry run] would create'}: ${
-      source.programSlug
+      source.slug
     } -- ${source.label}`
   )
   if (execute) {
@@ -362,6 +170,7 @@ async function createSourceIfMissing(db, source, execute) {
       url: source.url,
       label: source.label,
       category: source.category,
+      logoUrl: source.logoUrl || null,
       sourceType: 'curated',
       status: 'active',
       verificationReasoning: null,
@@ -394,12 +203,13 @@ async function main() {
   })
   const db = admin.firestore()
 
-  assertSlugsAreUnique(SOURCES)
+  const sources = loadSources()
+  assertSlugsAreUnique(sources)
 
   let created = 0
   let skipped = 0
 
-  for (const source of SOURCES) {
+  for (const source of sources) {
     const wasCreated = await createSourceIfMissing(
       db,
       source,

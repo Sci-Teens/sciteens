@@ -1,0 +1,206 @@
+[
+  {
+    "slug": "rsi",
+    "url": "https://www.cee.org/programs/research-science-institute-rsi",
+    "label": "Research Science Institute (RSI)",
+    "category": "MIT-affiliated"
+  },
+  {
+    "slug": "mites-summer",
+    "url": "https://mites.mit.edu/mites-summer/",
+    "label": "MITES Summer",
+    "category": "MIT-affiliated"
+  },
+  {
+    "slug": "mit-primes",
+    "url": "https://math.mit.edu/research/highschool/primes/",
+    "label": "MIT PRIMES",
+    "category": "MIT-affiliated"
+  },
+  {
+    "slug": "wtp",
+    "url": "https://wtp.mit.edu/",
+    "label": "Women's Technology Program (WTP)",
+    "category": "MIT-affiliated"
+  },
+  {
+    "slug": "mathroots",
+    "url": "https://math.mit.edu/mathroots/",
+    "label": "MIT mathroots",
+    "category": "MIT-affiliated"
+  },
+  {
+    "slug": "ssp",
+    "url": "https://ssp.org/",
+    "label": "Summer Science Program (SSP)",
+    "category": "University research programs"
+  },
+  {
+    "slug": "bu-rise",
+    "url": "https://www.bu.edu/summer/high-school-programs/rise/",
+    "label": "BU RISE",
+    "category": "University research programs",
+    "logoUrl": "https://www.bu.edu/cdn/images/logos/masterplate112x50.png"
+  },
+  {
+    "slug": "cmu-sams",
+    "url": "https://www.cmu.edu/pre-college/academic-programs/sams.html",
+    "label": "CMU SAMS",
+    "category": "University research programs"
+  },
+  {
+    "slug": "clark-scholars",
+    "url": "https://www.depts.ttu.edu/clarkscholars/",
+    "label": "Clark Scholars (Texas Tech)",
+    "category": "University research programs"
+  },
+  {
+    "slug": "bnl-hsrp",
+    "url": "https://www.bnl.gov/education/programs/program.php?q=274",
+    "label": "Brookhaven National Lab HSRP",
+    "category": "University research programs"
+  },
+  {
+    "slug": "stanford-aimi",
+    "url": "https://aimi.stanford.edu/education/aimi-summer-internship",
+    "label": "Stanford AIMI Summer Research",
+    "category": "University research programs"
+  },
+  {
+    "slug": "stanford-cnix",
+    "url": "https://med.stanford.edu/cninx.html",
+    "label": "Stanford CNI-X",
+    "category": "University research programs"
+  },
+  {
+    "slug": "ucla-summer-sessions",
+    "url": "https://www.summer.ucla.edu/high-school-programs",
+    "label": "UCLA Summer Sessions (pre-college)",
+    "category": "University research programs"
+  },
+  {
+    "slug": "wpi-frontiers",
+    "url": "https://www.wpi.edu/academics/pre-collegiate/stem-residential/frontiers/",
+    "label": "WPI Frontiers Program",
+    "category": "University research programs"
+  },
+  {
+    "slug": "jhu-cty",
+    "url": "https://cty.jhu.edu",
+    "label": "Johns Hopkins CTY",
+    "category": "University research programs",
+    "logoUrl": "https://cty.jhu.edu/themes/custom/barrio_sass_cty/logo.png"
+  },
+  {
+    "slug": "nasa-internships",
+    "url": "https://intern.nasa.gov/",
+    "label": "NASA high school internships",
+    "category": "National labs / government"
+  },
+  {
+    "slug": "simons-summer-research",
+    "url": "https://www.stonybrook.edu/commcms/simons/program/",
+    "label": "Simons Summer Research (Stony Brook)",
+    "category": "National labs / government"
+  },
+  {
+    "slug": "nih-hs-research",
+    "url": "https://www.training.nih.gov/programs/hs_srp",
+    "label": "NIH high school research",
+    "category": "National labs / government"
+  },
+  {
+    "slug": "fermilab-prism",
+    "url": "https://internships.fnal.gov/fermilab-program-for-research-innovation-and-stem-mentorship-prism/",
+    "label": "Fermilab PRISM",
+    "category": "National labs / government"
+  },
+  {
+    "slug": "nj-gset",
+    "url": "https://gset.rutgers.edu",
+    "label": "NJ Governor's School of Engineering & Technology (GSET)",
+    "category": "State-run Governor's Schools / academic talent",
+    "logoUrl": "https://gset.rutgers.edu/sites/default/files/inline-images/RU_SIG_SE_CMYK_K.png"
+  },
+  {
+    "slug": "cosmos",
+    "url": "https://cosmos-ucop.ucdavis.edu",
+    "label": "COSMOS (CA State Summer School for Math & Science)",
+    "category": "State-run Governor's Schools / academic talent",
+    "logoUrl": "https://cosmos-ucop.ucdavis.edu/Contents/i/cosmos-logo.png"
+  },
+  {
+    "slug": "ncssm-summer-ventures",
+    "url": "https://www.ncssm.edu/summer/summer-ventures",
+    "label": "NCSSM Summer Ventures",
+    "category": "State-run Governor's Schools / academic talent"
+  },
+  {
+    "slug": "girls-who-code-pathways",
+    "url": "https://girlswhocode.com/programs/pathways",
+    "label": "Girls Who Code -- Pathways",
+    "category": "Coding / tech-focused"
+  },
+  {
+    "slug": "kode-with-klossy",
+    "url": "https://www.kodewithklossy.com",
+    "label": "Kode With Klossy",
+    "category": "Coding / tech-focused"
+  },
+  {
+    "slug": "all-star-code",
+    "url": "https://www.allstarcode.org",
+    "label": "All Star Code",
+    "category": "Coding / tech-focused",
+    "logoUrl": "https://allstarcode.org/wp-content/themes/all-star-code/assets/img/logo.svg"
+  },
+  {
+    "slug": "inspirit-ai",
+    "url": "https://www.inspiritai.com",
+    "label": "Inspirit AI Scholars Program",
+    "category": "Coding / tech-focused"
+  },
+  {
+    "slug": "regeneron-sts",
+    "url": "https://www.societyforscience.org/regeneron-sts/",
+    "label": "Regeneron Science Talent Search",
+    "category": "Competitions"
+  },
+  {
+    "slug": "regeneron-isef",
+    "url": "https://www.societyforscience.org/isef/",
+    "label": "Regeneron ISEF",
+    "category": "Competitions"
+  },
+  {
+    "slug": "technovation-girls",
+    "url": "https://technovationchallenge.org",
+    "label": "Technovation Girls",
+    "category": "Competitions"
+  },
+  {
+    "slug": "conrad-challenge",
+    "url": "https://www.conradchallenge.org",
+    "label": "Conrad Challenge",
+    "category": "Competitions"
+  },
+  {
+    "slug": "ecybermission",
+    "url": "https://www.usaeop.com/program/ecybermission/",
+    "label": "eCYBERMISSION",
+    "category": "Competitions"
+  },
+  {
+    "slug": "breakthrough-junior-challenge",
+    "url": "https://breakthroughjuniorchallenge.org",
+    "label": "Breakthrough Junior Challenge",
+    "category": "Competitions"
+  },
+  {
+    "slug": "first-robotics",
+    "url": "https://www.firstinspires.org/programs/frc/",
+    "label": "FIRST Robotics Competition",
+    "category": "Competitions",
+    "logoUrl": "https://www.firstinspires.org/hubfs/web/design/first-web/Branding/Primaries/Logo%20Primary.svg"
+  }
+]

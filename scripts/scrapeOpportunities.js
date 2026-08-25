@@ -334,10 +334,14 @@ async function ogImageUrl(browser, sourceUrl) {
   return null
 }
 
-async function imageCandidateUrls(browser, sourceUrl) {
+async function imageCandidateUrls(
+  browser,
+  sourceUrl,
+  curatedLogoUrl
+) {
   const ogImage = await ogImageUrl(browser, sourceUrl)
   const favicon = faviconFallbackUrl(sourceUrl)
-  return ogImage ? [ogImage, favicon] : [favicon]
+  return [curatedLogoUrl, ogImage, favicon].filter(Boolean)
 }
 
 async function uploadCoverImage(
@@ -360,11 +364,13 @@ async function fetchAndUploadImage(
   browser,
   bucket,
   slug,
-  sourceUrl
+  sourceUrl,
+  curatedLogoUrl
 ) {
   const candidates = await imageCandidateUrls(
     browser,
-    sourceUrl
+    sourceUrl,
+    curatedLogoUrl
   )
   for (const candidateUrl of candidates) {
     try {
@@ -714,6 +720,7 @@ async function imagePatchOrEmpty(
   bucket,
   slug,
   sourceUrl,
+  curatedLogoUrl,
   refreshImages
 ) {
   if (!refreshImages) {
@@ -730,7 +737,8 @@ async function imagePatchOrEmpty(
       browser,
       bucket,
       slug,
-      sourceUrl
+      sourceUrl,
+      curatedLogoUrl
     )
     return image || {}
   } catch (err) {
@@ -841,6 +849,7 @@ async function scrapeSource(runContext, source) {
       bucket,
       slug,
       url,
+      source.logoUrl || null,
       refreshImages
     )
     await commitOpportunityUpsert({
