@@ -8,13 +8,18 @@ const crypto = require('node:crypto')
 const { execFileSync } = require('node:child_process')
 const { chromium } = require('playwright')
 const cheerio = require('cheerio')
-const sharp = require('sharp')
 const { z } = require('zod')
 const dns = require('node:dns').promises
 const {
   GoogleGenAI,
   FunctionCallingConfigMode,
 } = require('@google/genai')
+const {
+  buildCoverFromBuffer,
+  defaultBucketName,
+  extForContentType,
+  uploadCoverWebp,
+} = require('./lib/programImages')
 
 const MODEL = 'gemini-3.7-flash'
 const DEFAULT_VERTEX_LOCATION = 'global'
@@ -22,9 +27,6 @@ const MAX_OUTPUT_TOKENS = 8192
 const MAX_FETCHES_PER_SOURCE = 5
 const CONCURRENCY = 3
 
-const IMAGE_MIN_BYTES = 500
-const IMAGE_MIN_DIMENSION = 96
-const IMAGE_CONTAIN_ABOVE_RATIO = 1.8
 const IMAGE_FETCH_TIMEOUT_MS = 12000
 const IMAGE_USER_AGENT =
   'Mozilla/5.0 (compatible; SciTeensImageFetcher/1.0; +https://sciteens.org)'
@@ -236,106 +238,12 @@ function extractPageContent(html, baseUrl) {
   }
 }
 
-function isPrivateIpv4(host) {
-  const octets = host.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/)
-  if (!octets) return false
-  const a = Number(octets[1])
-  const b = Number(octets[2])
-  if (a === 0 || a === 10 || a === 127) return true
-  if (a === 169 && b === 254) return true
-  if (a === 192 && b === 168) return true
-  if (a === 172 && b >= 16 && b <= 31) return true
-  if (a === 100 && b >= 64 && b <= 127) return true
-  return false
-}
-
-function ipv4FromMappedIpv6(addr) {
-  const mapped = addr.match(/^(?:::ffff:)(.+)$/)
-  if (!mapped) return null
-  const tail = mapped[1]
-  if (/^\d+\.\d+\.\d+\.\d+$/.test(tail)) return tail
-  const hextets = tail.match(
-    /^([0-9a-f]{1,4}):([0-9a-f]{1,4})$/
-  )
-  if (!hextets) return null
-  const high = parseInt(hextets[1], 16)
-  const low = parseInt(hextets[2], 16)
-  return [high >> 8, high & 255, low >> 8, low & 255].join(
-    '.'
-  )
-}
-
-function isPrivateIpv6(host) {
-  const addr = host.replace(/^\[|\]$/g, '').toLowerCase()
-  if (addr === '::1' || addr === '::') return true
-  if (/^f[cd]/.test(addr)) return true
-  if (/^fe[89ab]/.test(addr)) return true
-  const mappedIpv4 = ipv4FromMappedIpv6(addr)
-  return mappedIpv4 ? isPrivateIpv4(mappedIpv4) : false
-}
-
-function isPrivateHost(host) {
-  const name = host.replace(/^\[|\]$/g, '').toLowerCase()
-  if (
-    name === 'localhost' ||
-    name.endsWith('.localhost') ||
-    name.endsWith('.internal') ||
-    name.endsWith('.local')
-  ) {
-    return true
-  }
-  return isPrivateIpv4(name) || isPrivateIpv6(name)
-}
-
-const privateHostnameCache = new Map()
-
-async function resolvesToPrivateAddress(hostname) {
-  const cached = privateHostnameCache.get(hostname)
-  if (cached !== undefined) return cached
-  let isPrivate
-  try {
-    const records = await dns.lookup(hostname, {
-      all: true,
-    })
-    isPrivate = records.some((record) =>
-      record.family === 6
-        ? isPrivateIpv6(record.address)
-        : isPrivateIpv4(record.address)
-    )
-  } catch {
-    isPrivate = true
-  }
-  privateHostnameCache.set(hostname, isPrivate)
-  return isPrivate
-}
-
-function isNonNetworkScheme(protocol) {
-  return (
-    protocol === 'data:' ||
-    protocol === 'about:' ||
-    protocol === 'blob:'
-  )
-}
-
-async function publicHttpUrlOrNull(rawUrl) {
-  let parsed
-  try {
-    parsed = new URL(String(rawUrl))
-  } catch {
-    return null
-  }
-  if (
-    parsed.protocol !== 'http:' &&
-    parsed.protocol !== 'https:'
-  ) {
-    return null
-  }
-  if (isPrivateHost(parsed.hostname)) return null
-  if (await resolvesToPrivateAddress(parsed.hostname)) {
-    return null
-  }
-  return parsed.toString()
-}
+const {
+  assertPublicHttpUrl,
+  fetchPublicUrl,
+  isNonNetworkScheme,
+  publicHttpUrlOrNull,
+} = require('./lib/publicUrl')
 
 async function fetchPage(browser, url) {
   const safeUrl = await publicHttpUrlOrNull(url)
@@ -391,29 +299,6 @@ function faviconFallbackUrl(pageUrl) {
   return `https://www.google.com/s2/favicons?domain=${domain}&sz=256`
 }
 
-function extForContentType(contentType) {
-  if (contentType.includes('png')) return 'png'
-  if (contentType.includes('webp')) return 'webp'
-  if (contentType.includes('gif')) return 'gif'
-  if (contentType.includes('svg')) return 'svg'
-  return 'jpg'
-}
-
-function svgAspectRatio(svgText) {
-  const match = svgText.match(/viewBox=["']([^"']+)["']/)
-  if (!match) return 1
-  const parts = match[1].split(/\s+/).map(Number)
-  if (parts.length !== 4 || !parts[3]) return 1
-  return parts[2] / parts[3]
-}
-
-function fitForRatio(ratio) {
-  return ratio > IMAGE_CONTAIN_ABOVE_RATIO ||
-    ratio < 1 / IMAGE_CONTAIN_ABOVE_RATIO
-    ? 'contain'
-    : 'cover'
-}
-
 async function downloadImageBuffer(imageUrl) {
   const controller = new AbortController()
   const timer = setTimeout(
@@ -422,8 +307,7 @@ async function downloadImageBuffer(imageUrl) {
   )
   let res
   try {
-    res = await fetch(imageUrl, {
-      redirect: 'follow',
+    res = await fetchPublicUrl(imageUrl, {
       signal: controller.signal,
       headers: { 'User-Agent': IMAGE_USER_AGENT },
     })
@@ -433,32 +317,10 @@ async function downloadImageBuffer(imageUrl) {
   if (!res.ok)
     throw new Error(`image fetch HTTP ${res.status}`)
   const contentType = res.headers.get('content-type') || ''
-  const buffer = Buffer.from(await res.arrayBuffer())
-  if (buffer.length < IMAGE_MIN_BYTES) {
-    throw new Error(
-      `image too small (${buffer.length}b), likely a placeholder`
-    )
+  return {
+    buffer: Buffer.from(await res.arrayBuffer()),
+    ext: extForContentType(contentType),
   }
-
-  const ext = extForContentType(contentType)
-  let fit
-  if (ext === 'svg') {
-    fit = fitForRatio(
-      svgAspectRatio(buffer.toString('utf8'))
-    )
-  } else {
-    const { width, height } = await sharp(buffer).metadata()
-    if (
-      (width || 0) < IMAGE_MIN_DIMENSION ||
-      (height || 0) < IMAGE_MIN_DIMENSION
-    ) {
-      throw new Error(
-        `image too small (${width}x${height}), would look blurry at card size`
-      )
-    }
-    fit = fitForRatio((width || 1) / (height || 1))
-  }
-  return { buffer, ext, fit }
 }
 
 async function ogImageUrl(browser, sourceUrl) {
@@ -484,21 +346,15 @@ async function uploadCoverImage(
   slug,
   candidateUrl
 ) {
-  const { buffer, ext, fit } = await downloadImageBuffer(
+  const { buffer, ext } = await downloadImageBuffer(
     candidateUrl
   )
-  const objectPath = `opportunities/${slug}/cover.${ext}`
-  const file = bucket.file(objectPath)
-  await file.save(buffer, {
-    contentType: `image/${ext === 'jpg' ? 'jpeg' : ext}`,
-    metadata: {
-      cacheControl: 'public, max-age=604800',
-    },
-  })
-  const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${
-    bucket.name
-  }/o/${encodeURIComponent(objectPath)}?alt=media`
-  return { imageUrl, imageFit: fit }
+  const { webp, imageFit } = await buildCoverFromBuffer(
+    buffer,
+    ext
+  )
+  const imageUrl = await uploadCoverWebp(bucket, slug, webp)
+  return { imageUrl, imageFit }
 }
 
 async function fetchAndUploadImage(
@@ -992,7 +848,9 @@ async function main() {
     credential: resolveCredential(admin),
     projectId,
     storageBucket:
-      args.bucket || `${projectId}.firebasestorage.app`,
+      args.bucket ||
+      process.env.FIREBASE_STORAGE_BUCKET ||
+      defaultBucketName(projectId),
   })
   const db = admin.firestore()
   const bucket = admin.storage().bucket()

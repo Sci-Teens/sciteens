@@ -365,18 +365,10 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // ---- Opportunities ----------------------------------------------------
-    // Server-managed by the weekly Tier 1 scraper (GitHub Actions, Admin
-    // SDK writes only) and, later, the Tier 2 discovery layer. Independent
-    // of the old, unused /programs and /programs-minified collections
-    // above -- see AGENTS.md / project plan for why this wasn't reused.
     match /opportunities/{opportunityId} {
       allow read: if true;
       allow write: if false;
     }
-    // Operator/agent-managed source URL list driving the scraper. Never
-    // read by the client -- nothing in the UI lists sources -- so it's
-    // locked down entirely rather than just to writes.
     match /opportunity-sources/{sourceId} {
       allow read: if false;
       allow write: if false;

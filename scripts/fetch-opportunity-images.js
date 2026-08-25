@@ -5,7 +5,13 @@ const fs = require('node:fs')
 const os = require('node:os')
 const path = require('node:path')
 const { execFileSync } = require('node:child_process')
-const sharp = require('sharp')
+const {
+  buildCoverFromBuffer,
+  defaultBucketName,
+  extForContentType,
+  uploadCoverWebp,
+} = require('./lib/programImages')
+const { fetchPublicUrl } = require('./lib/publicUrl')
 
 const GENERIC_BROWSER_UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36'
@@ -32,30 +38,11 @@ const HAND_FOUND_LOGO_URLS = {
   },
 }
 
-const PROGRAM_IMAGE_DIR = path.join(
-  __dirname,
-  '..',
-  'public',
-  'assets',
-  'programs'
-)
-const PROGRAM_IMAGE_URL_DIR = '/assets/programs'
 const USER_AGENT =
   'Mozilla/5.0 (compatible; SciTeensImageFetcher/1.0; +https://sciteens.org)'
 const TIMEOUT_MS = 12000
-const MIN_BYTES = 500
-const MIN_DIMENSION = 96
-const CONTAIN_ABOVE_RATIO = 1.8
 const RETRY_DELAY_MS = 1500
 const BETWEEN_SOURCES_DELAY_MS = 300
-
-function programImagePathWithoutExt(slug) {
-  return path.join(PROGRAM_IMAGE_DIR, slug)
-}
-
-function programImageUrl(filename) {
-  return `${PROGRAM_IMAGE_URL_DIR}/${filename}`
-}
 
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -68,9 +55,7 @@ async function fetchWithTimeout(url, opts = {}) {
     TIMEOUT_MS
   )
   try {
-    return await fetch(url, {
-      redirect: 'follow',
-      ...opts,
+    return await fetchPublicUrl(url, {
       signal: controller.signal,
       headers: {
         'User-Agent': USER_AGENT,
@@ -117,32 +102,8 @@ function faviconFallbackUrl(pageUrl) {
   return `https://www.google.com/s2/favicons?domain=${domain}&sz=256`
 }
 
-function extForContentType(contentType) {
-  if (contentType.includes('png')) return 'png'
-  if (contentType.includes('webp')) return 'webp'
-  if (contentType.includes('gif')) return 'gif'
-  if (contentType.includes('svg')) return 'svg'
-  return 'jpg'
-}
-
-function svgAspectRatio(svgText) {
-  const match = svgText.match(/viewBox=["']([^"']+)["']/)
-  if (!match) return 1
-  const parts = match[1].split(/\s+/).map(Number)
-  if (parts.length !== 4 || !parts[3]) return 1
-  return parts[2] / parts[3]
-}
-
-function fitForRatio(ratio) {
-  return ratio > CONTAIN_ABOVE_RATIO ||
-    ratio < 1 / CONTAIN_ABOVE_RATIO
-    ? 'contain'
-    : 'cover'
-}
-
 async function downloadImage(
   imageUrl,
-  destPathNoExt,
   { skipDimensionGate = false, headers } = {}
 ) {
   const res = await fetchWithTimeout(imageUrl, { headers })
@@ -150,78 +111,48 @@ async function downloadImage(
     throw new Error(`image fetch HTTP ${res.status}`)
   const contentType = res.headers.get('content-type') || ''
   const buffer = Buffer.from(await res.arrayBuffer())
-  if (buffer.length < MIN_BYTES) {
-    throw new Error(
-      `image too small (${buffer.length}b), likely a placeholder`
-    )
-  }
-  const ext = extForContentType(contentType)
-  let fit = 'cover'
-  if (ext === 'svg') {
-    fit = fitForRatio(
-      svgAspectRatio(buffer.toString('utf8'))
-    )
-  } else {
-    const { width, height } = await sharp(buffer).metadata()
-    if (
-      !skipDimensionGate &&
-      ((width || 0) < MIN_DIMENSION ||
-        (height || 0) < MIN_DIMENSION)
-    ) {
-      throw new Error(
-        `image too small (${width}x${height}), would look blurry at card size`
-      )
-    }
-    fit = fitForRatio((width || 1) / (height || 1))
-  }
-  const dest = `${destPathNoExt}.${ext}`
-  fs.writeFileSync(dest, buffer)
-  return { filename: path.basename(dest), fit }
+  return buildCoverFromBuffer(
+    buffer,
+    extForContentType(contentType),
+    { skipDimensionGate }
+  )
 }
 
 async function tryHandFoundLogo(slug) {
   const logo = HAND_FOUND_LOGO_URLS[slug]
   if (!logo) return null
-  const { filename, fit } = await downloadImage(
-    logo.url,
-    programImagePathWithoutExt(slug),
-    {
-      skipDimensionGate: true,
-      headers: logo.headers,
-    }
-  )
-  return { filename, fit, source: 'manual override' }
+  const cover = await downloadImage(logo.url, {
+    skipDimensionGate: true,
+    headers: logo.headers,
+  })
+  return { ...cover, source: 'manual override' }
 }
 
-async function tryOgImage(slug, pageUrl) {
+async function tryOgImage(pageUrl) {
   const ogImageUrl = await getOgImageUrl(pageUrl).catch(
     () => null
   )
   if (!ogImageUrl) return null
   try {
-    const { filename, fit } = await downloadImage(
-      ogImageUrl,
-      programImagePathWithoutExt(slug)
-    )
-    return { filename, fit, source: 'og:image' }
+    const cover = await downloadImage(ogImageUrl)
+    return { ...cover, source: 'og:image' }
   } catch {
     return null
   }
 }
 
-async function downloadFavicon(slug, pageUrl) {
-  const { filename, fit } = await downloadImage(
-    faviconFallbackUrl(pageUrl),
-    programImagePathWithoutExt(slug)
+async function downloadFavicon(pageUrl) {
+  const cover = await downloadImage(
+    faviconFallbackUrl(pageUrl)
   )
-  return { filename, fit, source: 'favicon fallback' }
+  return { ...cover, source: 'favicon fallback' }
 }
 
 async function attemptOnce(slug, url) {
   return (
     (await tryHandFoundLogo(slug)) ||
-    (await tryOgImage(slug, url)) ||
-    (await downloadFavicon(slug, url))
+    (await tryOgImage(url)) ||
+    (await downloadFavicon(url))
   )
 }
 
@@ -296,15 +227,18 @@ function resolveCredential(admin) {
 
 function parseArgs(argv) {
   let project
+  let bucket
   const requestedSlugs = []
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--project') {
       project = argv[++i]
+    } else if (argv[i] === '--bucket') {
+      bucket = argv[++i]
     } else {
       requestedSlugs.push(argv[i])
     }
   }
-  return { project, requestedSlugs }
+  return { project, bucket, requestedSlugs }
 }
 
 async function loadActiveSources(db, requestedSlugs) {
@@ -339,27 +273,31 @@ async function partitionByOpportunityDoc(db, sources) {
   }
 }
 
-async function writeImageFields(db, slug, image) {
+async function writeImageFields(db, bucket, slug, image) {
+  const imageUrl = await uploadCoverWebp(
+    bucket,
+    slug,
+    image.webp
+  )
   await db
     .collection('opportunities')
     .doc(slug)
     .set(
-      {
-        imageUrl: programImageUrl(image.filename),
-        imageFit: image.fit,
-      },
+      { imageUrl, imageFit: image.imageFit },
       { merge: true }
     )
+  return imageUrl
 }
 
 async function main() {
   const repoRoot = path.resolve(__dirname, '..')
   loadEnvLocal(repoRoot)
-  fs.mkdirSync(PROGRAM_IMAGE_DIR, { recursive: true })
 
-  const { project: projectArg, requestedSlugs } = parseArgs(
-    process.argv.slice(2)
-  )
+  const {
+    project: projectArg,
+    bucket: bucketArg,
+    requestedSlugs,
+  } = parseArgs(process.argv.slice(2))
   const project =
     projectArg || process.env.NEXT_PUBLIC_FB_PROJECT_ID
   if (!project)
@@ -367,12 +305,19 @@ async function main() {
       'No project id: pass --project <id> or set NEXT_PUBLIC_FB_PROJECT_ID.'
     )
 
+  const storageBucket =
+    bucketArg ||
+    process.env.FIREBASE_STORAGE_BUCKET ||
+    defaultBucketName(project)
+
   const admin = require('firebase-admin')
   admin.initializeApp({
     credential: resolveCredential(admin),
     projectId: project,
+    storageBucket,
   })
   const db = admin.firestore()
+  const bucket = admin.storage().bucket()
 
   const requestedSources = await loadActiveSources(
     db,
@@ -400,10 +345,15 @@ async function main() {
     process.stdout.write(`${slug}: `)
     try {
       const result = await attemptWithOneRetry(slug, url)
-      await writeImageFields(db, slug, result)
+      const imageUrl = await writeImageFields(
+        db,
+        bucket,
+        slug,
+        result
+      )
       succeeded += 1
       console.log(
-        `OK (${result.source}, ${result.fit}) -> ${result.filename}`
+        `OK (${result.source}, ${result.imageFit}) -> ${imageUrl}`
       )
     } catch (err) {
       failures.push({ slug, error: err.message })

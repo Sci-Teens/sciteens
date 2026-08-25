@@ -128,8 +128,6 @@ service firebase.storage {
       allow write, delete: if false;
     }
 
-    // ---- Opportunity program images --------------------------------------
-    // Server-managed (Tier 1 weekly scraper, Admin SDK writes only).
     match /opportunities/{slug}/{fileName} {
       allow read: if true;
       allow write, delete: if false;
