@@ -311,6 +311,45 @@ exports.deleteProfile = functions.firestore
     }
   })
 
+async function sendNewUserEmails(user) {
+  const verificationLink = await admin
+    .auth()
+    .generateEmailVerificationLink(user.email, {
+      url: 'https://sciteens.org/',
+      handleCodeInApp: false,
+    })
+  const verificationEmail = {
+    to: user.email,
+    toName: user.displayName || user.email,
+    subject: 'Verify Email',
+    html: verifyEmailTemplate({ link: verificationLink }),
+  }
+
+  const {
+    pageUrl: welcomeUnsubscribeUrl,
+    actionUrl: welcomeUnsubscribeAction,
+  } = await buildUnsubscribeLinks(
+    user.uid,
+    EMAIL_CATEGORIES.GENERAL
+  )
+  const welcomeEmail = {
+    to: user.email,
+    toName: user.displayName || user.email,
+    subject: 'Welcome to SciTeens!',
+    html: welcomeTemplate({
+      displayName: user.displayName,
+      unsubscribeUrl: welcomeUnsubscribeUrl,
+    }),
+    category: EMAIL_CATEGORIES.GENERAL,
+    uid: user.uid,
+    unsubscribeActionUrl: welcomeUnsubscribeAction,
+  }
+  await Promise.all([
+    sendEmail(verificationEmail),
+    sendEmail(welcomeEmail),
+  ])
+}
+
 /*
     Function newUser()
 
@@ -327,14 +366,7 @@ exports.newUser = functions
     const [firstName, ...rest] = (
       user.displayName || ''
     ).split(' ')
-    await Promise.all([
-      addContact({
-        email: user.email,
-        firstName,
-        lastName: rest.join(' '),
-      }),
-      // Create a user ref in the database to
-      // quickly query emails
+    const writes = [
       admin
         .firestore()
         .collection('emails')
@@ -342,19 +374,34 @@ exports.newUser = functions
         .set({
           email: user.email,
         }),
-    ])
-    // Check if the user has a display photo
+    ]
     if (user.photoURL) {
-      return admin
-        .firestore()
-        .collection('profile-pictures')
-        .doc(user.uid)
-        .set({
-          picture: user.photoURL,
-        })
-    } else {
+      writes.push(
+        admin
+          .firestore()
+          .collection('profile-pictures')
+          .doc(user.uid)
+          .set({
+            picture: user.photoURL,
+          })
+      )
+    }
+    await Promise.all(writes)
+
+    if (!user.email) {
+      console.warn(
+        'New user has no email. Contact and email delivery skipped.'
+      )
       return 'Success!'
     }
+
+    await addContact({
+      email: user.email,
+      firstName,
+      lastName: rest.join(' '),
+    })
+    await sendNewUserEmails(user)
+    return 'Success!'
   })
 
 /*
@@ -364,84 +411,27 @@ exports.newUser = functions
     the website (related to their firebase profile)
 */
 
-exports.newProfile = functions
-  .runWith({
-    secrets: [resendApiKey],
-  })
-  .firestore.document('profiles/{profileID}')
+exports.newProfile = functions.firestore
+  .document('profiles/{profileID}')
   .onCreate(async (profile) => {
-    let id = profile.id
-    let data = { ...profile.data() }
+    const id = profile.id
+    const data = { ...profile.data() }
 
-    // Send email verification
-    const user = await admin.auth().getUser(id)
-    const email = user.email
-    const actionCodeSettings = {
-      url: 'https://sciteens.org/',
-      handleCodeInApp: false,
-    }
-    const verification_link = await admin
-      .auth()
-      .generateEmailVerificationLink(
-        email,
-        actionCodeSettings
-      )
-    await sendEmail({
-      to: email,
-      toName: data.display ? data.display : email,
-      subject: 'Verify Email',
-      html: verifyEmailTemplate({
-        link: verification_link,
-      }),
-    })
-
-    // Add to all-contacts audience plus every per-category audience;
-    // everyone starts subscribed to everything until they unsubscribe.
-    const [firstName, ...rest] = (
-      user.displayName || ''
-    ).split(' ')
-    await Promise.all([
-      addContact({
-        email,
-        firstName,
-        lastName: rest.join(' '),
-      }),
-      admin
-        .firestore()
-        .collection('profiles')
-        .doc(id)
-        .set(
-          {
-            emailSubscriptions: {
-              [EMAIL_CATEGORIES.GENERAL]: true,
-              [EMAIL_CATEGORIES.PROGRAMS]: true,
-            },
+    // Everyone starts subscribed to every email category.
+    await admin
+      .firestore()
+      .collection('profiles')
+      .doc(id)
+      .set(
+        {
+          emailSubscriptions: {
+            [EMAIL_CATEGORIES.GENERAL]: true,
+            [EMAIL_CATEGORIES.PROGRAMS]: true,
           },
-          { merge: true }
-        ),
-    ])
+        },
+        { merge: true }
+      )
 
-    const {
-      pageUrl: welcomeUnsubscribeUrl,
-      actionUrl: welcomeUnsubscribeAction,
-    } = await buildUnsubscribeLinks(
-      id,
-      EMAIL_CATEGORIES.GENERAL
-    )
-    const welcomeEmail = {
-      to: email,
-      toName: user.displayName ? user.displayName : email,
-      subject: 'Welcome to SciTeens!',
-      html: welcomeTemplate({
-        displayName: user.displayName,
-        unsubscribeUrl: welcomeUnsubscribeUrl,
-      }),
-      category: EMAIL_CATEGORIES.GENERAL,
-      uid: id,
-      unsubscribeActionUrl: welcomeUnsubscribeAction,
-    }
-
-    // Handle sending emails based on user type
     switch (data.position) {
       case 'Educator':
       case 'Professional':
@@ -450,12 +440,8 @@ exports.newProfile = functions
         await admin
           .auth()
           .setCustomUserClaims(id, { mentor: true })
-
-        await sendEmail(welcomeEmail)
         break
       default:
-        // Send student welcome
-        await sendEmail(welcomeEmail)
         break
     }
   })

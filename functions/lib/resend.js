@@ -272,6 +272,18 @@ async function setSubscription(uid, category, subscribed) {
 // buildUnsubscribeLinks) is attached as List-Unsubscribe headers when
 // present; transactional callers omit all three and behave exactly as
 // before.
+function assertEmailSent(result) {
+  if (result.error) {
+    console.error('Resend email send error:', result.error)
+    throw new Error(
+      `Resend rejected the email: ${
+        result.error.message || 'unknown error'
+      }`
+    )
+  }
+  return result
+}
+
 async function sendEmail({
   to,
   toName,
@@ -290,7 +302,7 @@ async function sendEmail({
       return { skipped: true }
     }
   }
-  return getResend().emails.send({
+  const result = await getResend().emails.send({
     from: FROM,
     to: toName ? `${toName} <${to}>` : to,
     subject,
@@ -303,11 +315,13 @@ async function sendEmail({
       },
     }),
   })
+  return assertEmailSent(result)
 }
 
 module.exports = {
   resendApiKey,
   sendEmail,
+  assertEmailSent,
   addContact,
   CONTACTS_AUDIENCE_ID,
   buildUnsubscribeLinks,
