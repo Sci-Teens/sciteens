@@ -365,6 +365,15 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    match /opportunities/{opportunityId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /opportunity-sources/{sourceId} {
+      allow read: if false;
+      allow write: if false;
+    }
+
     // ---- Courses --------------------------------------------------------
     // Enrollment records only. Course content moved to content/courses/*.md,
     // and the Prismic webhook that used to mirror names and dates in here is

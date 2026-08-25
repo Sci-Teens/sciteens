@@ -192,6 +192,14 @@ export function getFieldLabel(translatedFields, field) {
   return key ? translatedFields[key] : field
 }
 
+export function formatGradeRange(low, high, t) {
+  if (!low || !high) return ''
+  const isSingleGradeProgram = low === high
+  return isSingleGradeProgram
+    ? t('opportunities.grade_single', { grade: low })
+    : t('opportunities.grades', { low, high })
+}
+
 export function validatePassword(password, t) {
   // Validate a password, with support for translations (t)
   const isWhitespace = /^(?=.*\s)/

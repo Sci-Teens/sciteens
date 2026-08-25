@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
+import { cn } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
 
 // One card shape for /articles and /courses. Both pages previously
@@ -18,12 +19,21 @@ export default function ListingCard({
   description,
   imageSrc,
   imageAlt,
+  imageFit = 'cover',
   priority = false,
   byline,
   meta,
+  media,
+  footer,
+  className,
 }) {
   return (
-    <Card className="border-border/60 hover:border-border hover:bg-muted/40 relative isolate overflow-hidden transition-colors">
+    <Card
+      className={cn(
+        'border-border/60 hover:border-border hover:bg-muted/40 relative isolate overflow-hidden transition-colors',
+        className
+      )}
+    >
       {/* Inset outline: Card is `overflow-hidden`, so the global
           `outline-offset: 2px` focus ring paints outside the clip box
           and disappears entirely.
@@ -37,16 +47,22 @@ export default function ListingCard({
       />
       <CardContent className="flex items-start gap-4">
         <div className="bg-muted relative h-24 w-24 shrink-0 overflow-hidden rounded-lg md:h-36 md:w-36">
-          {imageSrc && (
-            <Image
-              src={imageSrc}
-              alt={imageAlt ?? ''}
-              fill
-              sizes="(min-width: 768px) 144px, 96px"
-              className="object-cover"
-              priority={priority}
-            />
-          )}
+          {media
+            ? media
+            : imageSrc && (
+                <Image
+                  src={imageSrc}
+                  alt={imageAlt ?? ''}
+                  fill
+                  sizes="(min-width: 768px) 144px, 96px"
+                  className={
+                    imageFit === 'contain'
+                      ? 'object-contain p-3'
+                      : 'object-cover'
+                  }
+                  priority={priority}
+                />
+              )}
         </div>
         <div className="min-w-0 flex-1">
           {byline}
@@ -63,6 +79,7 @@ export default function ListingCard({
               {meta}
             </p>
           )}
+          {footer && <div className="mt-3">{footer}</div>}
         </div>
       </CardContent>
     </Card>

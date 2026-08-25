@@ -15,6 +15,7 @@ import {
   Info,
   Newspaper,
   Folder,
+  Compass,
   Users,
   HandHeart,
   UserPlus,
@@ -65,6 +66,13 @@ const NAV_LINKS = [
     label: 'projects',
     Icon: Folder,
     active: (p) => p.includes('projects'),
+  },
+  {
+    href: '/opportunities',
+    label: 'opportunities',
+    Icon: Compass,
+    active: (p) =>
+      p.includes('opportunities') || p.includes('program'),
   },
   {
     href: '/get-involved',
