@@ -595,6 +595,7 @@ function resolveCredential(admin) {
 function parseArgs(argv) {
   const args = {
     dryRun: false,
+    refreshImages: false,
     project: undefined,
     bucket: undefined,
     slugs: [],
@@ -603,6 +604,8 @@ function parseArgs(argv) {
     const arg = argv[i]
     if (arg === '--dry-run') {
       args.dryRun = true
+    } else if (arg === '--refresh-images') {
+      args.refreshImages = true
     } else if (arg === '--project') {
       args.project = argv[++i]
     } else if (arg === '--bucket') {
@@ -701,12 +704,35 @@ async function recordSourceFailure(
     })
 }
 
+async function existingCoverUrl(db, slug) {
+  const snap = await db
+    .collection('opportunities')
+    .doc(slug)
+    .get()
+  if (!snap.exists) return null
+  const current = snap.data().imageUrl
+  return typeof current === 'string' && current
+    ? current
+    : null
+}
+
 async function imagePatchOrEmpty(
+  db,
   browser,
   bucket,
   slug,
-  sourceUrl
+  sourceUrl,
+  refreshImages
 ) {
+  if (!refreshImages) {
+    const existing = await existingCoverUrl(db, slug)
+    if (existing) {
+      console.log(
+        `  [SKIP] ${slug}: cover already set, pass --refresh-images to replace it`
+      )
+      return {}
+    }
+  }
   try {
     const image = await fetchAndUploadImage(
       browser,
@@ -761,8 +787,15 @@ async function commitOpportunityUpsert({
 }
 
 async function scrapeSource(runContext, source) {
-  const { admin, db, bucket, browser, genai, dryRun } =
-    runContext
+  const {
+    admin,
+    db,
+    bucket,
+    browser,
+    genai,
+    dryRun,
+    refreshImages,
+  } = runContext
   const { slug, url } = source
   const startedAt = Date.now()
   const result = await runExtractionWithOneRetry(
@@ -812,10 +845,12 @@ async function scrapeSource(runContext, source) {
 
   if (!dryRun) {
     const imagePatch = await imagePatchOrEmpty(
+      db,
       browser,
       bucket,
       slug,
-      url
+      url,
+      refreshImages
     )
     await commitOpportunityUpsert({
       db,
@@ -898,6 +933,7 @@ async function main() {
     browser,
     genai,
     dryRun: args.dryRun,
+    refreshImages: args.refreshImages,
   }
 
   try {

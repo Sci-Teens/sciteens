@@ -8,8 +8,10 @@ const {
   buildCoverFromBuffer,
   coverObjectPath,
   coverDownloadUrl,
+  coverRepointDecision,
   defaultBucketName,
   extForFilename,
+  shouldRepointCover,
   uploadCoverWebp,
 } = require('./lib/programImages')
 
@@ -20,7 +22,6 @@ const LEGACY_IMAGE_DIR = path.join(
   'assets',
   'programs'
 )
-const LEGACY_URL_PREFIX = '/assets/programs/'
 const SOURCE_EXT_PRIORITY = ['png', 'jpg', 'svg', 'webp']
 
 function parseArgs(argv) {
@@ -105,19 +106,21 @@ async function uploadLegacyCover(bucket, entry, dryRun) {
   }
 }
 
-async function repointLegacyDocs(db, uploaded, dryRun) {
+async function repointCoverDocs(db, uploaded, dryRun) {
   const snap = await db.collection('opportunities').get()
   const repointed = []
+  const skipped = []
   for (const doc of snap.docs) {
-    const current = doc.data().imageUrl
-    if (
-      typeof current !== 'string' ||
-      !current.startsWith(LEGACY_URL_PREFIX)
-    ) {
-      continue
-    }
     const cover = uploaded.get(doc.id)
     if (!cover) continue
+    const decision = coverRepointDecision(
+      doc.data().imageUrl,
+      cover.imageUrl
+    )
+    if (!shouldRepointCover(decision)) {
+      skipped.push({ slug: doc.id, decision })
+      continue
+    }
     if (!dryRun) {
       await doc.ref.set(
         {
@@ -127,9 +130,9 @@ async function repointLegacyDocs(db, uploaded, dryRun) {
         { merge: true }
       )
     }
-    repointed.push(doc.id)
+    repointed.push({ slug: doc.id, decision })
   }
-  return repointed
+  return { repointed, skipped }
 }
 
 async function main() {
@@ -200,7 +203,7 @@ async function main() {
     }
   }
 
-  const repointed = await repointLegacyDocs(
+  const { repointed, skipped } = await repointCoverDocs(
     db,
     uploaded,
     args.dryRun
@@ -210,8 +213,17 @@ async function main() {
     `\n${uploaded.size}/${entries.length} uploaded, ${bytesBefore}b -> ${bytesAfter}b`
   )
   console.log(
-    `${repointed.length} opportunities doc(s) repointed off ${LEGACY_URL_PREFIX}`
+    `${repointed.length} opportunities doc(s) pointed at the migrated cover`
   )
+  if (skipped.length) {
+    console.log(
+      `${
+        skipped.length
+      } doc(s) left alone (imageUrl points somewhere else): ${skipped
+        .map((s) => s.slug)
+        .join(', ')}`
+    )
+  }
   if (failures.length) {
     console.log('\nFailed:')
     failures.forEach((f) =>

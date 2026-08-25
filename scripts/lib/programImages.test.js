@@ -5,11 +5,13 @@ import {
   buildCoverFromBuffer,
   coverDownloadUrl,
   coverObjectPath,
+  coverRepointDecision,
   defaultBucketName,
   extForContentType,
   extForFilename,
   fitForRatio,
   measureImage,
+  shouldRepointCover,
   svgAspectRatio,
   toCoverWebp,
   uploadCoverWebp,
@@ -227,5 +229,62 @@ describe('uploadCoverWebp', () => {
     expect(url).toContain(
       'opportunities%2Frsi%2Fcover.webp'
     )
+  })
+})
+
+describe('coverRepointDecision', () => {
+  const canonical = coverDownloadUrl(
+    'directed-relic-266701.appspot.com',
+    coverObjectPath('rsi')
+  )
+
+  it('repoints a doc still on the legacy public path', () => {
+    const decision = coverRepointDecision(
+      '/assets/programs/rsi.jpg',
+      canonical
+    )
+    expect(decision).toBe('legacy')
+    expect(shouldRepointCover(decision)).toBe(true)
+  })
+
+  it('still repoints a doc already on the canonical url so imageFit is corrected', () => {
+    const decision = coverRepointDecision(
+      canonical,
+      canonical
+    )
+    expect(decision).toBe('canonical')
+    expect(shouldRepointCover(decision)).toBe(true)
+  })
+
+  it('repoints a doc with no image yet', () => {
+    for (const empty of [undefined, null, '', 42]) {
+      const decision = coverRepointDecision(
+        empty,
+        canonical
+      )
+      expect(decision).toBe('unset')
+      expect(shouldRepointCover(decision)).toBe(true)
+    }
+  })
+
+  it('leaves a doc pointing at an unrelated image alone', () => {
+    const decision = coverRepointDecision(
+      'https://cdn.example.org/custom-hero.png',
+      canonical
+    )
+    expect(decision).toBe('foreign')
+    expect(shouldRepointCover(decision)).toBe(false)
+  })
+
+  it('treats another slug cover as foreign', () => {
+    const otherSlug = coverDownloadUrl(
+      'directed-relic-266701.appspot.com',
+      coverObjectPath('ssp')
+    )
+    expect(
+      shouldRepointCover(
+        coverRepointDecision(otherSlug, canonical)
+      )
+    ).toBe(false)
   })
 })

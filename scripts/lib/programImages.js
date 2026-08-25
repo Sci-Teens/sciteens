@@ -110,6 +110,31 @@ function defaultBucketName(projectId) {
   return `${projectId}.appspot.com`
 }
 
+const LEGACY_COVER_URL_PREFIX = '/assets/programs/'
+
+function coverRepointDecision(
+  currentImageUrl,
+  canonicalUrl
+) {
+  if (
+    currentImageUrl === undefined ||
+    currentImageUrl === null ||
+    currentImageUrl === ''
+  ) {
+    return 'unset'
+  }
+  if (typeof currentImageUrl !== 'string') return 'unset'
+  if (currentImageUrl === canonicalUrl) return 'canonical'
+  if (currentImageUrl.startsWith(LEGACY_COVER_URL_PREFIX)) {
+    return 'legacy'
+  }
+  return 'foreign'
+}
+
+function shouldRepointCover(decision) {
+  return decision !== 'foreign'
+}
+
 async function uploadCoverWebp(bucket, slug, webpBuffer) {
   const objectPath = coverObjectPath(slug)
   await bucket.file(objectPath).save(webpBuffer, {
@@ -155,4 +180,7 @@ module.exports = {
   defaultBucketName,
   uploadCoverWebp,
   buildCoverFromBuffer,
+  coverRepointDecision,
+  shouldRepointCover,
+  LEGACY_COVER_URL_PREFIX,
 }
