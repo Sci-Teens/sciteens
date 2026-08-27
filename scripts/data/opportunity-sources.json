@@ -202,5 +202,2183 @@
     "label": "FIRST Robotics Competition",
     "category": "Competitions",
     "logoUrl": "https://www.firstinspires.org/hubfs/web/design/first-web/Branding/Primaries/Logo%20Primary.svg"
+  },
+  {
+    "slug": "academy-for-machine-learning",
+    "url": "https://www.cs.utexas.edu/engage/outreach/academies/machine-learning",
+    "label": "Academy for Machine Learning",
+    "category": "Austin Texas"
+  },
+  {
+    "slug": "academy-for-robotics",
+    "url": "https://www.cs.utexas.edu/engage/outreach/academies/robotics",
+    "label": "Academy for Robotics",
+    "category": "Austin Texas"
+  },
+  {
+    "slug": "acs-project-seed-program",
+    "url": "https://www.acs.org/education/students/highschool/seed.html",
+    "label": "ACS Project SEED Program",
+    "category": "Iowa"
+  },
+  {
+    "slug": "advancing-research-in-science-with-excellence-arise-summer-cancer-research-program",
+    "url": "https://cancer.wisc.edu/research/education/high-school-education/",
+    "label": "Advancing Research In Science with Excellence (ARISE) Summer Cancer Research Program",
+    "category": "Wisconsin"
+  },
+  {
+    "slug": "aeop-research-and-engineering-apprenticeship-program-reap",
+    "url": "https://www.accessandequity.org/aeop-research-engineering-summer-program/",
+    "label": "AEOP: Research & Engineering Apprenticeship Program (REAP)",
+    "category": "Maryland"
+  },
+  {
+    "slug": "ai-for-equity-seattle-university",
+    "url": "https://www.seattleu.edu/pre-college-summer-programs/ai-for-equity/",
+    "label": "AI for Equity - Seattle University",
+    "category": "Seattle Washington"
+  },
+  {
+    "slug": "aimi-summer-health-ai-bootcamp",
+    "url": "https://aimi.stanford.edu/education/aimi-summer-bootcamp",
+    "label": "AIMI Summer Health AI Bootcamp",
+    "category": "Tennessee"
+  },
+  {
+    "slug": "air-force-research-laboratory-afrl-scholars-program",
+    "url": "https://afrlscholars.usra.edu/scholarsprogram/",
+    "label": "Air Force Research Laboratory (AFRL) Scholars Program",
+    "category": "Texas"
+  },
+  {
+    "slug": "american-fisheries-society-s-hutton-junior-fisheries-biology-program",
+    "url": "https://hutton.fisheries.org/",
+    "label": "American Fisheries Society’s Hutton Junior Fisheries Biology Program",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "anson-l-clark-scholar-program",
+    "url": "https://www.depts.ttu.edu/clarkscholars/index.php",
+    "label": "Anson L. Clark Scholar Program",
+    "category": "Texas"
+  },
+  {
+    "slug": "applied-research-innovations-in-science-and-engineering-arise",
+    "url": "https://k12stem.engineering.nyu.edu/programs/arise",
+    "label": "Applied Research Innovations in Science and Engineering (ARISE)",
+    "category": "New York City / New York"
+  },
+  {
+    "slug": "apprenticeships-in-science-and-engineering-ase-internships-at-saturday-academy",
+    "url": "https://www.saturdayacademy.org/ase",
+    "label": "Apprenticeships in Science & Engineering (ASE) Internships at Saturday Academy",
+    "category": "Oregon"
+  },
+  {
+    "slug": "arizona-state-university-s-success-camp",
+    "url": "https://scai.engineering.asu.edu/summer-camps/",
+    "label": "Arizona State University’s SUCCESS Camp",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "artificial-intelligence-study-in-earth-exploration-aisee-summer-academy",
+    "url": "https://www.clayton.edu/celt/aisee.php",
+    "label": "Artificial Intelligence Study in Earth Exploration (AISEE) Summer Academy",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "aspire-program",
+    "url": "https://www.jhuapl.edu/education/stem-outreach/aspire",
+    "label": "ASPIRE Program",
+    "category": "Maryland"
+  },
+  {
+    "slug": "aspiring-scholars-directed-research-program-asdrp",
+    "url": "https://www.asdrp.org/",
+    "label": "Aspiring Scholars Directed Research Program (ASDRP)",
+    "category": "The Bay Area"
+  },
+  {
+    "slug": "augusta-university-summer-research-experiences-with-georgia-s-cancer-center",
+    "url": "https://www.augusta.edu/cancer/education/summer-research-experience.php",
+    "label": "Augusta University Summer Research Experiences with Georgia’s Cancer Center",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "australian-youth-aerospace-forum-ayaf",
+    "url": "https://www.ayaa.com.au/australian-youth-aerospace-forum",
+    "label": "Australian Youth Aerospace Forum (AYAF)",
+    "category": "Australia"
+  },
+  {
+    "slug": "autonomous-driving-academy-pre-college-summer-program",
+    "url": "https://www.pcs.udel.edu/autonomous-driving/",
+    "label": "Autonomous Driving Academy Pre-College Summer Program",
+    "category": "Delaware"
+  },
+  {
+    "slug": "badger-summer-scholars",
+    "url": "https://precollege.wisc.edu/badger-summer-scholars/",
+    "label": "Badger Summer Scholars",
+    "category": "Wisconsin"
+  },
+  {
+    "slug": "baptist-health-sciences-university-s-healthcore-summer-camp",
+    "url": "https://www.baptistu.edu/BaptistUHealthCORE/Camp",
+    "label": "Baptist Health Sciences University’s HealthCORE Summer Camp",
+    "category": "Tennessee"
+  },
+  {
+    "slug": "baylor-college-of-medicine-docprep-program",
+    "url": "https://www.bcm.edu/departments/huffington-department-of-education-innovation-technology/center-for-educational-outreach/career-pathways/secondary-school-programs/summer-enrichment-programs/docprep-program",
+    "label": "Baylor College of Medicine DocPrep Program",
+    "category": "Houston"
+  },
+  {
+    "slug": "baylor-scott-and-white-mclane-children-s-health-sciences-summer-camp",
+    "url": "https://www.bswhealth.com/mclane-childrens/programs/health-sciences-summer-camp",
+    "label": "Baylor Scott & White McLane Children's Health Sciences Summer Camp",
+    "category": "Dallas"
+  },
+  {
+    "slug": "bioengineering-opportunities-and-leadership-training-bolt-camp-at-the-university-of-colorado-denver",
+    "url": "https://engineering.ucdenver.edu/bioengineering/outreach/bolt-camp",
+    "label": "Bioengineering Opportunities and Leadership Training (BOLT) Camp at the University of Colorado Denver",
+    "category": "Colorado"
+  },
+  {
+    "slug": "biology-meets-engineering-summer-program",
+    "url": "https://www.biologymeetsengineering.org/programs",
+    "label": "Biology Meets Engineering Summer Program",
+    "category": "Ohio"
+  },
+  {
+    "slug": "biomedical-engineering-high-school-internship-program-university-of-minnesota",
+    "url": "https://cse.umn.edu/bme/bme-high-school-internship-program",
+    "label": "Biomedical Engineering High School Internship Program @ University of Minnesota",
+    "category": "Minnesota"
+  },
+  {
+    "slug": "biomedical-engineering-summer-internships-at-oregon-health-and-science-university-ohsu",
+    "url": "https://www.ohsu.edu/school-of-medicine/biomedical-engineering/biomedical-engineering-summer-internships",
+    "label": "Biomedical Engineering Summer Internships at Oregon Health and Science University (OHSU)",
+    "category": "Oregon"
+  },
+  {
+    "slug": "biorocket-research-internship-program",
+    "url": "https://www.genspace.org/biorocket",
+    "label": "Biorocket Research Internship Program",
+    "category": "New York City"
+  },
+  {
+    "slug": "brain-research-apprenticeship-in-new-york-at-columbia-brainyac",
+    "url": "https://zuckermaninstitute.columbia.edu/brainyac",
+    "label": "Brain Research Apprenticeship in New York at Columbia (BRAINYAC)",
+    "category": "New York City"
+  },
+  {
+    "slug": "brainsport-summer-high-school-research-internship-at-ucla",
+    "url": "https://www.uclahealth.org/departments/neurosurgery/brainsport/training/internship",
+    "label": "BrainSport Summer High School Research Internship at UCLA",
+    "category": "Los Angeles California"
+  },
+  {
+    "slug": "broad-institute-of-mit-and-harvard-s-broad-summer-scholars-program-bssp",
+    "url": "https://www.broadinstitute.org/partnerships/education/k-12-outreach/broad-summer-scholars-program",
+    "label": "Broad Institute of MIT and Harvard’s Broad Summer Scholars Program (BSSP)",
+    "category": "Massachusetts"
+  },
+  {
+    "slug": "brown-environmental-leadership-lab-bell",
+    "url": "https://precollege.brown.edu/programs/bell-program/rhode-island",
+    "label": "Brown Environmental Leadership Lab (BELL)",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "building-leaders-for-advancing-science-and-technology-blast",
+    "url": "https://vsgc.odu.edu/blast/",
+    "label": "Building Leaders for Advancing Science and Technology (BLAST)",
+    "category": "Virginia"
+  },
+  {
+    "slug": "c-tech-computers-and-technology-at-virginia-tech",
+    "url": "https://eng.vt.edu/ceed/ceed-pre-college-programs/c-tech2.html",
+    "label": "C-Tech² - Computers and Technology at Virginia Tech",
+    "category": "Virginia"
+  },
+  {
+    "slug": "california-state-summer-school-for-mathematics-and-science-cosmos",
+    "url": "https://cosmos-ucop.ucdavis.edu/app/main/page/program-overview",
+    "label": "California State Summer School for Mathematics and Science (COSMOS)",
+    "category": "California"
+  },
+  {
+    "slug": "cancer-health-equity-summer-scholars-chess",
+    "url": "https://www.healthcareerpaths.org/programs/0fd58ebb-1551-42f9-bf6c-11693a2dbd8c/",
+    "label": "Cancer Health Equity Summer Scholars (CHESS)",
+    "category": "Chicago"
+  },
+  {
+    "slug": "careers-in-science-cis-intern-program",
+    "url": "https://www.calacademy.org/careers-in-science-cis-intern-program",
+    "label": "Careers in Science (CiS) Intern Program",
+    "category": "San Francisco"
+  },
+  {
+    "slug": "carnegie-mellon-s-pre-college-cs-scholars",
+    "url": "https://www.cmu.edu/pre-college/academic-programs/computer-science-scholars.html",
+    "label": "Carnegie Mellon’s Pre-College CS Scholars",
+    "category": "Pennsylvania"
+  },
+  {
+    "slug": "cdc-museum-disease-detective-camp",
+    "url": "https://www.cdc.gov/museum/camp/detective/index.htm",
+    "label": "CDC Museum Disease Detective Camp",
+    "category": "Georgia"
+  },
+  {
+    "slug": "cdc-museum-public-health-academy-disease-detective-camp-and-online-course",
+    "url": "https://www.cdc.gov/museum/education/",
+    "label": "CDC Museum Public Health Academy: Disease Detective Camp and Online Course",
+    "category": "Atlanta Ga"
+  },
+  {
+    "slug": "changemakers-in-computing",
+    "url": "https://cic.cs.washington.edu/",
+    "label": "Changemakers in Computing",
+    "category": "Seattle Washington"
+  },
+  {
+    "slug": "charles-r-drew-university-of-medicine-and-science-project-stride",
+    "url": "https://www.projectstridecdu.net/",
+    "label": "Charles R. Drew University of Medicine and Science Project Stride",
+    "category": "Los Angeles California"
+  },
+  {
+    "slug": "chicago-botanic-garden-science-career-continuum",
+    "url": "https://www.chicagobotanic.org/learning/continuum",
+    "label": "Chicago Botanic Garden Science Career Continuum",
+    "category": "Chicago"
+  },
+  {
+    "slug": "chicago-green-ambassadors-program",
+    "url": "https://www.fieldmuseum.org/activity/green-ambassadors-program",
+    "label": "Chicago Green Ambassadors Program",
+    "category": "Chicago"
+  },
+  {
+    "slug": "cincinnati-children-s-hospital-medical-center-high-school-summer-internship-program",
+    "url": "https://www.cincinnatichildrens.org/education/research/high-school/summer-internship",
+    "label": "Cincinnati Children’s Hospital Medical Center High School Summer Internship Program",
+    "category": "Ohio"
+  },
+  {
+    "slug": "city-of-hope-eugene-and-ruth-roberts-summer-student-academy",
+    "url": "https://www.imgs-coh.edu/summer-student-academy",
+    "label": "City of Hope Eugene and Ruth Roberts Summer Student Academy",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "classroom-on-the-reef",
+    "url": "https://www.jcu.edu.au/classroom-on-the-reef/home",
+    "label": "Classroom on the Reef",
+    "category": "Australia"
+  },
+  {
+    "slug": "clinical-anatomy-summer-program-casp-at-stanford-university",
+    "url": "https://med.stanford.edu/anatomy/education/casp.html",
+    "label": "Clinical Anatomy Summer Program (CASP) at Stanford University",
+    "category": "The Bay Area"
+  },
+  {
+    "slug": "cloud-path-c-path",
+    "url": "https://k12stem.engineering.nyu.edu/programs/c-path",
+    "label": "Cloud Path (C-Path)",
+    "category": "New York City"
+  },
+  {
+    "slug": "collaborative-interactive-data-science-academy-meharry-medical-college-and-fisk-university",
+    "url": "https://sacsmeharry.org/outreach/collaborative-interactive-data-science-academy/",
+    "label": "Collaborative Interactive Data Science Academy – Meharry Medical College & Fisk University",
+    "category": "Tennessee"
+  },
+  {
+    "slug": "college-bound-research-program",
+    "url": "https://www.anl.gov/education/college-bound-research-program",
+    "label": "College Bound Research Program",
+    "category": "Illinois"
+  },
+  {
+    "slug": "columbia-university-pre-college-programs-summer-online-immersion",
+    "url": "https://precollege.sps.columbia.edu/programs/summer-programs/online-summer",
+    "label": "Columbia University Pre-College Programs — Summer Online Immersion",
+    "category": "Singapore"
+  },
+  {
+    "slug": "columbia-university-s-hk-maker-lab",
+    "url": "https://www.hypothekids.org/hkmakerlab",
+    "label": "Columbia University’s Hk Maker Lab",
+    "category": "New York City"
+  },
+  {
+    "slug": "columbia-university-s-secondary-school-field-research-program-ssfrp",
+    "url": "https://lamont.columbia.edu/education-outreach/student-summer-opportunities-SSFRP",
+    "label": "Columbia University’s Secondary School Field Research Program (SSFRP)",
+    "category": "New York"
+  },
+  {
+    "slug": "competitive-programming-summer-institute-university-of-central-florida",
+    "url": "https://siucf.cs.ucf.edu/programming-competition-overview/",
+    "label": "Competitive Programming Summer Institute - University of Central Florida",
+    "category": "Florida"
+  },
+  {
+    "slug": "computer-engineering-for-good-ce4g",
+    "url": "https://k12stem.engineering.nyu.edu/programs/ce4g",
+    "label": "Computer Engineering for Good (CE4G)",
+    "category": "New York City"
+  },
+  {
+    "slug": "computer-science-summer-institute-university-of-central-florida",
+    "url": "https://siucf.cs.ucf.edu/computer-science-overview/",
+    "label": "Computer Science Summer Institute - University of Central Florida",
+    "category": "Florida"
+  },
+  {
+    "slug": "concordia-university-girl-summer-engineering-and-technology-program",
+    "url": "https://www.concordia.ca/summer/ginacody/camps/girlset.html",
+    "label": "Concordia University - Girl Summer Engineering and Technology Program",
+    "category": "Montreal"
+  },
+  {
+    "slug": "concordia-university-steampunks",
+    "url": "https://www.concordia.ca/summer/ginacody/camps/steampunks.html",
+    "label": "Concordia University - STEAMpunks",
+    "category": "Montreal"
+  },
+  {
+    "slug": "congress-of-future-medical-leaders-virtual-event",
+    "url": "https://www.futuredocs.com/",
+    "label": "Congress of Future Medical Leaders Virtual Event",
+    "category": "Cincinnati Ohio"
+  },
+  {
+    "slug": "continuing-umbrella-of-research-experiences-cure-dana-farber-harvard-cancer-center",
+    "url": "https://www.dfhcc.harvard.edu/research/cancer-disparities/students/cure-overview",
+    "label": "Continuing Umbrella of Research Experiences (CURE) @ Dana-Farber/Harvard Cancer Center",
+    "category": "Massachusetts"
+  },
+  {
+    "slug": "cooper-union-summer-stem-program",
+    "url": "https://cooper.edu/engineering/stem/summer",
+    "label": "Cooper Union Summer STEM Program",
+    "category": "New York"
+  },
+  {
+    "slug": "coriell-summer-experience-for-high-school-students",
+    "url": "https://www.coriell.org/1/About-Us/Education/Summer-Experience",
+    "label": "Coriell Summer Experience for High School Students",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "cornell-engineering-high-school-outreach-program-curie-and-catalyst",
+    "url": "https://outreachacademies.engineering.cornell.edu/",
+    "label": "Cornell Engineering High School Outreach Program: CURIE and CATALYST",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "cornell-university-summer-session",
+    "url": "https://sce.cornell.edu/precollege/program/online",
+    "label": "Cornell University Summer Session",
+    "category": "Minnesota"
+  },
+  {
+    "slug": "cosmos-uc-san-diego",
+    "url": "https://jacobsschool.ucsd.edu/cosmos",
+    "label": "COSMOS @ UC San Diego",
+    "category": "San Diego"
+  },
+  {
+    "slug": "cs4cs-cyber-security-for-computer-science",
+    "url": "https://k12stem.engineering.nyu.edu/programs/cs4cs",
+    "label": "CS4CS (Cyber Security for Computer Science)",
+    "category": "New York City"
+  },
+  {
+    "slug": "csi-and-forensics-camp-at-xavier-university",
+    "url": "https://www.xavier.edu/summer-programs/high-school/csi-forensics-camp",
+    "label": "CSI & Forensics Camp at Xavier University",
+    "category": "Cincinnati Ohio"
+  },
+  {
+    "slug": "cure-research-internship-program-at-ucsf",
+    "url": "https://cseo.ucsf.edu/cure-internship",
+    "label": "CURE Research Internship Program at UCSF",
+    "category": "San Francisco"
+  },
+  {
+    "slug": "cyber-security-for-computer-science-cs4cs",
+    "url": "https://engineering.nyu.edu/academics/programs/k12-stem-education/computer-science-cyber-security-cs4cs",
+    "label": "Cyber Security for Computer Science (CS4CS)",
+    "category": "New York"
+  },
+  {
+    "slug": "data-science-summer-camp",
+    "url": "https://tdai.osu.edu/education/data-science-summer-camp",
+    "label": "Data Science Summer Camp",
+    "category": "Ohio"
+  },
+  {
+    "slug": "delaware-aerospace-education-foundation-destination-mars",
+    "url": "https://dasef.org/aerospace/over_night.htm",
+    "label": "Delaware AeroSpace Education Foundation: Destination Mars",
+    "category": "Delaware"
+  },
+  {
+    "slug": "design-invent-and-innovate-dii",
+    "url": "https://k12stem.engineering.nyu.edu/programs/dii",
+    "label": "Design, Invent & Innovate (DII)",
+    "category": "New York City"
+  },
+  {
+    "slug": "designing-your-world-colorado-state-university",
+    "url": "https://www.engr.colostate.edu/me/summerprograms/",
+    "label": "Designing Your World @ Colorado State University",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "digipen-academy-pre-college-summer-programs",
+    "url": "https://academy.digipen.edu/academic-programs/pre-college-programs/?utm_source=teenlife",
+    "label": "DigiPen Academy - Pre-College Summer Programs",
+    "category": "Seattle Washington"
+  },
+  {
+    "slug": "digital-scholars-program",
+    "url": "https://dpi.uillinois.edu/tech-talent-development/high-school-and-community-college-student-programs/digital-scholars/",
+    "label": "Digital Scholars Program",
+    "category": "Chicago / Illinois"
+  },
+  {
+    "slug": "dsta-brainhack",
+    "url": "https://www.dsta.gov.sg/brainhack",
+    "label": "DSTA BrainHack",
+    "category": "Singapore"
+  },
+  {
+    "slug": "earthcare-the-leadership-challenge-for-the-21st-century",
+    "url": "https://www.21stcenturyleaders.org/for-students/summer-leadership-institutes/earthcare/",
+    "label": "EarthCare: The Leadership Challenge for the 21st Century",
+    "category": "Georgia"
+  },
+  {
+    "slug": "eastern-michigan-university-high-school-summer-science-program",
+    "url": "https://stem-ed-institute.emich.edu/resources/high-school-summer-science-program",
+    "label": "Eastern Michigan University High School Summer Science Program",
+    "category": "Michigan"
+  },
+  {
+    "slug": "elite-program-for-black-youth-experiential-learning-in-innovation-technology-and-entrepreneurship",
+    "url": "https://www.eliteprogram.ca/program/",
+    "label": "ELITE Program for Black Youth – Experiential Learning in Innovation, Technology, and Entrepreneurship",
+    "category": "Toronto"
+  },
+  {
+    "slug": "emagination-tech-summer-camp-weekly-sessions",
+    "url": "https://www.emaginationstemcamps.com/connecticut-stem-camp-fairfield-univ",
+    "label": "Emagination Tech Summer Camp Weekly Sessions",
+    "category": "Connecticut"
+  },
+  {
+    "slug": "emory-university-winship-cancer-institute-summer-scholars",
+    "url": "https://winshipcancer.emory.edu/education-and-training/undergraduate-and-pre-college-programs/summer-scholars.php",
+    "label": "Emory University Winship Cancer Institute Summer Scholars",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "engineering-awareness-and-stem-enrichment-summer-workshop-udc",
+    "url": "https://www.udc.edu/seas/summer-2025",
+    "label": "Engineering Awareness & STEM Enrichment Summer Workshop — UDC",
+    "category": "Washington, DC"
+  },
+  {
+    "slug": "engineering-design-experience-at-southern-methodist-university",
+    "url": "https://www.smu.edu/lyle/centers-and-institutes/caruth/youth-programs-and-camps/engineering-summer-camps/engineering-design-experience",
+    "label": "Engineering Design Experience at Southern Methodist University",
+    "category": "Dallas"
+  },
+  {
+    "slug": "engineering-new-frontiers-summer-program-catholic-university",
+    "url": "https://engineering.catholic.edu/special-programs/engineering-new-frontiers-summer-program/index.html?ref=rsummer",
+    "label": "Engineering New Frontiers Summer Program — Catholic University",
+    "category": "Washington, DC"
+  },
+  {
+    "slug": "engineering-summer-camp-university-of-illinois",
+    "url": "https://engineering.uic.edu/about/summer-special-programs/engineering-summer-camp/",
+    "label": "Engineering Summer Camp @ University of Illinois",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "environment-climate-and-ocean-eco-camp",
+    "url": "https://www.udel.edu/academics/colleges/ceoe/community/summer-opportunities/summer-camp/",
+    "label": "Environment, Climate, and Ocean (ECO) Camp",
+    "category": "Delaware"
+  },
+  {
+    "slug": "environmental-science-and-sustainability-at-university-of-british-columbia",
+    "url": "https://www.nslcleaders.org/youth-leadership-programs/environmental-science-sustainability/",
+    "label": "Environmental Science & Sustainability at University of British Columbia",
+    "category": "Vancouver"
+  },
+  {
+    "slug": "environmental-studies-summer-youth-institute-essyi",
+    "url": "https://essyi.hws.edu/",
+    "label": "Environmental Studies Summer Youth Institute (ESSYI)",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "eskenazi-health-volunteen-program",
+    "url": "https://www.eskenazihealth.edu/about/volunteer/volunteen",
+    "label": "Eskenazi Health VolunTEEN Program",
+    "category": "Indiana"
+  },
+  {
+    "slug": "eugene-and-ruth-roberts-summer-student-academy",
+    "url": "https://www.imgs-coh.edu/summer-student-academy",
+    "label": "Eugene and Ruth Roberts Summer Student Academy",
+    "category": "California"
+  },
+  {
+    "slug": "eve-and-gene-black-summer-medical-career-program",
+    "url": "https://lapedsoc.org/summer-program/",
+    "label": "Eve and Gene Black Summer Medical Career Program",
+    "category": "Los Angeles California"
+  },
+  {
+    "slug": "experiences-in-research",
+    "url": "https://k12education.lbl.gov/programs/high-school/experiences-in-research",
+    "label": "Experiences in Research",
+    "category": "The Bay Area"
+  },
+  {
+    "slug": "florida-youth-institute-university-of-florida",
+    "url": "https://www.cpet.ufl.edu/students/uf-cpet-summer-programs/florida-youth-institute/",
+    "label": "Florida Youth Institute - University of Florida",
+    "category": "Florida"
+  },
+  {
+    "slug": "focus-on-mining",
+    "url": "https://www.curtin.edu.au/engage/stem-outreach/stem-for-students/",
+    "label": "Focus on Mining",
+    "category": "Australia"
+  },
+  {
+    "slug": "focused-ultrasound-high-school-summer-research-program",
+    "url": "https://research.sunnybrook.ca/careers-and-students/summer-students/focused-ultrasound-high-school-summer-research-program/",
+    "label": "Focused Ultrasound High School Summer Research Program",
+    "category": "Toronto"
+  },
+  {
+    "slug": "forensic-science-pre-college-summer-program",
+    "url": "https://www.pcs.udel.edu/forensic-science/?utm_source=admissions&utm_medium=email&utm_campaign=2024PreCollegeFS",
+    "label": "Forensic Science Pre-College Summer Program",
+    "category": "Delaware"
+  },
+  {
+    "slug": "fred-hutch-cancer-center-pathways-research-explorers-program",
+    "url": "https://www.fredhutch.org/en/education-training/high-school-students/high-school-explorers-program.html",
+    "label": "Fred Hutch Cancer Center Pathways Research Explorers Program",
+    "category": "Washington State"
+  },
+  {
+    "slug": "fred-hutch-summer-high-school-internship-program-ship",
+    "url": "https://www.fredhutch.org/en/education-training/high-school-students/summer-high-school-internship-program.html",
+    "label": "Fred Hutch Summer High School Internship Program (SHIP)",
+    "category": "Seattle Washington"
+  },
+  {
+    "slug": "future-doctors-australia",
+    "url": "https://www.niecareers.com.au/future-doctors-australia",
+    "label": "Future Doctors Australia",
+    "category": "Australia"
+  },
+  {
+    "slug": "future-in-health-sciences-summer-internship-meharry-medical-college",
+    "url": "https://home.mmc.edu/omp/",
+    "label": "Future in Health Sciences Summer Internship - Meharry Medical College",
+    "category": "Tennessee"
+  },
+  {
+    "slug": "geering-up",
+    "url": "https://geeringup.apsc.ubc.ca/camps/in-person-camps/in-person-vancouver-summer-camps/in-person-high-school-summer-camps/",
+    "label": "Geering Up",
+    "category": "Vancouver"
+  },
+  {
+    "slug": "gencyber-summer-camp-at-the-university-of-colorado-denver",
+    "url": "https://www.ucdenver.edu/gencyber",
+    "label": "GenCyber Summer Camp at the University of Colorado Denver",
+    "category": "Colorado"
+  },
+  {
+    "slug": "genomics-research-internship-program-at-stanford-grips",
+    "url": "https://med.stanford.edu/genecamp/process",
+    "label": "Genomics Research Internship Program at Stanford (GRIPS)",
+    "category": "The Bay Area"
+  },
+  {
+    "slug": "george-mason-university-aspiring-scientists-summer-internship-program-assip",
+    "url": "https://science.gmu.edu/assip",
+    "label": "George Mason University Aspiring Scientists Summer Internship Program (ASSIP)",
+    "category": "Virginia"
+  },
+  {
+    "slug": "george-mason-university-s-aspiring-scientists-summer-internship-program-assip",
+    "url": "https://science.gmu.edu/assip",
+    "label": "George Mason University’s Aspiring Scientists Summer Internship Program (ASSIP)",
+    "category": "Oregon"
+  },
+  {
+    "slug": "george-washington-carver-research-internship-program",
+    "url": "https://www.cals.iastate.edu/george-washington-carver-internship-program",
+    "label": "George Washington Carver Research Internship Program",
+    "category": "Iowa"
+  },
+  {
+    "slug": "georgetown-lombardi-high-school-and-undergraduate-summer-volunteer-program",
+    "url": "https://lombardi.georgetown.edu/education/summer_volunteer/",
+    "label": "Georgetown Lombardi High School & Undergraduate Summer Volunteer Program",
+    "category": "Washington, DC"
+  },
+  {
+    "slug": "georgia-tech-science-technology-and-engineering-pipeline-step-program",
+    "url": "https://gasgc.org/wp/gtae-step/",
+    "label": "Georgia Tech Science, Technology, and Engineering Pipeline (STEP) Program",
+    "category": "Georgia / USA (general)"
+  },
+  {
+    "slug": "georgia-tech-summer-engineering-institute-sei",
+    "url": "https://coe.gatech.edu/future-engineers/k-20-initiatives/summer-engineering-institute",
+    "label": "Georgia Tech Summer Engineering Institute (SEI)",
+    "category": "Georgia"
+  },
+  {
+    "slug": "georgia-tech-summer-p-e-a-k-s-for-high-school-students",
+    "url": "https://expandedlearning.ceismc.gatech.edu/summer-programs/sessions/high-school",
+    "label": "Georgia Tech Summer P.E.A.K.S. for High School Students",
+    "category": "Atlanta Ga"
+  },
+  {
+    "slug": "girls-who-code-summer-immersion-program-3",
+    "url": "https://girlswhocode.com/programs/summer-immersion-program",
+    "label": "Girls Who Code - Summer Immersion Program",
+    "category": "California"
+  },
+  {
+    "slug": "hamline-university-high-school-microscope-adventure-camp",
+    "url": "https://www.hamline.edu/academics/undergraduate/physics/microscope-camp",
+    "label": "Hamline University High School Microscope Adventure Camp",
+    "category": "Minnesota"
+  },
+  {
+    "slug": "harvard-medical-school-pre-college-hmx-program",
+    "url": "https://pc.hms.harvard.edu/",
+    "label": "Harvard Medical School Pre-College HMX Program",
+    "category": "Tennessee"
+  },
+  {
+    "slug": "health-careers-explorations-camp",
+    "url": "https://www.une.edu/ahec/pipeline-programs",
+    "label": "Health Careers Explorations Camp",
+    "category": "Maine"
+  },
+  {
+    "slug": "health-sciences-summer-camps",
+    "url": "https://dellmed.utexas.edu/education/academics/programs-for-youth-and-undergrads/health-sciences-summer-camps",
+    "label": "Health Sciences Summer Camps",
+    "category": "Austin Texas"
+  },
+  {
+    "slug": "heart-internship",
+    "url": "https://kheradvar.eng.uci.edu/outreach/",
+    "label": "HEART Internship",
+    "category": "Oregon"
+  },
+  {
+    "slug": "heide-steps-summer-training-in-equity-program-for-secondary-students",
+    "url": "https://news.delaware.gov/2025/02/10/health-equity-institute-of-delaware-opens-summer-internship-program-to-high-school-students/",
+    "label": "HEIDE STEPS (Summer Training in Equity Program for Secondary Students)",
+    "category": "Delaware"
+  },
+  {
+    "slug": "heithoff-brody-high-school-scholars-program",
+    "url": "https://www.salk.edu/about/education-outreach/programs/high-school-scholars/",
+    "label": "Heithoff-Brody High School Scholars Program",
+    "category": "California"
+  },
+  {
+    "slug": "high-school-explainer-program",
+    "url": "https://www.exploratorium.edu/about/explainers/high-school",
+    "label": "High School Explainer Program",
+    "category": "San Francisco"
+  },
+  {
+    "slug": "high-school-research-immersion-program-st-jude-children-s-research-hospital",
+    "url": "https://www.stjude.org/education-training/predoctoral-training/k-12/high-school-research-immersion-program.html",
+    "label": "High School Research Immersion Program – St. Jude Children’s Research Hospital",
+    "category": "Tennessee"
+  },
+  {
+    "slug": "high-school-science-research-internship-program",
+    "url": "https://www.madison.k12.wi.us/curriculum-instruction/science/high-school-science-research-internship-program",
+    "label": "High School Science Research Internship Program",
+    "category": "Wisconsin"
+  },
+  {
+    "slug": "high-school-summer-nurse-camp-at-the-university-of-portland",
+    "url": "https://nursing.up.edu/community-programs/high-school-nurse-camp.html",
+    "label": "High School Summer Nurse Camp at the University of Portland",
+    "category": "Oregon"
+  },
+  {
+    "slug": "holiday-science-program",
+    "url": "https://www.qimrb.edu.au/education/holiday-science-program",
+    "label": "Holiday Science Program",
+    "category": "Australia"
+  },
+  {
+    "slug": "horizon-academic-research-program",
+    "url": "https://www.horizoninspires.com/",
+    "label": "Horizon Academic Research Program",
+    "category": "New Jersey"
+  },
+  {
+    "slug": "houston-methodist-summer-high-school-research-internship",
+    "url": "https://www.houstonmethodist.org/academic-institute/education/research/summer-internship-program/highschoolresearchinternship/",
+    "label": "Houston Methodist Summer High School Research Internship",
+    "category": "Houston"
+  },
+  {
+    "slug": "hsra-summer-program-ut-austin",
+    "url": "https://fri.cns.utexas.edu/community-outreach/summer-high-school-research-academy",
+    "label": "HSRA Summer Program @ UT Austin",
+    "category": "Texas"
+  },
+  {
+    "slug": "hutton-junior-fisheries-biology-program",
+    "url": "https://hutton.fisheries.org/",
+    "label": "Hutton Junior Fisheries Biology Program",
+    "category": "Multi-state"
+  },
+  {
+    "slug": "ieee-tryengineering-summer-camp",
+    "url": "https://tryengineeringinstitute.ieee.org/",
+    "label": "IEEE TryEngineering Summer Camp",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "ierc-summer-school-james-cook-university",
+    "url": "https://www.jcu.edu.au/ierc/experience-uni/summer-school",
+    "label": "IERC Summer School – James Cook University",
+    "category": "Australia"
+  },
+  {
+    "slug": "iesosc-innovation-entrepreneurship-and-the-science-of-smart-cities",
+    "url": "https://k12stem.engineering.nyu.edu/programs/iesosc",
+    "label": "ieSoSC – Innovation, Entrepreneurship and the Science of Smart Cities",
+    "category": "New York City"
+  },
+  {
+    "slug": "ignis-mission-student-interns-program",
+    "url": "https://www.ecu.edu.au/schools/engineering/community/ignis-mission-student-interns-program",
+    "label": "IGNIS Mission Student Interns Program",
+    "category": "Australia"
+  },
+  {
+    "slug": "illinois-tech-s-elevate-college-prep",
+    "url": "https://www.iit.edu/academics/elevate-college-prep/summer-programs",
+    "label": "Illinois Tech’s Elevate College Prep",
+    "category": "Chicago / Illinois"
+  },
+  {
+    "slug": "islands-through-time",
+    "url": "https://www.coa.edu/summerprograms/summer-field-institute/islands-through-time/",
+    "label": "Islands Through Time",
+    "category": "Maine"
+  },
+  {
+    "slug": "iu-simon-comprehensive-cancer-center-educational-pathways-for-cancer-research-epcr",
+    "url": "https://cancer.iu.edu/education/summer/epcr.html",
+    "label": "IU Simon Comprehensive Cancer Center – Educational Pathways for Cancer Research (EPCR)",
+    "category": "Indiana"
+  },
+  {
+    "slug": "iu-simon-comprehensive-cancer-center-future-scientist-program",
+    "url": "https://cancer.iu.edu/education/summer/future-scientist.html",
+    "label": "IU Simon Comprehensive Cancer Center Future Scientist Program",
+    "category": "Indiana"
+  },
+  {
+    "slug": "johns-hopkins-biophysics-research-for-baltimore-teens",
+    "url": "https://sites.krieger.jhu.edu/brbt/",
+    "label": "Johns Hopkins Biophysics Research for Baltimore Teens",
+    "category": "Maryland"
+  },
+  {
+    "slug": "johns-hopkins-school-of-medicine-s-summer-academic-research-experience-sare",
+    "url": "https://sare.cellbio.jhmi.edu/",
+    "label": "Johns Hopkins School of Medicine’s Summer Academic Research Experience (SARE)",
+    "category": "Maryland"
+  },
+  {
+    "slug": "johns-hopkins-virtual-internship-in-brain-sciences-jhibs",
+    "url": "https://www.hopkinsmedicine.org/neurology-neurosurgery/research/jhu-nimh/jhibs",
+    "label": "Johns Hopkins Virtual Internship in Brain Sciences (JHIBS)",
+    "category": "Oregon / Maine"
+  },
+  {
+    "slug": "k-12-initiative-health-sciences-academy",
+    "url": "https://www.kcksaturdayacademy.org/our-work/summer-camps",
+    "label": "K-12 Initiative - Health Sciences Academy",
+    "category": "Kansas"
+  },
+  {
+    "slug": "keep-indianapolis-beautiful-kib-youth-tree-team",
+    "url": "https://www.kibi.org/program/youth-tree-team/",
+    "label": "Keep Indianapolis Beautiful (KIB) Youth Tree Team",
+    "category": "Indiana"
+  },
+  {
+    "slug": "kode-with-klossy-summer-camp",
+    "url": "https://www.kodewithklossy.com/camp",
+    "label": "Kode With Klossy Summer Camp",
+    "category": "Washington State"
+  },
+  {
+    "slug": "kode-with-klossy-summer-camps",
+    "url": "https://www.kodewithklossy.com/camp",
+    "label": "Kode with Klossy Summer Camps",
+    "category": "Texas / USA (general)"
+  },
+  {
+    "slug": "lsu-health-new-orleans-medical-student-summer-research-program",
+    "url": "https://www.medschool.lsuhsc.edu/genetics/summer_highschool_undergrad.aspx",
+    "label": "LSU Health New Orleans Medical Student Summer Research Program",
+    "category": "New Orleans"
+  },
+  {
+    "slug": "luddy-indianapolis-pre-college-summer-academy",
+    "url": "https://luddy.indiana.edu/student-life/summer-camp.html",
+    "label": "Luddy Indianapolis Pre-College Summer Academy",
+    "category": "Indiana"
+  },
+  {
+    "slug": "lumiere-research-scholar-program",
+    "url": "https://www.lumiere-education.com/programs",
+    "label": "Lumiere Research Scholar Program",
+    "category": "Multi-state"
+  },
+  {
+    "slug": "marine-biology-at-the-university-of-british-columbia",
+    "url": "https://www.nslcleaders.org/youth-leadership-programs/marine-biology/",
+    "label": "Marine Biology at the University of British Columbia",
+    "category": "Vancouver"
+  },
+  {
+    "slug": "massachusetts-institute-of-technology-s-women-s-technology-program-wtp-mechanical-engineering",
+    "url": "https://web.mit.edu/wtp/",
+    "label": "Massachusetts Institute of Technology’s Women’s Technology Program (WTP): Mechanical Engineering",
+    "category": "Massachusetts"
+  },
+  {
+    "slug": "mathcamp-online-summer-program",
+    "url": "https://www.mathcamp.org/about_mathcamp/",
+    "label": "MathCamp - Online Summer Program",
+    "category": "Montreal"
+  },
+  {
+    "slug": "mayo-clinic-s-career-immersion-program",
+    "url": "https://college.mayo.edu/academics/health-sciences-education/career-immersion-program-minnesota/",
+    "label": "Mayo Clinic’s Career Immersion Program",
+    "category": "Minnesota"
+  },
+  {
+    "slug": "mcgill-university-mcgill-summer-academy",
+    "url": "https://www.mcgill.ca/summeracademy/",
+    "label": "McGill University - McGill Summer Academy",
+    "category": "Montreal"
+  },
+  {
+    "slug": "md-anderson-cancer-center-high-school-summer-program",
+    "url": "https://www.mdanderson.org/education-training/research-training/early-career-pathway-programs/summer-research-programs/programs/high-school-summer-program.html",
+    "label": "MD Anderson Cancer Center High School Summer Program",
+    "category": "Houston"
+  },
+  {
+    "slug": "md-camp",
+    "url": "https://medicine.osu.edu/education/md-camp",
+    "label": "MD Camp",
+    "category": "Ohio"
+  },
+  {
+    "slug": "medical-college-of-wisconsin-s-apprenticeship-in-medicine-aim",
+    "url": "https://www.mcw.edu/education/pathway-programs/for-high-school-students",
+    "label": "Medical College of Wisconsin’s Apprenticeship in Medicine (AIM)",
+    "category": "Wisconsin"
+  },
+  {
+    "slug": "medical-immersion-scholars-academy-misa",
+    "url": "https://www.misahealth.com/programs",
+    "label": "Medical Immersion Scholars Academy (MISA)",
+    "category": "The Bay Area"
+  },
+  {
+    "slug": "medical-internship-navigating-diversity-and-science-minds",
+    "url": "https://www.hmsom.edu/en/office-of-opportunity-and-belonging/high-school-pre-med-students",
+    "label": "Medical Internship Navigating Diversity and Science (MINDS)",
+    "category": "New Jersey"
+  },
+  {
+    "slug": "medical-sciences-summer-institute-at-uc",
+    "url": "https://med.uc.edu/education/undergraduate-education/undergraduate-program-in-medical-sciences/admissions/medical-sciences-summer-institute",
+    "label": "Medical Sciences Summer Institute at UC",
+    "category": "Cincinnati Ohio"
+  },
+  {
+    "slug": "michigan-state-university-s-high-school-engineering-institute-hsei",
+    "url": "https://engineering.msu.edu/academics/k-12-resources/summer-programs",
+    "label": "Michigan State University’s High School Engineering Institute (HSEI)",
+    "category": "Michigan"
+  },
+  {
+    "slug": "michigan-tech-engineering-scholars-program-esp",
+    "url": "https://www.mtu.edu/syp/discover/pathway-programs/",
+    "label": "Michigan Tech Engineering Scholars Program (ESP)",
+    "category": "Michigan"
+  },
+  {
+    "slug": "microelectronics-week",
+    "url": "https://ccap.udel.edu/application-science-week/",
+    "label": "Microelectronics Week",
+    "category": "Delaware"
+  },
+  {
+    "slug": "microsoft-discovery-program",
+    "url": "https://careers.microsoft.com/v2/global/en/discoveryprogram",
+    "label": "Microsoft Discovery Program",
+    "category": "Multi-state"
+  },
+  {
+    "slug": "milwaukee-school-of-engineering-msoe-explore-summer-programs",
+    "url": "https://www.msoe.edu/academics/high-school-programs/summer-programs-at-msoe/explore/",
+    "label": "Milwaukee School of Engineering (MSOE) Explore Summer Programs",
+    "category": "Wisconsin"
+  },
+  {
+    "slug": "missouri-s-and-t-engineering-with-biology-camp",
+    "url": "https://summer.mst.edu/browse/engineeringwithbiology/",
+    "label": "Missouri S&T – Engineering with Biology Camp",
+    "category": "Missouri"
+  },
+  {
+    "slug": "missouri-s-and-t-nuclear-engineering-camp",
+    "url": "https://summer.mst.edu/browse/nuclearengineeringcamp/",
+    "label": "Missouri S&T – Nuclear Engineering Camp",
+    "category": "Missouri"
+  },
+  {
+    "slug": "missouri-s-and-t-robotics-camp",
+    "url": "https://summer.mst.edu/browse/roboticscamp/",
+    "label": "Missouri S&T – Robotics Camp",
+    "category": "Missouri"
+  },
+  {
+    "slug": "missouri-state-university-pre-college-stem-academy",
+    "url": "https://www.missouristate.edu/FutureStudents/precollege-enrollment.htm",
+    "label": "Missouri State University – Pre‑College STEM Academy",
+    "category": "Missouri"
+  },
+  {
+    "slug": "mit-s-llrise",
+    "url": "https://www.ll.mit.edu/outreach/llrise",
+    "label": "MIT’s LLRISE",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "mites-summer-mit",
+    "url": "https://mites.mit.edu/discover-mites/mites-summer/",
+    "label": "MITES Summer @ MIT",
+    "category": "Massachusetts"
+  },
+  {
+    "slug": "mizzou-machine-learning-and-ai-camp",
+    "url": "https://theconnector.missouri.edu/camp/machine-learning-ai-2/",
+    "label": "Mizzou Machine Learning & AI Camp",
+    "category": "Missouri"
+  },
+  {
+    "slug": "msm-s-t-e-a-m-academy",
+    "url": "https://www.msm.edu/Education/PipelinePrograms/STEAMacademy9-12.php",
+    "label": "MSM S.T.E.A.M. Academy",
+    "category": "Georgia / Atlanta Ga"
+  },
+  {
+    "slug": "mwri-high-school-summer-internship",
+    "url": "https://mageewomens.org/for-researchers/education/high-school-summer-internship-program",
+    "label": "MWRI High School Summer Internship",
+    "category": "Pennsylvania"
+  },
+  {
+    "slug": "my-introduction-to-engineering-mite-summer-camp",
+    "url": "https://cockrell.utexas.edu/connect/k-12-outreach/mite",
+    "label": "My Introduction to Engineering (MITE) Summer Camp",
+    "category": "Austin Texas"
+  },
+  {
+    "slug": "nasa-and-ut-austin-s-sees-high-school-summer-intern-program",
+    "url": "https://www.csr.utexas.edu/education-outreach/high-school-internships/sees/",
+    "label": "NASA and UT Austin’s SEES High School Summer Intern Program",
+    "category": "Texas"
+  },
+  {
+    "slug": "nasa-ostem-internships",
+    "url": "https://www.nasa.gov/learning-resources/internship-programs/",
+    "label": "NASA OSTEM Internships",
+    "category": "Maine / Connecticut"
+  },
+  {
+    "slug": "neubauer-phoenix-stem-summer-scholars",
+    "url": "https://summer.uchicago.edu/courses/neubauer-phoenix-stem-scholars/",
+    "label": "Neubauer Phoenix STEM Summer Scholars",
+    "category": "Chicago / Illinois"
+  },
+  {
+    "slug": "new-hampshire-academy-of-science-applied-scientific-research-program",
+    "url": "https://www.nhacadsci.org/summer",
+    "label": "New Hampshire Academy of Science Applied Scientific Research Program",
+    "category": "New Hampshire"
+  },
+  {
+    "slug": "new-jersey-institute-of-technology-high-school-stem-research-programs",
+    "url": "https://research.njit.edu/forstudents",
+    "label": "New Jersey Institute of Technology High School STEM Research Programs",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "newman-university-investigative-summer-stem-program",
+    "url": "https://newmanu.edu/academics/academic-information/scholars-programs/investigative-summer-science-program",
+    "label": "Newman University - Investigative Summer STEM Program",
+    "category": "Kansas"
+  },
+  {
+    "slug": "nextwave-pre-college-experience",
+    "url": "https://www.une.edu/pre-college-experience",
+    "label": "NextWave Pre-College Experience",
+    "category": "Maine"
+  },
+  {
+    "slug": "nova-s-bridge-programs",
+    "url": "https://www.nvcc.edu/academics/divisions/iet/systemic/outreach.html",
+    "label": "NOVA’s Bridge Programs",
+    "category": "Virginia"
+  },
+  {
+    "slug": "nslc-marine-biology-summer-program",
+    "url": "https://www.nslcleaders.org/youth-leadership-programs/marine-biology/",
+    "label": "NSLC - Marine Biology Summer Program",
+    "category": "Miami"
+  },
+  {
+    "slug": "nslc-high-school-summer-programs",
+    "url": "https://www.nslcleaders.org/summer-program-locations/michigan-high-school-summer-programs",
+    "label": "NSLC High School Summer Programs",
+    "category": "Michigan"
+  },
+  {
+    "slug": "ntu-genai-bootcamp",
+    "url": "https://www.ntu.edu.sg/pace/for-individuals/student-immersion-programmes/genai-bootcamp--ai-skills-for-the-digital-future",
+    "label": "NTU GenAI Bootcamp",
+    "category": "Singapore"
+  },
+  {
+    "slug": "ntu-nanyang-research-programme-nrp",
+    "url": "https://www.ntu.edu.sg/education/talent-outreach/NRP",
+    "label": "NTU Nanyang Research Programme (NRP)",
+    "category": "Singapore"
+  },
+  {
+    "slug": "nus-science-research-programme-srp",
+    "url": "https://www.science.nus.edu.sg/undergraduates/schools-and-public-outreach/research-programmes/science-research-programme-srp/",
+    "label": "NUS Science Research Programme (SRP)",
+    "category": "Singapore"
+  },
+  {
+    "slug": "nus-science-summer-camp",
+    "url": "https://www.science.nus.edu.sg/sdl/science-summer-camp-2026/",
+    "label": "NUS Science Summer Camp",
+    "category": "Singapore"
+  },
+  {
+    "slug": "nysf-year-12-program-national-youth-science-forum",
+    "url": "https://www.nysf.edu.au/programs/year-12-program/",
+    "label": "NYSF Year 12 Program – National Youth Science Forum",
+    "category": "Australia"
+  },
+  {
+    "slug": "nyu-gstem",
+    "url": "https://www.nyu.edu/admissions/high-school-and-middle-school-programs/high-school-programs/gstem.html",
+    "label": "NYU GSTEM",
+    "category": "New York City"
+  },
+  {
+    "slug": "nyu-tandon-machine-learning-summer-program",
+    "url": "https://k12stem.engineering.nyu.edu/programs/ml",
+    "label": "NYU Tandon – Machine Learning Summer Program",
+    "category": "New York City"
+  },
+  {
+    "slug": "ochsner-health-s-star-summer-scholars-program",
+    "url": "https://www.ochsner.org/giving/community-outreach/education-outreach/ochsner-star-program/",
+    "label": "Ochsner Health’s STAR Summer Scholars Program",
+    "category": "New Orleans"
+  },
+  {
+    "slug": "ochsner-health-s-stem-pathfinder",
+    "url": "https://www.ochsner.org/giving/community-outreach/education-outreach/summer-programming/",
+    "label": "Ochsner Health’s STEM Pathfinder",
+    "category": "New Orleans"
+  },
+  {
+    "slug": "optimus-outreach-program",
+    "url": "https://moorescancercenter.ucsd.edu/education/optimus/index.html",
+    "label": "OPTIMUS Outreach Program",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "paths-up-digital-health-young-scholars-program-at-rice-university",
+    "url": "https://research.rice.edu/rstem/paths-up-ys",
+    "label": "PATHS-UP Digital Health Young Scholars Program at Rice University",
+    "category": "Texas"
+  },
+  {
+    "slug": "pathways-into-healthcare-careers-pihc-program",
+    "url": "https://college.mayo.edu/academics/health-sciences-education/pathways-into-healthcare-careers-program-florida/",
+    "label": "Pathways into Healthcare Careers (PiHC) Program",
+    "category": "Florida"
+  },
+  {
+    "slug": "pcom-summer-stem-program",
+    "url": "https://www.pcom.edu/about/departments/community-partnerships/opportunities-academy/",
+    "label": "PCOM Summer STEM Program",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "penn-s-summer-academies-biomedical-research-academy",
+    "url": "https://hs.sas.upenn.edu/summer-programs/academies/biomedical",
+    "label": "Penn’s Summer Academies: Biomedical Research Academy",
+    "category": "Pennsylvania"
+  },
+  {
+    "slug": "pharm-step-1-howard-university-college-of-pharmacy",
+    "url": "https://pharmacy.howard.edu/pharm-step-1-formerly-hssesa-high-school-summer-enrichment-science-academy",
+    "label": "Pharm STEP 1 — Howard University College of Pharmacy",
+    "category": "Washington, DC"
+  },
+  {
+    "slug": "pre-college-programs-at-stevens-institute-of-technology",
+    "url": "https://www.stevens.edu/page-minisite-landing/pre-college-programs",
+    "label": "Pre-College Programs at Stevens Institute of Technology",
+    "category": "New Jersey"
+  },
+  {
+    "slug": "princeton-plasma-physics-laboratory-high-school-summer-internship",
+    "url": "https://www.pppl.gov/high-school-summer-internship",
+    "label": "Princeton Plasma Physics Laboratory High School Summer Internship",
+    "category": "USA (general) / New Jersey"
+  },
+  {
+    "slug": "project-seed-american-chemical-society",
+    "url": "https://www.acs.org/education/students/highschool/seed.html",
+    "label": "Project SEED - American Chemical Society",
+    "category": "San Francisco"
+  },
+  {
+    "slug": "quinnipiac-university-data-science-lab",
+    "url": "https://www.qu.edu/academics/about-our-programs/summer-experiences-courses/high-school-students/data-sciences/",
+    "label": "Quinnipiac University Data Science Lab",
+    "category": "Connecticut"
+  },
+  {
+    "slug": "rady-children-s-health-medical-academy",
+    "url": "https://sdhealthscholars.org/summer-medical-academy/",
+    "label": "Rady Children’s Health Medical Academy",
+    "category": "San Diego"
+  },
+  {
+    "slug": "rbc-summer-tech-labs-program",
+    "url": "https://www.rbc.com/en/future-launch/resource-type/programs-services/rbc-summer-tech-labs/",
+    "label": "RBC Summer Tech Labs Program",
+    "category": "Toronto"
+  },
+  {
+    "slug": "react-tamu-chemistry",
+    "url": "https://sites.google.com/view/react-tamu-chemistry/home",
+    "label": "REACT @ TAMU Chemistry",
+    "category": "Texas"
+  },
+  {
+    "slug": "research-experience-for-high-school-students-rehss",
+    "url": "https://www.vanderbilt.edu/cseo/programs/high-school-programs/research-experience-for-high-school-students-rehss/",
+    "label": "Research Experience for High School Students (REHSS)",
+    "category": "Tennessee"
+  },
+  {
+    "slug": "research-experiences-in-astronomy-at-ciera-for-high-school-students-reach",
+    "url": "https://sites.northwestern.edu/cierahs/",
+    "label": "Research Experiences in Astronomy at CIERA for High School Students(REACH)",
+    "category": "Illinois"
+  },
+  {
+    "slug": "research-in-the-biological-sciences-ribs",
+    "url": "https://summer.uchicago.edu/courses/research-in-the-biological-sciences/",
+    "label": "Research in the Biological Sciences (RIBS)",
+    "category": "Chicago"
+  },
+  {
+    "slug": "research-internship-program-ohsu-school-of-dentistry",
+    "url": "https://www.ohsu.edu/school-of-dentistry/research-internship-program",
+    "label": "Research Internship Program – OHSU School of Dentistry",
+    "category": "Oregon"
+  },
+  {
+    "slug": "research-mentorship-program",
+    "url": "https://www.summer.ucsb.edu/programs/research-mentorship-program/overview",
+    "label": "Research Mentorship Program",
+    "category": "California"
+  },
+  {
+    "slug": "research-science-institute-rsi-massachusetts-institute-of-technology",
+    "url": "https://www.cee.org/programs/research-science-institute-rsi/life-rsi",
+    "label": "Research Science Institute (RSI) @ Massachusetts Institute of Technology",
+    "category": "Massachusetts"
+  },
+  {
+    "slug": "research-training-program-rtp-seattle-children-s-research-institute",
+    "url": "https://www.seattlechildrens.org/research/centers-programs/science-education-department/high-school-training-programs/",
+    "label": "Research Training Program (RTP) - Seattle Children’s Research Institute",
+    "category": "Seattle Washington"
+  },
+  {
+    "slug": "researchstart",
+    "url": "https://www.uchicagomedicine.org/cancer/education-outreach/student-education/high-school-undergraduate/researchstart",
+    "label": "ResearcHStart",
+    "category": "Chicago"
+  },
+  {
+    "slug": "residential-indigenous-science-experience-rise",
+    "url": "https://science.unimelb.edu.au/engage/science-for-schools/rise",
+    "label": "Residential Indigenous Science Experience (RISE)",
+    "category": "Australia"
+  },
+  {
+    "slug": "rice-university-digital-health-young-scholars-program",
+    "url": "https://research.rice.edu/rstem/digital-health-ys",
+    "label": "Rice University — Digital Health Young Scholars Program",
+    "category": "Houston"
+  },
+  {
+    "slug": "rice-university-s-elite-tech-camp",
+    "url": "https://www.rcelconnect.org/elitecamp/",
+    "label": "Rice University’s ELITE Tech Camp",
+    "category": "Texas"
+  },
+  {
+    "slug": "rise-with-wise-summer-program",
+    "url": "https://www.wise.iastate.edu/rise-wise",
+    "label": "Rise with Wise Summer Program",
+    "category": "Iowa"
+  },
+  {
+    "slug": "rutgers-university-s-waksman-institute-summer-experience-wise",
+    "url": "https://wssp.rutgers.edu/wise",
+    "label": "Rutgers University’s Waksman Institute Summer Experience (WISE)",
+    "category": "New Jersey"
+  },
+  {
+    "slug": "rutgers-young-scholars-program-in-discrete-mathematics",
+    "url": "https://math.rutgers.edu/academics/outreach-activities/1716-outreach-activities-2",
+    "label": "Rutgers Young Scholars Program in Discrete Mathematics",
+    "category": "New Jersey"
+  },
+  {
+    "slug": "sage-summer-camps",
+    "url": "https://mysagejourney.org/california",
+    "label": "SAGE Summer Camps",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "samuels-family-latino-and-african-american-high-school-internship-program-la-hip",
+    "url": "https://www.chla.org/research/training-education-career-planning-and-development-tecpad/samuels-family-latino-and-african-american-high-school-internship-program-la-hip",
+    "label": "Samuels Family Latino and African American High School Internship Program (LA-HIP)",
+    "category": "Los Angeles California"
+  },
+  {
+    "slug": "santa-clara-summer-engineering-seminar-ses-program",
+    "url": "https://www.scu.edu/engineering/beyond-the-classroom/outreach/summer-engineering-seminar-ses/",
+    "label": "Santa Clara Summer Engineering Seminar (SES) Program",
+    "category": "The Bay Area"
+  },
+  {
+    "slug": "science-and-engineering-apprenticeship-program-seap",
+    "url": "https://www.navalsteminterns.us/seap/",
+    "label": "Science and Engineering Apprenticeship Program (SEAP)",
+    "category": "Multi-state"
+  },
+  {
+    "slug": "science-program-for-the-advancement-of-research-knowledge-spark",
+    "url": "https://college.mayo.edu/academics/non-clinical-education/science-program-for-the-advancement-of-research-knowledge-spark-florida/",
+    "label": "Science Program for the Advancement of Research Knowledge (SPARK)",
+    "category": "Florida"
+  },
+  {
+    "slug": "seas-summer-immersion-program-ssip-gonzaga-university",
+    "url": "https://www.gonzaga.edu/school-of-engineering-applied-science/ssip",
+    "label": "SEAS Summer Immersion Program (SSIP) @ Gonzaga University",
+    "category": "Washington State"
+  },
+  {
+    "slug": "seattle-university-s-ai-for-equity",
+    "url": "https://www.seattleu.edu/precollege/seattle-university-ai-for-equity/",
+    "label": "Seattle University’s AI for Equity",
+    "category": "Washington State"
+  },
+  {
+    "slug": "secondary-student-training-program-university-of-iowa",
+    "url": "https://belinblank.education.uiowa.edu/students/sstp/",
+    "label": "Secondary Student Training Program - University of Iowa",
+    "category": "Iowa"
+  },
+  {
+    "slug": "seed-stem-summer-program-at-indiana-ctsi",
+    "url": "https://indianactsi.org/education/student/seed-stem/",
+    "label": "SEED/STEM Summer Program at Indiana CTSI",
+    "category": "Indiana"
+  },
+  {
+    "slug": "sickkids-s-t-a-r-students-advancing-research-program",
+    "url": "https://www.sickkids.ca/en/learning/patient-family-education/kids-science/",
+    "label": "Sickkids S.T.A.R. (Students Advancing Research) Program",
+    "category": "Toronto"
+  },
+  {
+    "slug": "sickkids-summer-research-ssure-program",
+    "url": "https://www.sickkids.ca/en/research/research-training-centre/summer-research-program/",
+    "label": "SickKids Summer Research (SSuRe) Program",
+    "category": "Toronto"
+  },
+  {
+    "slug": "southern-new-hampshire-area-health-education-center-ahec",
+    "url": "https://www.snhahec.org/summer-camps.html",
+    "label": "Southern New Hampshire – Area Health Education Center (AHEC)",
+    "category": "New Hampshire"
+  },
+  {
+    "slug": "sparc-summer-program-in-automation-robotics-and-coding",
+    "url": "https://k12stem.engineering.nyu.edu/programs/sparc",
+    "label": "SPARC: Summer Program in Automation, Robotics, and Coding",
+    "category": "New York City"
+  },
+  {
+    "slug": "st-louis-community-college-summer-stem-advancement-program",
+    "url": "https://stlcc.edu/pathways/stem/",
+    "label": "St. Louis Community College – Summer STEM Advancement Program",
+    "category": "Missouri"
+  },
+  {
+    "slug": "stanford-aimi-summer-research-internship",
+    "url": "https://aimi.stanford.edu/education/summer-research-internship",
+    "label": "Stanford AIMI Summer Research Internship",
+    "category": "Multi-state"
+  },
+  {
+    "slug": "stanford-center-for-artificial-intelligence-in-medicine-and-imaging-aimi-summer-research-internship",
+    "url": "https://aimi.stanford.edu/education/summer-research-internship",
+    "label": "Stanford Center for Artificial Intelligence in Medicine and Imaging (AIMI) Summer Research Internship",
+    "category": "Houston / Atlanta Ga"
+  },
+  {
+    "slug": "stanford-doerr-school-of-sustainability-young-investigators",
+    "url": "https://sustainability.stanford.edu/admissions-education/k-12-outreach/young-investigators",
+    "label": "Stanford Doerr School of Sustainability Young Investigators",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "stanford-institutes-of-medicine-summer-research-simr-program",
+    "url": "https://simr.stanford.edu/",
+    "label": "Stanford Institutes of Medicine Summer Research (SIMR) Program",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "stanford-medical-youth-science-program",
+    "url": "https://med.stanford.edu/odme/high-school-students/smysp.html",
+    "label": "Stanford Medical Youth Science Program",
+    "category": "California"
+  },
+  {
+    "slug": "stanford-pre-collegiate-summer-institutes",
+    "url": "https://summerinstitutes.spcs.stanford.edu/",
+    "label": "Stanford Pre-Collegiate Summer Institutes",
+    "category": "Multi-state"
+  },
+  {
+    "slug": "stanford-stars-internship",
+    "url": "https://plasticsurgery.stanford.edu/research/stars.html",
+    "label": "Stanford STaRS Internship",
+    "category": "The Bay Area"
+  },
+  {
+    "slug": "stanford-university-mathematics-camp",
+    "url": "https://sumac.spcs.stanford.edu/",
+    "label": "Stanford University Mathematics Camp",
+    "category": "California"
+  },
+  {
+    "slug": "stanford-s-pediatrics-internship-program-pips",
+    "url": "https://med.stanford.edu/pediatrics/education/pediatrics-internship-program.html",
+    "label": "Stanford’s Pediatrics Internship Program (PIPS)",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "start-qut",
+    "url": "https://www.qut.edu.au/study/options/start-qut-stem-intensive",
+    "label": "START QUT",
+    "category": "Australia"
+  },
+  {
+    "slug": "stem-fellowship-s-research-exploration-opportunity-reo",
+    "url": "https://stemfellowship.org/research-exploration-opportunity/",
+    "label": "STEM Fellowship’s Research Exploration Opportunity (REO)",
+    "category": "Toronto"
+  },
+  {
+    "slug": "stem-institute-ohio-supercomputer-center-osc",
+    "url": "https://www.osc.edu/education/si",
+    "label": "STEM Institute – Ohio Supercomputer Center (OSC)",
+    "category": "Ohio"
+  },
+  {
+    "slug": "stem-summer-workshops-florida-atlantic-university-cecs",
+    "url": "https://www.fau.edu/engineering/stem-workshops/",
+    "label": "STEM Summer Workshops – Florida Atlantic University (CECS)",
+    "category": "Florida"
+  },
+  {
+    "slug": "student-research-internships-at-scripps-research-translational-institute",
+    "url": "https://www.scripps.edu/science-and-medicine/translational-institute/education-and-training/student-research-internship/",
+    "label": "Student Research Internships at Scripps Research Translational Institute",
+    "category": "San Diego"
+  },
+  {
+    "slug": "summer-academy-of-actuarial-and-mathematical-sciences-saams-program",
+    "url": "https://www.morgan.edu/saams",
+    "label": "Summer Academy of Actuarial and Mathematical Sciences (SAAMS) Program",
+    "category": "Maryland"
+  },
+  {
+    "slug": "summer-design-camps-for-teens",
+    "url": "https://designcreativetech.utexas.edu/extended-education/sdct-summer-institutes",
+    "label": "Summer Design Camps for Teens",
+    "category": "Austin Texas"
+  },
+  {
+    "slug": "summer-engineering-camp-university-of-arizona",
+    "url": "https://engineering.arizona.edu/k12/k12_SEA",
+    "label": "Summer Engineering Camp @ University of Arizona",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "summer-engineering-institute-for-high-school-students",
+    "url": "https://osumarion.osu.edu/academics/majors/biology/stem-summer-camp",
+    "label": "Summer Engineering Institute for High School Students",
+    "category": "Ohio"
+  },
+  {
+    "slug": "summer-health-ai-bootcamp",
+    "url": "https://aimi.stanford.edu/education/aimi-summer-bootcamp",
+    "label": "Summer Health AI Bootcamp",
+    "category": "Oregon"
+  },
+  {
+    "slug": "summer-healthcare-experience-she-in-oncology",
+    "url": "https://cancer.wisc.edu/research/education/high-school-education/sheoncology/",
+    "label": "Summer Healthcare Experience (SHE) in Oncology",
+    "category": "Multi-state"
+  },
+  {
+    "slug": "summer-high-school-research-academy-hsra",
+    "url": "https://stemstarts.utexas.edu/program/ut-high-school-research-academy-hsra/",
+    "label": "Summer High School Research Academy (HSRA)",
+    "category": "Austin Texas"
+  },
+  {
+    "slug": "summer-high-school-internships-in-research-experiences-shire",
+    "url": "https://www.vanderbilt.edu/cseo/programs/high-school-programs/shire/",
+    "label": "Summer High-School Internships in Research Experiences (SHIRE)",
+    "category": "Tennessee"
+  },
+  {
+    "slug": "summer-internships-for-high-school-students-laboratory-learning-program-at-princeton",
+    "url": "https://scienceoutreach.princeton.edu/laboratory-learning-program",
+    "label": "Summer Internships for High School Students (Laboratory Learning Program) at Princeton",
+    "category": "New Jersey"
+  },
+  {
+    "slug": "summer-multicultural-engineering-training-summet-program-at-colorado-state-university",
+    "url": "https://www.mines.edu/undergraduate-admissions/summer-multicultural-engineering-training-summet/",
+    "label": "Summer Multicultural Engineering Training (SUMMET) Program at Colorado State University",
+    "category": "Colorado"
+  },
+  {
+    "slug": "summer-program-in-vascular-neurology",
+    "url": "https://chicago.medicine.uic.edu/neurology-rehabilitation/education/high-school-students/",
+    "label": "Summer Program in Vascular Neurology",
+    "category": "Illinois"
+  },
+  {
+    "slug": "summer-research-workshops-at-the-university-of-texas-at-dallas",
+    "url": "https://k12.utdallas.edu/research/",
+    "label": "Summer Research Workshops at the University of Texas at Dallas",
+    "category": "Dallas"
+  },
+  {
+    "slug": "summer-scholars-program-new-college-of-florida",
+    "url": "https://www.ncf.edu/summer-scholars-program/",
+    "label": "Summer Scholars Program - New College of Florida",
+    "category": "Florida"
+  },
+  {
+    "slug": "summer-science-internship",
+    "url": "https://rockford.medicine.uic.edu/education/high-school-college-programs/biomedical-sciences-summer-programs/",
+    "label": "Summer Science Internship",
+    "category": "Illinois"
+  },
+  {
+    "slug": "sustainable-futures-academy-rice-university",
+    "url": "https://research.rice.edu/rstem/sustainable-futures-academy-void",
+    "label": "Sustainable Futures Academy @ Rice University",
+    "category": "Texas"
+  },
+  {
+    "slug": "tech360",
+    "url": "https://www.americaontech.org/tech360.html",
+    "label": "TECH360",
+    "category": "Los Angeles California"
+  },
+  {
+    "slug": "ted-r-lilley-cure-program-at-ohsu-knight-cancer-institute",
+    "url": "https://www.ohsu.edu/knight-cancer-institute/ted-r-lilley-cure-program",
+    "label": "Ted R. Lilley CURE Program at OHSU Knight Cancer Institute",
+    "category": "Oregon"
+  },
+  {
+    "slug": "teen-research-and-education-in-environmental-science-trees-university-of-pennsylvania",
+    "url": "https://ceet.upenn.edu/education-training/high-school/",
+    "label": "Teen Research and Education in Environmental Science (TREES) @ University of Pennsylvania",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "teen-science-scholars-at-denver-museum-of-nature-and-science",
+    "url": "https://www.dmns.org/about/teen-science-scholars/",
+    "label": "Teen Science Scholars at Denver Museum of Nature & Science",
+    "category": "Colorado"
+  },
+  {
+    "slug": "texas-advanced-computing-center-tacc-code-tacc-cybersecurity",
+    "url": "https://tacc.utexas.edu/education/k-12-students/high-school-camps/cybersecurity/",
+    "label": "Texas Advanced Computing Center (TACC) Code@TACC Cybersecurity",
+    "category": "Austin Texas"
+  },
+  {
+    "slug": "texas-christian-university-tcu-nurse-camp",
+    "url": "https://harriscollege.tcu.edu/stories/2025/2025nursecamp.php",
+    "label": "Texas Christian University (TCU) Nurse Camp",
+    "category": "Dallas"
+  },
+  {
+    "slug": "the-engineering-summer-academy-at-penn-esap-university-of-pennsylvania",
+    "url": "https://esap.seas.upenn.edu/",
+    "label": "The Engineering Summer Academy at Penn (ESAP) - University of Pennsylvania",
+    "category": "Pennsylvania"
+  },
+  {
+    "slug": "the-governor-s-school-of-new-jersey-in-engineering-and-technology",
+    "url": "https://soe.rutgers.edu/academics/pre-college-engineering-programs/new-jersey-governors-school-engineering-and-technology",
+    "label": "The Governor’s School of New Jersey in Engineering & Technology",
+    "category": "New Jersey"
+  },
+  {
+    "slug": "the-neuroscience-school-at-georgia-state-university",
+    "url": "https://sites.gsu.edu/neuroscienceschool/",
+    "label": "The Neuroscience School at Georgia State University",
+    "category": "Atlanta Ga"
+  },
+  {
+    "slug": "the-rockefeller-university-hospital-s-summer-science-research-program",
+    "url": "https://www.rockefeller.edu/outreach/ssrp/",
+    "label": "The Rockefeller University Hospital’s Summer Science Research Program",
+    "category": "New York"
+  },
+  {
+    "slug": "the-science-experience",
+    "url": "https://science.unimelb.edu.au/engage/science-for-schools/science-experience",
+    "label": "The Science Experience",
+    "category": "Australia"
+  },
+  {
+    "slug": "the-science-internship-program",
+    "url": "https://sip.ucsc.edu/applying-to-sip/",
+    "label": "The Science Internship Program",
+    "category": "California"
+  },
+  {
+    "slug": "the-university-of-new-orleans-amri-high-school-summer-research-program",
+    "url": "https://www.uno.edu/amri/summer-outreach/research-program-high-school-students",
+    "label": "The University of New Orleans AMRI High School Summer Research Program",
+    "category": "New Orleans"
+  },
+  {
+    "slug": "tufts-university-biomedical-engineering-research-scholars-tubers",
+    "url": "https://www.tuftstubers.com/",
+    "label": "Tufts University Biomedical Engineering Research Scholars (TUBERS)",
+    "category": "Massachusetts"
+  },
+  {
+    "slug": "tulane-university-s-high-school-summer-research-program",
+    "url": "https://summer.tulane.edu/tulane-science-scholars-program",
+    "label": "Tulane University’s High School Summer Research Program",
+    "category": "New Orleans"
+  },
+  {
+    "slug": "u-of-t-s-create-engineering-design-challenges",
+    "url": "https://outreach.engineering.utoronto.ca/pre-university-programs/high-school-program/create/",
+    "label": "U of T’s CREATE: Engineering Design Challenges",
+    "category": "Toronto"
+  },
+  {
+    "slug": "u-of-t-s-da-vinci-engineering-enrichment-program-deep",
+    "url": "https://outreach.engineering.utoronto.ca/pre-university-programs/high-school-program/deep/",
+    "label": "U of T’s Da Vinci Engineering Enrichment Program (DEEP)",
+    "category": "Toronto"
+  },
+  {
+    "slug": "ucla-brainsport-summer-high-school-research-internship",
+    "url": "https://www.uclahealth.org/departments/neurosurgery/brainsport/training/internship",
+    "label": "UCLA BrainSport Summer High School Research Internship",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "ucla-neuroscience-high-school-scholars-program",
+    "url": "https://eastonad.ucla.edu/about/neuroscience-high-school-scholars-program",
+    "label": "UCLA Neuroscience High School Scholars Program",
+    "category": "Los Angeles California"
+  },
+  {
+    "slug": "uconn-health-high-school-student-research-apprentice-program",
+    "url": "https://health.uconn.edu/hcop/pathway-programs/high-school-student-research-apprentice-program/",
+    "label": "UConn Health High School Student Research Apprentice Program",
+    "category": "Connecticut"
+  },
+  {
+    "slug": "uconn-pre-college-summer-earth-and-environmental-sciences",
+    "url": "https://precollege-summer.uconn.edu/courses/earthenvironmetalsciences/",
+    "label": "UConn Pre-College Summer: Earth and Environmental Sciences",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "ucsd-extended-studies-sally-ride-science-academy",
+    "url": "https://extendedstudies.ucsd.edu/educational-programs/sally-ride-science-academy",
+    "label": "UCSD Extended Studies Sally Ride Science Academy",
+    "category": "San Diego"
+  },
+  {
+    "slug": "ucsd-research-experience-for-high-school-students-rehs",
+    "url": "https://education.sdsc.edu/studenttech/rehs/",
+    "label": "UCSD Research Experience for High School Students (REHS)",
+    "category": "San Diego"
+  },
+  {
+    "slug": "ucsd-research-scholars-sports-medicine",
+    "url": "https://researchscholars.ucsd.edu/currentprograms/som/index.html",
+    "label": "UCSD Research Scholars: Sports Medicine",
+    "category": "San Diego"
+  },
+  {
+    "slug": "ucsd-s-optimus",
+    "url": "https://moorescancercenter.ucsd.edu/education/optimus/index.html",
+    "label": "UCSD’s OPTIMUS",
+    "category": "San Diego"
+  },
+  {
+    "slug": "ucsf-high-school-intern-program-hip",
+    "url": "https://sep.ucsf.edu/programs/high-school-students/intern-program/",
+    "label": "UCSF High School Intern Program (HIP)",
+    "category": "The Bay Area"
+  },
+  {
+    "slug": "ucsf-program-for-investigation-and-training-in-careers-in-health",
+    "url": "https://cseo.ucsf.edu/PITCH",
+    "label": "UCSF Program for Investigation and Training in Careers in Health",
+    "category": "San Francisco"
+  },
+  {
+    "slug": "ucsf-summer-student-research-program",
+    "url": "https://summerstudents.ucsf.edu/",
+    "label": "UCSF Summer Student Research Program",
+    "category": "San Francisco / The Bay Area"
+  },
+  {
+    "slug": "uga-young-scholars-internship-program",
+    "url": "https://www.caes.uga.edu/students/prospective-students/youth-high-school-programs/young-scholars.html",
+    "label": "UGA Young Scholars Internship Program",
+    "category": "Georgia"
+  },
+  {
+    "slug": "uh-stem-biotechnology-academy",
+    "url": "https://uh.edu/stem/programs/summer-camps/",
+    "label": "UH STEM - BioTechnology Academy",
+    "category": "Houston"
+  },
+  {
+    "slug": "uh-stem-centre-tc-energy-summer-scholars-academy",
+    "url": "https://uh.edu/nsm/scholar-enrichment/scholars-academy/",
+    "label": "UH STEM Centre — TC Energy Summer Scholars Academy",
+    "category": "Houston"
+  },
+  {
+    "slug": "umass-turing-summer-program",
+    "url": "https://none.cs.umass.edu/turing/",
+    "label": "UMass Turing Summer Program",
+    "category": "Massachusetts"
+  },
+  {
+    "slug": "umkc-biomedical-sciences-summer-academy",
+    "url": "https://catalog.umkc.edu/colleges-schools/science-engineering/biology/bachelor-of-science-biomedical-sciences/",
+    "label": "UMKC – Biomedical Sciences Summer Academy",
+    "category": "Missouri"
+  },
+  {
+    "slug": "umkc-gencyber-cybersecurity-camp",
+    "url": "https://sse.umkc.edu/academics/k-12-programs/gencyber-camp.html",
+    "label": "UMKC GenCyber Cybersecurity Camp",
+    "category": "Missouri"
+  },
+  {
+    "slug": "umsl-climb-internship-collaborative-laboratory-internships",
+    "url": "https://www.umsl.edu/hwec/programs/climb.html",
+    "label": "UMSL CLIMB Internship (Collaborative Laboratory Internships)",
+    "category": "Missouri"
+  },
+  {
+    "slug": "umsl-stars-program-students-and-teachers-as-research-scientists",
+    "url": "https://www-archiv.fdm.uni-hamburg.de/b-online/ibc99/missouri/stars.htm",
+    "label": "UMSL STARS Program (Students and Teachers as Research Scientists)",
+    "category": "Missouri"
+  },
+  {
+    "slug": "university-of-chicago-s-young-innovators-climate-and-energy",
+    "url": "https://summer.uchicago.edu/courses/young-innovators-climate-and-energy-program/",
+    "label": "University of Chicago’s Young Innovators Climate & Energy",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "university-of-cincinnati-summer-engineering-camps",
+    "url": "https://ceas.uc.edu/about/news-events/camps.html",
+    "label": "University of Cincinnati Summer Engineering Camps",
+    "category": "Cincinnati Ohio"
+  },
+  {
+    "slug": "university-of-cincinnati-s-biology-meets-engineering-program-bme",
+    "url": "https://www.biologymeetsengineering.org/programs",
+    "label": "University of Cincinnati’s Biology Meets Engineering Program (BME)",
+    "category": "Cincinnati Ohio"
+  },
+  {
+    "slug": "university-of-georgia-s-b-l-a-c-k-engineering-camp",
+    "url": "https://discover.georgiacenter.uga.edu/summer-academy/black-engineering/",
+    "label": "University of Georgia’s B.L.A.C.K. Engineering Camp",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "university-of-houston-mohanlab-summer-internship-program",
+    "url": "https://mohanlab.bme.uh.edu/open-positions/high-school-students/",
+    "label": "University of Houston MohanLab Summer Internship Program",
+    "category": "Houston"
+  },
+  {
+    "slug": "university-of-illinois-grainger-engineering-summer-camps",
+    "url": "https://wyse.grainger.illinois.edu/summer-programs/summer-camps",
+    "label": "University of Illinois Grainger Engineering Summer Camps",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "university-of-kansas-advanced-aerospace-technologies-exploration-experience-aatee-camp",
+    "url": "https://cresis.ku.edu/aatee",
+    "label": "University of Kansas - Advanced Aerospace Technologies Exploration Experience (AATEE) Camp",
+    "category": "Kansas"
+  },
+  {
+    "slug": "university-of-kansas-health-sciences-enrichment-institute",
+    "url": "https://www.kumc.edu/school-of-medicine/office-of-student-engagement/student-programs/undergraduate/health-sciences-enrichment-institute.html",
+    "label": "University of Kansas - Health Sciences Enrichment Institute",
+    "category": "Kansas"
+  },
+  {
+    "slug": "university-of-kansas-pharmacy-summer-camp",
+    "url": "https://pharmacy-summercamp.ku.edu/",
+    "label": "University of Kansas - Pharmacy Summer Camp",
+    "category": "Kansas"
+  },
+  {
+    "slug": "university-of-kansas-cancer-center-accelerate-cancer-education",
+    "url": "https://www.kucancercenter.org/training-education/high-school-undergraduate/summer-research-program",
+    "label": "University of Kansas Cancer Center - Accelerate Cancer Education",
+    "category": "Kansas"
+  },
+  {
+    "slug": "university-of-maine-consider-engineering",
+    "url": "https://umaineppf.org/consider-engineering/",
+    "label": "University of Maine: Consider Engineering",
+    "category": "Maine"
+  },
+  {
+    "slug": "university-of-maryland-terp-young-scholars-program",
+    "url": "https://exst.umd.edu/pre-college-programs/terp-young-scholars",
+    "label": "University of Maryland: Terp Young Scholars Program",
+    "category": "Maryland"
+  },
+  {
+    "slug": "university-of-maryland-women-in-engineering-wie-summer-program",
+    "url": "https://eng.umd.edu/wie/future-students/6-12-programs/wie-change",
+    "label": "University of Maryland: Women in Engineering (WIE) Summer Program",
+    "category": "Maryland"
+  },
+  {
+    "slug": "university-of-miami-id-tech-summer-coding-and-stem-camps",
+    "url": "https://www.idtech.com/locations/florida-summer-camps/university-of-miami?utm_source=teenlife",
+    "label": "University of Miami - iD Tech Summer Coding & STEM Camps",
+    "category": "Miami"
+  },
+  {
+    "slug": "university-of-michigan-college-of-engineering-s-harper-academy-4-future-nuclear-engineers",
+    "url": "https://campsforkids.engin.umich.edu/harper-academy",
+    "label": "University of Michigan College of Engineering’s Harper Academy 4 Future Nuclear Engineers",
+    "category": "Michigan"
+  },
+  {
+    "slug": "university-of-michigan-s-aspirnaut-summer-research-internship-program",
+    "url": "https://aspirnaut.lsi.umich.edu/",
+    "label": "University of Michigan’s Aspirnaut Summer Research Internship Program",
+    "category": "Michigan"
+  },
+  {
+    "slug": "university-of-michigan-s-joy-of-coding",
+    "url": "https://joyofcoding.eecs.umich.edu/",
+    "label": "University of Michigan’s Joy of Coding",
+    "category": "Michigan"
+  },
+  {
+    "slug": "university-of-minnesota-s-discover-stem-summer-program",
+    "url": "https://cse.umn.edu/college/k-12-outreach/discover-stem",
+    "label": "University of Minnesota’s Discover STEM Summer Program",
+    "category": "Minnesota"
+  },
+  {
+    "slug": "university-of-minnesota-s-go4brains-high-school-neuroscience-summer-program",
+    "url": "https://sites.google.com/umn.edu/go4brains/",
+    "label": "University of Minnesota's Go4Brains High School Neuroscience Summer Program",
+    "category": "Minnesota"
+  },
+  {
+    "slug": "university-of-minnesota-s-ima-mathcep-math-modeling-camp",
+    "url": "https://cse.umn.edu/mathcep/ima-mathcep-math-modeling-camp",
+    "label": "University of Minnesota’s IMA-MathCEP Math Modeling Camp",
+    "category": "Minnesota"
+  },
+  {
+    "slug": "university-of-minnesota-s-lhi-aha-summer-research-scholars-program",
+    "url": "https://med.umn.edu/lhi/educational-programs/summer-research-scholars-program",
+    "label": "University of Minnesota’s LHI-AHA Summer Research Scholars Program",
+    "category": "Minnesota"
+  },
+  {
+    "slug": "university-of-minnesota-s-minnesota-youth-institute-mnyi",
+    "url": "https://mnyi.cfans.umn.edu/",
+    "label": "University of Minnesota’s Minnesota Youth Institute (MNYI)",
+    "category": "Minnesota"
+  },
+  {
+    "slug": "university-of-north-texas-unt-digital-creators-institute",
+    "url": "https://ci.unt.edu/summer-camps.html",
+    "label": "University of North Texas (UNT) Digital Creators Institute",
+    "category": "Dallas"
+  },
+  {
+    "slug": "university-of-north-texas-unt-digital-health-pioneers-camp",
+    "url": "https://ci.unt.edu/summer-camps.html",
+    "label": "University of North Texas (UNT) Digital Health Pioneers Camp",
+    "category": "Dallas"
+  },
+  {
+    "slug": "university-of-tasmania-s-feed-your-mind-feed-the-world",
+    "url": "https://www.utas.edu.au/community-and-partners/schools/activities/sciences/feed-your-mind-feed-the-world",
+    "label": "University of Tasmania’s Feed Your Mind, Feed the World",
+    "category": "Australia"
+  },
+  {
+    "slug": "university-of-toronto-math-academy",
+    "url": "https://www.mathematics.utoronto.ca/outreach/current-programs/grades-9-12-programs/math-academy",
+    "label": "University of Toronto Math Academy",
+    "category": "Toronto"
+  },
+  {
+    "slug": "university-of-toronto-s-blueprint",
+    "url": "https://outreach.engineering.utoronto.ca/pre-university-programs/high-school-program/blueprint/",
+    "label": "University of Toronto’s Blueprint",
+    "category": "Toronto"
+  },
+  {
+    "slug": "university-of-washington-engineering-academy",
+    "url": "https://www.engr.washington.edu/about/k12/engineering-academy",
+    "label": "University of Washington Engineering Academy",
+    "category": "Seattle Washington"
+  },
+  {
+    "slug": "university-of-washington-s-changemakers-in-computing",
+    "url": "https://cic.cs.washington.edu/",
+    "label": "University of Washington’s Changemakers in Computing",
+    "category": "Washington State"
+  },
+  {
+    "slug": "university-of-washington-s-step-students-exploring-pharmacy-program",
+    "url": "https://sop.washington.edu/pharmd/admissions/step-summer-program/",
+    "label": "University of Washington’s STEP Students Exploring Pharmacy Program",
+    "category": "Washington State"
+  },
+  {
+    "slug": "university-of-washington-s-udoc-summer-program",
+    "url": "https://equity.uwmedicine.org/udoc/",
+    "label": "University of Washington’s UDOC Summer Program",
+    "category": "Washington State"
+  },
+  {
+    "slug": "university-of-washington-s-young-scholars-program-reach",
+    "url": "https://centerforneurotech.uw.edu/education/k-12/young-scholars-program-reach/",
+    "label": "University of Washington’s Young Scholars Program: Reach",
+    "category": "Washington State"
+  },
+  {
+    "slug": "university-of-waterloo-s-quantum-school-for-young-students",
+    "url": "https://uwaterloo.ca/institute-for-quantum-computing/outreach/qsys",
+    "label": "University of Waterloo’s Quantum School for Young Students",
+    "category": "Toronto"
+  },
+  {
+    "slug": "upward-bound-math-and-science-program",
+    "url": "https://www.dtcc.edu/youth/ubms/",
+    "label": "Upward Bound Math & Science Program",
+    "category": "Delaware"
+  },
+  {
+    "slug": "ut-computer-science-academy-for-women",
+    "url": "https://www.cs.utexas.edu/engage/outreach/academies/women",
+    "label": "UT Computer Science Academy for Women",
+    "category": "Austin Texas"
+  },
+  {
+    "slug": "ut-dallas-summer-biology-research-workshop-sbrw",
+    "url": "https://biology.utdallas.edu/summercamp2025/",
+    "label": "UT Dallas Summer Biology Research Workshop (SBRW)",
+    "category": "Dallas"
+  },
+  {
+    "slug": "ut-high-school-to-health-care-hs2hc",
+    "url": "https://hs2hc.uthsc.edu/",
+    "label": "UT High School to Health Care (HS2HC)",
+    "category": "Tennessee"
+  },
+  {
+    "slug": "ut-san-antonio-s-engineering-overview-camp",
+    "url": "https://klesse.utsa.edu/student/summer-programs/high-school-camps.html",
+    "label": "UT San Antonio’s Engineering Overview Camp",
+    "category": "Texas"
+  },
+  {
+    "slug": "ut-san-antonio-s-rocketry-and-aerospace-engineering-camp",
+    "url": "https://klesse.utsa.edu/student/summer-programs/high-school-camps.html",
+    "label": "UT San Antonio’s Rocketry and Aerospace Engineering Camp",
+    "category": "Texas"
+  },
+  {
+    "slug": "ut-southwestern-medical-center-s-summer-research-opportunities-stars",
+    "url": "https://www.utsouthwestern.edu/education/programs/stars/programs/summer-research-opportunities.html",
+    "label": "UT Southwestern Medical Center’s Summer Research Opportunities (STARS)",
+    "category": "Dallas"
+  },
+  {
+    "slug": "uthealth-houston-rio-grande-valley-summer-science-internship",
+    "url": "https://sph.uth.edu/research/centers/hispanic-health/tu-salud-si-cuenta/our-initiatives/summer-science-internship",
+    "label": "UTHealth Houston Rio Grande Valley Summer Science Internship",
+    "category": "Houston"
+  },
+  {
+    "slug": "uw-oshkosh-precollege-programs",
+    "url": "https://www.uwosh.edu/precollege/",
+    "label": "UW Oshkosh PreCollege Programs",
+    "category": "Wisconsin"
+  },
+  {
+    "slug": "uw-green-bay-high-school-freshwater-summer-scholars-program",
+    "url": "https://www.uwgb.edu/freshwater-scholars/",
+    "label": "UW-Green Bay High School Freshwater Summer Scholars Program",
+    "category": "Wisconsin"
+  },
+  {
+    "slug": "uw-madison-s-engineering-summer-program",
+    "url": "https://engineering.wisc.edu/engineering-summer-program/",
+    "label": "UW-Madison’s Engineering Summer Program",
+    "category": "Wisconsin"
+  },
+  {
+    "slug": "vcu-acceleration-vcua",
+    "url": "https://dsei.vcu.edu/paths/programs/high-school/vcu-acceleration-vcua/",
+    "label": "VCU Acceleration (VCUA)",
+    "category": "Virginia"
+  },
+  {
+    "slug": "vcu-pharmacy-summer-scholars",
+    "url": "https://dsei.vcu.edu/paths/programs/high-school/pharmacy-summer-scholars/",
+    "label": "VCU Pharmacy Summer Scholars",
+    "category": "Virginia"
+  },
+  {
+    "slug": "virginia-aerospace-science-and-technology-scholars-vasts",
+    "url": "https://vsgc.odu.edu/vasts/",
+    "label": "Virginia Aerospace Science and Technology Scholars (VASTS)",
+    "category": "Virginia"
+  },
+  {
+    "slug": "virginia-commonwealth-university-s-dental-careers-exploration",
+    "url": "https://dsei.vcu.edu/paths/programs/high-school/dental-careers-exploration/",
+    "label": "Virginia Commonwealth University's Dental Careers Exploration",
+    "category": "Virginia"
+  },
+  {
+    "slug": "virginia-earth-system-science-scholars-vesss-program",
+    "url": "https://vsgc.odu.edu/vesss/",
+    "label": "Virginia Earth System Science Scholars (VESSS) Program",
+    "category": "Virginia"
+  },
+  {
+    "slug": "virginia-institute-of-marine-science-vims-governor-s-school",
+    "url": "https://www.vims.edu/engage/high_school/governorsschool/",
+    "label": "Virginia Institute of Marine Science (VIMS) Governor's School",
+    "category": "Virginia"
+  },
+  {
+    "slug": "virginia-space-coast-scholars-vscs",
+    "url": "https://vsgc.odu.edu/spacecoast/",
+    "label": "Virginia Space Coast Scholars (VSCS)",
+    "category": "Virginia"
+  },
+  {
+    "slug": "washington-aerospace-scholars-the-museum-of-flight",
+    "url": "https://www.museumofflight.org/education/explore-programs/was",
+    "label": "Washington Aerospace Scholars - The Museum of Flight",
+    "category": "Seattle Washington"
+  },
+  {
+    "slug": "washington-university-in-st-louis-pre-college-introduction-to-environmental-science",
+    "url": "https://precollege.wustl.edu/introduction-environmental-science",
+    "label": "Washington University in St. Louis Pre-College: Introduction to Environmental Science",
+    "category": "USA (general)"
+  },
+  {
+    "slug": "washington-university-summer-focus-young-scientist-program",
+    "url": "https://sites.wustl.edu/wustlysp/programs/summer-focus/",
+    "label": "Washington University Summer Focus (Young Scientist Program)",
+    "category": "Missouri"
+  },
+  {
+    "slug": "washu-sift-and-tera-environmental-science-apprenticeships",
+    "url": "https://tyson.wustl.edu/tera",
+    "label": "WashU SIFT & TERA Environmental Science Apprenticeships",
+    "category": "Missouri"
+  },
+  {
+    "slug": "wayne-state-university-s-summer-high-school-research-program",
+    "url": "https://engineering.wayne.edu/academics/community/outreach/summer-high-school-research",
+    "label": "Wayne State University’s Summer High School Research Program",
+    "category": "Michigan"
+  },
+  {
+    "slug": "welch-summer-scholar-program-wssp",
+    "url": "https://www.wssptx.org/",
+    "label": "Welch Summer Scholar Program (WSSP)",
+    "category": "Texas"
+  },
+  {
+    "slug": "wie-rise-summer-research-program",
+    "url": "https://eng.umd.edu/women/future-students/6-12-programs/rise",
+    "label": "WIE Rise Summer Research Program",
+    "category": "Maryland"
+  },
+  {
+    "slug": "winship-cancer-institute-s-summer-scholars-research-program",
+    "url": "https://winshipcancer.emory.edu/education-and-training/undergraduate-and-pre-college-programs/summer-scholars.php",
+    "label": "Winship Cancer Institute’s Summer Scholars Research Program",
+    "category": "Atlanta Ga"
+  },
+  {
+    "slug": "xavier-university-of-louisiana-s-soar-x",
+    "url": "https://www.xula.edu/pre-college-programs/precollege-soarx.html",
+    "label": "Xavier University of Louisiana’s SOAR X",
+    "category": "New Orleans"
+  },
+  {
+    "slug": "xavier-university-of-louisiana-s-star-programs",
+    "url": "https://www.xula.edu/pre-college-programs/precollege-star-programs.html",
+    "label": "Xavier University of Louisiana’s Star Programs",
+    "category": "New Orleans"
+  },
+  {
+    "slug": "young-scholars-program",
+    "url": "https://education.ucdavis.edu/young-scholars-program",
+    "label": "Young Scholars Program",
+    "category": "California"
+  },
+  {
+    "slug": "young-scholars-program-florida-state-university",
+    "url": "https://ysp.osta.fsu.edu/",
+    "label": "Young Scholars Program - Florida State University",
+    "category": "Florida"
+  },
+  {
+    "slug": "young-scholars-program-ysp-northeastern-university",
+    "url": "https://stem.northeastern.edu/summer/ysp/",
+    "label": "Young Scholars Program (YSP) @ Northeastern University",
+    "category": "Massachusetts"
+  },
+  {
+    "slug": "young-scholars-summer-stemm-research-programs",
+    "url": "https://wyse.grainger.illinois.edu/summer-programs/young-scholars-summer-research",
+    "label": "Young Scholars Summer STEMM Research Programs",
+    "category": "Illinois"
+  },
+  {
+    "slug": "youth-neurology-education-and-research-program-massachusetts-general-hospital-mgh",
+    "url": "https://www.massgeneral.org/neurology/education-and-training/youth-research-and-education",
+    "label": "Youth Neurology Education and Research Program @ Massachusetts General Hospital (MGH)",
+    "category": "Massachusetts"
   }
 ]

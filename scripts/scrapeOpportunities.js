@@ -30,6 +30,17 @@ const IMAGE_FETCH_TIMEOUT_MS = 12000
 const IMAGE_USER_AGENT =
   'Mozilla/5.0 (compatible; SciTeensImageFetcher/1.0; +https://sciteens.org)'
 
+const GEOCODE_FETCH_TIMEOUT_MS = 10000
+const GEOCODE_MIN_INTERVAL_MS = 1100
+const GEOCODE_USER_AGENT =
+  'SciTeensOpportunityScraper/1.0 (+https://sciteens.org)'
+const NON_GEOCODABLE_LOCATIONS = new Set([
+  'virtual',
+  'remote',
+  'multiple locations',
+  'unsure',
+])
+
 const FIELD_TAXONOMY = [
   'Biology',
   'Chemistry',
@@ -45,10 +56,30 @@ const FIELD_TAXONOMY = [
   'Space Science',
 ]
 
+const PROGRAM_TYPE_TAXONOMY = [
+  'Summer Program',
+  'Academic Year Program',
+  'Competition',
+  'Internship',
+  'Research Experience',
+  'Scholarship',
+  'Online Course',
+  'Fellowship',
+  'Camp',
+  'Other',
+]
+
+const RESIDENTIAL_OPTIONS = [
+  'Residential',
+  'Commuter',
+  'Not applicable',
+  'Not specified',
+]
+
 const ExtractionSchema = z.object({
   name: z.string(),
   about: z.string(),
-  location: z.string().nullable(),
+  location: z.string(),
   startDate: z.string().nullable(),
   endDate: z.string().nullable(),
   applicationDeadline: z.string().nullable(),
@@ -61,8 +92,17 @@ const ExtractionSchema = z.object({
   ]),
   gradeRangeLow: z.number().nullable(),
   gradeRangeHigh: z.number().nullable(),
+  ageRangeLow: z.number().nullable(),
+  ageRangeHigh: z.number().nullable(),
   fields: z.array(z.enum(FIELD_TAXONOMY)),
   eligibilityNotes: z.string().nullable(),
+  cost: z.string(),
+  financialAid: z.string(),
+  stipend: z.string(),
+  programType: z.enum(PROGRAM_TYPE_TAXONOMY),
+  durationText: z.string(),
+  residential: z.enum(RESIDENTIAL_OPTIONS),
+  contactEmail: z.string().nullable(),
   applicationUrl: z.string(),
   reasoning: z.string(),
 })
@@ -100,9 +140,9 @@ const SUBMIT_TOOL = {
           '2-4 sentence plain-language description of what this program is and who it is for',
       },
       location: {
-        type: ['string', 'null'],
+        type: 'string',
         description:
-          'Where the program takes place, e.g. "Cambridge, MA" for an in-person/residential program, "Virtual" for fully remote, or null if not stated / not applicable',
+          'Where the program takes place. Give the most specific real address you can find, e.g. "77 Massachusetts Ave, Cambridge, MA" for an in-person/residential program at a known campus, or a city/state like "Cambridge, MA" if only that is stated. If the program is fully online, use the exact literal string "Virtual". If it explicitly runs at several different sites, use the exact literal string "Multiple Locations". If the page never states a location, use the exact literal string "Unsure". Never return null or an empty string.',
       },
       startDate: {
         type: ['string', 'null'],
@@ -139,6 +179,16 @@ const SUBMIT_TOOL = {
         description:
           'Highest eligible US grade level (9-12), or null',
       },
+      ageRangeLow: {
+        type: ['number', 'null'],
+        description:
+          'Lowest eligible participant age in years, if the page states eligibility by age rather than (or in addition to) grade level, or null if not stated',
+      },
+      ageRangeHigh: {
+        type: ['number', 'null'],
+        description:
+          'Highest eligible participant age in years, or null',
+      },
       fields: {
         type: 'array',
         items: { type: 'string', enum: FIELD_TAXONOMY },
@@ -148,7 +198,44 @@ const SUBMIT_TOOL = {
       eligibilityNotes: {
         type: ['string', 'null'],
         description:
-          'Any residency, cost, or other eligibility restriction worth surfacing (e.g. "New Jersey residents only", "$500 fee, need-based aid available"), or null if none',
+          'Any residency or other eligibility restriction worth surfacing (e.g. "New Jersey residents only"), or null if none',
+      },
+      cost: {
+        type: 'string',
+        description:
+          'Program cost to the student, stated plainly (e.g. "Free", "$500 fee, need-based aid available", "$4,200 tuition"). Use the exact literal string "Not specified" if the page does not state a cost.',
+      },
+      financialAid: {
+        type: 'string',
+        description:
+          'Whether financial aid, scholarships, or fee waivers are available. If cost is "Free", use the exact literal string "Program is Free". If the page states aid is available, describe it plainly (e.g. "Need-based scholarships available", "Fee waivers for eligible families"). Use the exact literal string "Not specified" if the page never mentions financial aid and the program is not free.',
+      },
+      stipend: {
+        type: 'string',
+        description:
+          'Whether participants are paid a stipend or wage (common for research internships), stated plainly (e.g. "$500/week stipend", "$3,000 total stipend"). Use the exact literal string "Not specified" if the page does not mention a stipend or payment to participants.',
+      },
+      programType: {
+        type: 'string',
+        enum: PROGRAM_TYPE_TAXONOMY,
+        description:
+          'The single best-fitting category for what kind of opportunity this is, from the fixed list. Use "Other" only if none of the listed categories fit.',
+      },
+      durationText: {
+        type: 'string',
+        description:
+          'How long the program runs or how much time it takes, stated plainly (e.g. "6 weeks", "1-day workshop", "year-long, 3 hrs/week"). Use the exact literal string "Not specified" if the page does not state a duration or time commitment.',
+      },
+      residential: {
+        type: 'string',
+        enum: RESIDENTIAL_OPTIONS,
+        description:
+          'For in-person programs: "Residential" if participants live on-site/in provided housing, "Commuter" if participants travel daily and are not housed. Use "Not applicable" if the program is fully virtual. Use "Not specified" if the program is in-person but housing is not mentioned.',
+      },
+      contactEmail: {
+        type: ['string', 'null'],
+        description:
+          'A program or admissions contact email address found on the page, or null if none is stated',
       },
       applicationUrl: {
         type: 'string',
@@ -172,8 +259,17 @@ const SUBMIT_TOOL = {
       'deadlineStatus',
       'gradeRangeLow',
       'gradeRangeHigh',
+      'ageRangeLow',
+      'ageRangeHigh',
       'fields',
       'eligibilityNotes',
+      'cost',
+      'financialAid',
+      'stipend',
+      'programType',
+      'durationText',
+      'residential',
+      'contactEmail',
       'applicationUrl',
       'reasoning',
     ],
@@ -186,13 +282,31 @@ function buildSystemPrompt() {
 
 Today's date is ${today}. This system publishes based on live queries over the dates you report, not your own judgment of "is this fresh" -- so report real dates exactly as stated, and don't withhold or reclassify a real deadline just because it looks old to you. Freshness is judged later by comparing your reported date to the current date at read time, not by you.
 
-Use the fetch_page tool to read the seed URL. If the page doesn't clearly show an application deadline, eligibility, or grade range, you may follow at most a few relevant links (e.g. "Apply", "Key Dates", "Admissions", "Eligibility") using fetch_page again.
+Use the fetch_page tool to read the seed URL. If the page doesn't clearly show an application deadline, eligibility, grade range, or cost, you may follow at most a few relevant links (e.g. "Apply", "Key Dates", "Admissions", "Eligibility", "Tuition", "Cost") using fetch_page again.
 
 Classifying deadlineStatus -- this is the part that actually requires judgment:
 - "dated": the page unambiguously states a real application deadline. Report it as "dated" with the true date whether that date is before or after ${today} -- do not suppress or reclassify a real deadline just because it has already passed.
 - "rolling": the page explicitly states admissions are rolling/ongoing, with no deadline.
 - "upcoming": applications are not yet open, and the page states a SPECIFIC future date when they will open (e.g. "Applications open October 1, 2026"). A vague "check back later" or "opens in the fall" with no specific date is not enough for this -- that's "unclear" instead. Many established annual programs publish next cycle's opening date well before applications actually open, even if last cycle's deadline (now in the past) is also still visible on the page -- look for this specifically, since it's easy to miss if you stop at the first (stale) date you see.
 - "unclear": none of the above confidently applies -- including when the only date on the page is not actually an application deadline at all (e.g. a competition's "kickoff" or "game reveal" date, an unrelated event date), or when you genuinely cannot tell what a date refers to. Guessing wrong is worse than admitting you don't know.
+
+Report location as specifically as you can -- a full street address if the page states one, otherwise city/state. Use the exact literal string "Virtual" for fully online programs, "Multiple Locations" for programs explicitly run at several sites, or "Unsure" only if the page never states a location at all. Never leave location blank or null.
+
+Report cost plainly and literally as stated (e.g. "Free", "$500 fee, need-based aid available"). If the page never states a cost, use the exact literal string "Not specified" -- never guess or leave it blank.
+
+Report financialAid the same way: if cost is "Free", use the exact literal string "Program is Free". If the page explicitly offers scholarships, need-based aid, or fee waivers, describe that plainly. If the program is not free and the page never mentions financial aid, use the exact literal string "Not specified".
+
+Report stipend plainly if the page states participants are paid (common for research internships and fellowships, e.g. "$500/week stipend"). Use the exact literal string "Not specified" if no stipend or payment to participants is mentioned. A stipend is separate from cost -- a program can charge tuition and pay a stipend, or do neither.
+
+Report ageRangeLow/ageRangeHigh whenever the page states eligibility by age, even if a grade range is also reported -- don't discard one in favor of the other.
+
+Pick programType from the fixed list based on how the program actually runs (a research internship that happens in summer is "Research Experience", not "Summer Program", if the page frames it as research). Use "Other" only when nothing fits.
+
+Report durationText plainly from however the page states the time commitment (e.g. "6 weeks", "one-day event", "year-long, meets weekly"). Use the exact literal string "Not specified" if no duration or time commitment is stated.
+
+Report residential only for in-person programs: "Residential" if housing is provided, "Commuter" if participants are explicitly not housed, "Not applicable" if the program is virtual, or "Not specified" if the page is in-person but silent on housing.
+
+Report contactEmail only if a real email address for the program appears on the page; null otherwise. Never construct or guess one.
 
 When you have enough information (or have made a good-faith effort and still can't find a clear answer), call submit_extraction with your final answer.`
 }
@@ -319,6 +433,70 @@ async function downloadImageBuffer(imageUrl) {
   return {
     buffer: Buffer.from(await res.arrayBuffer()),
     ext: extForContentType(contentType),
+  }
+}
+
+let lastGeocodeRequestAt = 0
+
+async function geocodeLocation(locationText) {
+  const normalized = String(locationText || '')
+    .trim()
+    .toLowerCase()
+  if (
+    !normalized ||
+    NON_GEOCODABLE_LOCATIONS.has(normalized)
+  ) {
+    return null
+  }
+
+  // Nominatim's usage policy caps unauthenticated use at one
+  // request per second: https://operations.osmfoundation.org/policies/nominatim/
+  const waitMs =
+    lastGeocodeRequestAt +
+    GEOCODE_MIN_INTERVAL_MS -
+    Date.now()
+  if (waitMs > 0) {
+    await new Promise((resolve) =>
+      setTimeout(resolve, waitMs)
+    )
+  }
+  lastGeocodeRequestAt = Date.now()
+
+  const params = new URLSearchParams({
+    q: locationText,
+    format: 'jsonv2',
+    limit: '1',
+  })
+  const controller = new AbortController()
+  const timer = setTimeout(
+    () => controller.abort(),
+    GEOCODE_FETCH_TIMEOUT_MS
+  )
+  try {
+    const res = await fetchPublicUrl(
+      `https://nominatim.openstreetmap.org/search?${params}`,
+      {
+        signal: controller.signal,
+        headers: { 'User-Agent': GEOCODE_USER_AGENT },
+      }
+    )
+    if (!res.ok) return null
+    const results = await res.json()
+    const top = Array.isArray(results) ? results[0] : null
+    if (!top) return null
+    const lat = Number(top.lat)
+    const lng = Number(top.lon)
+    if (!Number.isFinite(lat) || !Number.isFinite(lng))
+      return null
+    return {
+      locationLat: lat,
+      locationLng: lng,
+      locationFormattedAddress: top.display_name || null,
+    }
+  } catch {
+    return null
+  } finally {
+    clearTimeout(timer)
   }
 }
 
@@ -832,6 +1010,16 @@ async function scrapeSource(runContext, source) {
   }
 
   const { reasoning, ...extracted } = result.data
+  const geocode = await geocodeLocation(extracted.location)
+  extracted.locationLat = geocode
+    ? geocode.locationLat
+    : null
+  extracted.locationLng = geocode
+    ? geocode.locationLng
+    : null
+  extracted.locationFormattedAddress = geocode
+    ? geocode.locationFormattedAddress
+    : null
   console.log(
     `  [OK]   ${slug} (${elapsed}s): deadlineStatus=${extracted.deadlineStatus}`
   )
