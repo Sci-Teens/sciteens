@@ -39,6 +39,11 @@ jobs:
           workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
           service_account: ${{ vars.GCP_SCRAPER_SA }}
 
+      - name: Seed opportunity sources
+        run: node scripts/seed-opportunity-sources.js --project "$GCP_PROJECT_ID" --execute
+        env:
+          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+
       - name: Run scraper
         run: node scripts/scrapeOpportunities.js --project "$GCP_PROJECT_ID"
         env:
