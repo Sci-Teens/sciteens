@@ -7,7 +7,6 @@ const path = require('node:path')
 const { execFileSync } = require('node:child_process')
 const { chromium } = require('playwright')
 const cheerio = require('cheerio')
-const { z } = require('zod')
 const dns = require('node:dns').promises
 const {
   GoogleGenAI,
@@ -19,6 +18,13 @@ const {
   extForContentType,
   uploadCoverWebp,
 } = require('./lib/programImages')
+
+const {
+  ExtractionSchema,
+  FIELD_TAXONOMY,
+  PROGRAM_TYPE_TAXONOMY,
+  RESIDENTIAL_OPTIONS,
+} = require('./lib/opportunitySchema')
 
 const MODEL = 'gemini-3.7-flash'
 const DEFAULT_VERTEX_LOCATION = 'global'
@@ -40,72 +46,6 @@ const NON_GEOCODABLE_LOCATIONS = new Set([
   'multiple locations',
   'unsure',
 ])
-
-const FIELD_TAXONOMY = [
-  'Biology',
-  'Chemistry',
-  'Cognitive Science',
-  'Computer Science',
-  'Earth Science',
-  'Electrical Engineering',
-  'Environmental Science',
-  'Mathematics',
-  'Mechanical Engineering',
-  'Medicine',
-  'Physics',
-  'Space Science',
-]
-
-const PROGRAM_TYPE_TAXONOMY = [
-  'Summer Program',
-  'Academic Year Program',
-  'Competition',
-  'Internship',
-  'Research Experience',
-  'Scholarship',
-  'Online Course',
-  'Fellowship',
-  'Camp',
-  'Other',
-]
-
-const RESIDENTIAL_OPTIONS = [
-  'Residential',
-  'Commuter',
-  'Not applicable',
-  'Not specified',
-]
-
-const ExtractionSchema = z.object({
-  name: z.string(),
-  about: z.string(),
-  location: z.string(),
-  startDate: z.string().nullable(),
-  endDate: z.string().nullable(),
-  applicationDeadline: z.string().nullable(),
-  applicationOpensDate: z.string().nullable(),
-  deadlineStatus: z.enum([
-    'dated',
-    'rolling',
-    'upcoming',
-    'unclear',
-  ]),
-  gradeRangeLow: z.number().nullable(),
-  gradeRangeHigh: z.number().nullable(),
-  ageRangeLow: z.number().nullable(),
-  ageRangeHigh: z.number().nullable(),
-  fields: z.array(z.enum(FIELD_TAXONOMY)),
-  eligibilityNotes: z.string().nullable(),
-  cost: z.string(),
-  financialAid: z.string(),
-  stipend: z.string(),
-  programType: z.enum(PROGRAM_TYPE_TAXONOMY),
-  durationText: z.string(),
-  residential: z.enum(RESIDENTIAL_OPTIONS),
-  contactEmail: z.string().nullable(),
-  applicationUrl: z.string(),
-  reasoning: z.string(),
-})
 
 const FETCH_TOOL = {
   name: 'fetch_page',
@@ -247,6 +187,27 @@ const SUBMIT_TOOL = {
         description:
           'Brief (1-3 sentence) explanation of how you determined deadlineStatus, especially if choosing "unclear" or rejecting a misleading date on the page. Kept for operator debugging in opportunity-sources, not shown to end users.',
       },
+      consultedPages: {
+        type: 'array',
+        description:
+          'Provenance: every URL you called fetch_page on (including the seed URL), each paired with a short role label describing what you learned from that page. We persist this and use it as the seed set on the next run, so list only pages whose content you actually used.',
+        items: {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'string',
+              description:
+                'Absolute URL of a page you fetched.',
+            },
+            role: {
+              type: 'string',
+              description:
+                'Short label for what this page held (e.g. "main", "deadline", "eligibility", "cost", "dates").',
+            },
+          },
+          required: ['url', 'role'],
+        },
+      },
     },
     required: [
       'name',
@@ -272,6 +233,7 @@ const SUBMIT_TOOL = {
       'contactEmail',
       'applicationUrl',
       'reasoning',
+      'consultedPages',
     ],
   },
 }
@@ -308,6 +270,7 @@ Report residential only for in-person programs: "Residential" if housing is prov
 
 Report contactEmail only if a real email address for the program appears on the page; null otherwise. Never construct or guess one.
 
+For consultedPages, list every URL you called fetch_page on (including the seed URL), each with a one-word role describing what you actually learned from that page (e.g. "main", "deadline", "eligibility", "cost", "dates"). We persist this and use it as the seed set on the next run, so be honest about which page actually held each fact -- do not list pages you did not use, and do not invent roles for pages whose content you did not rely on.
 When you have enough information (or have made a good-faith effort and still can't find a clear answer), call submit_extraction with your final answer.`
 }
 
@@ -934,6 +897,7 @@ async function commitOpportunityUpsert({
   queryableDates,
   imagePatch,
   reasoning,
+  consultedPages,
   now,
 }) {
   const { slug, url } = source
@@ -958,6 +922,7 @@ async function commitOpportunityUpsert({
       lastError: null,
       consecutiveFailures: 0,
       verificationReasoning: reasoning,
+      consultedPages,
     }
   )
   await batch.commit()
@@ -1009,7 +974,8 @@ async function scrapeSource(runContext, source) {
     return false
   }
 
-  const { reasoning, ...extracted } = result.data
+  const { reasoning, consultedPages, ...extracted } =
+    result.data
   const geocode = await geocodeLocation(extracted.location)
   extracted.locationLat = geocode
     ? geocode.locationLat
@@ -1047,6 +1013,7 @@ async function scrapeSource(runContext, source) {
       queryableDates,
       imagePatch,
       reasoning,
+      consultedPages,
       now,
     })
   }
