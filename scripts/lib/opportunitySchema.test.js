@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { ExtractionSchema } from './opportunitySchema.js'
+import {
+  buildPrefetchPrompt,
+  ExtractionSchema,
+  selectConsultedPages,
+} from './opportunitySchema.js'
 
 function validBase() {
   return {
@@ -105,5 +109,131 @@ describe('ExtractionSchema consultedPages', () => {
       consultedPages: [{ role: 'main' }],
     })
     expect(result.success).toBe(false)
+  })
+})
+
+describe('selectConsultedPages', () => {
+  it('returns [] when the doc has no consultedPages field', () => {
+    expect(selectConsultedPages({}, 5)).toEqual([])
+    expect(selectConsultedPages(null, 5)).toEqual([])
+    expect(selectConsultedPages(undefined, 5)).toEqual([])
+  })
+
+  it('returns [] when consultedPages is not an array', () => {
+    expect(
+      selectConsultedPages({ consultedPages: 'oops' }, 5)
+    ).toEqual([])
+    expect(
+      selectConsultedPages(
+        { consultedPages: { url: 'x' } },
+        5
+      )
+    ).toEqual([])
+  })
+
+  it('drops entries that fail schema validation', () => {
+    const result = selectConsultedPages(
+      {
+        consultedPages: [
+          { url: 'not a url', role: 'main' },
+          { url: 'https://example.com/', role: '' },
+          null,
+          'string',
+          {
+            url: 'https://example.com/ok',
+            role: 'deadline',
+          },
+        ],
+      },
+      5
+    )
+    expect(result).toEqual([
+      { url: 'https://example.com/ok', role: 'deadline' },
+    ])
+  })
+
+  it('de-duplicates by url and preserves first occurrence', () => {
+    const result = selectConsultedPages(
+      {
+        consultedPages: [
+          { url: 'https://example.com/a', role: 'main' },
+          {
+            url: 'https://example.com/b',
+            role: 'deadline',
+          },
+          { url: 'https://example.com/a', role: 'cost' },
+        ],
+      },
+      5
+    )
+    expect(result).toEqual([
+      { url: 'https://example.com/a', role: 'main' },
+      { url: 'https://example.com/b', role: 'deadline' },
+    ])
+  })
+
+  it('caps the result at the requested length', () => {
+    const result = selectConsultedPages(
+      {
+        consultedPages: [
+          { url: 'https://a/', role: 'a' },
+          { url: 'https://b/', role: 'b' },
+          { url: 'https://c/', role: 'c' },
+          { url: 'https://d/', role: 'd' },
+        ],
+      },
+      2
+    )
+    expect(result).toHaveLength(2)
+    expect(result[0].url).toBe('https://a/')
+  })
+})
+
+describe('buildPrefetchPrompt', () => {
+  it('mentions every pre-fetched URL with its role', () => {
+    const prompt = buildPrefetchPrompt('https://seed/', [
+      {
+        url: 'https://seed/',
+        role: 'main',
+        page: {
+          ok: true,
+          title: 'Home',
+          bodyText: 'seed body',
+        },
+      },
+      {
+        url: 'https://seed/apply',
+        role: 'deadline',
+        page: {
+          ok: true,
+          title: 'Apply',
+          bodyText: 'apply body',
+        },
+      },
+    ])
+    expect(prompt).toContain('https://seed/')
+    expect(prompt).toContain('https://seed/apply')
+    expect(prompt).toContain('main')
+    expect(prompt).toContain('deadline')
+    expect(prompt).toContain('seed body')
+    expect(prompt).toContain('apply body')
+  })
+
+  it('surfaces a fetch error inline rather than dropping the entry', () => {
+    const prompt = buildPrefetchPrompt('https://seed/', [
+      {
+        url: 'https://seed/apply',
+        role: 'deadline',
+        page: { ok: false, error: 'HTTP 503' },
+      },
+    ])
+    expect(prompt).toContain('https://seed/apply')
+    expect(prompt).toContain('HTTP 503')
+  })
+
+  it('handles an empty fetched list with a clear "no prior pages" note', () => {
+    const prompt = buildPrefetchPrompt('https://seed/', [])
+    expect(prompt).toContain('https://seed/')
+    expect(prompt.toLowerCase()).toContain('no prior pages')
   })
 })

@@ -24,8 +24,9 @@ const {
   FIELD_TAXONOMY,
   PROGRAM_TYPE_TAXONOMY,
   RESIDENTIAL_OPTIONS,
+  selectConsultedPages,
+  buildPrefetchPrompt,
 } = require('./lib/opportunitySchema')
-
 const MODEL = 'gemini-3.7-flash'
 const DEFAULT_VERTEX_LOCATION = 'global'
 const MAX_OUTPUT_TOKENS = 8192
@@ -644,6 +645,98 @@ async function runExtraction(browser, genai, seedUrl) {
 
   return { visited, error: 'max turns exceeded' }
 }
+async function fetchConsultedPages(browser, entries) {
+  const results = await Promise.all(
+    entries.map(async (entry) => {
+      const page = await fetchPage(browser, entry.url)
+      return { url: entry.url, role: entry.role, page }
+    })
+  )
+  return results
+}
+
+async function runExtractionFromHistory(
+  browser,
+  genai,
+  seedUrl,
+  entries
+) {
+  const fetched = await fetchConsultedPages(
+    browser,
+    entries
+  )
+  const prompt = buildPrefetchPrompt(seedUrl, fetched)
+  const contents = [
+    {
+      role: 'user',
+      parts: [{ text: prompt }],
+    },
+  ]
+  let fetchCount = 0
+  let visited = fetched.map((f) => f.url)
+
+  for (let turn = 0; turn < 4; turn++) {
+    const atFetchLimit =
+      fetchCount >= MAX_FETCHES_PER_SOURCE
+    const response = await genai.models.generateContent({
+      model: MODEL,
+      contents,
+      config: {
+        systemInstruction: buildSystemPrompt(),
+        maxOutputTokens: MAX_OUTPUT_TOKENS,
+        tools: [
+          {
+            functionDeclarations: atFetchLimit
+              ? [SUBMIT_TOOL]
+              : [FETCH_TOOL, SUBMIT_TOOL],
+          },
+        ],
+        toolConfig: {
+          functionCallingConfig:
+            extractionToolConfig(atFetchLimit),
+        },
+      },
+    })
+    const calls = response.functionCalls || []
+    if (calls.length === 0) {
+      return {
+        visited,
+        error: 'model returned no tool call',
+      }
+    }
+    contents.push(modelTurnContent(response, calls))
+    const submitCall = calls.find(
+      (call) => call.name === 'submit_extraction'
+    )
+    if (submitCall) {
+      const parsed = ExtractionSchema.safeParse(
+        submitCall.args
+      )
+      return {
+        visited,
+        valid: parsed.success,
+        data: parsed.success
+          ? parsed.data
+          : submitCall.args,
+        zodError: parsed.success
+          ? null
+          : parsed.error.format(),
+      }
+    }
+    const responseParts = []
+    for (const call of calls) {
+      fetchCount += 1
+      const url = call.args && call.args.url
+      visited.push(url)
+      const result = await fetchPage(browser, url)
+      responseParts.push(
+        toFunctionResponsePart(call, result)
+      )
+    }
+    contents.push({ role: 'user', parts: responseParts })
+  }
+  return { visited, error: 'max turns exceeded' }
+}
 
 async function attemptExtraction(browser, genai, url) {
   try {
@@ -656,19 +749,32 @@ async function attemptExtraction(browser, genai, url) {
   }
 }
 
-async function runExtractionWithOneRetry(
-  browser,
-  genai,
-  url
-) {
-  const first = await attemptExtraction(browser, genai, url)
-  if (!first.error && first.valid) return first
-
-  const retry = await attemptExtraction(browser, genai, url)
-  retry.retried = true
-  retry.firstAttemptError =
-    first.error || 'schema validation failure'
-  return retry
+function parseArgs(argv) {
+  const args = {
+    dryRun: false,
+    refreshImages: false,
+    prefetch: true,
+    project: undefined,
+    bucket: undefined,
+    slugs: [],
+  }
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i]
+    if (arg === '--dry-run') {
+      args.dryRun = true
+    } else if (arg === '--refresh-images') {
+      args.refreshImages = true
+    } else if (arg === '--no-prefetch') {
+      args.prefetch = false
+    } else if (arg === '--project') {
+      args.project = argv[++i]
+    } else if (arg === '--bucket') {
+      args.bucket = argv[++i]
+    } else {
+      args.slugs.push(arg)
+    }
+  }
+  return args
 }
 
 function loadEnvLocal(repoRoot) {
@@ -928,6 +1034,22 @@ async function commitOpportunityUpsert({
   await batch.commit()
 }
 
+async function readConsultedPagesForSource(db, slug, cap) {
+  try {
+    const snap = await db
+      .collection('opportunity-sources')
+      .doc(slug)
+      .get()
+    if (!snap.exists) return []
+    return selectConsultedPages(snap.data(), cap)
+  } catch (err) {
+    console.log(
+      `  [WARN] ${slug}: could not read prior consultedPages (${err.message}); falling back to multi-turn extraction`
+    )
+    return []
+  }
+}
+
 async function scrapeSource(runContext, source) {
   const {
     admin,
@@ -939,12 +1061,29 @@ async function scrapeSource(runContext, source) {
     refreshImages,
   } = runContext
   const { slug, url } = source
+  const { prefetch } = runContext
   const startedAt = Date.now()
-  const result = await runExtractionWithOneRetry(
-    browser,
-    genai,
-    url
-  )
+  const prior = prefetch
+    ? await readConsultedPagesForSource(
+        db,
+        slug,
+        MAX_FETCHES_PER_SOURCE
+      )
+    : []
+  let result
+  if (prior.length > 0) {
+    result = await attemptExtraction(
+      (u) =>
+        runExtractionFromHistory(browser, genai, u, prior),
+      url
+    )
+  } else {
+    result = await runExtractionWithOneRetry(
+      browser,
+      genai,
+      url
+    )
+  }
   const elapsed = ((Date.now() - startedAt) / 1000).toFixed(
     1
   )
@@ -1074,7 +1213,7 @@ async function main() {
   }
 
   console.log(
-    `Scraping ${sources.length} source(s), concurrency ${CONCURRENCY}, dryRun=${args.dryRun}`
+    `Scraping ${sources.length} source(s), concurrency ${CONCURRENCY}, dryRun=${args.dryRun}, prefetch=${args.prefetch}`
   )
 
   const browser = await chromium.launch({ headless: true })
@@ -1089,20 +1228,7 @@ async function main() {
     genai,
     dryRun: args.dryRun,
     refreshImages: args.refreshImages,
-  }
-
-  try {
-    await mapWithConcurrency(
-      sources,
-      CONCURRENCY,
-      async (source) => {
-        const ok = await scrapeSource(runContext, source)
-        if (ok) succeeded += 1
-        else failed += 1
-      }
-    )
-  } finally {
-    await browser.close()
+    prefetch: args.prefetch,
   }
 
   console.log(
