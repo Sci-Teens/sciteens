@@ -7,8 +7,7 @@ const path = require('node:path')
 const { execFileSync } = require('node:child_process')
 const { chromium } = require('playwright')
 const cheerio = require('cheerio')
-const { z } = require('zod')
-const dns = require('node:dns').promises
+
 const {
   GoogleGenAI,
   FunctionCallingConfigMode,
@@ -20,6 +19,14 @@ const {
   uploadCoverWebp,
 } = require('./lib/programImages')
 
+const {
+  ExtractionSchema,
+  FIELD_TAXONOMY,
+  PROGRAM_TYPE_TAXONOMY,
+  RESIDENTIAL_OPTIONS,
+  selectConsultedPages,
+  buildPrefetchPrompt,
+} = require('./lib/opportunitySchema')
 const MODEL = 'gemini-3.7-flash'
 const DEFAULT_VERTEX_LOCATION = 'global'
 const MAX_OUTPUT_TOKENS = 8192
@@ -40,72 +47,6 @@ const NON_GEOCODABLE_LOCATIONS = new Set([
   'multiple locations',
   'unsure',
 ])
-
-const FIELD_TAXONOMY = [
-  'Biology',
-  'Chemistry',
-  'Cognitive Science',
-  'Computer Science',
-  'Earth Science',
-  'Electrical Engineering',
-  'Environmental Science',
-  'Mathematics',
-  'Mechanical Engineering',
-  'Medicine',
-  'Physics',
-  'Space Science',
-]
-
-const PROGRAM_TYPE_TAXONOMY = [
-  'Summer Program',
-  'Academic Year Program',
-  'Competition',
-  'Internship',
-  'Research Experience',
-  'Scholarship',
-  'Online Course',
-  'Fellowship',
-  'Camp',
-  'Other',
-]
-
-const RESIDENTIAL_OPTIONS = [
-  'Residential',
-  'Commuter',
-  'Not applicable',
-  'Not specified',
-]
-
-const ExtractionSchema = z.object({
-  name: z.string(),
-  about: z.string(),
-  location: z.string(),
-  startDate: z.string().nullable(),
-  endDate: z.string().nullable(),
-  applicationDeadline: z.string().nullable(),
-  applicationOpensDate: z.string().nullable(),
-  deadlineStatus: z.enum([
-    'dated',
-    'rolling',
-    'upcoming',
-    'unclear',
-  ]),
-  gradeRangeLow: z.number().nullable(),
-  gradeRangeHigh: z.number().nullable(),
-  ageRangeLow: z.number().nullable(),
-  ageRangeHigh: z.number().nullable(),
-  fields: z.array(z.enum(FIELD_TAXONOMY)),
-  eligibilityNotes: z.string().nullable(),
-  cost: z.string(),
-  financialAid: z.string(),
-  stipend: z.string(),
-  programType: z.enum(PROGRAM_TYPE_TAXONOMY),
-  durationText: z.string(),
-  residential: z.enum(RESIDENTIAL_OPTIONS),
-  contactEmail: z.string().nullable(),
-  applicationUrl: z.string(),
-  reasoning: z.string(),
-})
 
 const FETCH_TOOL = {
   name: 'fetch_page',
@@ -247,6 +188,27 @@ const SUBMIT_TOOL = {
         description:
           'Brief (1-3 sentence) explanation of how you determined deadlineStatus, especially if choosing "unclear" or rejecting a misleading date on the page. Kept for operator debugging in opportunity-sources, not shown to end users.',
       },
+      consultedPages: {
+        type: 'array',
+        description:
+          'Provenance: every URL you called fetch_page on (including the seed URL), each paired with a short role label describing what you learned from that page. We persist this and use it as the seed set on the next run, so list only pages whose content you actually used.',
+        items: {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'string',
+              description:
+                'Absolute URL of a page you fetched.',
+            },
+            role: {
+              type: 'string',
+              description:
+                'Short label for what this page held (e.g. "main", "deadline", "eligibility", "cost", "dates").',
+            },
+          },
+          required: ['url', 'role'],
+        },
+      },
     },
     required: [
       'name',
@@ -272,6 +234,7 @@ const SUBMIT_TOOL = {
       'contactEmail',
       'applicationUrl',
       'reasoning',
+      'consultedPages',
     ],
   },
 }
@@ -308,6 +271,7 @@ Report residential only for in-person programs: "Residential" if housing is prov
 
 Report contactEmail only if a real email address for the program appears on the page; null otherwise. Never construct or guess one.
 
+For consultedPages, list every URL you called fetch_page on (including the seed URL), each with a one-word role describing what you actually learned from that page (e.g. "main", "deadline", "eligibility", "cost", "dates"). We persist this and use it as the seed set on the next run, so be honest about which page actually held each fact -- do not list pages you did not use, and do not invent roles for pages whose content you did not rely on.
 When you have enough information (or have made a good-faith effort and still can't find a clear answer), call submit_extraction with your final answer.`
 }
 
@@ -352,7 +316,6 @@ function extractPageContent(html, baseUrl) {
 }
 
 const {
-  assertPublicHttpUrl,
   fetchPublicUrl,
   isNonNetworkScheme,
   publicHttpUrlOrNull,
@@ -599,22 +562,15 @@ function toFunctionResponsePart(call, result) {
   return { functionResponse }
 }
 
-async function runExtraction(browser, genai, seedUrl) {
-  const contents = [
-    {
-      role: 'user',
-      parts: [
-        {
-          text: `Extract structured information about this STEM opportunity. Starting URL: ${seedUrl}\n\nUse fetch_page to read it, then call submit_extraction with your final answer.`,
-        },
-      ],
-    },
-  ]
-
-  const visited = []
+async function runExtractionTurnLoop(
+  browser,
+  genai,
+  contents,
+  visited,
+  maxTurns
+) {
   let fetchCount = 0
-
-  for (let turn = 0; turn < 8; turn++) {
+  for (let turn = 0; turn < maxTurns; turn++) {
     const atFetchLimit =
       fetchCount >= MAX_FETCHES_PER_SOURCE
     const response = await genai.models.generateContent({
@@ -636,7 +592,6 @@ async function runExtraction(browser, genai, seedUrl) {
         },
       },
     })
-
     const calls = response.functionCalls || []
     if (calls.length === 0) {
       return {
@@ -644,9 +599,7 @@ async function runExtraction(browser, genai, seedUrl) {
         error: 'model returned no tool call',
       }
     }
-
     contents.push(modelTurnContent(response, calls))
-
     const submitCall = calls.find(
       (call) => call.name === 'submit_extraction'
     )
@@ -665,7 +618,6 @@ async function runExtraction(browser, genai, seedUrl) {
           : parsed.error.format(),
       }
     }
-
     const responseParts = []
     for (const call of calls) {
       fetchCount += 1
@@ -678,34 +630,121 @@ async function runExtraction(browser, genai, seedUrl) {
     }
     contents.push({ role: 'user', parts: responseParts })
   }
-
   return { visited, error: 'max turns exceeded' }
 }
 
-async function attemptExtraction(browser, genai, url) {
-  try {
-    return await runExtraction(browser, genai, url)
-  } catch (err) {
-    return {
-      visited: [],
-      error: String(err && err.message ? err.message : err),
-    }
-  }
-}
-
-async function runExtractionWithOneRetry(
+async function runExtractionFromSeed(
   browser,
   genai,
-  url
+  seedUrl
 ) {
-  const first = await attemptExtraction(browser, genai, url)
-  if (!first.error && first.valid) return first
+  const contents = [
+    {
+      role: 'user',
+      parts: [
+        {
+          text: `Extract structured information about this STEM opportunity. Starting URL: ${seedUrl}\n\nUse fetch_page to read it, then call submit_extraction with your final answer.`,
+        },
+      ],
+    },
+  ]
+  return runExtractionTurnLoop(
+    browser,
+    genai,
+    contents,
+    [],
+    8
+  )
+}
 
-  const retry = await attemptExtraction(browser, genai, url)
-  retry.retried = true
-  retry.firstAttemptError =
-    first.error || 'schema validation failure'
-  return retry
+async function fetchConsultedPages(browser, entries) {
+  return Promise.all(
+    entries.map(async (entry) => {
+      const page = await fetchPage(browser, entry.url)
+      return { url: entry.url, role: entry.role, page }
+    })
+  )
+}
+
+async function runExtractionFromHistory(
+  browser,
+  genai,
+  seedUrl,
+  entries
+) {
+  const fetched = await fetchConsultedPages(
+    browser,
+    entries
+  )
+  const contents = [
+    {
+      role: 'user',
+      parts: [
+        { text: buildPrefetchPrompt(seedUrl, fetched) },
+      ],
+    },
+  ]
+  return runExtractionTurnLoop(
+    browser,
+    genai,
+    contents,
+    fetched.map((f) => f.url),
+    4
+  )
+}
+
+async function runWithOneRetry(extract, url) {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const result = await extract(url)
+      if (!result.error && result.valid) return result
+      if (attempt === 1) {
+        result.retried = true
+        result.firstAttemptError =
+          result.error || 'schema validation failure'
+        return result
+      }
+    } catch (err) {
+      if (attempt === 1) {
+        return {
+          visited: [],
+          error: String(
+            err && err.message ? err.message : err
+          ),
+          retried: true,
+        }
+      }
+    }
+  }
+  return { visited: [], error: 'unreachable' }
+}
+
+function parseArgs(argv) {
+  const args = {
+    dryRun: false,
+    refreshImages: false,
+    prefetch: true,
+    project: undefined,
+    bucket: undefined,
+    slugs: [],
+  }
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i]
+    if (arg === '--dry-run') {
+      args.dryRun = true
+    } else if (arg === '--refresh-images') {
+      args.refreshImages = true
+    } else if (arg === '--no-prefetch') {
+      args.prefetch = false
+    } else if (arg === '--project') {
+      args.project = argv[++i]
+    } else if (arg === '--bucket') {
+      args.bucket = argv[++i]
+    } else {
+      args.slugs.push(arg)
+    }
+  }
+  return args
 }
 
 function loadEnvLocal(repoRoot) {
@@ -773,31 +812,6 @@ function resolveCredential(admin) {
       return { access_token: token, expires_in: 3600 }
     },
   }
-}
-
-function parseArgs(argv) {
-  const args = {
-    dryRun: false,
-    refreshImages: false,
-    project: undefined,
-    bucket: undefined,
-    slugs: [],
-  }
-  for (let i = 0; i < argv.length; i++) {
-    const arg = argv[i]
-    if (arg === '--dry-run') {
-      args.dryRun = true
-    } else if (arg === '--refresh-images') {
-      args.refreshImages = true
-    } else if (arg === '--project') {
-      args.project = argv[++i]
-    } else if (arg === '--bucket') {
-      args.bucket = argv[++i]
-    } else {
-      args.slugs.push(arg)
-    }
-  }
-  return args
 }
 
 async function mapWithConcurrency(items, limit, worker) {
@@ -934,6 +948,7 @@ async function commitOpportunityUpsert({
   queryableDates,
   imagePatch,
   reasoning,
+  consultedPages,
   now,
 }) {
   const { slug, url } = source
@@ -958,9 +973,26 @@ async function commitOpportunityUpsert({
       lastError: null,
       consecutiveFailures: 0,
       verificationReasoning: reasoning,
+      consultedPages,
     }
   )
   await batch.commit()
+}
+
+async function readConsultedPagesForSource(db, slug, cap) {
+  try {
+    const snap = await db
+      .collection('opportunity-sources')
+      .doc(slug)
+      .get()
+    if (!snap.exists) return []
+    return selectConsultedPages(snap.data(), cap)
+  } catch (err) {
+    console.log(
+      `  [WARN] ${slug}: could not read prior consultedPages (${err.message}); falling back to multi-turn extraction`
+    )
+    return []
+  }
 }
 
 async function scrapeSource(runContext, source) {
@@ -971,15 +1003,23 @@ async function scrapeSource(runContext, source) {
     browser,
     genai,
     dryRun,
+    prefetch,
     refreshImages,
   } = runContext
   const { slug, url } = source
   const startedAt = Date.now()
-  const result = await runExtractionWithOneRetry(
-    browser,
-    genai,
-    url
-  )
+  const prior = prefetch
+    ? await readConsultedPagesForSource(
+        db,
+        slug,
+        MAX_FETCHES_PER_SOURCE
+      )
+    : []
+  const extract = prior.length
+    ? (u) =>
+        runExtractionFromHistory(browser, genai, u, prior)
+    : (u) => runExtractionFromSeed(browser, genai, u)
+  const result = await runWithOneRetry(extract, url)
   const elapsed = ((Date.now() - startedAt) / 1000).toFixed(
     1
   )
@@ -1009,7 +1049,8 @@ async function scrapeSource(runContext, source) {
     return false
   }
 
-  const { reasoning, ...extracted } = result.data
+  const { reasoning, consultedPages, ...extracted } =
+    result.data
   const geocode = await geocodeLocation(extracted.location)
   extracted.locationLat = geocode
     ? geocode.locationLat
@@ -1047,6 +1088,7 @@ async function scrapeSource(runContext, source) {
       queryableDates,
       imagePatch,
       reasoning,
+      consultedPages,
       now,
     })
   }
@@ -1107,7 +1149,7 @@ async function main() {
   }
 
   console.log(
-    `Scraping ${sources.length} source(s), concurrency ${CONCURRENCY}, dryRun=${args.dryRun}`
+    `Scraping ${sources.length} source(s), concurrency ${CONCURRENCY}, dryRun=${args.dryRun}, prefetch=${args.prefetch}`
   )
 
   const browser = await chromium.launch({ headless: true })
@@ -1122,20 +1164,7 @@ async function main() {
     genai,
     dryRun: args.dryRun,
     refreshImages: args.refreshImages,
-  }
-
-  try {
-    await mapWithConcurrency(
-      sources,
-      CONCURRENCY,
-      async (source) => {
-        const ok = await scrapeSource(runContext, source)
-        if (ok) succeeded += 1
-        else failed += 1
-      }
-    )
-  } finally {
-    await browser.close()
+    prefetch: args.prefetch,
   }
 
   console.log(
