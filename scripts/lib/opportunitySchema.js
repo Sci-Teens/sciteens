@@ -37,13 +37,8 @@ const RESIDENTIAL_OPTIONS = [
   'Not specified',
 ]
 
-// consultedPages is the per-run provenance the model emits alongside
-// the final extraction: every URL it called fetch_page on, paired with
-// a short role label describing what it learned there. We persist it
-// on opportunity-sources/{slug} so future runs can pre-fetch the same
-// pages and skip the multi-turn link-discovery loop on sources whose
-// structure is stable. The model is asked to be honest about which
-// page actually held which fact -- bogus entries defeat the point.
+// consultedPages: per-run provenance the model emits, used as the
+// next run's seed fetch set. Bogus entries defeat the point.
 const ConsultationEntrySchema = z.object({
   url: z.string().url(),
   role: z.string().min(1),
@@ -83,10 +78,8 @@ const ExtractionSchema = z.object({
     .default([]),
 })
 
-// Sanitize and cap a persisted consultedPages list before pre-fetching
-// it on the next run. Returns [] when the stored value is missing or
-// malformed (e.g. legacy docs from before the field was added) so the
-// caller can fall back to the multi-turn path instead of crashing.
+// Sanitize and cap stored consultedPages. Returns [] on missing or
+// malformed data so the caller can fall back to the multi-turn path.
 function selectConsultedPages(docData, cap) {
   const raw = docData && docData.consultedPages
   if (!Array.isArray(raw)) return []
@@ -114,12 +107,8 @@ function selectConsultedPages(docData, cap) {
   return out
 }
 
-// Build the user-turn message for the single-turn extraction that
-// starts from a pre-fetched consultedPages set. Each pre-fetched
-// page is inlined with its role label so the model can verify
-// existing fields without re-doing the link-discovery loop. The
-// fetch_page tool is still available so the model can follow a new
-// link if a field has moved or the pre-fetched text is incomplete.
+// Build the single-turn prompt that inlines pre-fetched pages with
+// their role labels. fetch_page stays available for new links.
 function buildPrefetchPrompt(seedUrl, fetchedPages) {
   const blocks = (fetchedPages || []).map((p, i) => {
     const title = p.page && p.page.title ? p.page.title : ''

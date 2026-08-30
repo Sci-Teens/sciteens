@@ -7,7 +7,7 @@ const path = require('node:path')
 const { execFileSync } = require('node:child_process')
 const { chromium } = require('playwright')
 const cheerio = require('cheerio')
-const dns = require('node:dns').promises
+
 const {
   GoogleGenAI,
   FunctionCallingConfigMode,
@@ -316,7 +316,6 @@ function extractPageContent(html, baseUrl) {
 }
 
 const {
-  assertPublicHttpUrl,
   fetchPublicUrl,
   isNonNetworkScheme,
   publicHttpUrlOrNull,
@@ -563,22 +562,15 @@ function toFunctionResponsePart(call, result) {
   return { functionResponse }
 }
 
-async function runExtraction(browser, genai, seedUrl) {
-  const contents = [
-    {
-      role: 'user',
-      parts: [
-        {
-          text: `Extract structured information about this STEM opportunity. Starting URL: ${seedUrl}\n\nUse fetch_page to read it, then call submit_extraction with your final answer.`,
-        },
-      ],
-    },
-  ]
-
-  const visited = []
+async function runExtractionTurnLoop(
+  browser,
+  genai,
+  contents,
+  visited,
+  maxTurns
+) {
   let fetchCount = 0
-
-  for (let turn = 0; turn < 8; turn++) {
+  for (let turn = 0; turn < maxTurns; turn++) {
     const atFetchLimit =
       fetchCount >= MAX_FETCHES_PER_SOURCE
     const response = await genai.models.generateContent({
@@ -600,7 +592,6 @@ async function runExtraction(browser, genai, seedUrl) {
         },
       },
     })
-
     const calls = response.functionCalls || []
     if (calls.length === 0) {
       return {
@@ -608,9 +599,7 @@ async function runExtraction(browser, genai, seedUrl) {
         error: 'model returned no tool call',
       }
     }
-
     contents.push(modelTurnContent(response, calls))
-
     const submitCall = calls.find(
       (call) => call.name === 'submit_extraction'
     )
@@ -629,7 +618,6 @@ async function runExtraction(browser, genai, seedUrl) {
           : parsed.error.format(),
       }
     }
-
     const responseParts = []
     for (const call of calls) {
       fetchCount += 1
@@ -642,17 +630,40 @@ async function runExtraction(browser, genai, seedUrl) {
     }
     contents.push({ role: 'user', parts: responseParts })
   }
-
   return { visited, error: 'max turns exceeded' }
 }
+
+async function runExtractionFromSeed(
+  browser,
+  genai,
+  seedUrl
+) {
+  const contents = [
+    {
+      role: 'user',
+      parts: [
+        {
+          text: `Extract structured information about this STEM opportunity. Starting URL: ${seedUrl}\n\nUse fetch_page to read it, then call submit_extraction with your final answer.`,
+        },
+      ],
+    },
+  ]
+  return runExtractionTurnLoop(
+    browser,
+    genai,
+    contents,
+    [],
+    8
+  )
+}
+
 async function fetchConsultedPages(browser, entries) {
-  const results = await Promise.all(
+  return Promise.all(
     entries.map(async (entry) => {
       const page = await fetchPage(browser, entry.url)
       return { url: entry.url, role: entry.role, page }
     })
   )
-  return results
 }
 
 async function runExtractionFromHistory(
@@ -665,88 +676,47 @@ async function runExtractionFromHistory(
     browser,
     entries
   )
-  const prompt = buildPrefetchPrompt(seedUrl, fetched)
   const contents = [
     {
       role: 'user',
-      parts: [{ text: prompt }],
+      parts: [
+        { text: buildPrefetchPrompt(seedUrl, fetched) },
+      ],
     },
   ]
-  let fetchCount = 0
-  let visited = fetched.map((f) => f.url)
-
-  for (let turn = 0; turn < 4; turn++) {
-    const atFetchLimit =
-      fetchCount >= MAX_FETCHES_PER_SOURCE
-    const response = await genai.models.generateContent({
-      model: MODEL,
-      contents,
-      config: {
-        systemInstruction: buildSystemPrompt(),
-        maxOutputTokens: MAX_OUTPUT_TOKENS,
-        tools: [
-          {
-            functionDeclarations: atFetchLimit
-              ? [SUBMIT_TOOL]
-              : [FETCH_TOOL, SUBMIT_TOOL],
-          },
-        ],
-        toolConfig: {
-          functionCallingConfig:
-            extractionToolConfig(atFetchLimit),
-        },
-      },
-    })
-    const calls = response.functionCalls || []
-    if (calls.length === 0) {
-      return {
-        visited,
-        error: 'model returned no tool call',
-      }
-    }
-    contents.push(modelTurnContent(response, calls))
-    const submitCall = calls.find(
-      (call) => call.name === 'submit_extraction'
-    )
-    if (submitCall) {
-      const parsed = ExtractionSchema.safeParse(
-        submitCall.args
-      )
-      return {
-        visited,
-        valid: parsed.success,
-        data: parsed.success
-          ? parsed.data
-          : submitCall.args,
-        zodError: parsed.success
-          ? null
-          : parsed.error.format(),
-      }
-    }
-    const responseParts = []
-    for (const call of calls) {
-      fetchCount += 1
-      const url = call.args && call.args.url
-      visited.push(url)
-      const result = await fetchPage(browser, url)
-      responseParts.push(
-        toFunctionResponsePart(call, result)
-      )
-    }
-    contents.push({ role: 'user', parts: responseParts })
-  }
-  return { visited, error: 'max turns exceeded' }
+  return runExtractionTurnLoop(
+    browser,
+    genai,
+    contents,
+    fetched.map((f) => f.url),
+    4
+  )
 }
 
-async function attemptExtraction(browser, genai, url) {
-  try {
-    return await runExtraction(browser, genai, url)
-  } catch (err) {
-    return {
-      visited: [],
-      error: String(err && err.message ? err.message : err),
+async function runWithOneRetry(extract, url) {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const result = await extract(url)
+      if (!result.error && result.valid) return result
+      if (attempt === 1) {
+        result.retried = true
+        result.firstAttemptError =
+          result.error || 'schema validation failure'
+        return result
+      }
+    } catch (err) {
+      if (attempt === 1) {
+        return {
+          visited: [],
+          error: String(
+            err && err.message ? err.message : err
+          ),
+          retried: true,
+        }
+      }
     }
   }
+  return { visited: [], error: 'unreachable' }
 }
 
 function parseArgs(argv) {
@@ -842,31 +812,6 @@ function resolveCredential(admin) {
       return { access_token: token, expires_in: 3600 }
     },
   }
-}
-
-function parseArgs(argv) {
-  const args = {
-    dryRun: false,
-    refreshImages: false,
-    project: undefined,
-    bucket: undefined,
-    slugs: [],
-  }
-  for (let i = 0; i < argv.length; i++) {
-    const arg = argv[i]
-    if (arg === '--dry-run') {
-      args.dryRun = true
-    } else if (arg === '--refresh-images') {
-      args.refreshImages = true
-    } else if (arg === '--project') {
-      args.project = argv[++i]
-    } else if (arg === '--bucket') {
-      args.bucket = argv[++i]
-    } else {
-      args.slugs.push(arg)
-    }
-  }
-  return args
 }
 
 async function mapWithConcurrency(items, limit, worker) {
@@ -1058,10 +1003,10 @@ async function scrapeSource(runContext, source) {
     browser,
     genai,
     dryRun,
+    prefetch,
     refreshImages,
   } = runContext
   const { slug, url } = source
-  const { prefetch } = runContext
   const startedAt = Date.now()
   const prior = prefetch
     ? await readConsultedPagesForSource(
@@ -1070,20 +1015,11 @@ async function scrapeSource(runContext, source) {
         MAX_FETCHES_PER_SOURCE
       )
     : []
-  let result
-  if (prior.length > 0) {
-    result = await attemptExtraction(
-      (u) =>
-        runExtractionFromHistory(browser, genai, u, prior),
-      url
-    )
-  } else {
-    result = await runExtractionWithOneRetry(
-      browser,
-      genai,
-      url
-    )
-  }
+  const extract = prior.length
+    ? (u) =>
+        runExtractionFromHistory(browser, genai, u, prior)
+    : (u) => runExtractionFromSeed(browser, genai, u)
+  const result = await runWithOneRetry(extract, url)
   const elapsed = ((Date.now() - startedAt) / 1000).toFixed(
     1
   )
