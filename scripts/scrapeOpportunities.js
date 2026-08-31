@@ -1167,6 +1167,20 @@ async function main() {
     prefetch: args.prefetch,
   }
 
+  try {
+    await mapWithConcurrency(
+      sources,
+      CONCURRENCY,
+      async (source) => {
+        const ok = await scrapeSource(runContext, source)
+        if (ok) succeeded += 1
+        else failed += 1
+      }
+    )
+  } finally {
+    await browser.close()
+  }
+
   console.log(
     `\nDone: ${succeeded} succeeded, ${failed} failed, out of ${sources.length}.`
   )
