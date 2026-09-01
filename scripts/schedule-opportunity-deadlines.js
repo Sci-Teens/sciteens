@@ -27,7 +27,7 @@ const CLAIM_TIMEOUT_MS = 90 * 60 * 1000
 const POST_COLLECTION = 'social-posts'
 const BUFFER_API_URL =
   process.env.BUFFER_API_URL || 'https://api.buffer.com'
-const DEFAULT_BUFFER_ORGANIZATION_NAME = 'Directed Relic'
+const DEFAULT_BUFFER_ORGANIZATION_NAME = 'My organization'
 
 const ORGANIZATIONS_QUERY = `
   query BufferOrganizations {

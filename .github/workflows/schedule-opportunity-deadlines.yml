@@ -2,7 +2,7 @@ name: Schedule Opportunity Deadlines
 
 on:
   schedule:
-    - cron: '30 12 * * 1'
+    - cron: '0 10 * * 1'
   workflow_dispatch:
 
 concurrency:
@@ -36,11 +36,12 @@ jobs:
           workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
           service_account: ${{ vars.GCP_SCRAPER_SA }}
 
-      - name: Schedule Instagram deadline carousel
+      - name: Schedule deadline carousels
         run: node scripts/schedule-opportunity-deadlines.js --project "$GCP_PROJECT_ID" --execute
         env:
           BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
-          BUFFER_CHANNEL_ID: ${{ secrets.BUFFER_CHANNEL_ID }}
+          BUFFER_INSTAGRAM_CHANNEL_ID: ${{ secrets.BUFFER_CHANNEL_ID }}
+          BUFFER_FACEBOOK_CHANNEL_ID: ${{ secrets.BUFFER_FACEBOOK_CHANNEL_ID }}
           BUFFER_ORGANIZATION_NAME: ${{ vars.BUFFER_ORGANIZATION_NAME }}
           GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
           SITE_URL: ${{ vars.SITE_URL }}
