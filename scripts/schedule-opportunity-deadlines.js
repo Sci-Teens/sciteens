@@ -25,7 +25,6 @@ async function loadRenderSlidePng() {
 
 const CLAIM_TIMEOUT_MS = 90 * 60 * 1000
 const POST_COLLECTION = 'social-posts'
-const DEFAULT_SITE_URL = 'https://sciteens.com'
 const BUFFER_API_URL =
   process.env.BUFFER_API_URL || 'https://api.buffer.com'
 const DEFAULT_BUFFER_ORGANIZATION_NAME = 'Directed Relic'
@@ -99,17 +98,80 @@ const CREATE_POST_MUTATION = `
   }
 `
 
+const EDIT_POST_MUTATION = `
+  mutation EditDeadlineCarousel($input: EditPostInput!) {
+    editPost(input: $input) {
+      __typename
+      ... on PostActionSuccess {
+        post {
+          id
+          dueAt
+          status
+        }
+      }
+      ... on MutationError {
+        message
+      }
+    }
+  }
+`
+
+const DELETE_POST_MUTATION = `
+  mutation DeleteDeadlineCarousel($input: DeletePostInput!) {
+    deletePost(input: $input) {
+      __typename
+      ... on MutationError {
+        message
+      }
+    }
+  }
+`
+
 function parseArgs(argv) {
-  const args = { execute: false, project: undefined }
+  const args = {
+    execute: false,
+    project: undefined,
+    postId: undefined,
+    scheduleAt: undefined,
+    refreshScheduled: false,
+    replaceScheduled: false,
+  }
   for (let index = 0; index < argv.length; index++) {
     const arg = argv[index]
     if (arg === '--execute') {
       args.execute = true
     } else if (arg === '--project') {
       args.project = argv[++index]
+    } else if (arg === '--post-id') {
+      args.postId = argv[++index]
+    } else if (arg === '--schedule-at') {
+      args.scheduleAt = argv[++index]
+    } else if (arg === '--refresh-scheduled') {
+      args.refreshScheduled = true
+    } else if (arg === '--replace-scheduled') {
+      args.replaceScheduled = true
     } else {
       throw new Error(`Unknown argument: ${arg}`)
     }
+  }
+  if (args.scheduleAt && !args.postId) {
+    throw new Error('--schedule-at requires --post-id.')
+  }
+  if (
+    args.refreshScheduled &&
+    (!args.execute || !args.postId)
+  ) {
+    throw new Error(
+      '--refresh-scheduled requires --execute and --post-id.'
+    )
+  }
+  if (
+    args.replaceScheduled &&
+    (!args.execute || !args.postId || !args.scheduleAt)
+  ) {
+    throw new Error(
+      '--replace-scheduled requires --execute, --post-id, and --schedule-at.'
+    )
   }
   return args
 }
@@ -145,6 +207,20 @@ function requiredEnv(name) {
 function asDate(value) {
   if (value?.toDate) return value.toDate()
   return value instanceof Date ? value : new Date(value)
+}
+
+function scheduleAt(value, now) {
+  if (!value) return null
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    throw new Error(
+      '--schedule-at must use an ISO 8601 timestamp.'
+    )
+  }
+  if (date <= now) {
+    throw new Error('--schedule-at must be in the future.')
+  }
+  return date.toISOString()
 }
 
 function timestampMillis(value) {
@@ -243,9 +319,11 @@ function normalizedName(value) {
     .toLocaleLowerCase()
 }
 
-async function resolveInstagramChannelId(apiKey) {
-  const configuredChannelId =
-    process.env.BUFFER_CHANNEL_ID?.trim()
+async function resolveChannelId(
+  apiKey,
+  service,
+  configuredChannelId
+) {
   if (configuredChannelId) return configuredChannelId
 
   const organizationName =
@@ -279,55 +357,79 @@ async function resolveInstagramChannelId(apiKey) {
       input: { organizationId: organizations[0].id },
     }
   )
-  const instagramChannels = channelsData.channels.filter(
-    (channel) => channel.service === 'instagram'
+  const channels = channelsData.channels.filter(
+    (channel) => channel.service === service
   )
-  if (instagramChannels.length === 0) {
+  const serviceName =
+    service[0].toUpperCase() + service.slice(1)
+  if (channels.length === 0) {
     throw new Error(
-      `Buffer project "${organizationName}" has no Instagram channel.`
+      `Buffer project "${organizationName}" has no ${serviceName} channel.`
     )
   }
-  if (instagramChannels.length > 1) {
+  if (channels.length > 1) {
     throw new Error(
-      'BUFFER_CHANNEL_ID is required for multiple Instagram channels.'
+      `BUFFER_${service.toUpperCase()}_CHANNEL_ID is required for multiple ${serviceName} channels.`
     )
   }
-  return instagramChannels[0].id
+  return channels[0].id
 }
 
-async function getInstagramChannel(apiKey, channelId) {
+async function getChannel(apiKey, channelId, service) {
   const data = await bufferRequest(apiKey, CHANNEL_QUERY, {
     input: { id: channelId },
   })
   const channel = data.channel
+  const serviceName =
+    service[0].toUpperCase() + service.slice(1)
   if (!channel)
     throw new Error('Buffer channel was not found.')
-  if (channel.service !== 'instagram') {
+  if (channel.service !== service) {
     throw new Error(
-      'BUFFER_CHANNEL_ID must identify Instagram.'
+      `The Buffer channel must identify ${serviceName}.`
     )
   }
   if (channel.isDisconnected) {
     throw new Error(
-      'The Buffer Instagram channel is disconnected.'
+      `The Buffer ${serviceName} channel is disconnected.`
     )
   }
   if (channel.isLocked) {
     throw new Error(
-      'The Buffer Instagram channel is locked.'
+      `The Buffer ${serviceName} channel is locked.`
     )
   }
   if (channel.isQueuePaused) {
-    throw new Error('The Buffer Instagram queue is paused.')
+    throw new Error(
+      `The Buffer ${serviceName} queue is paused.`
+    )
   }
   return channel
 }
 
 async function claimPost(db, admin, post, channelId, now) {
-  const ref = db.collection(POST_COLLECTION).doc(post.id)
+  const parentRef = db
+    .collection(POST_COLLECTION)
+    .doc(post.id)
+  const ref = parentRef
+    .collection('channels')
+    .doc(channelId)
   return db.runTransaction(async (transaction) => {
-    const snapshot = await transaction.get(ref)
-    const current = snapshot.exists ? snapshot.data() : null
+    const [snapshot, legacySnapshot] = await Promise.all([
+      transaction.get(ref),
+      transaction.get(parentRef),
+    ])
+    const legacy =
+      legacySnapshot.exists &&
+      legacySnapshot.data()?.channelId === channelId
+        ? legacySnapshot
+        : null
+    const current = snapshot.exists
+      ? snapshot.data()
+      : legacy?.data() || null
+    const currentRef = snapshot.exists
+      ? ref
+      : legacy?.ref || ref
     const claimedAt = current?.claimedAt
     const activeClaim =
       current?.status === 'creating' &&
@@ -336,10 +438,20 @@ async function claimPost(db, admin, post, channelId, now) {
         now.getTime() - CLAIM_TIMEOUT_MS
 
     if (current?.status === 'scheduled') {
-      return { claimed: false, reason: 'scheduled', ref }
+      return {
+        claimed: false,
+        reason: 'scheduled',
+        ref: currentRef,
+        current,
+      }
     }
     if (activeClaim) {
-      return { claimed: false, reason: 'active', ref }
+      return {
+        claimed: false,
+        reason: 'active',
+        ref: currentRef,
+        current,
+      }
     }
 
     transaction.set(
@@ -402,9 +514,10 @@ async function findExistingBufferPost(
 
 async function createBufferPost(
   apiKey,
-  channelId,
+  channel,
   post,
-  assetUrls
+  assetUrls,
+  scheduledAt
 ) {
   const assets = assetUrls.map((url, index) => ({
     image: {
@@ -420,16 +533,26 @@ async function createBufferPost(
     {
       input: {
         text: post.caption,
-        channelId,
+        channelId: channel.id,
         schedulingType: 'automatic',
-        mode: 'addToQueue',
-        source: `sciteens:opportunity-deadlines:${post.id}`,
-        metadata: {
-          instagram: {
-            type: 'post',
-            shouldShareToFeed: true,
-          },
-        },
+        mode: scheduledAt
+          ? 'customScheduled'
+          : 'addToQueue',
+        ...(scheduledAt ? { dueAt: scheduledAt } : {}),
+        source: `sciteens:opportunity-deadlines:${post.id}:${channel.service}`,
+        metadata:
+          channel.service === 'instagram'
+            ? {
+                instagram: {
+                  type: 'post',
+                  shouldShareToFeed: true,
+                },
+              }
+            : {
+                facebook: {
+                  type: 'post',
+                },
+              },
         assets,
       },
     }
@@ -441,6 +564,68 @@ async function createBufferPost(
     )
   }
   return result.post
+}
+
+async function editBufferPost(
+  apiKey,
+  channel,
+  post,
+  assetUrls,
+  dueAt
+) {
+  const assets = assetUrls.map((url, index) => ({
+    image: {
+      url,
+      metadata: {
+        altText: post.altText[index],
+      },
+    },
+  }))
+  const data = await bufferRequest(
+    apiKey,
+    EDIT_POST_MUTATION,
+    {
+      input: {
+        id: post.bufferPostId,
+        text: post.caption,
+        dueAt,
+        assets,
+        metadata:
+          channel.service === 'instagram'
+            ? {
+                instagram: {
+                  type: 'post',
+                  shouldShareToFeed: true,
+                },
+              }
+            : {
+                facebook: {
+                  type: 'post',
+                },
+              },
+      },
+    }
+  )
+  const result = data.editPost
+  if (result.__typename !== 'PostActionSuccess') {
+    throw new Error(
+      result.message || 'Buffer rejected the post update.'
+    )
+  }
+  return result.post
+}
+
+async function deleteBufferPost(apiKey, postId) {
+  const data = await bufferRequest(
+    apiKey,
+    DELETE_POST_MUTATION,
+    {
+      input: { id: postId },
+    }
+  )
+  if (data.deletePost.__typename === 'MutationError') {
+    throw new Error(data.deletePost.message)
+  }
 }
 
 async function recordFailure(ref, admin, error) {
@@ -464,7 +649,10 @@ async function scheduleCarousel(
   channel,
   post,
   assetUrls,
-  now
+  now,
+  scheduledAt,
+  refreshScheduled,
+  replaceScheduled
 ) {
   const claim = await claimPost(
     db,
@@ -473,11 +661,89 @@ async function scheduleCarousel(
     channel.id,
     now
   )
+  if (
+    !claim.claimed &&
+    claim.reason === 'scheduled' &&
+    replaceScheduled
+  ) {
+    if (claim.current?.bufferPostId) {
+      await deleteBufferPost(
+        apiKey,
+        claim.current.bufferPostId
+      )
+    }
+    await claim.ref.set(
+      {
+        status: 'failed',
+        failure: 'Replaced by an explicit reschedule.',
+        updatedAt:
+          admin.firestore.FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    )
+    return scheduleCarousel(
+      db,
+      admin,
+      apiKey,
+      channel,
+      post,
+      assetUrls,
+      now,
+      scheduledAt,
+      false,
+      false
+    )
+  }
   if (!claim.claimed) {
+    if (
+      claim.reason === 'scheduled' &&
+      refreshScheduled &&
+      claim.current?.bufferPostId
+    ) {
+      try {
+        const bufferPost = await editBufferPost(
+          apiKey,
+          channel,
+          {
+            ...post,
+            bufferPostId: claim.current.bufferPostId,
+          },
+          assetUrls,
+          scheduledAt || claim.current.bufferDueAt
+        )
+        await claim.ref.set(
+          {
+            caption: post.caption,
+            bufferDueAt: bufferPost.dueAt || null,
+            refreshedAt:
+              admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt:
+              admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true }
+        )
+        console.log(`Updated Buffer post ${bufferPost.id}.`)
+        return
+      } catch (error) {
+        if (errorMessage(error) === 'Document not found') {
+          await claim.ref.set(
+            {
+              status: 'failed',
+              failure:
+                'Buffer post was not found during refresh.',
+              updatedAt:
+                admin.firestore.FieldValue.serverTimestamp(),
+            },
+            { merge: true }
+          )
+        }
+        throw error
+      }
+    }
     console.log(
       claim.reason === 'scheduled'
-        ? `The post ${post.id} is already scheduled.`
-        : `The post ${post.id} has an active creation claim.`
+        ? `The ${channel.service} post ${post.id} is already scheduled.`
+        : `The ${channel.service} post ${post.id} has an active creation claim.`
     )
     return
   }
@@ -510,9 +776,10 @@ async function scheduleCarousel(
 
     const bufferPost = await createBufferPost(
       apiKey,
-      channel.id,
+      channel,
       post,
-      assetUrls
+      assetUrls,
+      scheduledAt
     )
     await claim.ref.set(
       {
@@ -526,7 +793,9 @@ async function scheduleCarousel(
       },
       { merge: true }
     )
-    console.log(`Scheduled Buffer post ${bufferPost.id}.`)
+    console.log(
+      `Scheduled ${channel.service} Buffer post ${bufferPost.id}.`
+    )
   } catch (error) {
     await recordFailure(claim.ref, admin, error)
     throw error
@@ -548,7 +817,6 @@ async function main() {
     ])
   const {
     hashCarousel,
-    fetchCanonicalOpportunityCover,
     carouselStoragePath,
     existingSlideUrl,
     uploadSlidePng,
@@ -556,6 +824,7 @@ async function main() {
   const renderSlidePng = render
   const db = initializeFirestore(admin, projectId)
   const now = new Date()
+  const scheduledAt = scheduleAt(args.scheduleAt, now)
   const opportunities = await fetchUpcomingOpportunities(
     db,
     admin,
@@ -567,7 +836,6 @@ async function main() {
       now,
     }
   )
-
   if (carousels.length === 0) {
     console.log(
       'No open program deadlines occur in the next 30 days.'
@@ -575,41 +843,33 @@ async function main() {
     return
   }
 
+  const requestedCarousels = args.postId
+    ? carousels.filter(({ id }) => id === args.postId)
+    : carousels
+  if (requestedCarousels.length === 0) {
+    throw new Error(
+      `No eligible carousel matches ${args.postId}.`
+    )
+  }
+
   if (!args.execute) {
-    for (const carousel of carousels) {
+    for (const carousel of requestedCarousels) {
       console.log(`Dry run: ${carousel.id}.`)
       console.log(
         `${carousel.slides.length} carousel images would post.`
       )
+      if (scheduledAt) {
+        console.log(`It would schedule for ${scheduledAt}.`)
+      }
       console.log(carousel.caption)
     }
     return
   }
-  const scheduled = await Promise.all(
-    carousels.map(async (carousel) => {
-      const snapshot = await db
-        .collection(POST_COLLECTION)
-        .doc(carousel.id)
-        .get()
-      return snapshot.data()?.status === 'scheduled'
-    })
-  )
-  const carouselsToSchedule = carousels.filter(
-    (_, index) => !scheduled[index]
-  )
-  if (carouselsToSchedule.length === 0) {
-    for (const carousel of carousels) {
-      console.log(
-        `The post ${carousel.id} is already scheduled.`
-      )
-    }
-    return
-  }
+  const carouselsToSchedule = requestedCarousels
 
   const posts = await Promise.all(
     carouselsToSchedule.map(async (carousel) => {
       const version = hashCarousel(carousel)
-      const coverCache = new Map()
       const altText = carousel.slides.map(
         helpers.carouselAltText
       )
@@ -622,23 +882,6 @@ async function main() {
           )
           const existingUrl = await existingSlideUrl(path)
           if (existingUrl) return { path, url: existingUrl }
-          let imageUrl = null
-          if (slide.type === 'opportunity') {
-            if (!coverCache.has(slide.slug)) {
-              const opDoc = await db
-                .collection('opportunities')
-                .doc(slide.slug)
-                .get()
-              coverCache.set(
-                slide.slug,
-                opDoc.exists ? opDoc.get('imageUrl') : null
-              )
-            }
-            imageUrl = await fetchCanonicalOpportunityCover(
-              coverCache.get(slide.slug),
-              slide.slug
-            )
-          }
           const png = await renderSlidePng({
             slide: {
               ...slide,
@@ -649,7 +892,6 @@ async function main() {
                     ) || 'See site'
                   : undefined,
             },
-            imageUrl,
             position: index,
             total: carousel.slides.length - 1,
           })
@@ -668,22 +910,47 @@ async function main() {
   )
 
   const apiKey = requiredEnv('BUFFER_API_KEY')
-  const channelId = await resolveInstagramChannelId(apiKey)
-  const channel = await getInstagramChannel(
-    apiKey,
-    channelId
-  )
+  const [instagramChannelId, facebookChannelId] =
+    await Promise.all([
+      resolveChannelId(
+        apiKey,
+        'instagram',
+        process.env.BUFFER_INSTAGRAM_CHANNEL_ID?.trim() ||
+          process.env.BUFFER_CHANNEL_ID?.trim()
+      ),
+      resolveChannelId(
+        apiKey,
+        'facebook',
+        process.env.BUFFER_FACEBOOK_CHANNEL_ID?.trim()
+      ),
+    ])
+  const channels = await Promise.all([
+    getChannel(apiKey, instagramChannelId, 'instagram'),
+    getChannel(apiKey, facebookChannelId, 'facebook'),
+  ])
 
   for (const post of posts) {
-    await scheduleCarousel(
-      db,
-      admin,
-      apiKey,
-      channel,
-      post,
-      post.assetUrls,
-      now
-    )
+    for (const channel of channels) {
+      const channelPost = {
+        ...post,
+        caption: helpers.deadlineCaption(
+          post,
+          channel.service
+        ),
+      }
+      await scheduleCarousel(
+        db,
+        admin,
+        apiKey,
+        channel,
+        channelPost,
+        post.assetUrls,
+        now,
+        scheduledAt,
+        args.refreshScheduled,
+        args.replaceScheduled
+      )
+    }
   }
 }
 

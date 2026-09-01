@@ -5,7 +5,6 @@ import {
   applicationDefault,
 } from 'firebase-admin/app'
 import { getStorage } from 'firebase-admin/storage'
-import sharp from 'sharp'
 
 const PROJECT_ID =
   process.env.GCP_PROJECT_ID ||
@@ -24,77 +23,10 @@ const app = getApps().length
       'social-pipeline'
     )
 export const STORAGE_PREFIX = 'social-posts'
-export const MAX_COVER_BYTES = 5 * 1024 * 1024
-export const COVER_CONTENT_TYPES = new Set([
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-])
-const COVER_FETCH_TIMEOUT_MS = 5000
 const STORAGE_CACHE_CONTROL =
   'public, max-age=31536000, immutable'
 
 const bucket = getStorage(app).bucket(BUCKET_NAME)
-
-export function isCanonicalOpportunityCoverUrl(url, slug) {
-  if (typeof url !== 'string') return false
-  let parsed
-  try {
-    parsed = new URL(url)
-  } catch {
-    return false
-  }
-  if (parsed.protocol !== 'https:') return false
-  if (parsed.hostname !== 'firebasestorage.googleapis.com')
-    return false
-  if (parsed.searchParams.get('alt') !== 'media')
-    return false
-  const path = decodeURIComponent(parsed.pathname)
-  return path.endsWith(
-    `/o/opportunities/${slug}/cover.webp`
-  )
-}
-
-export async function fetchCanonicalOpportunityCover(
-  url,
-  slug
-) {
-  if (!isCanonicalOpportunityCoverUrl(url, slug))
-    return null
-  const controller = new AbortController()
-  const timer = setTimeout(
-    () => controller.abort(),
-    COVER_FETCH_TIMEOUT_MS
-  )
-  try {
-    const response = await fetch(url, {
-      signal: controller.signal,
-    })
-    const contentType =
-      response.headers.get('content-type')?.split(';')[0] ||
-      ''
-    const contentLength = Number(
-      response.headers.get('content-length')
-    )
-    if (
-      !response.ok ||
-      !COVER_CONTENT_TYPES.has(contentType) ||
-      (Number.isFinite(contentLength) &&
-        contentLength > MAX_COVER_BYTES)
-    ) {
-      return null
-    }
-    const image = Buffer.from(await response.arrayBuffer())
-    if (image.length > MAX_COVER_BYTES) return null
-    return sharp(image, { limitInputPixels: 50_000_000 })
-      .jpeg({ quality: 86 })
-      .toBuffer()
-  } catch {
-    return null
-  } finally {
-    clearTimeout(timer)
-  }
-}
 
 export function hashCarousel(carousel) {
   const hash = createHash('sha256')

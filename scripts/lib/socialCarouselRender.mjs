@@ -87,9 +87,11 @@ function Squiggle({ width = 410 }) {
 }
 
 function CoverSlide({ slide }) {
+  const programLabel =
+    slide.programCount === 1 ? 'program' : 'programs'
   const subline = slide.part
-    ? `${slide.programCount} programs · ${slide.deadlineWindow} · Part ${slide.part} of ${slide.totalParts}`
-    : `${slide.programCount} programs · ${slide.deadlineWindow}`
+    ? `${slide.programCount} ${programLabel} · ${slide.deadlineWindow} · Part ${slide.part} of ${slide.totalParts}`
+    : `${slide.programCount} ${programLabel} · ${slide.deadlineWindow}`
 
   return h(
     'div',
@@ -126,7 +128,7 @@ function CoverSlide({ slide }) {
             color: '#236648',
           },
         },
-        'SCI TEENS'
+        'SciTeens'
       )
     ),
     h(
@@ -236,12 +238,7 @@ function CoverSlide({ slide }) {
   )
 }
 
-function OpportunitySlide({
-  slide,
-  imageUrl,
-  position,
-  total,
-}) {
+function OpportunitySlide({ slide, position, total }) {
   const topics = Array.isArray(slide.fields)
     ? slide.fields.join(' · ')
     : ''
@@ -260,33 +257,6 @@ function OpportunitySlide({
         color: '#ffffff',
       },
     },
-    imageUrl &&
-      h('img', {
-        src: imageUrl,
-        width: String(WIDTH),
-        height: String(HEIGHT),
-        alt: '',
-        style: {
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-        },
-      }),
-    h('div', {
-      style: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        background:
-          'linear-gradient(180deg, rgba(5, 22, 14, 0.22) 0%, rgba(5, 22, 14, 0.42) 39%, rgba(5, 22, 14, 0.96) 100%)',
-      },
-    }),
     h(
       'div',
       {
@@ -380,6 +350,23 @@ function OpportunitySlide({
           },
           clampText(slide.name, 62)
         ),
+        slide.description
+          ? h(
+              'div',
+              {
+                style: {
+                  display: 'flex',
+                  fontFamily: TEXT_FAMILY,
+                  fontSize: 29,
+                  fontWeight: 400,
+                  lineHeight: 1.25,
+                  color: '#d6eadc',
+                  marginTop: 24,
+                },
+              },
+              clampText(slide.description, 360)
+            )
+          : null,
         topics
           ? h(
               'div',
@@ -404,7 +391,6 @@ function OpportunitySlide({
 
 export async function renderSlidePng({
   slide,
-  imageUrl,
   position,
   total,
 }) {
@@ -414,7 +400,6 @@ export async function renderSlidePng({
       ? CoverSlide({ slide })
       : OpportunitySlide({
           slide,
-          imageUrl,
           position,
           total,
         }),
