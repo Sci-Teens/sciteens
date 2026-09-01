@@ -133,6 +133,11 @@ service firebase.storage {
       allow write, delete: if false;
     }
 
+    match /social-posts/{postId}/{version}/{fileName} {
+      allow read: if true;
+      allow write, delete: if false;
+    }
+
     // ---- Catch-all ------------------------------------------------------
     match /{allPaths=**} {
       allow read, write: if false;
