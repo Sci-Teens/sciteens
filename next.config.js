@@ -134,6 +134,7 @@ const connectSrc = [
 module.exports = {
   output: 'standalone',
   outputFileTracingRoot: __dirname,
+  serverExternalPackages: ['firebase-admin', 'sharp'],
   // Isolates webpack's persistent cache per Firebase config —
   // without this, two `next dev` processes sharing distDir can leak
   // a client bundle compiled under the other config (see

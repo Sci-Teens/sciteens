@@ -28,3 +28,26 @@ Before you begin, make sure that you have both [Git](https://git-scm.com/downloa
 3. Type in `corepack pnpm install` to the command line and hit enter. This will download all necessary packages.
 4. Type in `corepack pnpm dev` and visit localhost:3000 in your browser. This will show the development build!
 5. If you encounter an error at the step above, it's likely because you don't have access to the API keys. If you'd like to join the team to contribute to the website, [reach out](mailto:info@sciteens.com)!
+
+# Scheduled social posts
+
+GitHub Actions runs the opportunity deadline post each Monday at
+12:30 UTC. It selects dated opportunities due in the next 30 days.
+Each carousel places the nearest deadline first. The workflow creates
+another ordered carousel when more than nine opportunities qualify.
+
+Create a `social-posts` GitHub environment. Set these variables:
+
+- `GCP_PROJECT_ID`
+- `GCP_WIF_PROVIDER`
+- `GCP_SCRAPER_SA`
+- `SITE_URL`
+
+Set the `BUFFER_API_KEY` secret. The workflow uses the `Directed Relic`
+Buffer project by default. Set `BUFFER_ORGANIZATION_NAME` only to use
+another project.
+
+If Directed Relic has more than one Instagram channel, set the
+`BUFFER_CHANNEL_ID` secret. The Buffer channel must be connected.
+Set the channel posting schedule in Buffer. The workflow uses that
+queue, so Buffer selects the next configured posting time.
