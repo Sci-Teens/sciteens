@@ -615,6 +615,13 @@ async function main() {
       )
       const rendered = await Promise.all(
         carousel.slides.map(async (slide, index) => {
+          const path = carouselStoragePath(
+            carousel.id,
+            version,
+            index
+          )
+          const existingUrl = await existingSlideUrl(path)
+          if (existingUrl) return { path, url: existingUrl }
           let imageUrl = null
           if (slide.type === 'opportunity') {
             if (!coverCache.has(slide.slug)) {
@@ -632,13 +639,6 @@ async function main() {
               slide.slug
             )
           }
-          const path = carouselStoragePath(
-            carousel.id,
-            version,
-            index
-          )
-          const existingUrl = await existingSlideUrl(path)
-          if (existingUrl) return { path, url: existingUrl }
           const png = await renderSlidePng({
             slide: {
               ...slide,
