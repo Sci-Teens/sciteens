@@ -118,6 +118,7 @@ const connectSrc = [
   'https://hf.co',
   'https://*.hf.co',
   'https://cdn.jsdelivr.net',
+  'https://us-central1-directed-relic-266701.cloudfunctions.net',
   'https://www.google-analytics.com',
   'https://region1.google-analytics.com',
   'https://analytics.google.com',

@@ -492,7 +492,31 @@
     "terms": "शर्तें",
     "cookies": "कुकीज़",
     "language": "भाषा: हिन्दी",
-    "follow_us": "हमारा अनुसरण करें"
+    "follow_us": "हमारा अनुसरण करें",
+    "newsletter_heading": "जुड़े रहें",
+    "newsletter_description": "विज्ञान की कहानियां और अवसर सीधे आपके इनबॉक्स में पाएं।",
+    "newsletter_email_label": "ईमेल पता",
+    "newsletter_placeholder": "aap@example.org",
+    "newsletter_submit": "सदस्यता लें",
+    "newsletter_submitting": "भेजा जा रहा है…",
+    "newsletter_confirmation_sent": "अपनी सदस्यता की पुष्टि के लिए अपना इनबॉक्स देखें।",
+    "newsletter_error": "एक मान्य ईमेल पता दर्ज करें और फिर से प्रयास करें।",
+    "newsletter_privacy_prefix": "सदस्यता लेकर आप हमारी",
+    "newsletter_privacy_link": "गोपनीयता नीति"
+  },
+  "newsletter": {
+    "confirmed_title": "आपकी सदस्यता की पुष्टि हो गई है",
+    "confirmed_description": "आपको इस ईमेल पते पर SciTeens की खबरें और अवसर मिलेंगे।",
+    "confirmed_invalid_title": "यह पुष्टि लिंक अब मान्य नहीं है",
+    "confirmed_invalid_description": "नया पुष्टि ईमेल पाने के लिए पादलेख में अपना ईमेल पता दर्ज करें।",
+    "unsubscribe_title": "न्यूज़लेटर की सदस्यता समाप्त करें",
+    "unsubscribe_description": "क्या आप इस ईमेल पते पर SciTeens न्यूज़लेटर पाना बंद करना चाहते हैं?",
+    "unsubscribe_submit": "सदस्यता समाप्त करें",
+    "unsubscribe_submitting": "सदस्यता समाप्त हो रही है…",
+    "unsubscribed_title": "आपकी सदस्यता समाप्त हो गई है",
+    "unsubscribed_description": "अब आपको इस ईमेल पते पर SciTeens न्यूज़लेटर नहीं मिलेगा।",
+    "unsubscribe_invalid_title": "यह सदस्यता समाप्त करने का लिंक अब मान्य नहीं है",
+    "unsubscribe_invalid_description": "अपने सबसे हाल के SciTeens न्यूज़लेटर में दिए सदस्यता समाप्त करने के लिंक का उपयोग करें।"
   },
   "educators": {
     "courses": "पाठ्यक्रम",

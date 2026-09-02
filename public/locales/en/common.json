@@ -492,7 +492,31 @@
     "terms": "Terms",
     "cookies": "Cookies",
     "language": "LANGUAGE",
-    "follow_us": "FOLLOW US"
+    "follow_us": "FOLLOW US",
+    "newsletter_heading": "Stay connected",
+    "newsletter_description": "Science stories and opportunities, delivered to your inbox.",
+    "newsletter_email_label": "Email address",
+    "newsletter_placeholder": "you@example.org",
+    "newsletter_submit": "Subscribe",
+    "newsletter_submitting": "Sending…",
+    "newsletter_confirmation_sent": "Check your inbox to confirm your subscription.",
+    "newsletter_error": "Enter a valid email address and try again.",
+    "newsletter_privacy_prefix": "By subscribing, you agree to our",
+    "newsletter_privacy_link": "Privacy Policy"
+  },
+  "newsletter": {
+    "confirmed_title": "Your subscription is confirmed",
+    "confirmed_description": "You will receive SciTeens news and opportunities at this email address.",
+    "confirmed_invalid_title": "This confirmation link is no longer valid",
+    "confirmed_invalid_description": "Enter your email in the footer to request a new confirmation email.",
+    "unsubscribe_title": "Unsubscribe from the newsletter",
+    "unsubscribe_description": "Do you want to stop receiving the SciTeens newsletter at this email address?",
+    "unsubscribe_submit": "Unsubscribe",
+    "unsubscribe_submitting": "Unsubscribing…",
+    "unsubscribed_title": "You are unsubscribed",
+    "unsubscribed_description": "You will no longer receive the SciTeens newsletter at this email address.",
+    "unsubscribe_invalid_title": "This unsubscribe link is no longer valid",
+    "unsubscribe_invalid_description": "Use the unsubscribe link in your most recent SciTeens newsletter."
   },
   "educators": {
     "courses": "Courses",

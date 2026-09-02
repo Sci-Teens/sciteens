@@ -492,7 +492,31 @@
     "terms": "Conditions",
     "cookies": "Biscuits",
     "language": "LANGUE",
-    "follow_us": "SUIVEZ-NOUS"
+    "follow_us": "SUIVEZ-NOUS",
+    "newsletter_heading": "Restez au courant",
+    "newsletter_description": "Des histoires et des occasions scientifiques, dans votre boîte de réception.",
+    "newsletter_email_label": "Adresse e-mail",
+    "newsletter_placeholder": "vous@exemple.org",
+    "newsletter_submit": "S'abonner",
+    "newsletter_submitting": "Envoi en cours…",
+    "newsletter_confirmation_sent": "Consultez votre boîte de réception pour confirmer votre abonnement.",
+    "newsletter_error": "Entrez une adresse e-mail valide et réessayez.",
+    "newsletter_privacy_prefix": "En vous abonnant, vous acceptez notre",
+    "newsletter_privacy_link": "Politique de confidentialité"
+  },
+  "newsletter": {
+    "confirmed_title": "Votre abonnement est confirmé",
+    "confirmed_description": "Vous recevrez les nouvelles et les occasions de SciTeens à cette adresse e-mail.",
+    "confirmed_invalid_title": "Ce lien de confirmation n'est plus valide",
+    "confirmed_invalid_description": "Entrez votre adresse e-mail dans le pied de page pour demander un nouvel e-mail de confirmation.",
+    "unsubscribe_title": "Se désabonner de la newsletter",
+    "unsubscribe_description": "Voulez-vous arrêter de recevoir la newsletter de SciTeens à cette adresse e-mail ?",
+    "unsubscribe_submit": "Se désabonner",
+    "unsubscribe_submitting": "Désabonnement en cours…",
+    "unsubscribed_title": "Vous êtes désabonné",
+    "unsubscribed_description": "Vous ne recevrez plus la newsletter de SciTeens à cette adresse e-mail.",
+    "unsubscribe_invalid_title": "Ce lien de désabonnement n'est plus valide",
+    "unsubscribe_invalid_description": "Utilisez le lien de désabonnement dans votre newsletter SciTeens la plus récente."
   },
   "educators": {
     "courses": "Cours",
