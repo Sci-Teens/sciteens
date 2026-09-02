@@ -87,6 +87,35 @@ describe('Program', () => {
     ).toHaveAttribute('href', 'mailto:program@example.org')
   })
 
+  it('links an in-person location to Google Maps', () => {
+    render(<Program program={program} />)
+
+    expect(
+      screen.getByRole('link', { name: 'Cambridge, MA' })
+    ).toHaveAttribute(
+      'href',
+      'https://www.google.com/maps/search/?api=1&query=Cambridge%2C%20MA'
+    )
+  })
+
+  it.each(['Virtual', 'Multiple Locations', 'Unsure'])(
+    'does not link the non-geographic location %s to Google Maps',
+    (location) => {
+      render(
+        <Program
+          program={{
+            ...program,
+            location,
+          }}
+        />
+      )
+
+      expect(
+        screen.queryByRole('link', { name: location })
+      ).not.toBeInTheDocument()
+    }
+  )
+
   it('shows a start date when no end date exists', () => {
     render(
       <Program

@@ -38,12 +38,10 @@ async function getDynamicPaths(config) {
     ? getApp()
     : initializeApp(getFirebaseConfig())
   const firestore = getFirestore(app)
-  const [projects, profiles, opportunities] =
-    await Promise.all([
-      getDocs(collection(firestore, 'projects')),
-      getDocs(collection(firestore, 'profiles')),
-      getDocs(collection(firestore, 'opportunities')),
-    ])
+  const [projects, opportunities] = await Promise.all([
+    getDocs(collection(firestore, 'projects')),
+    getDocs(collection(firestore, 'opportunities')),
+  ])
   const paths = [
     ...createDocumentPaths(
       projects.docs.map((document) => ({
@@ -52,14 +50,6 @@ async function getDynamicPaths(config) {
       })),
       'project',
       'id'
-    ),
-    ...createDocumentPaths(
-      profiles.docs.map((document) => ({
-        ...document.data(),
-        id: document.id,
-      })),
-      'profile',
-      'slug'
     ),
     ...createDocumentPaths(
       opportunities.docs.map((document) => ({
