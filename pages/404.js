@@ -1,3 +1,4 @@
+import Head from 'next/head'
 import Link from 'next/link'
 import Image from 'next/image'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
@@ -6,6 +7,13 @@ import PageHeading from '@/components/PageHeading'
 export default function FourOhFour() {
   return (
     <>
+      <Head>
+        <meta
+          key="robots"
+          name="robots"
+          content="noindex, nofollow"
+        />
+      </Head>
       <div className="mx-auto mt-20 min-h-screen w-full text-center">
         <Image
           src="/assets/404.png"

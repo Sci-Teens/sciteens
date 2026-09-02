@@ -172,6 +172,39 @@ module.exports = {
   async redirects() {
     return [
       {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'www.sciteens.org',
+          },
+        ],
+        destination: 'https://sciteens.org/:path*',
+        permanent: true,
+      },
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'sciteens.com',
+          },
+        ],
+        destination: 'https://sciteens.org/:path*',
+        permanent: true,
+      },
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'www.sciteens.com',
+          },
+        ],
+        destination: 'https://sciteens.org/:path*',
+        permanent: true,
+      },
+      {
         source: '/getinvolved',
         destination: '/get-involved',
         permanent: true,
