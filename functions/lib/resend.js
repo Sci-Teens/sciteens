@@ -296,11 +296,33 @@ function assertEmailSent(result) {
   return result
 }
 
+function buildResendEmailPayload({
+  to,
+  toName,
+  subject,
+  react,
+  unsubscribeActionUrl,
+}) {
+  return {
+    from: FROM,
+    to: toName ? `${toName} <${to}>` : to,
+    subject,
+    react,
+    ...(unsubscribeActionUrl && {
+      headers: {
+        'List-Unsubscribe': `<${unsubscribeActionUrl}>`,
+        'List-Unsubscribe-Post':
+          'List-Unsubscribe=One-Click',
+      },
+    }),
+  }
+}
+
 async function sendEmail({
   to,
   toName,
   subject,
-  html,
+  react,
   category,
   uid,
   unsubscribeActionUrl,
@@ -314,19 +336,15 @@ async function sendEmail({
       return { skipped: true }
     }
   }
-  const result = await getResend().emails.send({
-    from: FROM,
-    to: toName ? `${toName} <${to}>` : to,
-    subject,
-    html,
-    ...(unsubscribeActionUrl && {
-      headers: {
-        'List-Unsubscribe': `<${unsubscribeActionUrl}>`,
-        'List-Unsubscribe-Post':
-          'List-Unsubscribe=One-Click',
-      },
-    }),
-  })
+  const result = await getResend().emails.send(
+    buildResendEmailPayload({
+      to,
+      toName,
+      subject,
+      react,
+      unsubscribeActionUrl,
+    })
+  )
   return assertEmailSent(result)
 }
 
@@ -334,6 +352,7 @@ module.exports = {
   resendApiKey,
   sendEmail,
   assertEmailSent,
+  buildResendEmailPayload,
   addContact,
   CONTACTS_AUDIENCE_ID,
   buildUnsubscribeLinks,

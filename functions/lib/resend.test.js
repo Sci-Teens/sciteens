@@ -1,6 +1,31 @@
 import { describe, expect, it, vi } from 'vitest'
 
-const { assertEmailSent } = require('./resend')
+const { verifyEmailTemplate } = require('./emailTemplates')
+const {
+  assertEmailSent,
+  buildResendEmailPayload,
+} = require('./resend')
+
+describe('buildResendEmailPayload', () => {
+  it('forwards a React template to Resend', () => {
+    const react = verifyEmailTemplate({
+      link: 'https://sciteens.org/verify?oobCode=abc123',
+    })
+
+    expect(
+      buildResendEmailPayload({
+        to: 'ada@example.org',
+        subject: 'Verify Email',
+        react,
+      })
+    ).toEqual({
+      from: 'SciTeens <noreply@sciteens.org>',
+      to: 'ada@example.org',
+      subject: 'Verify Email',
+      react,
+    })
+  })
+})
 
 describe('assertEmailSent', () => {
   it('returns a successful Resend result', () => {
