@@ -39,6 +39,12 @@ import { INLINE_LINK } from '../../lib/typography'
 
 const OPPORTUNITIES_EMAIL = 'opportunities@sciteens.org'
 
+const NON_GEOGRAPHIC_LOCATIONS = new Set([
+  'Multiple Locations',
+  'Unsure',
+  'Virtual',
+])
+
 const PROGRAM_TYPE_KEYS = {
   'Summer Program':
     'opportunities.program_types.summer_program',
@@ -175,7 +181,22 @@ function Program({ program }) {
     },
     {
       label: t('opportunities.location'),
-      value: translateOpportunityValue(t, program.location),
+      value: NON_GEOGRAPHIC_LOCATIONS.has(
+        program.location
+      ) ? (
+        translateOpportunityValue(t, program.location)
+      ) : (
+        <a
+          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+            program.location
+          )}`}
+          target="_blank"
+          rel="noreferrer"
+          className={INLINE_LINK}
+        >
+          {translateOpportunityValue(t, program.location)}
+        </a>
+      ),
     },
     {
       label: t('opportunities.program_type'),
