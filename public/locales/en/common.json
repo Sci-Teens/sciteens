@@ -319,7 +319,8 @@
   },
   "opportunities": {
     "opportunities": "Opportunities",
-    "lede": "STEM programs, competitions, and research opportunities high schoolers can apply to — sorted by application deadline.",
+    "lede": "STEM programs, competitions, and research opportunities for high school students, sorted by application deadline.",
+    "suggest_opportunity": "Suggest an opportunity",
     "status_filter": "Status",
     "open_now": "Open Now",
     "opening_soon": "Opening Soon",

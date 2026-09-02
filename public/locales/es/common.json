@@ -319,7 +319,8 @@
   },
   "opportunities": {
     "opportunities": "Oportunidades",
-    "lede": "Programas STEM, competiciones y oportunidades de investigación a las que los estudiantes de secundaria pueden postularse, ordenados por fecha límite de solicitud.",
+    "lede": "Programas STEM, competiciones y oportunidades de investigación para estudiantes de secundaria, ordenados por fecha límite de solicitud.",
+    "suggest_opportunity": "Sugerir una oportunidad",
     "status_filter": "Estado",
     "open_now": "Abiertas ahora",
     "opening_soon": "Próximamente",
