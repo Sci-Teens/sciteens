@@ -52,6 +52,18 @@ function tokensMatch(expected, received) {
   )
 }
 
+function matchesNewsletterUnsubscribeToken(data, token) {
+  if (!data || typeof data !== 'object') return false
+  const tokenHash = hashNewsletterValue(token)
+  return (
+    tokensMatch(data.unsubscribeTokenHash, tokenHash) ||
+    tokensMatch(
+      data.previousUnsubscribeTokenHash,
+      tokenHash
+    )
+  )
+}
+
 function newsletterLocale(value) {
   return SUPPORTED_LOCALES.has(value) ? value : 'en'
 }
@@ -63,4 +75,5 @@ module.exports = {
   newsletterLocale,
   normalizeNewsletterEmail,
   tokensMatch,
+  matchesNewsletterUnsubscribeToken,
 }

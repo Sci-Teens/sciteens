@@ -548,6 +548,8 @@
     "confirmed_description": "You will receive SciTeens news and opportunities at this email address.",
     "confirmed_invalid_title": "This confirmation link is no longer valid",
     "confirmed_invalid_description": "Enter your email in the footer to request a new confirmation email.",
+    "confirmed_delivery_failed_title": "We could not complete your subscription",
+    "confirmed_delivery_failed_description": "Please use the confirmation link again later.",
     "unsubscribe_title": "Unsubscribe from the newsletter",
     "unsubscribe_description": "Do you want to stop receiving the SciTeens newsletter at this email address?",
     "unsubscribe_submit": "Unsubscribe",

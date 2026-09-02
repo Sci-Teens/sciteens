@@ -20,7 +20,9 @@
     "test:rules": "firebase emulators:exec --project demo-sciteens-test --only firestore,storage \"vitest run tests/rules --no-file-parallelism\"",
     "backfill:images": "node scripts/backfill-optimize-images.js",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "newsletter:create": "pnpm --dir functions newsletter:create",
+    "newsletter:sync": "pnpm --dir functions newsletter:sync"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

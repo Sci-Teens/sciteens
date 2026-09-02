@@ -9,6 +9,8 @@ export default function NewsletterConfirmed() {
   const { t } = useTranslation('common')
   const router = useRouter()
   const invalid = router.query.status === 'invalid'
+  const deliveryFailed =
+    router.query.status === 'delivery_failed'
 
   return (
     <>
@@ -19,12 +21,20 @@ export default function NewsletterConfirmed() {
         <Card className="border-border/60 w-full shadow-sm">
           <CardContent className="p-6 md:p-8">
             <h1 className="font-heading text-3xl font-semibold tracking-tight">
-              {invalid
+              {deliveryFailed
+                ? t(
+                    'newsletter.confirmed_delivery_failed_title'
+                  )
+                : invalid
                 ? t('newsletter.confirmed_invalid_title')
                 : t('newsletter.confirmed_title')}
             </h1>
             <p className="text-muted-foreground mt-3 max-w-prose leading-7">
-              {invalid
+              {deliveryFailed
+                ? t(
+                    'newsletter.confirmed_delivery_failed_description'
+                  )
+                : invalid
                 ? t(
                     'newsletter.confirmed_invalid_description'
                   )

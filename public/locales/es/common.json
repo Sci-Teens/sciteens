@@ -548,6 +548,8 @@
     "confirmed_description": "Recibirá noticias y oportunidades de SciTeens en esta dirección de correo electrónico.",
     "confirmed_invalid_title": "Este enlace de confirmación ya no es válido",
     "confirmed_invalid_description": "Escriba su correo electrónico en el pie de página para solicitar otro correo de confirmación.",
+    "confirmed_delivery_failed_title": "No pudimos completar su suscripción",
+    "confirmed_delivery_failed_description": "Use el enlace de confirmación de nuevo más tarde.",
     "unsubscribe_title": "Cancelar la suscripción al boletín",
     "unsubscribe_description": "¿Desea dejar de recibir el boletín de SciTeens en esta dirección de correo electrónico?",
     "unsubscribe_submit": "Cancelar la suscripción",

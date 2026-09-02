@@ -4,6 +4,7 @@ const {
   createNewsletterToken,
   hashNewsletterValue,
   isNewsletterSubscriberId,
+  matchesNewsletterUnsubscribeToken,
   newsletterLocale,
   normalizeNewsletterEmail,
   tokensMatch,
@@ -46,6 +47,36 @@ describe('newsletter tokens', () => {
     ).toBe(true)
     expect(
       isNewsletterSubscriberId('student@example.org')
+    ).toBe(false)
+  })
+
+  it('keeps the prior unsubscribe token valid after a list sync', () => {
+    const originalToken = createNewsletterToken()
+    const migratedToken = createNewsletterToken()
+    const subscriber = {
+      unsubscribeTokenHash:
+        hashNewsletterValue(migratedToken),
+      previousUnsubscribeTokenHash:
+        hashNewsletterValue(originalToken),
+    }
+
+    expect(
+      matchesNewsletterUnsubscribeToken(
+        subscriber,
+        originalToken
+      )
+    ).toBe(true)
+    expect(
+      matchesNewsletterUnsubscribeToken(
+        subscriber,
+        migratedToken
+      )
+    ).toBe(true)
+    expect(
+      matchesNewsletterUnsubscribeToken(
+        subscriber,
+        'invalid'
+      )
     ).toBe(false)
   })
 })

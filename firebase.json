@@ -1,7 +1,7 @@
 {
   "functions": {
     "source": "functions",
-    "runtime": "nodejs24"
+    "runtime": "nodejs22"
   },
   "firestore": {
     "rules": "firestore.rules",

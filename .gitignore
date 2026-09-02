@@ -41,6 +41,7 @@ pnpm-debug.log*
 .env.test.local
 .env.production.local
 .env*
+/resend-key.env
 
 # ...except functions/.env — Firebase CLI dotenv config loaded into every
 # deployed Cloud Function's process.env at deploy time. Deliberately
