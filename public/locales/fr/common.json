@@ -319,7 +319,8 @@
   },
   "opportunities": {
     "opportunities": "Opportunités",
-    "lede": "Programmes STEM, concours et opportunités de recherche auxquels les lycéens peuvent postuler, triés par date limite de candidature.",
+    "lede": "Programmes STEM, concours et opportunités de recherche pour les lycéens, triés par date limite de candidature.",
+    "suggest_opportunity": "Suggérer une opportunité",
     "status_filter": "Statut",
     "open_now": "Ouvertes actuellement",
     "opening_soon": "Bientôt disponibles",

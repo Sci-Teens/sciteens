@@ -30,6 +30,7 @@ import {
 import { getFieldIcon } from '../lib/fieldIcons'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
+import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
@@ -45,6 +46,8 @@ import ListingLayout from '@/components/search/ListingLayout'
 import ResultsCount from '@/components/search/ResultsCount'
 import SearchToolbar from '@/components/search/SearchToolbar'
 import TopicsList from '@/components/search/TopicsList'
+
+const OPPORTUNITIES_EMAIL = 'opportunities@sciteens.org'
 
 const GRADE_OPTIONS = ['9', '10', '11', '12']
 const STATUS_OPTIONS = [
@@ -524,13 +527,29 @@ function Opportunities({
     <>
       <SocialMeta
         title="Opportunities | SciTeens"
-        description="STEM programs, competitions, and research opportunities high schoolers can apply to."
+        description="STEM programs, competitions, and research opportunities for high school students."
         eyebrow="Opportunities"
         path="/opportunities"
       />
       <ListingLayout
         title={t('opportunities.opportunities')}
         lede={t('opportunities.lede')}
+        actions={
+          <Button
+            variant="outline"
+            className="shrink-0"
+            render={
+              <a
+                href={`mailto:${OPPORTUNITIES_EMAIL}`}
+                aria-label={t(
+                  'opportunities.suggest_opportunity'
+                )}
+              />
+            }
+          >
+            {t('opportunities.suggest_opportunity')}
+          </Button>
+        }
         aside={<FilterPanel {...filterPanelProps} />}
         showRule
       >
