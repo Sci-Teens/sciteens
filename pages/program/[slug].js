@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { ArrowLeft, ExternalLink } from 'lucide-react'
+import { ArrowLeft, ExternalLink, Flag } from 'lucide-react'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import {
@@ -19,7 +19,6 @@ import SocialMeta from '@/components/SocialMeta'
 import PageHeading from '@/components/PageHeading'
 import OpportunityFieldIcons from '@/components/OpportunityFieldIcons'
 import {
-  DetailLabel,
   DetailMain,
   DetailSection,
 } from '@/components/DetailLayout'
@@ -37,6 +36,72 @@ import {
 } from '../../lib/opportunities'
 import firebaseConfig from '../../firebaseConfig'
 import { INLINE_LINK } from '../../lib/typography'
+
+const OPPORTUNITIES_EMAIL = 'opportunities@sciteens.org'
+
+const PROGRAM_TYPE_KEYS = {
+  'Summer Program':
+    'opportunities.program_types.summer_program',
+  'Academic Year Program':
+    'opportunities.program_types.academic_year_program',
+  Competition: 'opportunities.program_types.competition',
+  Internship: 'opportunities.program_types.internship',
+  'Research Experience':
+    'opportunities.program_types.research_experience',
+  Scholarship: 'opportunities.program_types.scholarship',
+  'Online Course':
+    'opportunities.program_types.online_course',
+  Fellowship: 'opportunities.program_types.fellowship',
+  Camp: 'opportunities.program_types.camp',
+  Other: 'opportunities.program_types.other',
+}
+
+const ATTENDANCE_KEYS = {
+  Residential:
+    'opportunities.attendance_options.residential',
+  Commuter: 'opportunities.attendance_options.commuter',
+  'Not applicable':
+    'opportunities.attendance_options.not_applicable',
+  'Not specified':
+    'opportunities.attendance_options.not_specified',
+}
+
+const PIPELINE_VALUE_KEYS = {
+  Free: 'opportunities.free',
+  'Program is Free': 'opportunities.program_is_free',
+  'Not specified': 'opportunities.not_specified',
+}
+
+function translateOpportunityEnum(
+  translation,
+  keys,
+  value
+) {
+  return value && keys[value]
+    ? translation(keys[value])
+    : null
+}
+
+function translateOpportunityValue(translation, value) {
+  return value && PIPELINE_VALUE_KEYS[value]
+    ? translation(PIPELINE_VALUE_KEYS[value])
+    : value
+}
+
+function OpportunityDetails({ items }) {
+  return (
+    <dl className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
+      {items.map(({ label, value }) => (
+        <div key={label}>
+          <dt className="text-muted-foreground text-sm font-semibold">
+            {label}
+          </dt>
+          <dd className="text-foreground mt-1">{value}</dd>
+        </div>
+      ))}
+    </dl>
+  )
+}
 
 function Program({ program }) {
   const router = useRouter()
@@ -57,16 +122,118 @@ function Program({ program }) {
       : deadlineParts.kind === 'rolling'
       ? t('opportunities.rolling')
       : t('opportunities.deadline_unknown')
+  const startDate = program.startDate
+    ? formatMediumDate(program.startDate, router.locale)
+    : ''
+  const endDate = program.endDate
+    ? formatMediumDate(program.endDate, router.locale)
+    : ''
+  const dateLabel =
+    startDate && endDate
+      ? t('opportunities.dates')
+      : startDate
+      ? t('opportunities.starts')
+      : endDate
+      ? t('opportunities.ends')
+      : null
   const dates =
-    program.startDate && program.endDate
-      ? `${formatMediumDate(
-          program.startDate,
-          router.locale
-        )} – ${formatMediumDate(
-          program.endDate,
-          router.locale
-        )}`
-      : ''
+    startDate && endDate
+      ? `${startDate} – ${endDate}`
+      : startDate || endDate
+
+  const programDetails = [
+    {
+      label: t('opportunities.deadline'),
+      value: deadline,
+    },
+    {
+      label: dateLabel,
+      value: dates,
+    },
+    {
+      label: t('opportunities.grade_level'),
+      value:
+        typeof program.gradeRangeLow === 'number' &&
+        typeof program.gradeRangeHigh === 'number'
+          ? formatGradeRange(
+              program.gradeRangeLow,
+              program.gradeRangeHigh,
+              t
+            )
+          : null,
+    },
+    {
+      label: t('opportunities.age_range'),
+      value:
+        typeof program.ageRangeLow === 'number' &&
+        typeof program.ageRangeHigh === 'number'
+          ? t('opportunities.ages', {
+              low: program.ageRangeLow,
+              high: program.ageRangeHigh,
+            })
+          : null,
+    },
+    {
+      label: t('opportunities.location'),
+      value: translateOpportunityValue(t, program.location),
+    },
+    {
+      label: t('opportunities.program_type'),
+      value: translateOpportunityEnum(
+        t,
+        PROGRAM_TYPE_KEYS,
+        program.programType
+      ),
+    },
+    {
+      label: t('opportunities.duration'),
+      value: translateOpportunityValue(
+        t,
+        program.durationText
+      ),
+    },
+    {
+      label: t('opportunities.attendance'),
+      value: translateOpportunityEnum(
+        t,
+        ATTENDANCE_KEYS,
+        program.residential
+      ),
+    },
+  ].filter(({ value }) => value)
+  const supportDetails = [
+    {
+      label: t('opportunities.cost'),
+      value: translateOpportunityValue(t, program.cost),
+    },
+    {
+      label: t('opportunities.financial_aid'),
+      value: translateOpportunityValue(
+        t,
+        program.financialAid
+      ),
+    },
+    {
+      label: t('opportunities.stipend'),
+      value: translateOpportunityValue(t, program.stipend),
+    },
+    {
+      label: t('opportunities.contact_program'),
+      value: program.contactEmail ? (
+        <a
+          href={`mailto:${program.contactEmail}`}
+          className={INLINE_LINK}
+        >
+          {program.contactEmail}
+        </a>
+      ) : null,
+    },
+  ].filter(({ value }) => value)
+  const reportOpportunityHref = `mailto:${OPPORTUNITIES_EMAIL}?subject=${encodeURIComponent(
+    t('opportunities.report_email_subject', {
+      name: program.name,
+    })
+  )}`
 
   return (
     <>
@@ -125,64 +292,29 @@ function Program({ program }) {
           {program.about}
         </p>
 
-        <DetailSection>
-          <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <DetailLabel>
-                {t('opportunities.deadline')}
-              </DetailLabel>
-              <dd className="text-foreground mt-1">
-                {deadline}
-              </dd>
-            </div>
-            {dates && (
-              <div>
-                <DetailLabel>
-                  {t('opportunities.dates')}
-                </DetailLabel>
-                <dd className="text-foreground mt-1">
-                  {dates}
-                </dd>
-              </div>
-            )}
-            {program.gradeRangeLow &&
-              program.gradeRangeHigh && (
-                <div>
-                  <DetailLabel>
-                    {t('opportunities.grade_level')}
-                  </DetailLabel>
-                  <dd className="text-foreground mt-1">
-                    {formatGradeRange(
-                      program.gradeRangeLow,
-                      program.gradeRangeHigh,
-                      t
-                    )}
-                  </dd>
-                </div>
-              )}
-            {program.location && (
-              <div>
-                <DetailLabel>
-                  {t('opportunities.location')}
-                </DetailLabel>
-                <dd className="text-foreground mt-1">
-                  {program.location}
-                </dd>
-              </div>
-            )}
-          </dl>
-          {program.eligibilityNotes && (
-            <div className="mt-4">
-              <DetailLabel>
-                {t('opportunities.eligibility')}
-              </DetailLabel>
-              <p className="text-foreground mt-1 text-sm">
-                {program.eligibilityNotes}
-              </p>
-            </div>
-          )}
+        <DetailSection
+          title={t('opportunities.program_details')}
+        >
+          <OpportunityDetails items={programDetails} />
         </DetailSection>
 
+        {program.eligibilityNotes && (
+          <DetailSection
+            title={t('opportunities.eligibility')}
+          >
+            <p className="text-foreground text-pretty leading-relaxed">
+              {program.eligibilityNotes}
+            </p>
+          </DetailSection>
+        )}
+
+        {supportDetails.length > 0 && (
+          <DetailSection
+            title={t('opportunities.costs_and_support')}
+          >
+            <OpportunityDetails items={supportDetails} />
+          </DetailSection>
+        )}
         <Button
           className="mt-8"
           render={
@@ -199,6 +331,27 @@ function Program({ program }) {
             </a>
           }
         />
+
+        <DetailSection
+          title={t('opportunities.report_outdated_title')}
+        >
+          <p className="text-muted-foreground text-pretty leading-relaxed">
+            {t('opportunities.report_outdated_description')}
+          </p>
+          <Button
+            variant="outline"
+            className="mt-5"
+            render={
+              <a href={reportOpportunityHref}>
+                {t('opportunities.report_outdated_action')}
+                <Flag
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
+              </a>
+            }
+          />
+        </DetailSection>
       </DetailMain>
     </>
   )
