@@ -72,6 +72,24 @@ function verifyEmailTemplate({ link }) {
   `)
 }
 
+function newsletterConfirmationTemplate({ link }) {
+  return layout(`
+    <p>Confirm your email address to receive the SciTeens newsletter.</p>
+    ${button(link, 'Confirm subscription')}
+    <p>If you did not request this, you can ignore this email.</p>
+  `)
+}
+
+function newsletterWelcomeTemplate({ unsubscribeUrl }) {
+  return layout(
+    `
+    <p>Your SciTeens newsletter subscription is confirmed.</p>
+    <p>We will send science stories and opportunities to this address.</p>
+  `,
+    { unsubscribeUrl }
+  )
+}
+
 function welcomeTemplate({ displayName, unsubscribeUrl }) {
   return layout(
     `
@@ -122,4 +140,6 @@ module.exports = {
   newFeedbackTemplate,
   upcomingProgramTemplate,
   projectUpdateTemplate,
+  newsletterConfirmationTemplate,
+  newsletterWelcomeTemplate,
 }

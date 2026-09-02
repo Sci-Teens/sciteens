@@ -37,15 +37,151 @@ const {
   newFeedbackTemplate,
   upcomingProgramTemplate,
   projectUpdateTemplate,
+  newsletterConfirmationTemplate,
+  newsletterWelcomeTemplate,
 } = require('./lib/emailTemplates')
 const {
   EMAIL_CATEGORIES,
   EMAIL_CATEGORY_VALUES,
 } = require('./lib/emailCategories')
+const {
+  createNewsletterToken,
+  hashNewsletterValue,
+  isNewsletterSubscriberId,
+  newsletterLocale,
+  normalizeNewsletterEmail,
+  tokensMatch,
+} = require('./lib/newsletter')
 
 // Ceiling on how many addresses one project-invite document may fan
 // out to. firestore.rules enforces the same bound at write time.
 const MAX_PROJECT_INVITES = 10
+
+const NEWSLETTER_SITE_URL = 'https://sciteens.org'
+const NEWSLETTER_FUNCTION_URL =
+  'https://us-central1-directed-relic-266701.cloudfunctions.net/newsletter'
+const NEWSLETTER_ORIGINS = [
+  'https://sciteens.org',
+  'http://localhost:3000',
+]
+const NEWSLETTER_CONFIRMATION_WINDOW = 24 * 60 * 60 * 1000
+const NEWSLETTER_RATE_WINDOW = 15 * 60 * 1000
+const NEWSLETTER_EMAIL_RATE_WINDOW = 60 * 60 * 1000
+
+function newsletterPage(locale, page, status = '') {
+  const prefix = locale === 'en' ? '' : `/${locale}`
+  const url = `${NEWSLETTER_SITE_URL}${prefix}/newsletter/${page}`
+  return status ? `${url}?status=${status}` : url
+}
+
+function newsletterConfirmationLink(
+  subscriber,
+  confirmationToken,
+  unsubscribeToken,
+  locale
+) {
+  const link = newsletterLink(
+    'confirm',
+    subscriber,
+    confirmationToken,
+    locale
+  )
+  return `${link}&unsubscribeToken=${encodeURIComponent(
+    unsubscribeToken
+  )}`
+}
+
+function newsletterUnsubscribePage(
+  locale,
+  subscriber,
+  token
+) {
+  return `${newsletterPage(
+    locale,
+    'unsubscribe'
+  )}?${new URLSearchParams({
+    subscriber,
+    token,
+  }).toString()}`
+}
+
+function newsletterLink(action, subscriber, token, locale) {
+  return `${NEWSLETTER_FUNCTION_URL}?${new URLSearchParams({
+    action,
+    subscriber,
+    token,
+    locale,
+  }).toString()}`
+}
+
+function newsletterRequestIp(req) {
+  const forwarded = req.get('X-Forwarded-For')
+  if (forwarded) return forwarded.split(',')[0].trim()
+  return typeof req.ip === 'string' ? req.ip : ''
+}
+
+async function isNewsletterRateLimited(
+  key,
+  maximum,
+  windowMs
+) {
+  const now = Date.now()
+  const ref = admin
+    .firestore()
+    .collection('newsletter-rate-limits')
+    .doc(key)
+
+  return admin
+    .firestore()
+    .runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(ref)
+      const data = snapshot.exists ? snapshot.data() : {}
+      const startedAt =
+        typeof data.windowStartedAt === 'number'
+          ? data.windowStartedAt
+          : 0
+      const count =
+        typeof data.count === 'number' ? data.count : 0
+
+      if (now - startedAt >= windowMs) {
+        transaction.set(ref, {
+          windowStartedAt: now,
+          count: 1,
+          expiresAt: new Date(now + windowMs),
+          updatedAt:
+            admin.firestore.FieldValue.serverTimestamp(),
+        })
+        return false
+      }
+
+      if (count >= maximum) return true
+
+      transaction.update(ref, {
+        count: count + 1,
+        updatedAt:
+          admin.firestore.FieldValue.serverTimestamp(),
+      })
+      return false
+    })
+}
+
+function setNewsletterCors(req, res) {
+  const origin = req.get('Origin')
+  if (origin && !NEWSLETTER_ORIGINS.includes(origin)) {
+    res
+      .status(403)
+      .json({ ok: false, error: 'invalid_origin' })
+    return false
+  }
+
+  if (origin) {
+    res.set('Access-Control-Allow-Origin', origin)
+    res.set('Vary', 'Origin')
+  }
+  res.set('Access-Control-Allow-Methods', 'POST, OPTIONS')
+  res.set('Access-Control-Allow-Headers', 'Content-Type')
+  return true
+}
 
 // Post to the SciTeens Slack webhook. The webhook URL is stored in
 // the SLACK_WEBHOOK secret (set via
@@ -799,6 +935,323 @@ exports.unsubscribe = functions
     return res
       .status(200)
       .json({ ok: true, category, subscribed })
+  })
+
+exports.newsletter = functions
+  .runWith({
+    secrets: [resendApiKey],
+  })
+  .https.onRequest(async (req, res) => {
+    if (!setNewsletterCors(req, res)) return
+    if (req.method === 'OPTIONS') {
+      return res.status(204).send('')
+    }
+
+    const action =
+      typeof req.query.action === 'string'
+        ? req.query.action
+        : ''
+    const locale = newsletterLocale(req.query.locale)
+
+    if (req.method === 'GET' && action === 'confirm') {
+      const subscriber =
+        typeof req.query.subscriber === 'string'
+          ? req.query.subscriber
+          : ''
+      const token =
+        typeof req.query.token === 'string'
+          ? req.query.token
+          : ''
+      const unsubscribeToken =
+        typeof req.query.unsubscribeToken === 'string'
+          ? req.query.unsubscribeToken
+          : ''
+      if (!isNewsletterSubscriberId(subscriber)) {
+        return res.redirect(
+          303,
+          newsletterPage(locale, 'confirmed', 'invalid')
+        )
+      }
+      const ref = admin
+        .firestore()
+        .collection('newsletter-subscribers')
+        .doc(subscriber)
+      const snapshot = await ref.get()
+      const data = snapshot.exists ? snapshot.data() : null
+      const expiresAt =
+        data?.confirmationExpiresAt?.toMillis?.() || 0
+      const confirmationHash = hashNewsletterValue(token)
+
+      if (
+        data?.status === 'subscribed' &&
+        tokensMatch(
+          data.unsubscribeTokenHash,
+          hashNewsletterValue(unsubscribeToken)
+        )
+      ) {
+        return res.redirect(
+          303,
+          newsletterPage(locale, 'confirmed')
+        )
+      }
+
+      if (
+        !data ||
+        !tokensMatch(
+          data.confirmationTokenHash,
+          confirmationHash
+        ) ||
+        !tokensMatch(
+          data.unsubscribeTokenHash,
+          hashNewsletterValue(unsubscribeToken)
+        ) ||
+        expiresAt < Date.now()
+      ) {
+        return res.redirect(
+          303,
+          newsletterPage(locale, 'confirmed', 'invalid')
+        )
+      }
+
+      if (data.status !== 'subscribed') {
+        await ref.update({
+          status: 'subscribed',
+          confirmedAt:
+            admin.firestore.FieldValue.serverTimestamp(),
+          confirmationTokenHash:
+            admin.firestore.FieldValue.delete(),
+          confirmationExpiresAt:
+            admin.firestore.FieldValue.delete(),
+        })
+        const unsubscribeUrl = newsletterUnsubscribePage(
+          locale,
+          subscriber,
+          unsubscribeToken
+        )
+
+        try {
+          await addContact({
+            email: data.email,
+            categories: [EMAIL_CATEGORIES.GENERAL],
+          })
+          await sendEmail({
+            to: data.email,
+            subject:
+              'Your SciTeens newsletter subscription',
+            html: newsletterWelcomeTemplate({
+              unsubscribeUrl,
+            }),
+            unsubscribeActionUrl: newsletterLink(
+              'unsubscribe',
+              subscriber,
+              unsubscribeToken,
+              locale
+            ),
+          })
+        } catch (err) {
+          console.error(
+            'Newsletter welcome email failed:',
+            err
+          )
+        }
+      }
+
+      return res.redirect(
+        303,
+        newsletterPage(locale, 'confirmed')
+      )
+    }
+
+    if (req.method === 'GET' && action === 'unsubscribe') {
+      const subscriber =
+        typeof req.query.subscriber === 'string'
+          ? req.query.subscriber
+          : ''
+      const token =
+        typeof req.query.token === 'string'
+          ? req.query.token
+          : ''
+      return res.redirect(
+        303,
+        newsletterUnsubscribePage(locale, subscriber, token)
+      )
+    }
+
+    if (req.method !== 'POST') {
+      return res
+        .status(405)
+        .json({ ok: false, error: 'method_not_allowed' })
+    }
+
+    if (action === 'unsubscribe') {
+      const subscriber =
+        typeof req.query.subscriber === 'string'
+          ? req.query.subscriber
+          : ''
+      const token =
+        typeof req.query.token === 'string'
+          ? req.query.token
+          : ''
+      if (!isNewsletterSubscriberId(subscriber)) {
+        return res
+          .status(401)
+          .json({ ok: false, error: 'invalid_token' })
+      }
+      const ref = admin
+        .firestore()
+        .collection('newsletter-subscribers')
+        .doc(subscriber)
+      const snapshot = await ref.get()
+      const data = snapshot.exists ? snapshot.data() : null
+
+      if (
+        !data ||
+        !tokensMatch(
+          data.unsubscribeTokenHash,
+          hashNewsletterValue(token)
+        )
+      ) {
+        return res
+          .status(401)
+          .json({ ok: false, error: 'invalid_token' })
+      }
+
+      await ref.update({
+        status: 'unsubscribed',
+        unsubscribedAt:
+          admin.firestore.FieldValue.serverTimestamp(),
+      })
+      await setResendCategorySubscription({
+        email: data.email,
+        category: EMAIL_CATEGORIES.GENERAL,
+        unsubscribed: true,
+      })
+      return res.status(200).json({ ok: true })
+    }
+
+    const contentLength = req.get('Content-Length')
+    if (
+      contentLength &&
+      (!Number.isSafeInteger(Number(contentLength)) ||
+        Number(contentLength) > 1024)
+    ) {
+      return res
+        .status(413)
+        .json({ ok: false, error: 'payload_too_large' })
+    }
+
+    if (
+      !req.body ||
+      typeof req.body !== 'object' ||
+      Array.isArray(req.body)
+    ) {
+      return res
+        .status(400)
+        .json({ ok: false, error: 'invalid_request' })
+    }
+
+    const email = normalizeNewsletterEmail(req.body.email)
+    if (!email) {
+      return res
+        .status(400)
+        .json({ ok: false, error: 'invalid_email' })
+    }
+    if (
+      typeof req.body.website === 'string' &&
+      req.body.website.length > 0
+    ) {
+      return res.status(202).json({ ok: true })
+    }
+
+    const clientIp = newsletterRequestIp(req)
+    if (!clientIp) {
+      return res
+        .status(400)
+        .json({ ok: false, error: 'invalid_request' })
+    }
+
+    const [ipLimited, emailLimited] = await Promise.all([
+      isNewsletterRateLimited(
+        `ip-${hashNewsletterValue(clientIp)}`,
+        5,
+        NEWSLETTER_RATE_WINDOW
+      ),
+      isNewsletterRateLimited(
+        `email-${hashNewsletterValue(email)}`,
+        3,
+        NEWSLETTER_EMAIL_RATE_WINDOW
+      ),
+    ])
+    if (ipLimited || emailLimited) {
+      return res
+        .status(429)
+        .json({ ok: false, error: 'rate_limited' })
+    }
+
+    const subscriber = hashNewsletterValue(email)
+    const confirmationToken = createNewsletterToken()
+    const unsubscribeToken = createNewsletterToken()
+    const subscriberLocale = newsletterLocale(
+      req.body.locale
+    )
+    const ref = admin
+      .firestore()
+      .collection('newsletter-subscribers')
+      .doc(subscriber)
+    const existing = await ref.get()
+
+    if (
+      existing.exists &&
+      existing.data().status === 'subscribed'
+    ) {
+      return res.status(200).json({ ok: true })
+    }
+
+    await ref.set(
+      {
+        email,
+        status: 'pending',
+        locale: subscriberLocale,
+        confirmationTokenHash: hashNewsletterValue(
+          confirmationToken
+        ),
+        confirmationExpiresAt: new Date(
+          Date.now() + NEWSLETTER_CONFIRMATION_WINDOW
+        ),
+        unsubscribeTokenHash: hashNewsletterValue(
+          unsubscribeToken
+        ),
+        updatedAt:
+          admin.firestore.FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    )
+
+    try {
+      await sendEmail({
+        to: email,
+        subject:
+          'Confirm your SciTeens newsletter subscription',
+        html: newsletterConfirmationTemplate({
+          link: newsletterConfirmationLink(
+            subscriber,
+            confirmationToken,
+            unsubscribeToken,
+            subscriberLocale
+          ),
+        }),
+      })
+    } catch (err) {
+      console.error(
+        'Newsletter confirmation email failed:',
+        err
+      )
+      return res
+        .status(503)
+        .json({ ok: false, error: 'delivery_failed' })
+    }
+
+    return res.status(200).json({ ok: true })
   })
 
 /*

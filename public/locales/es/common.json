@@ -492,7 +492,31 @@
     "terms": "Términos",
     "cookies": "Galletas",
     "language": "IDIOMA",
-    "follow_us": "SÍGANOS"
+    "follow_us": "SÍGANOS",
+    "newsletter_heading": "Manténgase al tanto",
+    "newsletter_description": "Historias y oportunidades científicas, directamente en su bandeja de entrada.",
+    "newsletter_email_label": "Dirección de correo electrónico",
+    "newsletter_placeholder": "usted@ejemplo.org",
+    "newsletter_submit": "Suscribirse",
+    "newsletter_submitting": "Enviando…",
+    "newsletter_confirmation_sent": "Revise su bandeja de entrada para confirmar su suscripción.",
+    "newsletter_error": "Escriba una dirección de correo válida e inténtelo de nuevo.",
+    "newsletter_privacy_prefix": "Al suscribirse, acepta nuestra",
+    "newsletter_privacy_link": "Política de privacidad"
+  },
+  "newsletter": {
+    "confirmed_title": "Su suscripción está confirmada",
+    "confirmed_description": "Recibirá noticias y oportunidades de SciTeens en esta dirección de correo electrónico.",
+    "confirmed_invalid_title": "Este enlace de confirmación ya no es válido",
+    "confirmed_invalid_description": "Escriba su correo electrónico en el pie de página para solicitar otro correo de confirmación.",
+    "unsubscribe_title": "Cancelar la suscripción al boletín",
+    "unsubscribe_description": "¿Desea dejar de recibir el boletín de SciTeens en esta dirección de correo electrónico?",
+    "unsubscribe_submit": "Cancelar la suscripción",
+    "unsubscribe_submitting": "Cancelando la suscripción…",
+    "unsubscribed_title": "Su suscripción se canceló",
+    "unsubscribed_description": "Ya no recibirá el boletín de SciTeens en esta dirección de correo electrónico.",
+    "unsubscribe_invalid_title": "Este enlace para cancelar la suscripción ya no es válido",
+    "unsubscribe_invalid_description": "Use el enlace para cancelar la suscripción en su boletín más reciente de SciTeens."
   },
   "educators": {
     "courses": "Cursos",

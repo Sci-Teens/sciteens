@@ -134,37 +134,49 @@ async function addContact({
   }
 }
 
-// Mirrors a category's subscribed/unsubscribed state into the matching
-// Resend audience. Best-effort — the Firestore write in setSubscription
-// is the source of truth sendEmail() gates on; this just keeps the
-// Resend dashboard accurate for manual broadcasts.
+// Mirrors a category's subscribed/unsubscribed state into its Resend
+// audience. A general unsubscribe also opts the contact out of the legacy
+// all-contacts audience, which can receive manual newsletter broadcasts.
 async function setResendCategorySubscription({
   email,
   category,
   unsubscribed,
 }) {
-  const audienceId = await getOrCreateAudience(category)
-  if (!audienceId) return
-  try {
-    const result = await getResend().contacts.update({
-      audienceId,
-      email,
-      unsubscribed,
-    })
-    if (result.error) {
-      console.log(
-        'resend setResendCategorySubscription error:',
-        category,
-        result.error
-      )
-    }
-  } catch (err) {
-    console.log(
-      'resend setResendCategorySubscription error:',
-      category,
-      err
-    )
+  const categoryAudienceId = await getOrCreateAudience(
+    category
+  )
+  const audienceIds = categoryAudienceId
+    ? [categoryAudienceId]
+    : []
+
+  if (category === 'general') {
+    audienceIds.push(CONTACTS_AUDIENCE_ID)
   }
+
+  await Promise.all(
+    audienceIds.map(async (audienceId) => {
+      try {
+        const result = await getResend().contacts.update({
+          audienceId,
+          email,
+          unsubscribed,
+        })
+        if (result.error) {
+          console.log(
+            'Resend subscription update failed:',
+            category,
+            result.error
+          )
+        }
+      } catch (err) {
+        console.log(
+          'Resend subscription update failed:',
+          category,
+          err
+        )
+      }
+    })
+  )
 }
 
 // Opaque, unguessable per-user token proving an unsubscribe link came

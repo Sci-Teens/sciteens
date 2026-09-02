@@ -15,7 +15,7 @@ import {
 import { useReducedMotion } from '@react-spring/web'
 
 const NOINDEX_PATH =
-  /^\/(?:(?:es|fr|hi)\/)?(?:signin(?:\/|$)|signup(?:\/|$)|unsubscribe(?:\/|$)|project\/create(?:\/|$)|project\/[^/]+\/edit(?:\/|$)|profile\/[^/]+\/edit(?:\/|$))/
+  /^\/(?:(?:es|fr|hi)\/)?(?:signin(?:\/|$)|signup(?:\/|$)|unsubscribe(?:\/|$)|newsletter(?:\/|$)|project\/create(?:\/|$)|project\/[^/]+\/edit(?:\/|$)|profile\/[^/]+\/edit(?:\/|$))/
 
 function getRoutePath(path) {
   return path.split(/[?#]/, 1)[0] || '/'
