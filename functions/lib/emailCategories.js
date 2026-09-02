@@ -2,10 +2,9 @@
 // verification, discussion-reply notifications, "added to a project")
 // are NOT modeled here — CAN-SPAM exempts messages required to complete
 // a transaction the user already initiated, and no reasonable user
-// should be able to silently miss those. Only emails a reasonable
-// person would call "marketing" or "a subscription" go through the
-// category system in resend.js (subscription gating + unsubscribe
-// links + a dedicated Resend audience per category).
+// should be able to silently miss those. These categories remain separate
+// from Resend lists because scheduled program reminders use their own
+// profile-level opt-out.
 const EMAIL_CATEGORIES = {
   GENERAL: 'general',
   PROGRAMS: 'programs',
@@ -15,11 +14,21 @@ const EMAIL_CATEGORY_VALUES = Object.values(
   EMAIL_CATEGORIES
 )
 
-// One Resend audience per category, distinct from the legacy
-// CONTACTS_AUDIENCE_ID all-contacts list in resend.js (kept as-is so
-// existing Resend-side segments/broadcasts built against it don't
-// break). getOrCreateAudience() in resend.js provisions these lazily
-// by name, so no audience id needs to be hardcoded here.
+// Resend keeps account holders and confirmed newsletter readers apart.
+// Only the newsletter confirmation flow may add a contact to NEWSLETTER.
+const CONTACT_AUDIENCES = {
+  TRANSACTIONAL: 'transactional',
+  NEWSLETTER: 'newsletter',
+}
+
+const CONTACT_AUDIENCE_NAMES = {
+  [CONTACT_AUDIENCES.TRANSACTIONAL]:
+    'SciTeens - Transactional',
+  [CONTACT_AUDIENCES.NEWSLETTER]: 'SciTeens - Newsletter',
+}
+
+// Existing preference categories retain their own audiences. They cannot
+// become newsletter membership because their defaults predate double opt-in.
 const CATEGORY_AUDIENCE_NAMES = {
   [EMAIL_CATEGORIES.GENERAL]: 'SciTeens - General',
   [EMAIL_CATEGORIES.PROGRAMS]: 'SciTeens - Programs',
@@ -28,5 +37,7 @@ const CATEGORY_AUDIENCE_NAMES = {
 module.exports = {
   EMAIL_CATEGORIES,
   EMAIL_CATEGORY_VALUES,
+  CONTACT_AUDIENCES,
+  CONTACT_AUDIENCE_NAMES,
   CATEGORY_AUDIENCE_NAMES,
 }

@@ -4,6 +4,7 @@ const { verifyEmailTemplate } = require('./emailTemplates')
 const {
   assertEmailSent,
   buildResendEmailPayload,
+  buildNewsletterBroadcastPayload,
 } = require('./resend')
 
 describe('buildResendEmailPayload', () => {
@@ -22,6 +23,32 @@ describe('buildResendEmailPayload', () => {
       from: 'SciTeens <noreply@sciteens.org>',
       to: 'ada@example.org',
       subject: 'Verify Email',
+      react,
+    })
+  })
+})
+
+describe('buildNewsletterBroadcastPayload', () => {
+  it('targets the newsletter segment and topic with React content', () => {
+    const react = verifyEmailTemplate({
+      link: 'https://sciteens.org/verify?oobCode=abc123',
+    })
+
+    expect(
+      buildNewsletterBroadcastPayload({
+        segmentId: 'segment_123',
+        topicId: 'topic_123',
+        name: 'September 2026',
+        subject: 'September at SciTeens',
+        react,
+        send: false,
+      })
+    ).toEqual({
+      segmentId: 'segment_123',
+      topicId: 'topic_123',
+      from: 'SciTeens <noreply@sciteens.org>',
+      name: 'September 2026',
+      subject: 'September at SciTeens',
       react,
     })
   })

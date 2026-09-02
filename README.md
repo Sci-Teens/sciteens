@@ -51,3 +51,138 @@ If Directed Relic has more than one Instagram channel, set the
 `BUFFER_CHANNEL_ID` secret. The Buffer channel must be connected.
 Set the channel posting schedule in Buffer. The workflow uses that
 queue, so Buffer selects the next configured posting time.
+
+# Monthly newsletter
+
+SciTeens sends the monthly newsletter through Resend Broadcasts.
+The newsletter uses React Email templates in `functions/lib/emailTemplates.js`.
+
+The system uses two Resend segments:
+
+- `SciTeens - Transactional` contains website account contacts.
+- `SciTeens - Newsletter` contains confirmed newsletter subscribers.
+
+The `SciTeens Newsletter` topic controls newsletter consent.
+A newsletter opt-out does not stop transactional email delivery.
+
+## Initial setup
+
+1. Verify the `sciteens.org` sending domain in Resend.
+2. Create a Resend API key that can manage contacts, segments, topics, and broadcasts.
+3. Set the API key as the Firebase `RESEND_APIKEY` secret.
+4. Deploy the Cloud Functions.
+5. Authenticate the local Google Cloud CLI with Application Default Credentials.
+6. Set `RESEND_APIKEY` in the local shell.
+7. Run the contact migration.
+
+```bash
+firebase functions:secrets:set RESEND_APIKEY
+firebase deploy --only functions
+
+export GCP_PROJECT_ID=<gcp-project-id>
+export RESEND_APIKEY=<resend-api-key>
+gcloud auth application-default login
+pnpm newsletter:sync -- --project "$GCP_PROJECT_ID"
+```
+
+The first sync, confirmation, or broadcast that needs them creates the Newsletter segment and topic.
+The first sync moves existing account and confirmed newsletter contacts into their correct segments.
+The first sync creates replacement unsubscribe tokens only for unmarked newsletter subscribers.
+Later syncs update segment and topic membership without token rotation.
+
+## Monthly workflow
+
+Create a JSON file for the issue.
+The file must contain these fields:
+
+- `name`
+- `subject`
+- `preview`
+- `title`
+- `opening`
+- `featuredArticle`
+- `featuredProject`
+
+`opening` is an array of one to three paragraphs.
+Each featured item needs `title`, `description`, and an HTTPS `href`.
+An optional featured image needs `imageUrl` and `imageAlt`.
+
+You can omit `opportunities`.
+When you omit it, the command selects up to six dated opportunities in the next 30 days.
+The query uses the same deadline window as the Instagram post process.
+
+Use this shape when you create a file:
+
+```json
+{
+  "name": "Month Year",
+  "subject": "The subject for this issue",
+  "preview": "The inbox preview text",
+  "title": "The newsletter title",
+  "opening": [
+    "The first opening paragraph.",
+    "The optional second opening paragraph."
+  ],
+  "featuredArticle": {
+    "title": "The article title",
+    "description": "The article description",
+    "href": "https://sciteens.org/article/<slug>"
+  },
+  "featuredProject": {
+    "title": "The project title",
+    "description": "The project description",
+    "href": "https://sciteens.org/project/<slug>"
+  }
+}
+```
+
+First, create an HTML preview.
+
+```bash
+pnpm newsletter:create -- \
+  --input monthly-newsletter.json \
+  --project "$GCP_PROJECT_ID" \
+  --dry-run
+```
+
+The command writes an HTML file beside the JSON file.
+Read the HTML file before you create a Resend draft.
+
+Then create a draft broadcast.
+
+```bash
+pnpm newsletter:create -- \
+  --input monthly-newsletter.json \
+  --project "$GCP_PROJECT_ID"
+```
+
+The command creates a Resend draft by default.
+Review the audience, content, and schedule in Resend.
+
+If the draft is correct, send it now.
+
+```bash
+pnpm newsletter:create -- \
+  --input monthly-newsletter.json \
+  --project "$GCP_PROJECT_ID" \
+  --send
+```
+
+If you need a future send time, add `--scheduled-at`.
+Use an ISO 8601 time and `--send`.
+
+```bash
+pnpm newsletter:create -- \
+  --input monthly-newsletter.json \
+  --project "$GCP_PROJECT_ID" \
+  --send \
+  --scheduled-at 2026-10-01T14:00:00Z
+```
+
+## Agent workflow
+
+Give an agent the JSON field list in this section.
+Ask the agent to use confirmed site content and HTTPS SciTeens URLs.
+Ask the agent to run the dry command first.
+Do not give an agent `RESEND_APIKEY` when it only prepares content.
+Give send access only to an agent that can create broadcasts.

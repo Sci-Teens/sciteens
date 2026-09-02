@@ -1,7 +1,13 @@
 const React = require('react')
+const {
+  normalizeMonthlyNewsletter,
+} = require('./monthlyNewsletter')
 
 const h = React.createElement
 const SITE_URL = 'https://sciteens.org'
+const LOGO_URL = `${SITE_URL}/assets/sciteens-logo-main.png`
+const NEWSLETTER_UNSUBSCRIBE_URL =
+  '{{{contact.properties.newsletter_unsubscribe_url}}}'
 
 const styles = {
   body: {
@@ -38,6 +44,11 @@ const styles = {
     letterSpacing: '-0.3px',
     lineHeight: '28px',
     margin: '0',
+  },
+  brandLogo: {
+    display: 'block',
+    height: '48px',
+    width: '154px',
   },
   contentCell: {
     padding: '32px',
@@ -96,6 +107,84 @@ const styles = {
     overflow: 'hidden',
   },
 }
+styles.newsletterIssue = {
+  color: '#236648',
+  fontSize: '13px',
+  fontWeight: '700',
+  letterSpacing: '0.8px',
+  lineHeight: '18px',
+  margin: '0 0 10px',
+  textTransform: 'uppercase',
+}
+styles.sectionHeading = {
+  color: '#1a1a1a',
+  fontSize: '18px',
+  fontWeight: '700',
+  lineHeight: '24px',
+  margin: '32px 0 12px',
+}
+styles.feature = {
+  backgroundColor: '#f5fff5',
+  border: '1px solid #d9e7dc',
+  borderRadius: '12px',
+  overflow: 'hidden',
+}
+styles.featureCell = {
+  padding: '20px',
+}
+styles.featureImage = {
+  display: 'block',
+  height: 'auto',
+  maxWidth: '100%',
+  width: '100%',
+}
+styles.featureTitle = {
+  color: '#1a1a1a',
+  fontSize: '20px',
+  fontWeight: '700',
+  lineHeight: '26px',
+  margin: '0 0 10px',
+}
+styles.featureText = {
+  color: '#38423b',
+  fontSize: '15px',
+  lineHeight: '22px',
+  margin: '0 0 16px',
+}
+styles.opportunityList = {
+  borderTop: '1px solid #d9e7dc',
+}
+styles.opportunity = {
+  borderBottom: '1px solid #d9e7dc',
+  padding: '16px 0',
+}
+styles.opportunityTitle = {
+  color: '#1a1a1a',
+  fontSize: '16px',
+  fontWeight: '700',
+  lineHeight: '22px',
+  margin: '0 0 6px',
+}
+styles.deadline = {
+  color: '#236648',
+  fontSize: '13px',
+  fontWeight: '700',
+  lineHeight: '18px',
+  margin: '0 0 6px',
+}
+styles.opportunityText = {
+  color: '#526057',
+  fontSize: '14px',
+  lineHeight: '20px',
+  margin: '0 0 8px',
+}
+styles.opportunityLink = {
+  color: '#236648',
+  fontSize: '14px',
+  fontWeight: '700',
+  lineHeight: '20px',
+  textDecoration: 'underline',
+}
 
 function toText(value) {
   return String(value ?? '')
@@ -104,6 +193,7 @@ function toText(value) {
 // React escapes text children. Links still need an explicit scheme policy.
 function safeHref(url) {
   const value = toText(url)
+  if (value === NEWSLETTER_UNSUBSCRIBE_URL) return value
   if (/^https:\/\//i.test(value)) return value
   if (
     /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//i.test(
@@ -191,7 +281,31 @@ function actionButton(href, label) {
   )
 }
 
-function layout({ preview, children, unsubscribeUrl }) {
+function newsletterLogo() {
+  return h(
+    'a',
+    {
+      href: SITE_URL,
+      rel: 'noreferrer',
+      target: '_blank',
+    },
+    h('img', {
+      alt: 'SciTeens',
+      height: '48',
+      src: LOGO_URL,
+      style: styles.brandLogo,
+      width: '154',
+    })
+  )
+}
+
+function layout({
+  preview,
+  children,
+  unsubscribeUrl,
+  unsubscribeText,
+  headerContent,
+}) {
   return h(
     'html',
     { dir: 'ltr', lang: 'en' },
@@ -221,11 +335,9 @@ function layout({ preview, children, unsubscribeUrl }) {
             emailTable({
               style: styles.header,
               cellStyle: styles.headerCell,
-              children: h(
-                'p',
-                { style: styles.brand },
-                'SciTeens'
-              ),
+              children:
+                headerContent ||
+                h('p', { style: styles.brand }, 'SciTeens'),
             }),
             emailTable({
               cellStyle: styles.contentCell,
@@ -247,11 +359,20 @@ function layout({ preview, children, unsubscribeUrl }) {
                   ? h(
                       'p',
                       { style: styles.footerText },
-                      emailLink(
-                        unsubscribeUrl,
-                        'Unsubscribe'
-                      ),
-                      ' or manage your email preferences.'
+                      unsubscribeText
+                        ? emailLink(
+                            unsubscribeUrl,
+                            unsubscribeText
+                          )
+                        : h(
+                            React.Fragment,
+                            null,
+                            emailLink(
+                              unsubscribeUrl,
+                              'Unsubscribe'
+                            ),
+                            ' or manage your email preferences.'
+                          )
                     )
                   : null
               ),
@@ -394,6 +515,142 @@ function projectUpdateTemplate({
   })
 }
 
+function newsletterFeature({
+  key,
+  label,
+  feature,
+  actionLabel,
+}) {
+  return h(
+    React.Fragment,
+    { key },
+    h('h2', { style: styles.sectionHeading }, label),
+    emailTable({
+      style: styles.feature,
+      cellStyle: styles.featureCell,
+      children: h(
+        React.Fragment,
+        null,
+        feature.imageUrl
+          ? h('img', {
+              alt: feature.imageAlt,
+              src: safeHref(feature.imageUrl),
+              style: styles.featureImage,
+            })
+          : null,
+        h(
+          'h3',
+          { style: styles.featureTitle },
+          feature.title
+        ),
+        h(
+          'p',
+          { style: styles.featureText },
+          feature.description
+        ),
+        actionButton(feature.href, actionLabel)
+      ),
+    })
+  )
+}
+
+function newsletterOpportunity(item, index) {
+  return h(
+    'div',
+    {
+      key: `opportunity-${index}`,
+      style: styles.opportunity,
+    },
+    h('h3', { style: styles.opportunityTitle }, item.title),
+    h(
+      'p',
+      { style: styles.deadline },
+      `Deadline: ${item.deadline}`
+    ),
+    h(
+      'p',
+      { style: styles.opportunityText },
+      item.description
+    ),
+    h(
+      'a',
+      {
+        href: safeHref(item.href),
+        rel: 'noreferrer',
+        style: styles.opportunityLink,
+        target: '_blank',
+      },
+      'View opportunity'
+    )
+  )
+}
+
+function monthlyNewsletterTemplate(value) {
+  const newsletter = normalizeMonthlyNewsletter(value)
+  return layout({
+    preview: newsletter.preview,
+    unsubscribeUrl: NEWSLETTER_UNSUBSCRIBE_URL,
+    unsubscribeText: 'Unsubscribe from this newsletter.',
+    headerContent: newsletterLogo(),
+    children: [
+      h(
+        'p',
+        {
+          key: 'issue',
+          style: styles.newsletterIssue,
+        },
+        newsletter.name
+      ),
+      h(
+        'h1',
+        {
+          key: 'heading',
+          style: styles.heading,
+        },
+        newsletter.title
+      ),
+      ...newsletter.opening.map((paragraph, index) =>
+        h(
+          'p',
+          {
+            key: `opening-${index}`,
+            style: styles.text,
+          },
+          paragraph
+        )
+      ),
+      newsletterFeature({
+        key: 'article',
+        label: 'Featured article',
+        feature: newsletter.featuredArticle,
+        actionLabel: 'Read article',
+      }),
+      newsletterFeature({
+        key: 'project',
+        label: 'Featured project',
+        feature: newsletter.featuredProject,
+        actionLabel: 'View project',
+      }),
+      h(
+        'h2',
+        {
+          key: 'opportunities-heading',
+          style: styles.sectionHeading,
+        },
+        'Opportunities closing soon'
+      ),
+      h(
+        'div',
+        {
+          key: 'opportunities',
+          style: styles.opportunityList,
+        },
+        newsletter.opportunities.map(newsletterOpportunity)
+      ),
+    ],
+  })
+}
+
 module.exports = {
   verifyEmailTemplate,
   welcomeTemplate,
@@ -402,4 +659,5 @@ module.exports = {
   projectUpdateTemplate,
   newsletterConfirmationTemplate,
   newsletterWelcomeTemplate,
+  monthlyNewsletterTemplate,
 }

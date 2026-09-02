@@ -101,7 +101,9 @@ describe('React email templates', () => {
       })
     )
 
-    expect(html).not.toContain('<img')
+    expect(html).not.toContain(
+      '<img src=x onerror=alert(1)>'
+    )
     expect(html).toContain(
       '&lt;img src=x onerror=alert(1)&gt;'
     )

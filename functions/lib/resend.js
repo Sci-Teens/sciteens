@@ -5,8 +5,9 @@ const {
 const admin = require('firebase-admin')
 const crypto = require('node:crypto')
 const {
-  EMAIL_CATEGORY_VALUES,
   CATEGORY_AUDIENCE_NAMES,
+  CONTACT_AUDIENCES,
+  CONTACT_AUDIENCE_NAMES,
 } = require('./emailCategories')
 
 // functions.config() was removed in firebase-functions v7, so credentials
@@ -23,10 +24,8 @@ function getResend() {
   return resendClient
 }
 
-// Legacy single Resend audience holding every contact, regardless of
-// category. Kept alongside the per-category audiences below (added in
-// addContact) so any existing Resend-side segments/broadcasts built
-// against this id keep working.
+// Preserve the existing general unsubscribe target for already delivered
+// emails. New contacts use the Transactional or Newsletter segment.
 const CONTACTS_AUDIENCE_ID =
   '8c384f39-b01c-4cc8-a97e-1c9660c85225'
 
@@ -39,29 +38,44 @@ const SITE_URL = 'https://sciteens.org'
 const FUNCTIONS_BASE_URL =
   'https://us-central1-directed-relic-266701.cloudfunctions.net'
 
-// category -> Resend audience id, populated lazily so no audience uuid
-// needs to be hardcoded/pre-created by hand.
+// Existing preference categories use legacy Resend audiences.
 const audienceIdCache = new Map()
 
-// Best-effort: finds (or creates) the Resend audience for a category.
-// Never throws — a Resend outage must not block Firestore-gated sends.
-async function getOrCreateAudience(category) {
+// New contact lists use Resend segments. Broadcasts require a segment id.
+const segmentIdCache = new Map()
+let newsletterTopicId
+
+const NEWSLETTER_TOPIC = {
+  name: 'SciTeens Newsletter',
+  description:
+    'Monthly SciTeens stories, projects, and opportunities.',
+}
+
+function resultData(result) {
+  return result?.data?.data || result?.data || []
+}
+
+// Best-effort: finds (or creates) the legacy audience used by a preference
+// category. Never throws because contact syncing must not block its trigger.
+async function getOrCreateAudience(
+  category,
+  resend = getResend()
+) {
   if (audienceIdCache.has(category)) {
     return audienceIdCache.get(category)
   }
   const name = CATEGORY_AUDIENCE_NAMES[category]
   if (!name) return null
   try {
-    const list = await getResend().audiences.list()
-    const audiences = list?.data?.data || list?.data || []
-    const found = audiences.find((a) => a.name === name)
+    const list = await resend.audiences.list()
+    const found = resultData(list).find(
+      (item) => item.name === name
+    )
     if (found) {
       audienceIdCache.set(category, found.id)
       return found.id
     }
-    const created = await getResend().audiences.create({
-      name,
-    })
+    const created = await resend.audiences.create({ name })
     if (created.error || !created.data) {
       console.log(
         'resend getOrCreateAudience error:',
@@ -82,55 +96,258 @@ async function getOrCreateAudience(category) {
   }
 }
 
-// Adds (or upserts) a contact to the all-contacts audience, plus every
-// category audience listed in `categories` (defaults to all of them —
-// every user starts subscribed to everything until they unsubscribe,
-// matching profiles/{uid}.emailSubscriptions' default). Never throws on
-// failure — email delivery/list membership is best-effort and must not
-// block the write that triggered it.
-async function addContact({
-  email,
-  firstName,
-  lastName,
-  categories = EMAIL_CATEGORY_VALUES,
-}) {
+async function getOrCreateSegment(
+  audience,
+  resend = getResend()
+) {
+  if (segmentIdCache.has(audience)) {
+    return segmentIdCache.get(audience)
+  }
+  const name = CONTACT_AUDIENCE_NAMES[audience]
+  if (!name) return null
   try {
-    const result = await getResend().contacts.create({
-      audienceId: CONTACTS_AUDIENCE_ID,
+    const list = await resend.segments.list()
+    const found = resultData(list).find(
+      (item) => item.name === name
+    )
+    if (found) {
+      segmentIdCache.set(audience, found.id)
+      return found.id
+    }
+    const created = await resend.segments.create({ name })
+    if (created.error || !created.data) {
+      console.log(
+        'resend getOrCreateSegment error:',
+        audience,
+        created.error
+      )
+      return null
+    }
+    segmentIdCache.set(audience, created.data.id)
+    return created.data.id
+  } catch (err) {
+    console.log(
+      'resend getOrCreateSegment error:',
+      audience,
+      err
+    )
+    return null
+  }
+}
+
+async function getOrCreateNewsletterTopic(
+  resend = getResend()
+) {
+  if (newsletterTopicId) return newsletterTopicId
+  try {
+    const list = await resend.topics.list()
+    const found = resultData(list).find(
+      (item) => item.name === NEWSLETTER_TOPIC.name
+    )
+    if (found) {
+      newsletterTopicId = found.id
+      return newsletterTopicId
+    }
+    const created = await resend.topics.create({
+      name: NEWSLETTER_TOPIC.name,
+      description: NEWSLETTER_TOPIC.description,
+      defaultSubscription: 'opt_out',
+      visibility: 'private',
+    })
+    if (created.error || !created.data) {
+      console.log(
+        'resend getOrCreateNewsletterTopic error:',
+        created.error
+      )
+      return null
+    }
+    newsletterTopicId = created.data.id
+    return newsletterTopicId
+  } catch (err) {
+    console.log(
+      'resend getOrCreateNewsletterTopic error:',
+      err
+    )
+    return null
+  }
+}
+
+async function ensureContact(
+  { email, firstName, lastName, properties },
+  resend
+) {
+  try {
+    const existing = await resend.contacts.get({ email })
+    if (existing.data) {
+      const changes = {
+        email,
+        ...(firstName && { firstName }),
+        ...(lastName && { lastName }),
+        ...(properties && { properties }),
+      }
+      if (Object.keys(changes).length > 1) {
+        const updated = await resend.contacts.update(
+          changes
+        )
+        if (updated.error) {
+          console.log(
+            'Resend contact update failed:',
+            updated.error
+          )
+          return false
+        }
+      }
+      return true
+    }
+
+    const created = await resend.contacts.create({
       email,
       firstName,
       lastName,
-      unsubscribed: false,
+      properties,
+    })
+    if (created.error) {
+      console.log(
+        'Resend contact creation failed:',
+        created.error
+      )
+      return false
+    }
+    return true
+  } catch (err) {
+    console.log('Resend contact creation failed:', err)
+    return false
+  }
+}
+
+async function addContactToSegment(
+  contact,
+  audience,
+  resend = getResend()
+) {
+  const segmentId = await getOrCreateSegment(
+    audience,
+    resend
+  )
+  if (!segmentId) return false
+  if (!(await ensureContact(contact, resend))) return false
+  try {
+    const memberships = await resend.contacts.segments.list(
+      {
+        email: contact.email,
+      }
+    )
+    if (
+      !memberships.error &&
+      resultData(memberships).some(
+        (segment) => segment.id === segmentId
+      )
+    ) {
+      return true
+    }
+    const result = await resend.contacts.segments.add({
+      email: contact.email,
+      segmentId,
     })
     if (result.error) {
-      console.log('resend addContact error:', result.error)
+      console.log(
+        'Resend segment membership update failed:',
+        audience,
+        result.error
+      )
+      return false
     }
-    await Promise.all(
-      categories.map(async (category) => {
-        const audienceId = await getOrCreateAudience(
-          category
-        )
-        if (!audienceId) return
-        const categoryResult =
-          await getResend().contacts.create({
-            audienceId,
-            email,
-            firstName,
-            lastName,
-            unsubscribed: false,
-          })
-        if (categoryResult.error) {
-          console.log(
-            'resend addContact category error:',
-            category,
-            categoryResult.error
-          )
-        }
-      })
-    )
-    return result
+    return true
   } catch (err) {
-    console.log('resend addContact error:', err)
+    console.log(
+      'Resend segment membership update failed:',
+      audience,
+      err
+    )
+    return false
+  }
+}
+
+function addTransactionalContact(
+  contact,
+  resend = getResend()
+) {
+  return addContactToSegment(
+    contact,
+    CONTACT_AUDIENCES.TRANSACTIONAL,
+    resend
+  )
+}
+
+async function addNewsletterContact(
+  contact,
+  resend = getResend()
+) {
+  const [joinedSegment, topicId] = await Promise.all([
+    addContactToSegment(
+      contact,
+      CONTACT_AUDIENCES.NEWSLETTER,
+      resend
+    ),
+    getOrCreateNewsletterTopic(resend),
+  ])
+  if (!joinedSegment || !topicId) return false
+  try {
+    const result = await resend.contacts.topics.update({
+      email: contact.email,
+      topics: [{ id: topicId, subscription: 'opt_in' }],
+    })
+    if (result.error) {
+      console.log(
+        'Resend newsletter topic update failed:',
+        result.error
+      )
+      return false
+    }
+    return true
+  } catch (err) {
+    console.log(
+      'Resend newsletter topic update failed:',
+      err
+    )
+    return false
+  }
+}
+
+async function setNewsletterContactSubscription({
+  email,
+  unsubscribed,
+}) {
+  const topicId = await getOrCreateNewsletterTopic()
+  if (!topicId) return false
+  try {
+    const result = await getResend().contacts.topics.update(
+      {
+        email,
+        topics: [
+          {
+            id: topicId,
+            subscription: unsubscribed
+              ? 'opt_out'
+              : 'opt_in',
+          },
+        ],
+      }
+    )
+    if (result.error) {
+      console.log(
+        'Resend newsletter topic update failed:',
+        result.error
+      )
+      return false
+    }
+    return true
+  } catch (err) {
+    console.log(
+      'Resend newsletter topic update failed:',
+      err
+    )
+    return false
   }
 }
 
@@ -348,12 +565,88 @@ async function sendEmail({
   return assertEmailSent(result)
 }
 
+function buildNewsletterBroadcastPayload({
+  segmentId,
+  topicId,
+  name,
+  subject,
+  react,
+  send,
+  scheduledAt,
+}) {
+  return {
+    segmentId,
+    topicId,
+    from: FROM,
+    name,
+    subject,
+    react,
+    ...(send && { send: true }),
+    ...(scheduledAt && { scheduledAt }),
+  }
+}
+
+function assertBroadcastCreated(result) {
+  if (result.error) {
+    console.error(
+      'Resend newsletter broadcast error:',
+      result.error
+    )
+    throw new Error(
+      `Resend rejected the newsletter broadcast: ${
+        result.error.message || 'unknown error'
+      }`
+    )
+  }
+  return result
+}
+
+async function createNewsletterBroadcast({
+  apiKey,
+  name,
+  subject,
+  react,
+  send = false,
+  scheduledAt,
+}) {
+  const resend = new Resend(apiKey)
+  const [segmentId, topicId] = await Promise.all([
+    getOrCreateSegment(
+      CONTACT_AUDIENCES.NEWSLETTER,
+      resend
+    ),
+    getOrCreateNewsletterTopic(resend),
+  ])
+  if (!segmentId || !topicId) {
+    throw new Error(
+      'Resend newsletter list is unavailable.'
+    )
+  }
+  const result = await resend.broadcasts.create(
+    buildNewsletterBroadcastPayload({
+      segmentId,
+      topicId,
+      name,
+      subject,
+      react,
+      send,
+      scheduledAt,
+    })
+  )
+  return assertBroadcastCreated(result)
+}
+
 module.exports = {
   resendApiKey,
   sendEmail,
   assertEmailSent,
   buildResendEmailPayload,
-  addContact,
+  addTransactionalContact,
+  addNewsletterContact,
+  setNewsletterContactSubscription,
+  createNewsletterBroadcast,
+  assertBroadcastCreated,
+  buildNewsletterBroadcastPayload,
   CONTACTS_AUDIENCE_ID,
   buildUnsubscribeLinks,
   verifyUnsubscribeToken,

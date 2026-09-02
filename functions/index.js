@@ -24,12 +24,14 @@ const vision = require('@google-cloud/vision')
 const {
   resendApiKey,
   sendEmail,
-  addContact,
+  addTransactionalContact,
+  addNewsletterContact,
   buildUnsubscribeLinks,
   verifyUnsubscribeToken,
   getSubscriptions,
   setSubscription,
   setResendCategorySubscription,
+  setNewsletterContactSubscription,
 } = require('./lib/resend')
 const {
   verifyEmailTemplate,
@@ -48,6 +50,7 @@ const {
   createNewsletterToken,
   hashNewsletterValue,
   isNewsletterSubscriberId,
+  matchesNewsletterUnsubscribeToken,
   newsletterLocale,
   normalizeNewsletterEmail,
   tokensMatch,
@@ -531,7 +534,7 @@ exports.newUser = functions
       return 'Success!'
     }
 
-    await addContact({
+    await addTransactionalContact({
       email: user.email,
       firstName,
       lastName: rest.join(' '),
@@ -1014,26 +1017,50 @@ exports.newsletter = functions
       }
 
       if (data.status !== 'subscribed') {
-        await ref.update({
-          status: 'subscribed',
-          confirmedAt:
-            admin.firestore.FieldValue.serverTimestamp(),
-          confirmationTokenHash:
-            admin.firestore.FieldValue.delete(),
-          confirmationExpiresAt:
-            admin.firestore.FieldValue.delete(),
-        })
         const unsubscribeUrl = newsletterUnsubscribePage(
           locale,
           subscriber,
           unsubscribeToken
         )
+        try {
+          const contactAdded = await addNewsletterContact({
+            email: data.email,
+            properties: {
+              newsletter_unsubscribe_url: unsubscribeUrl,
+            },
+          })
+          if (!contactAdded) {
+            throw new Error(
+              'Newsletter contact setup failed.'
+            )
+          }
+          await ref.update({
+            status: 'subscribed',
+            confirmedAt:
+              admin.firestore.FieldValue.serverTimestamp(),
+            confirmationTokenHash:
+              admin.firestore.FieldValue.delete(),
+            confirmationExpiresAt:
+              admin.firestore.FieldValue.delete(),
+            resendNewsletterSyncedAt:
+              admin.firestore.FieldValue.serverTimestamp(),
+          })
+        } catch (err) {
+          console.error(
+            'Newsletter contact setup failed:',
+            err
+          )
+          return res.redirect(
+            303,
+            newsletterPage(
+              locale,
+              'confirmed',
+              'delivery_failed'
+            )
+          )
+        }
 
         try {
-          await addContact({
-            email: data.email,
-            categories: [EMAIL_CATEGORIES.GENERAL],
-          })
           await sendEmail({
             to: data.email,
             subject:
@@ -1104,13 +1131,7 @@ exports.newsletter = functions
       const snapshot = await ref.get()
       const data = snapshot.exists ? snapshot.data() : null
 
-      if (
-        !data ||
-        !tokensMatch(
-          data.unsubscribeTokenHash,
-          hashNewsletterValue(token)
-        )
-      ) {
+      if (!matchesNewsletterUnsubscribeToken(data, token)) {
         return res
           .status(401)
           .json({ ok: false, error: 'invalid_token' })
@@ -1121,9 +1142,8 @@ exports.newsletter = functions
         unsubscribedAt:
           admin.firestore.FieldValue.serverTimestamp(),
       })
-      await setResendCategorySubscription({
+      await setNewsletterContactSubscription({
         email: data.email,
-        category: EMAIL_CATEGORIES.GENERAL,
         unsubscribed: true,
       })
       return res.status(200).json({ ok: true })
