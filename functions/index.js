@@ -458,7 +458,7 @@ async function sendNewUserEmails(user) {
     to: user.email,
     toName: user.displayName || user.email,
     subject: 'Verify Email',
-    html: verifyEmailTemplate({ link: verificationLink }),
+    react: verifyEmailTemplate({ link: verificationLink }),
   }
 
   const {
@@ -472,7 +472,7 @@ async function sendNewUserEmails(user) {
     to: user.email,
     toName: user.displayName || user.email,
     subject: 'Welcome to SciTeens!',
-    html: welcomeTemplate({
+    react: welcomeTemplate({
       displayName: user.displayName,
       unsubscribeUrl: welcomeUnsubscribeUrl,
     }),
@@ -734,7 +734,7 @@ exports.newDiscussion = functions
         to: originalUser.email,
         toName: originalUser.displayName,
         subject: 'New Feedback',
-        html: newFeedbackTemplate({
+        react: newFeedbackTemplate({
           studentOrMentor:
             user.customClaims && user.customClaims['mentor']
               ? 'mentor'
@@ -795,7 +795,7 @@ exports.scheduledProgramEmailer = functions
                     ? user.displayName
                     : user.email,
                   subject: 'Upcoming Program Application',
-                  html: upcomingProgramTemplate({
+                  react: upcomingProgramTemplate({
                     link,
                     unsubscribeUrl,
                   }),
@@ -1038,7 +1038,7 @@ exports.newsletter = functions
             to: data.email,
             subject:
               'Your SciTeens newsletter subscription',
-            html: newsletterWelcomeTemplate({
+            react: newsletterWelcomeTemplate({
               unsubscribeUrl,
             }),
             unsubscribeActionUrl: newsletterLink(
@@ -1232,7 +1232,7 @@ exports.newsletter = functions
         to: email,
         subject:
           'Confirm your SciTeens newsletter subscription',
-        html: newsletterConfirmationTemplate({
+        react: newsletterConfirmationTemplate({
           link: newsletterConfirmationLink(
             subscriber,
             confirmationToken,
@@ -1627,7 +1627,7 @@ exports.newProjectInvite = functions
       sendEmail({
         to: email,
         subject: 'Project Update',
-        html: projectUpdateTemplate({
+        react: projectUpdateTemplate({
           projectName: title,
           projectLink:
             'https://sciteens.org/project/' + event.id,
