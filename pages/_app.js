@@ -5,6 +5,8 @@ import { AuthProvider } from '../context/AuthContext'
 import { useState, useEffect } from 'react'
 import { fontVariables } from '../lib/fonts'
 import Head from 'next/head'
+import { getCanonicalUrl } from '../lib/ogImage'
+import { useRouter } from 'next/router'
 import { appWithTranslation } from 'next-i18next'
 import {
   QueryClient,
@@ -12,7 +14,17 @@ import {
 } from '@tanstack/react-query'
 import { useReducedMotion } from '@react-spring/web'
 
+const NOINDEX_PATH =
+  /^\/(?:(?:es|fr|hi)\/)?(?:signin(?:\/|$)|signup(?:\/|$)|unsubscribe(?:\/|$)|project\/create(?:\/|$)|project\/[^/]+\/edit(?:\/|$)|profile\/[^/]+\/edit(?:\/|$))/
+
+function getRoutePath(path) {
+  return path.split(/[?#]/, 1)[0] || '/'
+}
+
 function MyApp({ Component, pageProps }) {
+  const router = useRouter()
+  const routePath = getRoutePath(router.asPath)
+  const noindex = NOINDEX_PATH.test(routePath)
   // Flips react-spring's global skipAnimation once for the whole app, so
   // every spring on every route snaps to its end state for visitors who
   // asked for reduced motion.
@@ -64,6 +76,18 @@ function MyApp({ Component, pageProps }) {
     >
       <Head>
         <title>Welcome to SciTeens</title>
+        <link
+          key="canonical"
+          rel="canonical"
+          href={getCanonicalUrl(routePath)}
+        />
+        {noindex && (
+          <meta
+            key="robots"
+            name="robots"
+            content="noindex, nofollow"
+          />
+        )}
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <QueryClientProvider client={queryClient}>

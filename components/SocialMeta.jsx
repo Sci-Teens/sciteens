@@ -1,5 +1,8 @@
 import Head from 'next/head'
-import { getOgImageUrl, SITE_URL } from '@/lib/ogImage'
+import {
+  getCanonicalUrl,
+  getOgImageUrl,
+} from '@/lib/ogImage'
 
 // Consistent, correct social meta tags (title/description, Open Graph,
 // Twitter Card) for every page, backed by the dynamically generated
@@ -21,7 +24,7 @@ export default function SocialMeta({
     eyebrow,
     badge,
   })
-  const url = path ? `${SITE_URL}${path}` : undefined
+  const url = path ? getCanonicalUrl(path) : undefined
 
   return (
     <Head>
@@ -33,7 +36,6 @@ export default function SocialMeta({
       {keywords && (
         <meta name="keywords" content={keywords} />
       )}
-      {url && <link rel="canonical" href={url} />}
       {url && <meta property="og:url" content={url} />}
       <meta property="og:site_name" content="SciTeens" />
       <meta property="og:type" content={type} />
