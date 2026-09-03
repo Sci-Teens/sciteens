@@ -1,14 +1,13 @@
 # Meilisearch on Cloud Run
 
 Terraform module that provisions a self-hosted [Meilisearch](https://www.meilisearch.com/)
-instance on Cloud Run to replace the Algolia Firebase Extension for searching
-the `projects` Firestore collection (courses/programs are out of scope for
-now). Modeled on
-[blog.simonireilly.com/posts/serverless-search](https://blog.simonireilly.com/posts/serverless-search/),
-with one change: instead of baking a dump into the Docker image at build
-time (fine for a static blog), this module wires Meilisearch to a live
-GCS-bucket-backed snapshot, since `projects` documents change continuously
-via user activity.
+instance on Cloud Run. It replaces the Algolia Firebase Extension for project
+search and adds search for student opportunities.
+
+The design is based on
+[blog.simonireilly.com/posts/serverless-search](https://blog.simonireilly.com/posts/serverless-search/).
+This module uses a live GCS-backed snapshot because both indexes change after
+the container image is built.
 
 This module only provisions infrastructure. It does not create the GCP
 project, does not build/push the container image, and does not touch the
@@ -18,7 +17,14 @@ those are owned elsewhere in the repo (`cloud-build.yaml`, `functions/`,
 
 ## Prerequisites
 
-An existing GCP project with billing enabled. Enable the required APIs:
+Production uses `directed-relic-266701`. Set the project before you run the
+commands in this guide:
+
+```sh
+export PROJECT_ID=directed-relic-266701
+```
+
+Enable the required APIs:
 
 ```sh
 gcloud services enable \
@@ -62,56 +68,72 @@ below for how requests to the resulting `run.app` URL are authenticated.
 
 ## One-time manual steps (not managed by Terraform)
 
-**1. Set the secret values.** Terraform creates the Secret Manager secret
-containers (`meilisearch-master-key`, `meilisearch-search-key`) empty by
-default, so secret material never lands in Terraform state. Populate them
-once, out-of-band:
+**1. Set both master-key secrets.** Terraform creates
+`meilisearch-master-key` for the Meilisearch service. Firebase Functions use
+the separate `MEILI_MASTER_KEY` secret.
+
+Generate one value and add it to the Meilisearch secret:
 
 ```sh
-# Generate a master key, e.g.: openssl rand -base64 48
-echo -n "$MEILI_MASTER_KEY" | gcloud secrets versions add meilisearch-master-key --data-file=- --project "$PROJECT_ID"
-echo -n "$MEILI_SEARCH_KEY" | gcloud secrets versions add meilisearch-search-key --data-file=- --project "$PROJECT_ID"
+# Generate a master key, for example: openssl rand -base64 48
+printf '%s' "$MEILI_MASTER_KEY" | gcloud secrets versions add meilisearch-master-key --data-file=- --project "$PROJECT_ID"
 ```
 
-`echo -n` matters — a trailing newline in the secret value silently becomes
-part of the key and nothing will ever authenticate correctly against it.
-Prefer `printf '%s' "$KEY" | gcloud secrets versions add ...` if there's any
-doubt about your shell's `echo` behavior.
+Run `firebase functions:secrets:set MEILI_MASTER_KEY --project "$PROJECT_ID"`.
+At the prompt, enter the same value. This command creates or rotates the
+function secret in the selected project.
 
-(If you instead pass `-var meili_master_key=...` / `-var meili_search_key=...`
-to `terraform apply`, Terraform will create the first secret version for you
-— accept the tradeoff that the value then lives in Terraform state.)
+Do not add a newline to either value. A newline becomes part of the key and
+causes authentication to fail.
 
-The first time you set `meilisearch-master-key`, force a new Cloud Run
-revision so the container picks up the secret-backed env var — Terraform's
-own apply won't do this automatically if only the secret _version_ changed
-underneath an otherwise-unchanged service spec:
+Create new Meilisearch and function revisions after the secret updates:
 
 ```sh
 gcloud run services update meilisearch --region "$REGION" --project "$PROJECT_ID" \
   --update-labels=redeploy="$(date +%s)"
+firebase deploy --project "$PROJECT_ID" \
+  --only functions:newProject,functions:updateProject,functions:deleteProject,functions:syncOpportunitySearch
 ```
 
-**2. Bootstrap the index.** Once the master key is set and the service is
-running, populate the Meilisearch `projects` index from Firestore using
-`scripts/setup-meilisearch.js` (owned separately in this repo). That script
-is also the intended place to mint a scoped, search-only API key (Meilisearch
-`POST /keys` with `actions: ["search"]`, `indexes: ["projects"]`) for
-client-side/read-only callers, separate from the all-powerful master key.
+The next step creates the search-only key. You can seed the lowercase master
+secret through Terraform, but that option puts the value in Terraform state.
 
-**3. Backfill after an indexer change.** The Firestore triggers in
-`functions/index.js` only reach a project when it is written, so a change to
-`functions/search.js#toSearchDocument` leaves every untouched project on the
-old shape. `scripts/reindex-meilisearch.js` re-applies the index settings and
-re-pushes every project (dry run by default, `--execute` to write).
+**2. Bootstrap the indexes.** After the service starts, run
+`scripts/setup-meilisearch.js`. The script creates the `projects` and
+`opportunities` indexes and applies their settings.
+
+The script also prints a search-only key for both indexes. Copy the printed
+value into a shell variable, then add it to the website secret:
+
+```sh
+MEILI_SEARCH_KEY='<value printed by setup-meilisearch.js>'
+printf '%s' "$MEILI_SEARCH_KEY" | gcloud secrets versions add meilisearch-search-key --data-file=- --project "$PROJECT_ID"
+gcloud run services update website --region "$REGION" --project "$PROJECT_ID" \
+  --update-secrets=MEILI_SEARCH_KEY=meilisearch-search-key:latest
+```
+
+The Cloud Run update creates a website revision that uses the new secret
+version. Do not give the master key or the search key to the browser.
+
+**3. Backfill after an indexer change.** The Firestore triggers only index a
+document when it changes. Run the reindex script after a mapper or settings
+change:
+
+```sh
+node scripts/reindex-meilisearch.js --execute
+# Or backfill one index.
+node scripts/reindex-meilisearch.js --execute --index opportunities
+```
 
 ## Relevance tuning
 
-Index-side relevance lives in `scripts/lib/meilisearchIndexSettings.js`; the
-query-side half (highlighting, the relevance floor, sort mapping) lives in
-`lib/search.js`. Neither is tuned by taste. Both are measured by
-`scripts/eval-meilisearch-relevance.js` against the fixture corpus and query
-battery in `scripts/lib/relevanceBattery.js`:
+Index settings for both indexes live in
+`scripts/lib/meilisearchIndexSettings.js`. Project query settings live in
+`lib/search.js`. Opportunity query settings live in
+`lib/opportunitySearch.js`.
+
+Measure project relevance with `scripts/eval-meilisearch-relevance.js` and
+the fixtures in `scripts/lib/relevanceBattery.js`:
 
 ```sh
 docker run --rm -p 7701:7700 -e MEILI_MASTER_KEY=devkey \
@@ -194,10 +216,12 @@ Meilisearch's own auth — a valid `MEILI_MASTER_KEY` (full read/write) or a
 scoped search-only key minted post-deploy — or it gets a `401` from the
 application itself, not a `403` from Cloud Run's edge.
 
-Treat `MEILI_MASTER_KEY` with the same care as any other production secret:
-it is the _only_ thing standing between the public internet and write access
-to the `projects` index. Prefer distributing the scoped search-only key (not
-the master key) to any client-side/browser code.
+Treat `MEILI_MASTER_KEY` as a production secret. It permits writes to both
+indexes. Only setup scripts, reindex scripts, and Cloud Functions can receive
+it.
+
+The website API routes use the scoped `MEILI_SEARCH_KEY`. The browser receives
+search results, but it never receives either key.
 
 ## Cost rationale
 
@@ -210,11 +234,9 @@ acceptable here because Meilisearch never accepts unauthenticated requests
 regardless of network reachability.
 
 The service runs **scale-to-zero under request-based billing**
-(`min_instance_count = 0`, `cpu_idle = true`), which brings the steady-state
-cost to roughly zero — requests stay inside Cloud Run's free tier (180k
-vCPU-seconds, 360k GiB-seconds, 2M requests/mo) for a low-traffic
-projects-search feature. This combination was NOT always safe, and the git
-history is a warning against reintroducing either half naively:
+(`min_instance_count = 0`, `cpu_idle = true`). The steady-state cost is near
+zero for the current search traffic. This combination was not always safe,
+and the git history warns against a naive change:
 
 - `min_instance_count = 0` with an in-container background snapshot loop
   silently wiped the index: Cloud Run reaped the idle instance before the
@@ -232,10 +254,9 @@ and uploads it to GCS synchronously. `google_cloud_scheduler_job`
 `meili_snapshot` calls that endpoint every 15 minutes with an OIDC token.
 The proxy validates the configured audience and the runtime service-account
 email. The master key works for manual runs. Cold starts restore
-`gs://.../latest.snapshot` in entrypoint.sh; the residual data-loss window
-is one scheduler interval of project writes, which resync automatically
-the next time those docs are written (Firestore triggers in
-`functions/search.js`).
+`gs://.../latest.snapshot` in entrypoint.sh. The residual data-loss window
+is one scheduler interval of index writes. Firestore triggers in
+`functions/search.js` resync a document the next time that document changes.
 
 `max_instance_count = 1` remains load-bearing, not a tunable — Meilisearch
 is a single-node embedded-DB engine and a second concurrent instance would

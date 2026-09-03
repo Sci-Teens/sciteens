@@ -115,6 +115,264 @@ function toSearchDocument(id, data) {
   }
 }
 
+const OPPORTUNITY_STATE_LOCATIONS = [
+  ['AL', 'Alabama'],
+  ['AK', 'Alaska'],
+  ['AZ', 'Arizona'],
+  ['AR', 'Arkansas'],
+  ['CA', 'California'],
+  ['CO', 'Colorado'],
+  ['CT', 'Connecticut'],
+  ['DE', 'Delaware'],
+  ['DC', 'District of Columbia'],
+  ['FL', 'Florida'],
+  ['GA', 'Georgia'],
+  ['HI', 'Hawaii'],
+  ['ID', 'Idaho'],
+  ['IL', 'Illinois'],
+  ['IN', 'Indiana'],
+  ['IA', 'Iowa'],
+  ['KS', 'Kansas'],
+  ['KY', 'Kentucky'],
+  ['LA', 'Louisiana'],
+  ['ME', 'Maine'],
+  ['MD', 'Maryland'],
+  ['MA', 'Massachusetts'],
+  ['MI', 'Michigan'],
+  ['MN', 'Minnesota'],
+  ['MS', 'Mississippi'],
+  ['MO', 'Missouri'],
+  ['MT', 'Montana'],
+  ['NE', 'Nebraska'],
+  ['NV', 'Nevada'],
+  ['NH', 'New Hampshire'],
+  ['NJ', 'New Jersey'],
+  ['NM', 'New Mexico'],
+  ['NY', 'New York'],
+  ['NC', 'North Carolina'],
+  ['ND', 'North Dakota'],
+  ['OH', 'Ohio'],
+  ['OK', 'Oklahoma'],
+  ['OR', 'Oregon'],
+  ['PA', 'Pennsylvania'],
+  ['RI', 'Rhode Island'],
+  ['SC', 'South Carolina'],
+  ['SD', 'South Dakota'],
+  ['TN', 'Tennessee'],
+  ['TX', 'Texas'],
+  ['UT', 'Utah'],
+  ['VT', 'Vermont'],
+  ['VA', 'Virginia'],
+  ['WA', 'Washington'],
+  ['WV', 'West Virginia'],
+  ['WI', 'Wisconsin'],
+  ['WY', 'Wyoming'],
+]
+const OPPORTUNITY_STATE_BY_CODE = new Map(
+  OPPORTUNITY_STATE_LOCATIONS
+)
+const OPPORTUNITY_STATE_NAMES = new Set(
+  OPPORTUNITY_STATE_LOCATIONS.map(([, name]) =>
+    name.toLowerCase()
+  )
+)
+const OPPORTUNITY_STATE_NAME_MATCHERS = [
+  ...OPPORTUNITY_STATE_LOCATIONS,
+]
+  .sort((a, b) => b[1].length - a[1].length)
+  .map(([, name]) => [
+    name,
+    new RegExp(
+      `(^|[^A-Za-z])(${name})(?=$|[^A-Za-z])`,
+      'i'
+    ),
+  ])
+const OPPORTUNITY_STATE_CODE_MATCHERS =
+  OPPORTUNITY_STATE_LOCATIONS.map(([code, name]) => [
+    name,
+    new RegExp(`(?:^|[^A-Za-z])${code}(?=$|[^A-Za-z])`),
+  ])
+const NON_GEOGRAPHIC_CATEGORY =
+  /\b(programs?|competitions?|research|university|coding|tech|labs?|government|schools?|academic|affiliated)\b/i
+const UNKNOWN_LOCATIONS = new Set([
+  'not specified',
+  'unsure',
+  'unknown',
+])
+
+function cleanString(value) {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+function opportunityLocationFacets(
+  locationValue,
+  sourceCategoryValue
+) {
+  const facets = []
+  const values = [
+    [cleanString(locationValue), true],
+    [cleanString(sourceCategoryValue), false],
+  ]
+
+  for (const [location, allowAllSegments] of values) {
+    if (!location) continue
+    if (/\b(virtual|online|remote)\b/i.test(location)) {
+      facets.push('Virtual')
+    }
+    if (
+      /\b(nationwide|multiple locations|various locations|all 50 states|multi-state)\b/i.test(
+        location
+      )
+    ) {
+      facets.push('Nationwide')
+    }
+    if (/\b(USA|United States)\b/i.test(location)) {
+      facets.push('United States')
+    }
+
+    const matchedStateNames = new Set()
+    let unmatchedStateNames = location
+    for (const [
+      name,
+      matcher,
+    ] of OPPORTUNITY_STATE_NAME_MATCHERS) {
+      const match = matcher.exec(unmatchedStateNames)
+      if (!match) continue
+      matchedStateNames.add(name)
+      const nameStart = match.index + match[1].length
+      unmatchedStateNames =
+        unmatchedStateNames.slice(0, nameStart) +
+        ' '.repeat(name.length) +
+        unmatchedStateNames.slice(nameStart + name.length)
+    }
+
+    const codeLocation = location.replace(/\./g, '')
+    for (const [
+      name,
+      matcher,
+    ] of OPPORTUNITY_STATE_CODE_MATCHERS) {
+      if (
+        matchedStateNames.has(name) ||
+        matcher.test(codeLocation)
+      ) {
+        facets.push(name)
+      }
+    }
+
+    for (const rawSegment of location.split(/[,;/|]+/)) {
+      const segment = cleanString(
+        rawSegment.replace(/\s*\(general\)\s*/gi, '')
+      )
+      const stateCode = segment.replace(/\./g, '')
+      const lowercaseSegment = segment.toLowerCase()
+      if (
+        !segment ||
+        UNKNOWN_LOCATIONS.has(lowercaseSegment) ||
+        OPPORTUNITY_STATE_BY_CODE.has(stateCode) ||
+        /\b(virtual|online|remote|USA|United States)\b/i.test(
+          segment
+        ) ||
+        (!allowAllSegments &&
+          NON_GEOGRAPHIC_CATEGORY.test(segment))
+      ) {
+        continue
+      }
+
+      const includesStateName = [
+        ...OPPORTUNITY_STATE_NAMES,
+      ].some((name) => lowercaseSegment.includes(name))
+      if (
+        includesStateName &&
+        !OPPORTUNITY_STATE_NAMES.has(lowercaseSegment)
+      ) {
+        continue
+      }
+      if (segment.length <= 80) facets.push(segment)
+    }
+  }
+
+  return [...new Set(facets)]
+}
+
+function opportunityGradeLevels(low, high) {
+  if (!Number.isFinite(low) || !Number.isFinite(high))
+    return []
+  const first = Math.max(9, Math.ceil(low))
+  const last = Math.min(12, Math.floor(high))
+  const grades = []
+  for (let grade = first; grade <= last; grade++) {
+    grades.push(grade)
+  }
+  return grades
+}
+
+function toOpportunitySearchDocument(id, data) {
+  const fields = Array.isArray(data.fields)
+    ? data.fields
+    : []
+  const gradeRangeLow = Number.isFinite(data.gradeRangeLow)
+    ? data.gradeRangeLow
+    : null
+  const gradeRangeHigh = Number.isFinite(
+    data.gradeRangeHigh
+  )
+    ? data.gradeRangeHigh
+    : null
+
+  return {
+    id,
+    name: cleanString(data.name),
+    about: stripHtml(data.about || '') || '',
+    location: cleanString(data.location),
+    location_facets: opportunityLocationFacets(
+      data.location,
+      data.sourceCategory
+    ),
+    startDate: toMillis(data.startDate),
+    endDate: toMillis(data.endDate),
+    applicationDeadline: toMillis(data.applicationDeadline),
+    applicationOpensDate: toMillis(
+      data.applicationOpensDate
+    ),
+    deadlineStatus: [
+      'dated',
+      'rolling',
+      'upcoming',
+      'unclear',
+    ].includes(data.deadlineStatus)
+      ? data.deadlineStatus
+      : 'unclear',
+    gradeRangeLow,
+    gradeRangeHigh,
+    grade_levels: opportunityGradeLevels(
+      gradeRangeLow,
+      gradeRangeHigh
+    ),
+    ageRangeLow: Number.isFinite(data.ageRangeLow)
+      ? data.ageRangeLow
+      : null,
+    ageRangeHigh: Number.isFinite(data.ageRangeHigh)
+      ? data.ageRangeHigh
+      : null,
+    fields,
+    fields_facet: [
+      ...new Set(
+        fields.map(normalizeField).filter(Boolean)
+      ),
+    ],
+    eligibilityNotes: cleanString(data.eligibilityNotes),
+    cost: cleanString(data.cost),
+    financialAid: cleanString(data.financialAid),
+    stipend: cleanString(data.stipend),
+    programType: cleanString(data.programType) || 'Other',
+    durationText: cleanString(data.durationText),
+    residential:
+      cleanString(data.residential) || 'Not specified',
+    imageUrl: cleanString(data.imageUrl),
+    imageFit: cleanString(data.imageFit) || 'cover',
+  }
+}
+
 function meiliHost() {
   const host = process.env.MEILI_HOST
   return host ? host.replace(/\/+$/, '') : null
@@ -132,13 +390,14 @@ async function meiliRequest(
     return null
   }
   const masterKey = process.env.MEILI_MASTER_KEY
+  if (!masterKey) {
+    throw new Error('MEILI_MASTER_KEY is not configured.')
+  }
   const res = await fetch(`${host}${path}`, {
     method,
     headers: {
       'Content-Type': 'application/json',
-      ...(masterKey && {
-        Authorization: `Bearer ${masterKey}`,
-      }),
+      Authorization: `Bearer ${masterKey}`,
     },
     body: body ? JSON.stringify(body) : undefined,
   })
@@ -178,47 +437,57 @@ async function waitForMeiliTask(task) {
   }
 }
 
-// Upserts one project into the `projects` index. Never throws into the
-// caller's Firestore trigger — a Meilisearch outage should never fail (and
-// therefore retry-loop) a project create/update.
-async function indexProject(id, data) {
-  try {
-    const task = await meiliRequest(
-      '/indexes/projects/documents',
-      {
-        method: 'POST',
-        body: [toSearchDocument(id, data)],
-      }
-    )
-    await waitForMeiliTask(task)
-  } catch (err) {
-    console.error(
-      `search: failed to index project ${id}`,
-      err
-    )
-  }
+async function indexSearchDocument(indexUid, document) {
+  const task = await meiliRequest(
+    `/indexes/${indexUid}/documents`,
+    {
+      method: 'POST',
+      body: [document],
+    }
+  )
+  await waitForMeiliTask(task)
 }
 
-async function deleteProjectFromIndex(id) {
-  try {
-    const task = await meiliRequest(
-      `/indexes/projects/documents/${encodeURIComponent(
-        id
-      )}`,
-      { method: 'DELETE' }
-    )
-    await waitForMeiliTask(task)
-  } catch (err) {
-    console.error(
-      `search: failed to delete project ${id} from index`,
-      err
-    )
-  }
+async function deleteSearchDocument(indexUid, id) {
+  const task = await meiliRequest(
+    `/indexes/${indexUid}/documents/${encodeURIComponent(
+      id
+    )}`,
+    { method: 'DELETE' }
+  )
+  await waitForMeiliTask(task)
+}
+
+function indexProject(id, data) {
+  return indexSearchDocument(
+    'projects',
+    toSearchDocument(id, data)
+  )
+}
+
+function deleteProjectFromIndex(id) {
+  return deleteSearchDocument('projects', id)
+}
+
+function indexOpportunity(id, data) {
+  return indexSearchDocument(
+    'opportunities',
+    toOpportunitySearchDocument(id, data)
+  )
+}
+
+function deleteOpportunityFromIndex(id) {
+  return deleteSearchDocument('opportunities', id)
 }
 
 module.exports = {
   CANONICAL_FIELDS,
+  OPPORTUNITY_STATE_LOCATIONS,
+  opportunityLocationFacets,
   toSearchDocument,
+  toOpportunitySearchDocument,
   indexProject,
   deleteProjectFromIndex,
+  indexOpportunity,
+  deleteOpportunityFromIndex,
 }

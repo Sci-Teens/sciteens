@@ -12,60 +12,11 @@ import {
   formatFieldFacets,
   mapSearchHitToProject,
 } from '@/lib/search'
+import { meiliMultiSearch } from '@/lib/meilisearchServer'
 
-const REQUEST_TIMEOUT_MS = 8000
-// Deep pagination is the expensive shape for Meilisearch, and `page`
-// comes straight off the query string, so it is clamped rather than
-// trusted: an unbounded offset is a free way to make the search
-// container do real work per request.
+// The page clamp limits the work from user-controlled offsets.
 const MAX_SEARCH_PAGE = 200
 const MAX_QUERY_LENGTH = 200
-
-function meiliHost() {
-  const host = process.env.MEILI_HOST
-  return host ? host.replace(/\/+$/, '') : null
-}
-
-async function meiliMultiSearch(queries) {
-  const host = meiliHost()
-  if (!host) {
-    throw Object.assign(
-      new Error('Search is not configured'),
-      { statusCode: 503 }
-    )
-  }
-  const searchKey = process.env.MEILI_SEARCH_KEY
-  const controller = new AbortController()
-  const timeout = setTimeout(
-    () => controller.abort(),
-    REQUEST_TIMEOUT_MS
-  )
-  try {
-    const res = await fetch(`${host}/multi-search`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(searchKey && {
-          Authorization: `Bearer ${searchKey}`,
-        }),
-      },
-      body: JSON.stringify({ queries }),
-      signal: controller.signal,
-    })
-    if (!res.ok) {
-      const text = await res.text().catch(() => '')
-      throw Object.assign(
-        new Error(
-          `Meilisearch search failed: ${res.status} ${text}`
-        ),
-        { statusCode: 502 }
-      )
-    }
-    return res.json()
-  } finally {
-    clearTimeout(timeout)
-  }
-}
 
 function parsePageParam(value) {
   const parsed = parseInt(value, 10)

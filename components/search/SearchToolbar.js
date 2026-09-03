@@ -118,7 +118,7 @@ export default function SearchToolbar({
           />
           <SheetContent
             side="right"
-            className="overflow-y-auto overscroll-contain px-6 pt-16"
+            className="data-[side=right]:!w-full max-w-sm overflow-y-auto overscroll-contain px-6 pt-16"
           >
             <SheetTitle>{filtersLabel}</SheetTitle>
             <div className="mt-6">{filterPanel}</div>

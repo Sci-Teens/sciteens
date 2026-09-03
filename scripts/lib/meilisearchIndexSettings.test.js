@@ -1,12 +1,15 @@
 import { describe, expect, it } from 'vitest'
 
 const {
+  OPPORTUNITIES_INDEX_SETTINGS,
+  OPPORTUNITY_SYNONYMS,
   PROJECTS_INDEX_SETTINGS,
   STOP_WORDS,
   SYNONYMS,
 } = require('./meilisearchIndexSettings')
 const {
   CANONICAL_FIELDS,
+  toOpportunitySearchDocument,
   toSearchDocument,
 } = require('../../functions/search')
 
@@ -201,5 +204,84 @@ describe('projects index settings', () => {
   it('keeps solar -> photovoltaic one-way', () => {
     expect(SYNONYMS.solar).toContain('photovoltaic')
     expect(SYNONYMS.photovoltaic).toBeUndefined()
+  })
+})
+
+describe('opportunities index settings', () => {
+  const indexedAttributes = Object.keys(
+    toOpportunitySearchDocument('o1', {
+      name: 'Research Program',
+      about: 'Biology research',
+      location: 'Singapore',
+      fields: ['Biology'],
+    })
+  )
+
+  it('only names attributes that the opportunity indexer emits', () => {
+    const named = [
+      ...OPPORTUNITIES_INDEX_SETTINGS.searchableAttributes,
+      ...OPPORTUNITIES_INDEX_SETTINGS.filterableAttributes,
+      ...OPPORTUNITIES_INDEX_SETTINGS.sortableAttributes,
+    ]
+    expect(
+      named.filter(
+        (attribute) =>
+          !indexedAttributes.includes(attribute)
+      )
+    ).toEqual([])
+  })
+
+  it('supports every student-facing filter and date order', () => {
+    expect(
+      OPPORTUNITIES_INDEX_SETTINGS.filterableAttributes
+    ).toEqual(
+      expect.arrayContaining([
+        'fields_facet',
+        'grade_levels',
+        'location_facets',
+        'programType',
+        'deadlineStatus',
+        'applicationDeadline',
+        'applicationOpensDate',
+      ])
+    )
+    expect(
+      OPPORTUNITIES_INDEX_SETTINGS.sortableAttributes
+    ).toEqual(
+      expect.arrayContaining([
+        'applicationDeadline',
+        'applicationOpensDate',
+        'name',
+      ])
+    )
+  })
+
+  it('searches location, eligibility, and costs without exposing private fields', () => {
+    expect(
+      OPPORTUNITIES_INDEX_SETTINGS.searchableAttributes
+    ).toEqual(
+      expect.arrayContaining([
+        'location',
+        'eligibilityNotes',
+        'cost',
+        'financialAid',
+        'stipend',
+      ])
+    )
+    expect(
+      OPPORTUNITIES_INDEX_SETTINGS.searchableAttributes
+    ).not.toEqual(
+      expect.arrayContaining([
+        'contactEmail',
+        'reasoning',
+        'consultedPages',
+      ])
+    )
+  })
+
+  it('matches virtual, online, and remote in both directions', () => {
+    expect(OPPORTUNITY_SYNONYMS.virtual).toContain('online')
+    expect(OPPORTUNITY_SYNONYMS.online).toContain('remote')
+    expect(OPPORTUNITY_SYNONYMS.remote).toContain('virtual')
   })
 })

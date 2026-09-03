@@ -179,7 +179,66 @@ const PROJECTS_INDEX_SETTINGS = {
   synonyms: SYNONYMS,
 }
 
+const OPPORTUNITY_SYNONYMS = {
+  ...SYNONYMS,
+  virtual: ['online', 'remote'],
+  online: ['virtual', 'remote'],
+  remote: ['virtual', 'online'],
+  internship: ['intern'],
+  intern: ['internship'],
+  'high school': ['secondary school'],
+  'secondary school': ['high school'],
+  stem: [
+    'science',
+    'technology',
+    'engineering',
+    'mathematics',
+  ],
+}
+
+const OPPORTUNITIES_INDEX_SETTINGS = {
+  searchableAttributes: [
+    'name',
+    'programType',
+    'fields',
+    'location',
+    'about',
+    'eligibilityNotes',
+    'cost',
+    'financialAid',
+    'stipend',
+    'durationText',
+  ],
+  filterableAttributes: [
+    'fields_facet',
+    'grade_levels',
+    'location_facets',
+    'programType',
+    'deadlineStatus',
+    'applicationDeadline',
+    'applicationOpensDate',
+  ],
+  sortableAttributes: [
+    'applicationDeadline',
+    'applicationOpensDate',
+    'startDate',
+    'name',
+  ],
+  rankingRules: [
+    'words',
+    'typo',
+    'proximity',
+    'sort',
+    'attribute',
+    'exactness',
+  ],
+  stopWords: STOP_WORDS,
+  synonyms: OPPORTUNITY_SYNONYMS,
+}
+
 module.exports = {
+  OPPORTUNITIES_INDEX_SETTINGS,
+  OPPORTUNITY_SYNONYMS,
   PROJECTS_INDEX_SETTINGS,
   STOP_WORDS,
   SYNONYMS,

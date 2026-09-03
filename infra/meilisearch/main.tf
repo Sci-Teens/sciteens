@@ -1,6 +1,5 @@
-## Meilisearch on Cloud Run — self-hosted replacement for the Algolia Firebase
-## Extension, scoped to the `projects` collection. See README.md for the full
-## design rationale (cost tradeoffs, manual bootstrap steps).
+## Meilisearch on Cloud Run for the projects and opportunities indexes.
+## See README.md for the design rationale and manual bootstrap steps.
 
 locals {
   snapshot_audience = "https://sciteens.com/internal/meilisearch-snapshot"

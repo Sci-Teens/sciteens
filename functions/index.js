@@ -14,6 +14,9 @@ admin.initializeApp()
 const {
   indexProject,
   deleteProjectFromIndex,
+  indexOpportunity,
+  deleteOpportunityFromIndex,
+  toOpportunitySearchDocument,
 } = require('./search')
 const meiliMasterKey = defineSecret('MEILI_MASTER_KEY')
 
@@ -436,7 +439,10 @@ let slugify
 
 */
 exports.newProject = functions
-  .runWith({ secrets: [meiliMasterKey] })
+  .runWith({
+    secrets: [meiliMasterKey],
+    failurePolicy: true,
+  })
   .firestore.document('projects/{projectID}')
   .onCreate((snap) => indexProject(snap.id, snap.data()))
 
@@ -447,7 +453,10 @@ exports.newProject = functions
     project's fields are edited.
 */
 exports.updateProject = functions
-  .runWith({ secrets: [meiliMasterKey] })
+  .runWith({
+    secrets: [meiliMasterKey],
+    failurePolicy: true,
+  })
   .firestore.document('projects/{projectID}')
   .onUpdate((change) =>
     indexProject(change.after.id, change.after.data())
@@ -462,7 +471,10 @@ exports.updateProject = functions
 */
 
 exports.deleteProject = functions
-  .runWith({ secrets: [meiliMasterKey] })
+  .runWith({
+    secrets: [meiliMasterKey],
+    failurePolicy: true,
+  })
   .firestore.document('projects/{projectID}')
   .onDelete(async (event, context) => {
     async function deleteCollection(
@@ -543,6 +555,39 @@ exports.deleteProject = functions
     }
 
     await deleteProjectFromIndex(context.params.projectID)
+  })
+
+// The scraper writes the Firestore document. This trigger keeps the search
+// document current for creates, updates, and deletes.
+exports.syncOpportunitySearch = functions
+  .runWith({
+    secrets: [meiliMasterKey],
+    failurePolicy: true,
+  })
+  .firestore.document('opportunities/{opportunityID}')
+  .onWrite((change, context) => {
+    const id = context.params.opportunityID
+    if (!change.after.exists) {
+      return deleteOpportunityFromIndex(id)
+    }
+    const afterData = change.after.data()
+    if (change.before.exists) {
+      const beforeDocument = toOpportunitySearchDocument(
+        id,
+        change.before.data()
+      )
+      const afterDocument = toOpportunitySearchDocument(
+        id,
+        afterData
+      )
+      if (
+        JSON.stringify(beforeDocument) ===
+        JSON.stringify(afterDocument)
+      ) {
+        return null
+      }
+    }
+    return indexOpportunity(id, afterData)
   })
 
 /*

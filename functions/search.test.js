@@ -1,7 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const {
+  indexOpportunity,
   indexProject,
+  opportunityLocationFacets,
+  toOpportunitySearchDocument,
   toSearchDocument,
 } = require('./search')
 const realFetch = globalThis.fetch
@@ -114,6 +117,121 @@ describe('toSearchDocument', () => {
   })
 })
 
+describe('toOpportunitySearchDocument', () => {
+  it('maps searchable student fit fields without private pipeline data', () => {
+    const document = toOpportunitySearchDocument('global', {
+      name: 'Global <Research>',
+      about: 'Study <b>biology</b>&nbsp;abroad.',
+      location: 'Cambridge, MA',
+      sourceCategory: 'University research programs',
+      startDate: '2027-06-01T00:00:00.000Z',
+      applicationDeadline: {
+        toMillis: () => 1800000000000,
+      },
+      deadlineStatus: 'dated',
+      gradeRangeLow: 8,
+      gradeRangeHigh: 11,
+      fields: ['biology', 'Computer Science'],
+      eligibilityNotes: 'High school students',
+      cost: 'Free',
+      financialAid: 'Program is Free',
+      stipend: 'Not specified',
+      programType: 'Research Experience',
+      durationText: 'Six weeks',
+      residential: 'Residential',
+      contactEmail: 'private@example.com',
+      reasoning: 'Private pipeline note',
+      consultedPages: [{ url: 'https://example.com' }],
+    })
+
+    expect(document).toMatchObject({
+      id: 'global',
+      name: 'Global <Research>',
+      about: 'Study biology abroad.',
+      location: 'Cambridge, MA',
+      location_facets: ['Massachusetts', 'Cambridge'],
+      grade_levels: [9, 10, 11],
+      fields_facet: ['Biology', 'Computer Science'],
+      applicationDeadline: 1800000000000,
+      programType: 'Research Experience',
+    })
+    expect(document.contactEmail).toBeUndefined()
+    expect(document.reasoning).toBeUndefined()
+    expect(document.consultedPages).toBeUndefined()
+    expect(document.sourceCategory).toBeUndefined()
+  })
+
+  it('uses international source categories and future location segments', () => {
+    expect(
+      opportunityLocationFacets('Unsure', 'Australia')
+    ).toEqual(['Australia'])
+    expect(
+      opportunityLocationFacets('', 'Singapore')
+    ).toEqual(['Singapore'])
+    expect(
+      opportunityLocationFacets('Nairobi, Kenya', '')
+    ).toEqual(['Nairobi', 'Kenya'])
+  })
+
+  it('does not treat West Virginia as Virginia', () => {
+    expect(
+      opportunityLocationFacets(
+        'Charleston, West Virginia',
+        ''
+      )
+    ).toEqual(['West Virginia', 'Charleston'])
+  })
+
+  it('normalizes remote and United States locations', () => {
+    expect(
+      opportunityLocationFacets(
+        'Remote; Washington, DC',
+        'USA (general)'
+      )
+    ).toEqual([
+      'Virtual',
+      'District of Columbia',
+      'Washington',
+      'United States',
+    ])
+  })
+})
+
+describe('opportunity index sync', () => {
+  it('writes opportunity documents with the server master key', async () => {
+    process.env.MEILI_HOST = 'https://search.example'
+    process.env.MEILI_MASTER_KEY = 'secret'
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValueOnce(
+        Response.json({ taskUid: 44 }, { status: 202 })
+      )
+      .mockResolvedValueOnce(
+        Response.json({ taskUid: 44, status: 'succeeded' })
+      )
+
+    await indexOpportunity('global', {
+      name: 'Global Program',
+      location: 'Singapore',
+    })
+
+    expect(globalThis.fetch).toHaveBeenNthCalledWith(
+      1,
+      'https://search.example/indexes/opportunities/documents',
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: 'Bearer secret',
+        }),
+      })
+    )
+    const request = globalThis.fetch.mock.calls[0][1]
+    expect(JSON.parse(request.body)[0]).toMatchObject({
+      id: 'global',
+      location_facets: ['Singapore'],
+    })
+  })
+})
+
 describe('Meilisearch mutation acknowledgement', () => {
   it('polls a mutation task until it succeeds', async () => {
     process.env.MEILI_HOST = 'https://search.example'
@@ -136,11 +254,9 @@ describe('Meilisearch mutation acknowledgement', () => {
     )
   })
 
-  it('reports a failed asynchronous mutation', async () => {
+  it('rejects a failed asynchronous mutation for retry', async () => {
     process.env.MEILI_HOST = 'https://search.example'
-    const error = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => {})
+    process.env.MEILI_MASTER_KEY = 'secret'
     globalThis.fetch = vi
       .fn()
       .mockResolvedValueOnce(
@@ -154,15 +270,8 @@ describe('Meilisearch mutation acknowledgement', () => {
         })
       )
 
-    await indexProject('p1', { title: 'Safe' })
-
-    expect(error).toHaveBeenCalledWith(
-      'search: failed to index project p1',
-      expect.objectContaining({
-        message: expect.stringContaining(
-          'Meilisearch task 43 failed'
-        ),
-      })
-    )
+    await expect(
+      indexProject('p1', { title: 'Safe' })
+    ).rejects.toThrow('Meilisearch task 43 failed')
   })
 })

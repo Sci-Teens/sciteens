@@ -1,36 +1,32 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useState } from 'react'
 
-import { useRouter } from 'next/router'
-import SocialMeta from '@/components/SocialMeta'
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import { useTranslation } from 'next-i18next'
-import { useQuery } from '@tanstack/react-query'
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+} from '@tanstack/react-query'
 import {
   getApp,
   getApps,
   initializeApp,
 } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
+import { useTranslation } from 'next-i18next'
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { useRouter } from 'next/router'
 
-import {
-  formatGradeRange,
-  getFieldLabel,
-  getTranslatedFieldsDict,
-} from '../context/helpers'
-import { formatMediumDate } from '../lib/formatDate'
-import { db as firestore } from '../lib/firestore'
-import firebaseConfig from '../firebaseConfig'
-import {
-  deadlineDisplay,
-  fetchClosedRecentlyOpportunities,
-  fetchDeadlineUnknownOpportunities,
-  fetchOpenNowOpportunities,
-  fetchOpeningSoonOpportunities,
-} from '../lib/opportunities'
-import { getFieldIcon } from '../lib/fieldIcons'
-import { cn } from '@/lib/utils'
-import { Separator } from '@/components/ui/separator'
+import InfiniteScrollTrigger from '@/components/InfiniteScrollTrigger'
+import OpportunityFieldIcons from '@/components/OpportunityFieldIcons'
+import SocialMeta from '@/components/SocialMeta'
+import ActiveFilters from '@/components/search/ActiveFilters'
+import EmptyState from '@/components/search/EmptyState'
+import ListingCard from '@/components/search/ListingCard'
+import ListingLayout from '@/components/search/ListingLayout'
+import ListingSkeleton from '@/components/search/ListingSkeleton'
+import ResultsCount from '@/components/search/ResultsCount'
+import SearchToolbar from '@/components/search/SearchToolbar'
+import TopicsList from '@/components/search/TopicsList'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -38,33 +34,116 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import OpportunityFieldIcons from '@/components/OpportunityFieldIcons'
-import ActiveFilters from '@/components/search/ActiveFilters'
-import EmptyState from '@/components/search/EmptyState'
-import ListingCard from '@/components/search/ListingCard'
-import ListingLayout from '@/components/search/ListingLayout'
-import ResultsCount from '@/components/search/ResultsCount'
-import SearchToolbar from '@/components/search/SearchToolbar'
-import TopicsList from '@/components/search/TopicsList'
+import { Separator } from '@/components/ui/separator'
+import {
+  formatGradeRange,
+  getFieldLabel,
+  getTranslatedFieldsDict,
+} from '@/context/helpers'
+import firebaseConfig from '@/firebaseConfig'
+import { formatMediumDate } from '@/lib/formatDate'
+import { getFieldIcon } from '@/lib/fieldIcons'
+import {
+  deadlineDisplay,
+  fetchOpenNowOpportunities,
+} from '@/lib/opportunities'
+import {
+  OPPORTUNITIES_SEARCH_HITS_PER_PAGE,
+  OPPORTUNITY_PROGRAM_TYPES,
+  OPPORTUNITY_STATUS_OPTIONS,
+} from '@/lib/opportunitySearch'
+import { cn } from '@/lib/utils'
 
 const OPPORTUNITIES_EMAIL = 'opportunities@sciteens.org'
-
 const GRADE_OPTIONS = ['9', '10', '11', '12']
-const STATUS_OPTIONS = [
-  'open',
-  'opening_soon',
-  'closed_recently',
-  'deadline_unknown',
-]
 const DEFAULT_STATUS = 'open'
+const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/
+const EMPTY_FACETS = {
+  fields: [],
+  locations: [],
+  programTypes: [],
+}
 
-function matchesSearch(program, search) {
-  if (!search) return true
-  const term = search.toLowerCase()
-  return (
-    program.name.toLowerCase().includes(term) ||
-    program.about.toLowerCase().includes(term)
+const PROGRAM_TYPE_KEYS = {
+  'Summer Program':
+    'opportunities.program_types.summer_program',
+  'Academic Year Program':
+    'opportunities.program_types.academic_year_program',
+  Competition: 'opportunities.program_types.competition',
+  Internship: 'opportunities.program_types.internship',
+  'Research Experience':
+    'opportunities.program_types.research_experience',
+  Scholarship: 'opportunities.program_types.scholarship',
+  'Online Course':
+    'opportunities.program_types.online_course',
+  Fellowship: 'opportunities.program_types.fellowship',
+  Camp: 'opportunities.program_types.camp',
+  Other: 'opportunities.program_types.other',
+}
+
+const LOCATION_KEYS = {
+  Virtual: 'opportunities.location_values.virtual',
+  Nationwide: 'opportunities.location_values.nationwide',
+  'United States':
+    'opportunities.location_values.united_states',
+}
+
+function firstQueryValue(value) {
+  return Array.isArray(value) ? value[0] : value || ''
+}
+
+function validDateQuery(value) {
+  const date = firstQueryValue(value)
+  return DATE_ONLY.test(date) ? date : ''
+}
+
+function programTypeLabel(t, value) {
+  return PROGRAM_TYPE_KEYS[value]
+    ? t(PROGRAM_TYPE_KEYS[value])
+    : value
+}
+
+function locationLabel(t, value) {
+  return LOCATION_KEYS[value]
+    ? t(LOCATION_KEYS[value])
+    : value
+}
+
+async function fetchOpportunitiesSearchPage({
+  search,
+  field,
+  grade,
+  location,
+  programType,
+  deadlineFrom,
+  deadlineTo,
+  status,
+  pageParam,
+}) {
+  const params = new URLSearchParams()
+  if (search) params.set('q', search)
+  if (field) params.set('field', field)
+  if (grade) params.set('grade', grade)
+  if (location) params.set('location', location)
+  if (programType) params.set('type', programType)
+  if (deadlineFrom) params.set('deadlineFrom', deadlineFrom)
+  if (deadlineTo) params.set('deadlineTo', deadlineTo)
+  if (status) params.set('status', status)
+  params.set('page', String(pageParam || 0))
+
+  const response = await fetch(
+    `/api/search/opportunities?${params.toString()}`
   )
+  if (!response.ok) throw new Error('search_unavailable')
+  const data = await response.json()
+  return {
+    opportunities: data.opportunities,
+    nextCursor: data.hasNextPage
+      ? (pageParam || 0) + 1
+      : null,
+    facets: data.facets,
+    totalHits: data.totalHits,
+  }
 }
 
 function metaLine(program, timingLabel, t) {
@@ -163,6 +242,7 @@ function OpportunityCard({
   meta,
   translatedFields,
   muted,
+  priority,
 }) {
   return (
     <ListingCard
@@ -172,6 +252,7 @@ function OpportunityCard({
       imageSrc={program.imageUrl}
       imageAlt=""
       imageFit={program.imageFit}
+      priority={priority}
       media={
         program.imageUrl ? undefined : (
           <OpportunityFieldIcons fields={program.fields} />
@@ -185,7 +266,7 @@ function OpportunityCard({
         />
       }
       className={cn(
-        'opportunity-card shadow-lg',
+        'opportunity-card',
         muted && 'opacity-70'
       )}
     />
@@ -198,10 +279,31 @@ function FilterPanel({
   onFieldSelect,
   grade,
   onGradeChange,
+  location,
+  onLocationChange,
+  programType,
+  onProgramTypeChange,
+  deadlineRange,
+  onDeadlineRangeChange,
+  facets,
   hasActiveFilters,
   onClear,
   gradeLabels,
 }) {
+  const deadlineFromId = useId()
+  const deadlineToId = useId()
+  const gradeId = useId()
+  const programTypeId = useId()
+  const locationId = useId()
+  const locations = location
+    ? [
+        { value: location, count: 0 },
+        ...facets.locations.filter(
+          (option) => option.value !== location
+        ),
+      ]
+    : facets.locations
+
   return (
     <div className="flex flex-col gap-6">
       <TopicsList
@@ -209,6 +311,7 @@ function FilterPanel({
         fields={getTranslatedFieldsDict(t)}
         field={field}
         onFieldSelect={onFieldSelect}
+        facets={facets.fields}
         hasActiveFilters={hasActiveFilters}
         clearLabel={t('opportunities.clear_filters')}
         onClear={onClear}
@@ -216,184 +319,354 @@ function FilterPanel({
 
       <Separator />
 
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-foreground mb-3 text-sm font-semibold">
+            {t('opportunities.student_fit')}
+          </h2>
+          <label
+            htmlFor={gradeId}
+            className="text-muted-foreground mb-1 block text-xs"
+          >
+            {t('opportunities.grade_level')}
+          </label>
+          <Select
+            value={grade || 'any'}
+            onValueChange={(value) =>
+              onGradeChange(value === 'any' ? '' : value)
+            }
+          >
+            <SelectTrigger
+              id={gradeId}
+              aria-label={t('opportunities.grade_level')}
+              className="bg-card w-full shadow-sm"
+            >
+              <SelectValue>
+                {(value) => gradeLabels[value]}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="any">
+                {gradeLabels.any}
+              </SelectItem>
+              {GRADE_OPTIONS.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {gradeLabels[option]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <label
+            htmlFor={programTypeId}
+            className="text-muted-foreground mb-1 block text-xs"
+          >
+            {t('opportunities.program_type')}
+          </label>
+          <Select
+            value={programType || 'any'}
+            onValueChange={(value) =>
+              onProgramTypeChange(
+                value === 'any' ? '' : value
+              )
+            }
+          >
+            <SelectTrigger
+              id={programTypeId}
+              aria-label={t('opportunities.program_type')}
+              className="bg-card w-full shadow-sm"
+            >
+              <SelectValue>
+                {(value) =>
+                  value === 'any'
+                    ? t('opportunities.any_program_type')
+                    : programTypeLabel(t, value)
+                }
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="any">
+                {t('opportunities.any_program_type')}
+              </SelectItem>
+              {OPPORTUNITY_PROGRAM_TYPES.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {programTypeLabel(t, option)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <label
+            htmlFor={locationId}
+            className="text-muted-foreground mb-1 block text-xs"
+          >
+            {t('opportunities.location')}
+          </label>
+          <Select
+            value={location || 'any'}
+            onValueChange={(value) =>
+              onLocationChange(value === 'any' ? '' : value)
+            }
+          >
+            <SelectTrigger
+              id={locationId}
+              aria-label={t('opportunities.location')}
+              className="bg-card w-full shadow-sm"
+            >
+              <SelectValue>
+                {(value) =>
+                  value === 'any'
+                    ? t('opportunities.any_location')
+                    : locationLabel(t, value)
+                }
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="any">
+                {t('opportunities.any_location')}
+              </SelectItem>
+              {locations.map((option) => (
+                <SelectItem
+                  key={option.value}
+                  value={option.value}
+                >
+                  {locationLabel(t, option.value)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <Separator />
+
       <div>
         <h2 className="text-foreground mb-3 text-sm font-semibold">
-          {t('opportunities.grade_level')}
+          {t('opportunities.application_deadline')}
         </h2>
-        <Select
-          value={grade || 'any'}
-          onValueChange={(value) =>
-            onGradeChange(value === 'any' ? '' : value)
-          }
-        >
-          <SelectTrigger
-            aria-label={t('opportunities.grade_level')}
-            className="bg-card w-full shadow-sm"
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label
+              htmlFor={deadlineFromId}
+              className="text-muted-foreground mb-1 block text-xs"
+            >
+              {t('opportunities.deadline_from')}
+            </label>
+            <Input
+              id={deadlineFromId}
+              type="date"
+              value={deadlineRange.from}
+              max={deadlineRange.to || undefined}
+              onChange={(event) =>
+                onDeadlineRangeChange({
+                  from: event.target.value,
+                  to: deadlineRange.to,
+                })
+              }
+              className="bg-card shadow-sm"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor={deadlineToId}
+              className="text-muted-foreground mb-1 block text-xs"
+            >
+              {t('opportunities.deadline_to')}
+            </label>
+            <Input
+              id={deadlineToId}
+              type="date"
+              value={deadlineRange.to}
+              min={deadlineRange.from || undefined}
+              onChange={(event) =>
+                onDeadlineRangeChange({
+                  from: deadlineRange.from,
+                  to: event.target.value,
+                })
+              }
+              className="bg-card shadow-sm"
+            />
+          </div>
+        </div>
+        {(deadlineRange.from || deadlineRange.to) && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="mt-2"
+            onClick={() =>
+              onDeadlineRangeChange({ from: '', to: '' })
+            }
           >
-            <SelectValue>
-              {(value) => gradeLabels[value]}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="any">
-              {gradeLabels.any}
-            </SelectItem>
-            {GRADE_OPTIONS.map((grade_option) => (
-              <SelectItem
-                key={grade_option}
-                value={grade_option}
-              >
-                {gradeLabels[grade_option]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+            {t('opportunities.clear_dates')}
+          </Button>
+        )}
       </div>
     </div>
   )
 }
 
-const LIVE_REFETCH_STALE_TIME_MS = 60 * 1000
-
-function useLiveOpportunities(
-  section,
-  fetchSection,
-  buildTimeSnapshot
-) {
-  return useQuery({
-    queryKey: ['opportunities', section],
-    queryFn: () => fetchSection(firestore),
-    initialData: buildTimeSnapshot,
-    staleTime: LIVE_REFETCH_STALE_TIME_MS,
-  })
-}
-
-function filterPrograms(
-  programs,
-  { searchParam, fieldParam, gradeParam }
-) {
-  const gradeNum = gradeParam ? Number(gradeParam) : null
-  return programs.filter((program) => {
-    if (!matchesSearch(program, searchParam)) return false
-    if (fieldParam && !program.fields.includes(fieldParam))
-      return false
-    if (
-      gradeNum &&
-      !(
-        program.gradeRangeLow <= gradeNum &&
-        gradeNum <= program.gradeRangeHigh
-      )
-    )
-      return false
-    return true
-  })
-}
-
-function useFilteredPrograms(
-  programs,
-  { searchParam, fieldParam, gradeParam }
-) {
-  return useMemo(
-    () =>
-      filterPrograms(programs || [], {
-        searchParam,
-        fieldParam,
-        gradeParam,
-      }),
-    [programs, searchParam, fieldParam, gradeParam]
-  )
-}
-
 function Opportunities({
   initialOpenNow,
-  initialOpeningSoon,
-  initialClosedRecently,
-  initialDeadlineUnknown,
+  initialOpenNowTotal,
 }) {
   const router = useRouter()
   const { t } = useTranslation('common')
-
-  const openNowQuery = useLiveOpportunities(
-    'openNow',
-    fetchOpenNowOpportunities,
-    initialOpenNow
-  )
-  const openingSoonQuery = useLiveOpportunities(
-    'openingSoon',
-    fetchOpeningSoonOpportunities,
-    initialOpeningSoon
-  )
-  const closedRecentlyQuery = useLiveOpportunities(
-    'closedRecently',
-    fetchClosedRecentlyOpportunities,
-    initialClosedRecently
-  )
-  const deadlineUnknownQuery = useLiveOpportunities(
-    'deadlineUnknown',
-    fetchDeadlineUnknownOpportunities,
-    initialDeadlineUnknown
-  )
-
   const [search, setSearch] = useState('')
   const [filtersOpen, setFiltersOpen] = useState(false)
 
-  const searchParam = router.query?.search || ''
+  const searchParam = firstQueryValue(router.query?.search)
   const fieldParam =
-    router.query?.field && router.query.field !== 'All'
-      ? router.query.field
+    firstQueryValue(router.query?.field) === 'All'
+      ? ''
+      : firstQueryValue(router.query?.field)
+  const rawGradeParam = firstQueryValue(router.query?.grade)
+  const gradeParam = GRADE_OPTIONS.includes(rawGradeParam)
+    ? rawGradeParam
+    : ''
+  const locationParam = firstQueryValue(
+    router.query?.location
+  ).slice(0, 100)
+  const rawProgramTypeParam = firstQueryValue(
+    router.query?.type
+  )
+  const programTypeParam =
+    OPPORTUNITY_PROGRAM_TYPES.includes(rawProgramTypeParam)
+      ? rawProgramTypeParam
       : ''
-  const gradeParam = router.query?.grade || ''
-  const statusParam = STATUS_OPTIONS.includes(
+  const deadlineFromParam = validDateQuery(
+    router.query?.deadlineFrom
+  )
+  const deadlineToParam = validDateQuery(
+    router.query?.deadlineTo
+  )
+  const rawStatusParam = firstQueryValue(
     router.query?.status
   )
-    ? router.query.status
+  const statusParam = OPPORTUNITY_STATUS_OPTIONS.includes(
+    rawStatusParam
+  )
+    ? rawStatusParam
     : DEFAULT_STATUS
 
-  const routerIsReady = router.isReady
   useEffect(() => {
-    if (!routerIsReady) return
+    if (!router.isReady) return
     setSearch(searchParam)
-  }, [routerIsReady, searchParam])
+  }, [router.isReady, searchParam])
 
   const hasActiveFilters = Boolean(
-    searchParam || fieldParam || gradeParam
+    searchParam ||
+      fieldParam ||
+      gradeParam ||
+      locationParam ||
+      programTypeParam ||
+      deadlineFromParam ||
+      deadlineToParam ||
+      statusParam !== DEFAULT_STATUS
   )
 
-  const gradeLabels = {
-    any: t('opportunities.any_grade'),
-    9: t('opportunities.grade_9'),
-    10: t('opportunities.grade_10'),
-    11: t('opportunities.grade_11'),
-    12: t('opportunities.grade_12'),
-  }
-
-  const filterParams = {
-    searchParam,
+  const initialData = useMemo(() => {
+    if (
+      searchParam ||
+      fieldParam ||
+      gradeParam ||
+      locationParam ||
+      programTypeParam ||
+      deadlineFromParam ||
+      deadlineToParam ||
+      statusParam !== DEFAULT_STATUS ||
+      initialOpenNow.length === 0
+    ) {
+      return undefined
+    }
+    return {
+      pages: [
+        {
+          opportunities: initialOpenNow,
+          nextCursor:
+            initialOpenNowTotal > initialOpenNow.length
+              ? 1
+              : null,
+          facets: EMPTY_FACETS,
+          totalHits: initialOpenNowTotal,
+        },
+      ],
+      pageParams: [0],
+    }
+  }, [
+    deadlineFromParam,
+    deadlineToParam,
     fieldParam,
     gradeParam,
-  }
-  const filteredOpenNow = useFilteredPrograms(
-    openNowQuery.data,
-    filterParams
+    initialOpenNow,
+    initialOpenNowTotal,
+    locationParam,
+    programTypeParam,
+    searchParam,
+    statusParam,
+  ])
+
+  const opportunitiesQuery = useInfiniteQuery({
+    queryKey: [
+      'opportunitiesSearch',
+      searchParam,
+      fieldParam,
+      gradeParam,
+      locationParam,
+      programTypeParam,
+      deadlineFromParam,
+      deadlineToParam,
+      statusParam,
+    ],
+    enabled: router.isReady,
+    initialPageParam: 0,
+    initialData,
+    initialDataUpdatedAt: 0,
+    queryFn: ({ pageParam }) =>
+      fetchOpportunitiesSearchPage({
+        search: searchParam,
+        field: fieldParam,
+        grade: gradeParam,
+        location: locationParam,
+        programType: programTypeParam,
+        deadlineFrom: deadlineFromParam,
+        deadlineTo: deadlineToParam,
+        status: statusParam,
+        pageParam,
+      }),
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    placeholderData: keepPreviousData,
+  })
+
+  const opportunities = useMemo(
+    () =>
+      opportunitiesQuery.data?.pages.flatMap(
+        (page) => page.opportunities
+      ) || [],
+    [opportunitiesQuery.data]
   )
-  const filteredOpeningSoon = useFilteredPrograms(
-    openingSoonQuery.data,
-    filterParams
-  )
-  const filteredClosedRecently = useFilteredPrograms(
-    closedRecentlyQuery.data,
-    filterParams
-  )
-  const filteredDeadlineUnknown = useFilteredPrograms(
-    deadlineUnknownQuery.data,
-    filterParams
-  )
+  const firstPage = opportunitiesQuery.data?.pages[0]
+  const facets = firstPage?.facets || EMPTY_FACETS
+  const totalHits = firstPage?.totalHits
+  const loading =
+    opportunitiesQuery.isLoading &&
+    opportunities.length === 0
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } =
+    opportunitiesQuery
 
   function pushFilters(overrides = {}) {
     const next = {
       search: searchParam,
       field: fieldParam,
       grade: gradeParam,
+      location: locationParam,
+      type: programTypeParam,
+      deadlineFrom: deadlineFromParam,
+      deadlineTo: deadlineToParam,
       status: statusParam,
       ...overrides,
     }
@@ -401,13 +674,19 @@ function Opportunities({
     if (next.search) query.search = next.search
     if (next.field) query.field = next.field
     if (next.grade) query.grade = next.grade
-    if (next.status && next.status !== DEFAULT_STATUS)
+    if (next.location) query.location = next.location
+    if (next.type) query.type = next.type
+    if (next.deadlineFrom)
+      query.deadlineFrom = next.deadlineFrom
+    if (next.deadlineTo) query.deadlineTo = next.deadlineTo
+    if (next.status && next.status !== DEFAULT_STATUS) {
       query.status = next.status
+    }
     router.push({ pathname: '/opportunities', query })
   }
 
-  function handleSearchSubmit(e) {
-    e.preventDefault()
+  function handleSearchSubmit(event) {
+    event.preventDefault()
     pushFilters({ search })
   }
 
@@ -416,19 +695,41 @@ function Opportunities({
     pushFilters({ search: '' })
   }
 
+  function closeMobileFilters() {
+    setFiltersOpen(false)
+  }
+
   function handleFieldSelect(nextField) {
-    const value = nextField === 'All' ? '' : nextField
-    pushFilters({ field: value })
-    setFiltersOpen(false)
+    pushFilters({
+      field: nextField === 'All' ? '' : nextField,
+    })
+    closeMobileFilters()
   }
 
-  function handleGradeChange(nextGrade) {
-    pushFilters({ grade: nextGrade })
-    setFiltersOpen(false)
+  function handleGradeChange(grade) {
+    pushFilters({ grade })
+    closeMobileFilters()
   }
 
-  function handleStatusChange(nextStatus) {
-    pushFilters({ status: nextStatus })
+  function handleLocationChange(location) {
+    pushFilters({ location })
+    closeMobileFilters()
+  }
+
+  function handleProgramTypeChange(type) {
+    pushFilters({ type })
+    closeMobileFilters()
+  }
+
+  function handleDeadlineRangeChange(range) {
+    pushFilters({
+      deadlineFrom: range.from || '',
+      deadlineTo: range.to || '',
+    })
+  }
+
+  function handleStatusChange(status) {
+    pushFilters({ status })
   }
 
   function handleClearFilters() {
@@ -438,36 +739,26 @@ function Opportunities({
   }
 
   const translatedFields = getTranslatedFieldsDict(t)
-
+  const gradeLabels = {
+    any: t('opportunities.any_grade'),
+    9: t('opportunities.grade_9'),
+    10: t('opportunities.grade_10'),
+    11: t('opportunities.grade_11'),
+    12: t('opportunities.grade_12'),
+  }
   const statusLabels = {
     open: t('opportunities.open_now'),
     opening_soon: t('opportunities.opening_soon'),
     closed_recently: t('opportunities.closed_recently'),
     deadline_unknown: t('opportunities.deadline_unknown'),
   }
-
-  const activeView = {
-    open: {
-      list: filteredOpenNow,
-      meta: upcomingDeadlineMeta,
-      muted: false,
-    },
-    opening_soon: {
-      list: filteredOpeningSoon,
-      meta: applicationOpensMeta,
-      muted: false,
-    },
-    closed_recently: {
-      list: filteredClosedRecently,
-      meta: pastDeadlineMeta,
-      muted: true,
-    },
-    deadline_unknown: {
-      list: filteredDeadlineUnknown,
-      meta: deadlineUnknownMeta,
-      muted: false,
-    },
+  const metaForStatus = {
+    open: upcomingDeadlineMeta,
+    opening_soon: applicationOpensMeta,
+    closed_recently: pastDeadlineMeta,
+    deadline_unknown: deadlineUnknownMeta,
   }[statusParam]
+  const muted = statusParam === 'closed_recently'
 
   const activeFilters = []
   if (searchParam) {
@@ -511,6 +802,74 @@ function Opportunities({
       onRemove: () => handleGradeChange(''),
     })
   }
+  if (locationParam) {
+    const label = locationLabel(t, locationParam)
+    activeFilters.push({
+      key: 'location',
+      label: t('opportunities.location'),
+      value: label,
+      removeLabel: t('opportunities.remove_filter', {
+        filter: `${t('opportunities.location')} ${label}`,
+      }),
+      onRemove: () => handleLocationChange(''),
+    })
+  }
+  if (programTypeParam) {
+    const label = programTypeLabel(t, programTypeParam)
+    activeFilters.push({
+      key: 'type',
+      label: t('opportunities.program_type'),
+      value: label,
+      removeLabel: t('opportunities.remove_filter', {
+        filter: `${t(
+          'opportunities.program_type'
+        )} ${label}`,
+      }),
+      onRemove: () => handleProgramTypeChange(''),
+    })
+  }
+  if (deadlineFromParam || deadlineToParam) {
+    const from = formatMediumDate(
+      deadlineFromParam,
+      router.locale
+    )
+    const to = formatMediumDate(
+      deadlineToParam,
+      router.locale
+    )
+    const value =
+      from && to
+        ? `${from} – ${to}`
+        : from
+        ? `${t('opportunities.deadline_from')} ${from}`
+        : `${t('opportunities.deadline_to')} ${to}`
+    activeFilters.push({
+      key: 'deadline',
+      label: t('opportunities.application_deadline'),
+      value,
+      removeLabel: t('opportunities.remove_filter', {
+        filter: `${t(
+          'opportunities.application_deadline'
+        )} ${value}`,
+      }),
+      onRemove: () =>
+        handleDeadlineRangeChange({ from: '', to: '' }),
+    })
+  }
+  if (statusParam !== DEFAULT_STATUS) {
+    const label = statusLabels[statusParam]
+    activeFilters.push({
+      key: 'status',
+      label: t('opportunities.status_filter'),
+      value: label,
+      removeLabel: t('opportunities.remove_filter', {
+        filter: `${t(
+          'opportunities.status_filter'
+        )} ${label}`,
+      }),
+      onRemove: () => handleStatusChange(DEFAULT_STATUS),
+    })
+  }
 
   const filterPanelProps = {
     t,
@@ -518,6 +877,16 @@ function Opportunities({
     onFieldSelect: handleFieldSelect,
     grade: gradeParam,
     onGradeChange: handleGradeChange,
+    location: locationParam,
+    onLocationChange: handleLocationChange,
+    programType: programTypeParam,
+    onProgramTypeChange: handleProgramTypeChange,
+    deadlineRange: {
+      from: deadlineFromParam,
+      to: deadlineToParam,
+    },
+    onDeadlineRangeChange: handleDeadlineRangeChange,
+    facets,
     hasActiveFilters,
     onClear: handleClearFilters,
     gradeLabels,
@@ -551,11 +920,12 @@ function Opportunities({
           </Button>
         }
         aside={<FilterPanel {...filterPanelProps} />}
-        showRule
       >
         <SearchToolbar
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(event) =>
+            setSearch(event.target.value)
+          }
           onSubmit={handleSearchSubmit}
           onClear={handleClearSearch}
           placeholder={t(
@@ -571,7 +941,28 @@ function Opportunities({
           filterPanel={
             <FilterPanel {...filterPanelProps} />
           }
-        />
+        >
+          <Select
+            value={statusParam}
+            onValueChange={handleStatusChange}
+          >
+            <SelectTrigger
+              aria-label={t('opportunities.status_filter')}
+              className="bg-card w-full shadow-sm sm:w-44"
+            >
+              <SelectValue>
+                {(value) => statusLabels[value]}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {OPPORTUNITY_STATUS_OPTIONS.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {statusLabels[option]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </SearchToolbar>
 
         <ActiveFilters
           label={t('opportunities.active_filters')}
@@ -580,76 +971,100 @@ function Opportunities({
           onClear={handleClearFilters}
         />
 
-        <div className="mb-6 flex items-center gap-3">
-          <Select
-            value={statusParam}
-            onValueChange={handleStatusChange}
-          >
-            <SelectTrigger
-              aria-label={t('opportunities.status_filter')}
-              className="bg-card w-auto min-w-[10rem] shadow-sm"
-            >
-              <SelectValue>
-                {(value) => statusLabels[value]}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {STATUS_OPTIONS.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {statusLabels[option]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {activeView.list.length === 0 ? (
-          <EmptyState
-            title={t('opportunities.empty_title')}
-            description={
-              hasActiveFilters
-                ? t('opportunities.empty_filtered')
-                : t('opportunities.empty_default')
-            }
-            actionLabel={
-              hasActiveFilters
-                ? t('opportunities.clear_filters')
-                : undefined
-            }
-            onAction={
-              hasActiveFilters
-                ? handleClearFilters
-                : undefined
-            }
-          />
-        ) : (
-          <>
-            <ResultsCount>
-              {t('opportunities.results_count', {
-                count: activeView.list.length,
+        <ResultsCount>
+          {loading
+            ? t('opportunities.loading')
+            : !opportunitiesQuery.isError &&
+              typeof totalHits === 'number' &&
+              t('opportunities.results_count', {
+                count: totalHits,
               })}
-            </ResultsCount>
-            <div className="w-full">
-              {activeView.list.map((program) => (
-                <div
-                  key={program.slug}
-                  className="w-full pt-6 md:pt-8"
-                >
-                  <OpportunityCard
-                    program={program}
-                    meta={activeView.meta(
-                      program,
-                      router.locale,
-                      t
-                    )}
-                    translatedFields={translatedFields}
-                    muted={activeView.muted}
-                  />
-                </div>
-              ))}
-            </div>
-          </>
+        </ResultsCount>
+
+        {opportunitiesQuery.isError && (
+          <div
+            role="alert"
+            className="border-destructive/30 bg-destructive/5 rounded-xl border px-4 py-4 text-sm"
+          >
+            <p className="text-destructive">
+              {t('opportunities.search_unavailable')}
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              onClick={() => opportunitiesQuery.refetch()}
+            >
+              {t('opportunities.retry')}
+            </Button>
+          </div>
         )}
+
+        {loading ? (
+          <ListingSkeleton />
+        ) : opportunities.length === 0 ? (
+          !opportunitiesQuery.isError && (
+            <EmptyState
+              title={t('opportunities.empty_title')}
+              description={
+                hasActiveFilters
+                  ? t('opportunities.empty_filtered')
+                  : t('opportunities.empty_default')
+              }
+              actionLabel={
+                hasActiveFilters
+                  ? t('opportunities.clear_filters')
+                  : undefined
+              }
+              onAction={
+                hasActiveFilters
+                  ? handleClearFilters
+                  : undefined
+              }
+            />
+          )
+        ) : (
+          <div
+            className={cn(
+              'w-full transition-opacity',
+              opportunitiesQuery.isPlaceholderData &&
+                'opacity-60'
+            )}
+          >
+            {opportunities.map((program, index) => (
+              <div
+                key={program.slug}
+                className="w-full pt-6 md:pt-8"
+              >
+                <OpportunityCard
+                  program={program}
+                  meta={metaForStatus(
+                    program,
+                    router.locale,
+                    t
+                  )}
+                  translatedFields={translatedFields}
+                  muted={muted}
+                  priority={index < 2}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {isFetchingNextPage && (
+          <ListingSkeleton count={2} />
+        )}
+
+        <InfiniteScrollTrigger
+          hasNextPage={
+            hasNextPage && !opportunitiesQuery.isError
+          }
+          isLoading={isFetchingNextPage}
+          onLoadMore={fetchNextPage}
+          label={t('opportunities.load_more')}
+        />
       </ListingLayout>
     </>
   )
@@ -665,27 +1080,18 @@ export async function getStaticProps({ locale }) {
       ? initializeApp(firebaseConfig)
       : getApp()
   const buildFirestore = getFirestore(app)
-
-  const [
-    translations,
-    initialOpenNow,
-    initialOpeningSoon,
-    initialClosedRecently,
-    initialDeadlineUnknown,
-  ] = await Promise.all([
+  const [translations, openNow] = await Promise.all([
     translationsPromise,
     fetchOpenNowOpportunities(buildFirestore),
-    fetchOpeningSoonOpportunities(buildFirestore),
-    fetchClosedRecentlyOpportunities(buildFirestore),
-    fetchDeadlineUnknownOpportunities(buildFirestore),
   ])
 
   return {
     props: {
-      initialOpenNow,
-      initialOpeningSoon,
-      initialClosedRecently,
-      initialDeadlineUnknown,
+      initialOpenNow: openNow.slice(
+        0,
+        OPPORTUNITIES_SEARCH_HITS_PER_PAGE
+      ),
+      initialOpenNowTotal: openNow.length,
       ...translations,
     },
   }
