@@ -7,6 +7,7 @@ const path = require('node:path')
 const { execFileSync } = require('node:child_process')
 const { chromium } = require('playwright')
 const cheerio = require('cheerio')
+const { extractPageMarkdown } = require('./lib/pageContent')
 
 const {
   GoogleGenAI,
@@ -26,6 +27,8 @@ const {
   RESIDENTIAL_OPTIONS,
   selectConsultedPages,
   buildPrefetchPrompt,
+  buildExtractionSystemPrompt,
+  withSeedPage,
 } = require('./lib/opportunitySchema')
 const MODEL = 'gemini-3.7-flash'
 const DEFAULT_VERTEX_LOCATION = 'global'
@@ -51,7 +54,7 @@ const NON_GEOCODABLE_LOCATIONS = new Set([
 const FETCH_TOOL = {
   name: 'fetch_page',
   description:
-    'Fetch a webpage with a real, JavaScript-rendering browser and return its title, og:image URL (if any), cleaned visible text, and a list of links (url + visible text) found on the page. Use this to read the seed URL, and optionally follow a specific link (e.g. "Apply", "Key Dates", "Admissions", "How to Apply", "Eligibility") if the current page lacks deadline or eligibility detail. Prefer following a real link found on the page over guessing a URL.',
+    'Fetch a linked follow-up webpage with a real, JavaScript-rendering browser. Return its title, og:image URL (if any), compact semantic Markdown, and a list of links (url + visible text). Use this only when the supplied pages lack a needed fact, such as a deadline, program date, eligibility rule, or cost. Prefer a real link from a supplied page over a guessed URL.',
   parametersJsonSchema: {
     type: 'object',
     properties: {
@@ -88,11 +91,12 @@ const SUBMIT_TOOL = {
       startDate: {
         type: ['string', 'null'],
         description:
-          'Program start date, ISO 8601 (YYYY-MM-DD), or null if not stated/not applicable',
+          'First date participants attend the opportunity, ISO 8601 (YYYY-MM-DD). This is not an application, registration, notification, payment, or unrelated-event date. Return null unless an official source explicitly gives a complete date for the selected program cycle.',
       },
       endDate: {
         type: ['string', 'null'],
-        description: 'Program end date, ISO 8601, or null',
+        description:
+          'Last date participants attend the opportunity, ISO 8601 (YYYY-MM-DD). Return null unless an official source explicitly gives a complete date for the selected program cycle. Never pair it with a startDate from a different cycle or calculate it from duration.',
       },
       applicationDeadline: {
         type: ['string', 'null'],
@@ -186,19 +190,19 @@ const SUBMIT_TOOL = {
       reasoning: {
         type: 'string',
         description:
-          'Brief (1-3 sentence) explanation of how you determined deadlineStatus, especially if choosing "unclear" or rejecting a misleading date on the page. Kept for operator debugging in opportunity-sources, not shown to end users.',
+          'Brief (1-3 sentence) explanation of deadlineStatus and any non-obvious date choice, especially a null program date or a rejected misleading date. Kept for operator debugging in opportunity-sources, not shown to end users.',
       },
       consultedPages: {
         type: 'array',
         description:
-          'Provenance: every URL you called fetch_page on (including the seed URL), each paired with a short role label describing what you learned from that page. We persist this and use it as the seed set on the next run, so list only pages whose content you actually used.',
+          'Provenance: every page supplied in this request and every fetch_page URL, each paired with a short role label describing the facts used from that page. Include the seed URL. We persist this as the seed set on the next run, so do not list any other pages.',
         items: {
           type: 'object',
           properties: {
             url: {
               type: 'string',
               description:
-                'Absolute URL of a page you fetched.',
+                'Absolute URL of a pre-fetched or fetched page.',
             },
             role: {
               type: 'string',
@@ -239,56 +243,12 @@ const SUBMIT_TOOL = {
   },
 }
 
-function buildSystemPrompt() {
-  const today = new Date().toISOString().slice(0, 10)
-  return `You are extracting structured data about a STEM enrichment program or competition for U.S. high schoolers, for a nonprofit's opportunities listing.
-
-Today's date is ${today}. This system publishes based on live queries over the dates you report, not your own judgment of "is this fresh" -- so report real dates exactly as stated, and don't withhold or reclassify a real deadline just because it looks old to you. Freshness is judged later by comparing your reported date to the current date at read time, not by you.
-
-Use the fetch_page tool to read the seed URL. If the page doesn't clearly show an application deadline, eligibility, grade range, or cost, you may follow at most a few relevant links (e.g. "Apply", "Key Dates", "Admissions", "Eligibility", "Tuition", "Cost") using fetch_page again.
-
-Classifying deadlineStatus -- this is the part that actually requires judgment:
-- "dated": the page unambiguously states a real application deadline. Report it as "dated" with the true date whether that date is before or after ${today} -- do not suppress or reclassify a real deadline just because it has already passed.
-- "rolling": the page explicitly states admissions are rolling/ongoing, with no deadline.
-- "upcoming": applications are not yet open, and the page states a SPECIFIC future date when they will open (e.g. "Applications open October 1, 2026"). A vague "check back later" or "opens in the fall" with no specific date is not enough for this -- that's "unclear" instead. Many established annual programs publish next cycle's opening date well before applications actually open, even if last cycle's deadline (now in the past) is also still visible on the page -- look for this specifically, since it's easy to miss if you stop at the first (stale) date you see.
-- "unclear": none of the above confidently applies -- including when the only date on the page is not actually an application deadline at all (e.g. a competition's "kickoff" or "game reveal" date, an unrelated event date), or when you genuinely cannot tell what a date refers to. Guessing wrong is worse than admitting you don't know.
-
-Report location as specifically as you can -- a full street address if the page states one, otherwise city/state. Use the exact literal string "Virtual" for fully online programs, "Multiple Locations" for programs explicitly run at several sites, or "Unsure" only if the page never states a location at all. Never leave location blank or null.
-
-Report cost plainly and literally as stated (e.g. "Free", "$500 fee, need-based aid available"). If the page never states a cost, use the exact literal string "Not specified" -- never guess or leave it blank.
-
-Report financialAid the same way: if cost is "Free", use the exact literal string "Program is Free". If the page explicitly offers scholarships, need-based aid, or fee waivers, describe that plainly. If the program is not free and the page never mentions financial aid, use the exact literal string "Not specified".
-
-Report stipend plainly if the page states participants are paid (common for research internships and fellowships, e.g. "$500/week stipend"). Use the exact literal string "Not specified" if no stipend or payment to participants is mentioned. A stipend is separate from cost -- a program can charge tuition and pay a stipend, or do neither.
-
-Report ageRangeLow/ageRangeHigh whenever the page states eligibility by age, even if a grade range is also reported -- don't discard one in favor of the other.
-
-Pick programType from the fixed list based on how the program actually runs (a research internship that happens in summer is "Research Experience", not "Summer Program", if the page frames it as research). Use "Other" only when nothing fits.
-
-Report durationText plainly from however the page states the time commitment (e.g. "6 weeks", "one-day event", "year-long, meets weekly"). Use the exact literal string "Not specified" if no duration or time commitment is stated.
-
-Report residential only for in-person programs: "Residential" if housing is provided, "Commuter" if participants are explicitly not housed, "Not applicable" if the program is virtual, or "Not specified" if the page is in-person but silent on housing.
-
-Report contactEmail only if a real email address for the program appears on the page; null otherwise. Never construct or guess one.
-
-For consultedPages, list every URL you called fetch_page on (including the seed URL), each with a one-word role describing what you actually learned from that page (e.g. "main", "deadline", "eligibility", "cost", "dates"). We persist this and use it as the seed set on the next run, so be honest about which page actually held each fact -- do not list pages you did not use, and do not invent roles for pages whose content you did not rely on.
-When you have enough information (or have made a good-faith effort and still can't find a clear answer), call submit_extraction with your final answer.`
-}
-
 function extractPageContent(html, baseUrl) {
   const $ = cheerio.load(html)
-  $(
-    'script, style, noscript, svg, nav, footer, header, iframe'
-  ).remove()
-
   const title = $('title').first().text().trim()
   const ogImage =
     $('meta[property="og:image"]').attr('content') || ''
-  const bodyText = $('body')
-    .text()
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 8000)
+  const bodyMarkdown = extractPageMarkdown(html, baseUrl)
 
   const links = []
   const seen = new Set()
@@ -310,7 +270,7 @@ function extractPageContent(html, baseUrl) {
   return {
     title,
     ogImage,
-    bodyText,
+    bodyMarkdown,
     links: links.slice(0, 60),
   }
 }
@@ -577,7 +537,9 @@ async function runExtractionTurnLoop(
       model: MODEL,
       contents,
       config: {
-        systemInstruction: buildSystemPrompt(),
+        systemInstruction: buildExtractionSystemPrompt(
+          new Date().toISOString().slice(0, 10)
+        ),
         maxOutputTokens: MAX_OUTPUT_TOKENS,
         tools: [
           {
@@ -638,13 +600,15 @@ async function runExtractionFromSeed(
   genai,
   seedUrl
 ) {
+  const fetched = await fetchConsultedPages(
+    browser,
+    withSeedPage(seedUrl, [])
+  )
   const contents = [
     {
       role: 'user',
       parts: [
-        {
-          text: `Extract structured information about this STEM opportunity. Starting URL: ${seedUrl}\n\nUse fetch_page to read it, then call submit_extraction with your final answer.`,
-        },
+        { text: buildPrefetchPrompt(seedUrl, fetched) },
       ],
     },
   ]
@@ -652,7 +616,7 @@ async function runExtractionFromSeed(
     browser,
     genai,
     contents,
-    [],
+    fetched.map((entry) => entry.url),
     8
   )
 }
@@ -674,7 +638,7 @@ async function runExtractionFromHistory(
 ) {
   const fetched = await fetchConsultedPages(
     browser,
-    entries
+    withSeedPage(seedUrl, entries, MAX_FETCHES_PER_SOURCE)
   )
   const contents = [
     {

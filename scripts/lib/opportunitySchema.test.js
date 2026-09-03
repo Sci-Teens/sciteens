@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  buildExtractionSystemPrompt,
   buildPrefetchPrompt,
   ExtractionSchema,
   selectConsultedPages,
+  withSeedPage,
 } from './opportunitySchema.js'
 
 function validBase() {
@@ -189,6 +191,60 @@ describe('selectConsultedPages', () => {
   })
 })
 
+describe('withSeedPage', () => {
+  it('adds the seed page before prior consulted pages', () => {
+    const entries = [
+      { url: 'https://example.org/dates', role: 'dates' },
+    ]
+
+    expect(
+      withSeedPage('https://example.org/', entries)
+    ).toEqual([
+      { url: 'https://example.org/', role: 'main' },
+      { url: 'https://example.org/dates', role: 'dates' },
+    ])
+  })
+
+  it('keeps the seed once and places it before other pages', () => {
+    const entries = [
+      { url: 'https://example.org/dates', role: 'dates' },
+      { url: 'https://example.org/', role: 'main' },
+    ]
+
+    expect(
+      withSeedPage('https://example.org/', entries)
+    ).toEqual([
+      { url: 'https://example.org/', role: 'main' },
+      { url: 'https://example.org/dates', role: 'dates' },
+    ])
+  })
+
+  it('caps prefetch pages after reserving the seed page', () => {
+    const entries = [
+      { url: 'https://example.org/dates', role: 'dates' },
+      {
+        url: 'https://example.org/apply',
+        role: 'deadline',
+      },
+      {
+        url: 'https://example.org/eligibility',
+        role: 'eligibility',
+      },
+    ]
+
+    expect(
+      withSeedPage('https://example.org/', entries, 3)
+    ).toEqual([
+      { url: 'https://example.org/', role: 'main' },
+      { url: 'https://example.org/dates', role: 'dates' },
+      {
+        url: 'https://example.org/apply',
+        role: 'deadline',
+      },
+    ])
+  })
+})
+
 describe('buildPrefetchPrompt', () => {
   it('mentions every pre-fetched URL with its role', () => {
     const prompt = buildPrefetchPrompt('https://seed/', [
@@ -235,5 +291,35 @@ describe('buildPrefetchPrompt', () => {
     const prompt = buildPrefetchPrompt('https://seed/', [])
     expect(prompt).toContain('https://seed/')
     expect(prompt.toLowerCase()).toContain('no prior pages')
+  })
+})
+
+describe('buildExtractionSystemPrompt', () => {
+  it('requires explicit participant dates for program dates', () => {
+    const prompt = buildExtractionSystemPrompt('2026-09-02')
+
+    expect(prompt).toContain(
+      'startDate and endDate describe when participants attend'
+    )
+    expect(prompt).toContain(
+      'June 10 to July 19" without a year'
+    )
+    expect(prompt).toContain(
+      'Do not calculate dates from duration.'
+    )
+    expect(prompt).toContain(
+      'Return null when no official page provides an unambiguous participant date.'
+    )
+  })
+
+  it('keeps the supplied date isolated to deadline guidance', () => {
+    const prompt = buildExtractionSystemPrompt('2026-09-02')
+
+    expect(prompt).toContain(
+      'whether it is before or after 2026-09-02'
+    )
+    expect(prompt).toContain(
+      'Do not substitute the current year.'
+    )
   })
 })
