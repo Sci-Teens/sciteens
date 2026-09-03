@@ -194,13 +194,16 @@ export default function CreateProject() {
           ],
         }
       )
-      await setDoc(
-        doc(firestore, 'project-invites', res.id),
-        {
-          emails: members,
-          title: values.title.trim(),
-        }
-      )
+      if (members.length > 0) {
+        await setDoc(
+          doc(firestore, 'project-invites', res.id),
+          {
+            emails: members,
+            title: values.title.trim(),
+            requestedBy: signInCheckResult.user.uid,
+          }
+        )
+      }
       for (const f of files) {
         const safeName = getSafeUploadName(f)
         if (!safeName) {

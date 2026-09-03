@@ -33,11 +33,12 @@ import (
 const snapshotPath = "/__snapshot_now__"
 
 var (
-	upstream       = envOr("MEILI_UPSTREAM", "http://127.0.0.1:7701")
-	masterKey      = os.Getenv("MEILI_MASTER_KEY")
-	snapshotBucket = os.Getenv("MEILI_SNAPSHOT_BUCKET")
-	snapDir        = envOr("MEILI_SNAP_DIR", "/meili_data/snapshots")
-	schedulerSA    = os.Getenv("SCHEDULER_SA_EMAIL")
+	upstream         = envOr("MEILI_UPSTREAM", "http://127.0.0.1:7701")
+	masterKey        = os.Getenv("MEILI_MASTER_KEY")
+	snapshotBucket   = os.Getenv("MEILI_SNAPSHOT_BUCKET")
+	snapDir          = envOr("MEILI_SNAP_DIR", "/meili_data/snapshots")
+	schedulerSA      = os.Getenv("SCHEDULER_SA_EMAIL")
+	snapshotAudience = os.Getenv("SNAPSHOT_AUDIENCE")
 )
 
 func envOr(key, fallback string) string {
@@ -123,10 +124,14 @@ func authorize(r *http.Request) error {
 	if schedulerSA == "" {
 		return fmt.Errorf("SCHEDULER_SA_EMAIL not set")
 	}
-	// Audience is left unchecked: the email claim on a Google-signed token
-	// is the gate, and the run.app URL this service answers to is not
-	// knowable at container build time.
-	payload, err := idtoken.Validate(r.Context(), tok, "")
+	if snapshotAudience == "" {
+		return fmt.Errorf("SNAPSHOT_AUDIENCE not set")
+	}
+	payload, err := idtoken.Validate(
+		r.Context(),
+		tok,
+		snapshotAudience,
+	)
 	if err != nil {
 		return fmt.Errorf("invalid id token: %w", err)
 	}

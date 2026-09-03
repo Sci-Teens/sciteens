@@ -596,6 +596,14 @@
       "programs": "Recordatorios cuando un programa al que estás suscrito tiene una fecha límite de solicitud próxima."
     }
   },
+  "project_invite": {
+    "title": "Invitación al proyecto",
+    "signin_description": "Inicia sesión con la dirección de correo verificada que recibió esta invitación.",
+    "sign_in": "Iniciar sesión",
+    "success": "Te uniste al proyecto.",
+    "view_project": "Ver proyecto",
+    "error": "Esta invitación no es válida, ha expirado o pertenece a otra dirección de correo."
+  },
   "stats": {
     "monthly_users": "Estudiantes activos mensuales",
     "schools": "escuelas",

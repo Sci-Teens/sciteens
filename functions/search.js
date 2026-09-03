@@ -151,15 +151,46 @@ async function meiliRequest(
   return res.status === 204 ? null : res.json()
 }
 
+async function waitForMeiliTask(task) {
+  if (!task || !Number.isInteger(task.taskUid)) return
+  const deadline = Date.now() + 15000
+  for (;;) {
+    const status = await meiliRequest(
+      `/tasks/${task.taskUid}`
+    )
+    if (status.status === 'succeeded') return
+    if (
+      status.status === 'failed' ||
+      status.status === 'canceled'
+    ) {
+      throw new Error(
+        `Meilisearch task ${task.taskUid} ${
+          status.status
+        }: ${JSON.stringify(status.error || null)}`
+      )
+    }
+    if (Date.now() >= deadline) {
+      throw new Error(
+        `Meilisearch task ${task.taskUid} timed out`
+      )
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250))
+  }
+}
+
 // Upserts one project into the `projects` index. Never throws into the
 // caller's Firestore trigger — a Meilisearch outage should never fail (and
 // therefore retry-loop) a project create/update.
 async function indexProject(id, data) {
   try {
-    await meiliRequest('/indexes/projects/documents', {
-      method: 'POST',
-      body: [toSearchDocument(id, data)],
-    })
+    const task = await meiliRequest(
+      '/indexes/projects/documents',
+      {
+        method: 'POST',
+        body: [toSearchDocument(id, data)],
+      }
+    )
+    await waitForMeiliTask(task)
   } catch (err) {
     console.error(
       `search: failed to index project ${id}`,
@@ -170,12 +201,13 @@ async function indexProject(id, data) {
 
 async function deleteProjectFromIndex(id) {
   try {
-    await meiliRequest(
+    const task = await meiliRequest(
       `/indexes/projects/documents/${encodeURIComponent(
         id
       )}`,
       { method: 'DELETE' }
     )
+    await waitForMeiliTask(task)
   } catch (err) {
     console.error(
       `search: failed to delete project ${id} from index`,

@@ -87,38 +87,33 @@ it.
 
 ## Prerequisites the build does not create for you
 
-The Cloud Build service account needs `roles/firebasehosting.admin` in addition
-to the `roles/firebaserules.admin` the rules deploy already requires. Without
-it the build deploys Cloud Run and then fails on the last step with
-`Failed to get Firebase project <id>`, which reads like a missing project but
-is a missing role. The rules step keeps working because
-`roles/firebaserules.admin` already carries the project-read permission every
-Firebase predefined role includes.
+Firebase Hosting does not support custom IAM roles for version and release deployment.
+The dedicated `website-build` service account needs the predefined `roles/firebasehosting.admin` role.
+
+Create the dedicated service account:
 
 ```bash
 PROJECT=<project-id>
-NUMBER=$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')
-gcloud projects add-iam-policy-binding "$PROJECT" \
-  --member="serviceAccount:${NUMBER}@cloudbuild.gserviceaccount.com" \
-  --role=roles/firebasehosting.admin
+gcloud iam service-accounts create website-build \
+  --project="$PROJECT" \
+  --display-name="Website Cloud Build deployer"
 ```
 
-Hosting also needs a site to exist on the project. `firebase deploy --only
-hosting` does not create one. Confirm with
-`firebase hosting:sites:list --project <project-id>`, and create the default
-site in the Firebase console if the list is empty.
+Grant these project roles to this service account:
 
-`roles/firebasehosting.admin` is more than the deploy needs. It also permits
-creating and deleting sites and attaching custom domains, so anyone who can
-trigger a build or edit `cloud-build.yaml` could repoint the production domain
-once DNS moves. It is the documented grant because it is one command and works
-today. To tighten it, create a custom role carrying only
-`firebase.projects.get`, `firebasehosting.sites.get`,
-`firebasehosting.sites.update`, `firebasehosting.versions.{create,get,update}`,
-`firebasehosting.files.{create,list}` and
-`firebasehosting.releases.{create,get,list}`, and grant that instead. Omit
-every `firebasehosting.domains.*` and `sites.create`/`sites.delete`. If it is
-short a permission the CLI names the missing one, so one build settles it.
+- `roles/cloudbuild.builds.builder`
+- `roles/firebasehosting.admin`
+- `roles/firebaserules.admin`
+- `roles/firebasestorage.viewer`
+- `roles/iam.serviceAccountUser`
+- `roles/logging.logWriter`
+- `roles/run.admin`
+- `roles/serviceusage.serviceUsageViewer`
+
+Grant `roles/storage.objectViewer` on the `${PROJECT}_cloudbuild` source bucket.
+
+`cloud-build.yaml` selects this service account and sends its build logs to Cloud Logging.
+The shared default Cloud Build service account does not need Firebase Hosting administration.
 
 ## This is inert until DNS moves
 

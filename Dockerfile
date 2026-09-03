@@ -1,5 +1,5 @@
 # Install dependencies only when needed
-FROM node:24-alpine AS deps
+FROM node:24-alpine@sha256:e67514e5d0f6c46656005e1b693b2ec9d52e80b641307de684d4a015ba7a4eaf AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@8.15.9 --activate
@@ -8,7 +8,7 @@ COPY functions/package.json ./functions/package.json
 RUN pnpm install --frozen-lockfile --filter sciteens...
 
 # Rebuild the source code only when needed
-FROM node:24-alpine AS builder
+FROM node:24-alpine@sha256:e67514e5d0f6c46656005e1b693b2ec9d52e80b641307de684d4a015ba7a4eaf AS builder
 WORKDIR /app
 ARG NODE_ENV=production
 ARG NEXT_PUBLIC_FB_PROJECT_ID
@@ -33,7 +33,7 @@ COPY --from=deps /app/node_modules ./node_modules
 RUN corepack enable && corepack prepare pnpm@8.15.9 --activate && pnpm run build
 
 # Production image, copy only the standalone output
-FROM node:24-alpine AS runner
+FROM node:24-alpine@sha256:e67514e5d0f6c46656005e1b693b2ec9d52e80b641307de684d4a015ba7a4eaf AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

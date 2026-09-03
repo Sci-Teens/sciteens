@@ -9,6 +9,8 @@ import {
   deriveConvertedObjectPath,
   deriveLocalConvertedFilename,
   buildSofficeConvertArgv,
+  buildSandboxedSofficeCommand,
+  isSandboxMountedExecutable,
   deriveConvertedDisplayName,
   buildConvertedFileRecord,
 } from './legacyFileConversion'
@@ -268,6 +270,48 @@ describe('buildSofficeConvertArgv', () => {
         outputDir: '/tmp/out',
       })
     ).toThrow()
+  })
+})
+
+describe('isSandboxMountedExecutable', () => {
+  it('rejects executables outside the read-only sandbox mounts', () => {
+    expect(
+      isSandboxMountedExecutable('/usr/bin/soffice')
+    ).toBe(true)
+    expect(isSandboxMountedExecutable('/bin/soffice')).toBe(
+      true
+    )
+    expect(
+      isSandboxMountedExecutable('/opt/libreoffice/soffice')
+    ).toBe(false)
+  })
+})
+
+describe('buildSandboxedSofficeCommand', () => {
+  it('removes network access and ambient environment variables', () => {
+    const command = buildSandboxedSofficeCommand({
+      sandboxBin: '/usr/bin/bwrap',
+      sofficeBin: '/usr/bin/soffice',
+      tmpDir: '/tmp/legacy-convert-safe',
+      sofficeArgv: ['--headless', 'input.docx'],
+    })
+
+    expect(command.command).toBe('/usr/bin/bwrap')
+    expect(command.argv).toContain('--unshare-all')
+    expect(command.argv).toContain('--clearenv')
+    expect(command.argv).toContain('--die-with-parent')
+    expect(command.argv).toContain(
+      '/tmp/legacy-convert-safe'
+    )
+    expect(command.argv.slice(-3)).toEqual([
+      '/usr/bin/soffice',
+      '--headless',
+      'input.docx',
+    ])
+    expect(command.argv.join('\0')).not.toContain(
+      '--ro-bind\0/etc\0/etc'
+    )
+    expect(command.argv).toContain('/etc/libreoffice')
   })
 })
 

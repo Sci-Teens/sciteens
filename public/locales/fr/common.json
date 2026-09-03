@@ -596,6 +596,14 @@
       "programs": "Rappels lorsqu'un programme auquel vous êtes abonné a une date limite de candidature à venir."
     }
   },
+  "project_invite": {
+    "title": "Invitation au projet",
+    "signin_description": "Connectez-vous avec l'adresse e-mail vérifiée qui a reçu cette invitation.",
+    "sign_in": "Se connecter",
+    "success": "Vous avez rejoint le projet.",
+    "view_project": "Voir le projet",
+    "error": "Cette invitation est invalide, a expiré ou appartient à une autre adresse e-mail."
+  },
   "stats": {
     "monthly_users": "Étudiants actifs mensuels",
     "schools": "écoles",

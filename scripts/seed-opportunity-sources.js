@@ -171,6 +171,11 @@ async function createSourceIfMissing(db, source, execute) {
       label: source.label,
       category: source.category,
       logoUrl: source.logoUrl || null,
+      allowedExternalHosts: Array.isArray(
+        source.allowedExternalHosts
+      )
+        ? source.allowedExternalHosts
+        : [],
       sourceType: 'curated',
       status: 'active',
       verificationReasoning: null,

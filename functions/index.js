@@ -59,6 +59,148 @@ const {
 // Ceiling on how many addresses one project-invite document may fan
 // out to. firestore.rules enforces the same bound at write time.
 const MAX_PROJECT_INVITES = 10
+const PROJECT_INVITE_RATE_WINDOW = 60 * 60 * 1000
+const MAX_PROJECT_INVITES_PER_WINDOW = 20
+const PROJECT_INVITE_TOKEN_WINDOW = 7 * 24 * 60 * 60 * 1000
+
+async function reserveProjectInviteQuota(
+  requestedBy,
+  projectId,
+  count
+) {
+  const now = Date.now()
+  const db = admin.firestore()
+  const projectRef = db
+    .collection('projects')
+    .doc(projectId)
+  const rateRef = db
+    .collection('project-invite-rate-limits')
+    .doc(hashNewsletterValue(requestedBy))
+
+  return db.runTransaction(async (transaction) => {
+    const [projectSnapshot, rateSnapshot] =
+      await Promise.all([
+        transaction.get(projectRef),
+        transaction.get(rateRef),
+      ])
+    const members = projectSnapshot.exists
+      ? projectSnapshot.data().member_uids
+      : []
+    if (
+      !Array.isArray(members) ||
+      !members.includes(requestedBy)
+    ) {
+      return false
+    }
+
+    const data = rateSnapshot.exists
+      ? rateSnapshot.data()
+      : {}
+    const windowStartedAt =
+      typeof data.windowStartedAt === 'number'
+        ? data.windowStartedAt
+        : 0
+    const currentCount =
+      typeof data.count === 'number' ? data.count : 0
+    const inCurrentWindow =
+      now - windowStartedAt < PROJECT_INVITE_RATE_WINDOW
+    const nextCount = inCurrentWindow
+      ? currentCount + count
+      : count
+    if (nextCount > MAX_PROJECT_INVITES_PER_WINDOW) {
+      return false
+    }
+
+    transaction.set(rateRef, {
+      windowStartedAt: inCurrentWindow
+        ? windowStartedAt
+        : now,
+      count: nextCount,
+      expiresAt: new Date(now + PROJECT_INVITE_RATE_WINDOW),
+      updatedAt:
+        admin.firestore.FieldValue.serverTimestamp(),
+    })
+    return true
+  })
+}
+
+const DISCUSSION_EMAIL_RATE_WINDOW = 60 * 60 * 1000
+const MAX_DISCUSSION_EMAILS_PER_WINDOW = 5
+
+async function reserveDiscussionEmailQuota(
+  senderUid,
+  recipientUid
+) {
+  const now = Date.now()
+  const collection = admin
+    .firestore()
+    .collection('discussion-email-rate-limits')
+  const refs = [
+    collection.doc(
+      `sender-${hashNewsletterValue(senderUid)}`
+    ),
+    collection.doc(
+      `recipient-${hashNewsletterValue(recipientUid)}`
+    ),
+  ]
+  return admin
+    .firestore()
+    .runTransaction(async (transaction) => {
+      const snapshots = await Promise.all(
+        refs.map((ref) => transaction.get(ref))
+      )
+      const states = snapshots.map((snapshot) => {
+        const data = snapshot.exists ? snapshot.data() : {}
+        const windowStartedAt =
+          typeof data.windowStartedAt === 'number'
+            ? data.windowStartedAt
+            : 0
+        const count =
+          typeof data.count === 'number' ? data.count : 0
+        return {
+          count,
+          windowStartedAt,
+          inCurrentWindow:
+            now - windowStartedAt <
+            DISCUSSION_EMAIL_RATE_WINDOW,
+        }
+      })
+      if (
+        states.some(
+          (state) =>
+            state.inCurrentWindow &&
+            state.count >= MAX_DISCUSSION_EMAILS_PER_WINDOW
+        )
+      ) {
+        return false
+      }
+      refs.forEach((ref, index) => {
+        const state = states[index]
+        transaction.set(ref, {
+          windowStartedAt: state.inCurrentWindow
+            ? state.windowStartedAt
+            : now,
+          count: state.inCurrentWindow
+            ? state.count + 1
+            : 1,
+          expiresAt: new Date(
+            now + DISCUSSION_EMAIL_RATE_WINDOW
+          ),
+          updatedAt:
+            admin.firestore.FieldValue.serverTimestamp(),
+        })
+      })
+      return true
+    })
+}
+
+function projectInviteTokenParts(value) {
+  if (typeof value !== 'string') return null
+  const match = value.match(
+    /^([a-f0-9]{64})\.([A-Za-z0-9_-]{20,})$/
+  )
+  return match ? { id: match[1], secret: match[2] } : null
+}
 
 const NEWSLETTER_SITE_URL = 'https://sciteens.org'
 const NEWSLETTER_FUNCTION_URL =
@@ -68,8 +210,11 @@ const NEWSLETTER_ORIGINS = [
   'http://localhost:3000',
 ]
 const NEWSLETTER_CONFIRMATION_WINDOW = 24 * 60 * 60 * 1000
+const NEWSLETTER_GLOBAL_RATE_LIMIT = 100
 const NEWSLETTER_RATE_WINDOW = 15 * 60 * 1000
 const NEWSLETTER_EMAIL_RATE_WINDOW = 60 * 60 * 1000
+const SIGNUP_EMAIL_RATE_WINDOW = 24 * 60 * 60 * 1000
+const SIGNUP_EMAIL_LEASE_WINDOW = 5 * 60 * 1000
 
 function newsletterPage(locale, page, status = '') {
   const prefix = locale === 'en' ? '' : `/${locale}`
@@ -102,7 +247,7 @@ function newsletterUnsubscribePage(
   return `${newsletterPage(
     locale,
     'unsubscribe'
-  )}?${new URLSearchParams({
+  )}#${new URLSearchParams({
     subscriber,
     token,
   }).toString()}`
@@ -115,12 +260,6 @@ function newsletterLink(action, subscriber, token, locale) {
     token,
     locale,
   }).toString()}`
-}
-
-function newsletterRequestIp(req) {
-  const forwarded = req.get('X-Forwarded-For')
-  if (forwarded) return forwarded.split(',')[0].trim()
-  return typeof req.ip === 'string' ? req.ip : ''
 }
 
 async function isNewsletterRateLimited(
@@ -168,6 +307,48 @@ async function isNewsletterRateLimited(
     })
 }
 
+async function reserveSignupEmailDelivery(email, uid) {
+  const now = Date.now()
+  const ref = admin
+    .firestore()
+    .collection('signup-email-deliveries')
+    .doc(hashNewsletterValue(email))
+  const status = await admin
+    .firestore()
+    .runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(ref)
+      const data = snapshot.exists ? snapshot.data() : {}
+      const startedAt =
+        typeof data.windowStartedAt === 'number'
+          ? data.windowStartedAt
+          : 0
+      const leaseUntil =
+        typeof data.leaseUntil === 'number'
+          ? data.leaseUntil
+          : 0
+      const active =
+        now - startedAt < SIGNUP_EMAIL_RATE_WINDOW
+
+      if (active && data.uid !== uid) return 'blocked'
+      if (active && data.completed === true) {
+        return 'completed'
+      }
+      if (active && leaseUntil > now) return 'in_progress'
+
+      transaction.set(ref, {
+        uid,
+        completed: false,
+        windowStartedAt: active ? startedAt : now,
+        leaseUntil: now + SIGNUP_EMAIL_LEASE_WINDOW,
+        expiresAt: new Date(now + SIGNUP_EMAIL_RATE_WINDOW),
+        updatedAt:
+          admin.firestore.FieldValue.serverTimestamp(),
+      })
+      return 'acquired'
+    })
+  return { status, ref }
+}
+
 function setNewsletterCors(req, res) {
   const origin = req.get('Origin')
   if (origin && !NEWSLETTER_ORIGINS.includes(origin)) {
@@ -183,6 +364,26 @@ function setNewsletterCors(req, res) {
   }
   res.set('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.set('Access-Control-Allow-Headers', 'Content-Type')
+  return true
+}
+
+function setProjectInviteCors(req, res) {
+  const origin = req.get('Origin')
+  if (origin && !NEWSLETTER_ORIGINS.includes(origin)) {
+    res
+      .status(403)
+      .json({ ok: false, error: 'invalid_origin' })
+    return false
+  }
+  if (origin) {
+    res.set('Access-Control-Allow-Origin', origin)
+    res.set('Vary', 'Origin')
+  }
+  res.set('Access-Control-Allow-Methods', 'POST, OPTIONS')
+  res.set(
+    'Access-Control-Allow-Headers',
+    'Authorization, Content-Type'
+  )
   return true
 }
 
@@ -502,9 +703,13 @@ exports.newUser = functions
   })
   .auth.user()
   .onCreate(async (user) => {
-    const [firstName, ...rest] = (
-      user.displayName || ''
-    ).split(' ')
+    if (!user.email) {
+      console.warn(
+        'New user has no email. Contact and email delivery skipped.'
+      )
+      return 'Success!'
+    }
+
     const writes = [
       admin
         .firestore()
@@ -527,20 +732,58 @@ exports.newUser = functions
     }
     await Promise.all(writes)
 
-    if (!user.email) {
+    const normalizedEmail = normalizeNewsletterEmail(
+      user.email
+    )
+    if (!normalizedEmail) {
+      console.warn('Signup email address is invalid.')
+      return 'Success!'
+    }
+    const delivery = await reserveSignupEmailDelivery(
+      normalizedEmail,
+      user.uid
+    )
+    if (delivery.status === 'in_progress') {
+      throw new Error(
+        'Signup email delivery is in progress.'
+      )
+    }
+    if (delivery.status === 'blocked') {
       console.warn(
-        'New user has no email. Contact and email delivery skipped.'
+        'Signup email delivery was rate limited.'
       )
       return 'Success!'
     }
+    if (delivery.status === 'completed') return 'Success!'
 
+    const [firstName, ...rest] = (
+      user.displayName || ''
+    ).split(' ')
     await addTransactionalContact({
       email: user.email,
       firstName,
       lastName: rest.join(' '),
     })
     await sendNewUserEmails(user)
+    await delivery.ref.update({
+      completed: true,
+      leaseUntil: admin.firestore.FieldValue.delete(),
+      updatedAt:
+        admin.firestore.FieldValue.serverTimestamp(),
+    })
     return 'Success!'
+  })
+
+exports.deleteUserArtifacts = functions.auth
+  .user()
+  .onDelete(async (user) => {
+    const db = admin.firestore()
+    const batch = db.batch()
+    batch.delete(db.collection('emails').doc(user.uid))
+    batch.delete(
+      db.collection('profile-pictures').doc(user.uid)
+    )
+    await batch.commit()
   })
 
 /*
@@ -708,44 +951,71 @@ exports.newDiscussion = functions
     'projects/{projectID}/discussion/{feedbackID}'
   )
   .onCreate(async (event, context) => {
-    // Determine if a reply
-    if (event.data().reply_to_id) {
-      // Determine if user who submitted is a mentor or student
-      const user = await admin
-        .auth()
-        .getUser(event.data().uid)
-
-      // Fetch the original discussion comment
-      const originalComment = await admin
-        .firestore()
-        .doc(
-          `projects/${
-            context.params.projectID
-          }/discussion/${event.data().reply_to_id}`
-        )
-        .get()
-
-      const originalUser = await admin
-        .auth()
-        .getUser(originalComment.data().uid)
-      // PII redacted from logs
-      console.log(
-        'Sending discussion email to user ' +
-          originalComment.data().uid
-      )
-      return sendEmail({
-        to: originalUser.email,
-        toName: originalUser.displayName,
-        subject: 'New Feedback',
-        react: newFeedbackTemplate({
-          studentOrMentor:
-            user.customClaims && user.customClaims['mentor']
-              ? 'mentor'
-              : 'student',
-          projectLink: `https://sciteens.org/project/${context.params.projectID}#${event.id}`,
-        }),
-      })
+    const data = event.data()
+    const replyId = data.reply_to_id
+    const senderUid = data.uid
+    if (
+      typeof replyId !== 'string' ||
+      !/^[A-Za-z0-9]{1,128}$/.test(replyId) ||
+      typeof senderUid !== 'string'
+    ) {
+      return
     }
+
+    const db = admin.firestore()
+    const projectId = context.params.projectID
+    const [projectSnapshot, originalComment] =
+      await Promise.all([
+        db.collection('projects').doc(projectId).get(),
+        db
+          .doc(
+            `projects/${projectId}/discussion/${replyId}`
+          )
+          .get(),
+      ])
+    if (
+      !projectSnapshot.exists ||
+      !originalComment.exists
+    ) {
+      return
+    }
+
+    const originalUid = originalComment.data().uid
+    if (
+      typeof originalUid !== 'string' ||
+      originalUid === senderUid ||
+      !(await reserveDiscussionEmailQuota(
+        senderUid,
+        originalUid
+      ))
+    ) {
+      return
+    }
+
+    const [sender, recipient] = await Promise.all([
+      admin.auth().getUser(senderUid),
+      admin.auth().getUser(originalUid),
+    ])
+    if (!recipient.email) return
+
+    console.log(
+      'Sending discussion email to user ' + originalUid
+    )
+    return sendEmail({
+      to: recipient.email,
+      toName: recipient.displayName,
+      subject: 'New Feedback',
+      react: newFeedbackTemplate({
+        studentOrMentor:
+          sender.customClaims &&
+          sender.customClaims['mentor']
+            ? 'mentor'
+            : 'student',
+        projectLink: `https://sciteens.org/project/${projectId}#${event.id}`,
+      }),
+      category: EMAIL_CATEGORIES.GENERAL,
+      uid: originalUid,
+    })
   })
 
 /*
@@ -1183,26 +1453,23 @@ exports.newsletter = functions
       return res.status(202).json({ ok: true })
     }
 
-    const clientIp = newsletterRequestIp(req)
-    if (!clientIp) {
+    const globalLimited = await isNewsletterRateLimited(
+      'global-signup',
+      NEWSLETTER_GLOBAL_RATE_LIMIT,
+      NEWSLETTER_RATE_WINDOW
+    )
+    if (globalLimited) {
       return res
-        .status(400)
-        .json({ ok: false, error: 'invalid_request' })
+        .status(429)
+        .json({ ok: false, error: 'rate_limited' })
     }
 
-    const [ipLimited, emailLimited] = await Promise.all([
-      isNewsletterRateLimited(
-        `ip-${hashNewsletterValue(clientIp)}`,
-        5,
-        NEWSLETTER_RATE_WINDOW
-      ),
-      isNewsletterRateLimited(
-        `email-${hashNewsletterValue(email)}`,
-        3,
-        NEWSLETTER_EMAIL_RATE_WINDOW
-      ),
-    ])
-    if (ipLimited || emailLimited) {
+    const emailLimited = await isNewsletterRateLimited(
+      `email-${hashNewsletterValue(email)}`,
+      3,
+      NEWSLETTER_EMAIL_RATE_WINDOW
+    )
+    if (emailLimited) {
       return res
         .status(429)
         .json({ ok: false, error: 'rate_limited' })
@@ -1345,16 +1612,9 @@ async function optimizeImageObject(object) {
 exports.fileUpload = functions.storage
   .object()
   .onFinalize(async (object) => {
-    // Our own in-place optimizeImageObject() overwrite re-triggers
-    // this same function (a new object generation of the same path);
-    // it was already SafeSearch-checked and resized as the original
-    // upload, so just stop here instead of re-scanning, re-resizing,
-    // or looping forever.
-    if (object.metadata?.optimized === 'true') {
-      return console.log(
-        'Skipping already-optimized object ' + object.name
-      )
-    }
+    // Client metadata is untrusted. Every generation must pass
+    // SafeSearch before the optimized marker can suppress another
+    // resize.
 
     const contentType = object.contentType
     if (!contentType) {
@@ -1441,6 +1701,12 @@ exports.fileUpload = functions.storage
     console.log(
       'No offensive content found for ' + object.name
     )
+    if (object.metadata?.optimized === 'true') {
+      return console.log(
+        'Skipping resize for an already-optimized object ' +
+          object.name
+      )
+    }
     // Resize/recompress eligible images in place (see
     // lib/imageOptimize.js). profiles/{uid}/... and
     // projects/{projectId}/... don't need makePublic() or a
@@ -1550,118 +1816,202 @@ exports.fileUpload = functions.storage
     }
   })
 
-/*
-    Function newProjectInvite()
-    
-    Handles the operations necessary when a new project invite is created
-*/
+exports.acceptProjectInvite = functions.https.onRequest(
+  async (req, res) => {
+    if (!setProjectInviteCors(req, res)) return
+    if (req.method === 'OPTIONS') {
+      return res.status(204).send('')
+    }
+    if (req.method !== 'POST') {
+      return res
+        .status(405)
+        .json({ ok: false, error: 'method_not_allowed' })
+    }
+
+    const authorization = req.get('Authorization') || ''
+    const idToken = authorization.startsWith('Bearer ')
+      ? authorization.slice(7)
+      : ''
+    let identity
+    try {
+      identity = await admin.auth().verifyIdToken(idToken)
+    } catch {
+      return res
+        .status(401)
+        .json({ ok: false, error: 'invalid_identity' })
+    }
+
+    const token = req.body?.token
+    const tokenParts = projectInviteTokenParts(token)
+    const email = normalizeNewsletterEmail(identity.email)
+    if (
+      !tokenParts ||
+      !email ||
+      identity.email_verified !== true
+    ) {
+      return res
+        .status(401)
+        .json({ ok: false, error: 'invalid_identity' })
+    }
+
+    try {
+      const projectId = await admin
+        .firestore()
+        .runTransaction(async (transaction) => {
+          const db = admin.firestore()
+          const inviteRef = db
+            .collection('project-invite-tokens')
+            .doc(tokenParts.id)
+          const inviteSnapshot = await transaction.get(
+            inviteRef
+          )
+          if (!inviteSnapshot.exists) {
+            throw new Error('invalid_invite')
+          }
+          const invite = inviteSnapshot.data()
+          const expiresAt = invite.expiresAt?.toMillis
+            ? invite.expiresAt.toMillis()
+            : new Date(invite.expiresAt).getTime()
+          if (
+            !Number.isFinite(expiresAt) ||
+            expiresAt <= Date.now() ||
+            !tokensMatch(
+              invite.tokenHash,
+              hashNewsletterValue(tokenParts.secret)
+            ) ||
+            !tokensMatch(
+              invite.emailHash,
+              hashNewsletterValue(email)
+            )
+          ) {
+            throw new Error('invalid_invite')
+          }
+
+          const projectRef = db
+            .collection('projects')
+            .doc(invite.projectId)
+          const profileRef = db
+            .collection('profiles')
+            .doc(identity.uid)
+          const [projectSnapshot, profileSnapshot] =
+            await Promise.all([
+              transaction.get(projectRef),
+              transaction.get(profileRef),
+            ])
+          if (
+            !projectSnapshot.exists ||
+            !profileSnapshot.exists
+          ) {
+            throw new Error('invalid_invite')
+          }
+
+          const memberUids =
+            projectSnapshot.data().member_uids || []
+          if (!memberUids.includes(identity.uid)) {
+            const profile = profileSnapshot.data()
+            transaction.update(projectRef, {
+              member_uids:
+                admin.firestore.FieldValue.arrayUnion(
+                  identity.uid
+                ),
+              member_arr:
+                admin.firestore.FieldValue.arrayUnion({
+                  uid: identity.uid,
+                  display: profile.display || '',
+                  slug: profile.slug || '',
+                }),
+            })
+          }
+          transaction.delete(inviteRef)
+          return invite.projectId
+        })
+
+      return res.status(200).json({ ok: true, projectId })
+    } catch {
+      return res
+        .status(401)
+        .json({ ok: false, error: 'invalid_invite' })
+    }
+  }
+)
+
 exports.newProjectInvite = functions
   .runWith({
     secrets: [resendApiKey],
   })
   .firestore.document('project-invites/{projectID}')
-  .onCreate((event) => {
-    let id = event.id
-    let title = String(event.data().title ?? '').slice(
-      0,
-      200
-    )
-
-    // The invite doc is client-written. firestore.rules bounds it too,
-    // but this is the side that actually spends Resend quota and puts
-    // our From address on the message, so it re-validates rather than
-    // trusting the document: an unbounded or malformed `emails` array
-    // here is a mail relay.
-    const raw = event.data().emails
-    const emails = (Array.isArray(raw) ? raw : [])
-      .filter((email) => typeof email === 'string')
-      .map((email) => email.trim())
-      .filter((email) =>
-        /^[^\s@,;<>"]+@[^\s@,;<>"]+\.[^\s@,;<>"]+$/.test(
-          email
-        )
-      )
-      .slice(0, MAX_PROJECT_INVITES)
-
-    // Both drop paths are otherwise invisible: the invite doc is
-    // deleted at the end of this handler, so a silently skipped
-    // invitee leaves no artifact to diagnose from.
-    const dropped =
-      (Array.isArray(raw) ? raw.length : 0) - emails.length
-    if (dropped > 0) {
-      console.warn(
-        `Dropped ${dropped} invalid or excess invite address(es) for project ${id}`
-      )
-    }
-
-    emails.forEach((email) => {
-      // Fetch the user from email
-      admin
-        .auth()
-        .getUserByEmail(email)
-        .then((user) => {
-          // Fetch the user's profile, and add them to the project
-          admin
-            .firestore()
-            .collection('profiles')
-            .doc(user.uid)
-            .get()
-            .then((profile) => {
-              return admin
-                .firestore()
-                .collection('projects')
-                .doc(id)
-                .update({
-                  member_arr:
-                    admin.firestore.FieldValue.arrayUnion({
-                      uid: user.uid,
-                      display: user.displayName,
-                      slug: profile.data().slug
-                        ? profile.data().slug
-                        : '',
-                    }),
-                })
-            })
-            .then(() => {
-              console.log(
-                'Added user to project: ' + user.uid
-              )
-              return admin
-                .firestore()
-                .collection('projects')
-                .doc(id)
-                .update({
-                  member_uids:
-                    admin.firestore.FieldValue.arrayUnion(
-                      user.uid
-                    ),
-                })
-            })
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-
-      // Email the user that they've been added to a project
-      // Send an email to the user
-      sendEmail({
-        to: email,
-        subject: 'Project Update',
-        react: projectUpdateTemplate({
-          projectName: title,
-          projectLink:
-            'https://sciteens.org/project/' + event.id,
-        }),
-      }).catch((err) => {
-        console.log('resend error:' + err)
-      })
-    })
-    // Delete project invite once finished
-    return admin
+  .onCreate(async (event) => {
+    const projectId = event.id
+    const data = event.data()
+    const requestedBy =
+      typeof data.requestedBy === 'string'
+        ? data.requestedBy
+        : ''
+    const title = String(data.title ?? '').slice(0, 200)
+    const raw = data.emails
+    const emails = [
+      ...new Set(
+        (Array.isArray(raw) ? raw : [])
+          .map(normalizeNewsletterEmail)
+          .filter(Boolean)
+      ),
+    ].slice(0, MAX_PROJECT_INVITES)
+    const requestRef = admin
       .firestore()
       .collection('project-invites')
-      .doc(id)
-      .delete()
+      .doc(projectId)
+
+    try {
+      if (
+        emails.length === 0 ||
+        !(await reserveProjectInviteQuota(
+          requestedBy,
+          projectId,
+          emails.length
+        ))
+      ) {
+        console.warn(
+          `Rejected a project invitation request for ${projectId}`
+        )
+        return
+      }
+
+      await Promise.all(
+        emails.map(async (email) => {
+          const inviteId = hashNewsletterValue(
+            `${projectId}\0${email}`
+          )
+          const secret = createNewsletterToken()
+          await admin
+            .firestore()
+            .collection('project-invite-tokens')
+            .doc(inviteId)
+            .set({
+              projectId,
+              emailHash: hashNewsletterValue(email),
+              tokenHash: hashNewsletterValue(secret),
+              expiresAt: new Date(
+                Date.now() + PROJECT_INVITE_TOKEN_WINDOW
+              ),
+              updatedAt:
+                admin.firestore.FieldValue.serverTimestamp(),
+            })
+
+          await sendEmail({
+            to: email,
+            subject: 'Project Invitation',
+            react: projectUpdateTemplate({
+              projectName: title,
+              projectLink: `${NEWSLETTER_SITE_URL}/project/invite#${encodeURIComponent(
+                `${inviteId}.${secret}`
+              )}`,
+            }),
+          })
+        })
+      )
+    } finally {
+      await requestRef.delete()
+    }
   })
 
 /*

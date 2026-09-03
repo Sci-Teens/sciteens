@@ -6,6 +6,7 @@ import {
   ExtractionSchema,
   selectConsultedPages,
   withSeedPage,
+  validateExtractionProvenance,
 } from './opportunitySchema.js'
 
 function validBase() {
@@ -111,6 +112,100 @@ describe('ExtractionSchema consultedPages', () => {
       consultedPages: [{ role: 'main' }],
     })
     expect(result.success).toBe(false)
+  })
+})
+
+describe('ExtractionSchema URL boundaries', () => {
+  it('rejects non-HTTPS application and consulted URLs', () => {
+    expect(
+      ExtractionSchema.safeParse({
+        ...validBase(),
+        applicationUrl: 'http://example.com/apply',
+        consultedPages: [],
+      }).success
+    ).toBe(false)
+    expect(
+      ExtractionSchema.safeParse({
+        ...validBase(),
+        consultedPages: [
+          { url: 'http://example.com/', role: 'main' },
+        ],
+      }).success
+    ).toBe(false)
+  })
+})
+
+describe('validateExtractionProvenance', () => {
+  it('accepts fetched URLs on the curated source host', () => {
+    expect(
+      validateExtractionProvenance({
+        sourceUrl: 'https://example.com/program',
+        applicationUrl: 'https://example.com/apply',
+        consultedPages: [
+          {
+            url: 'https://example.com/program',
+            role: 'main',
+          },
+        ],
+        visitedUrls: [
+          'https://example.com/program',
+          'https://example.com/apply',
+        ],
+      })
+    ).toMatchObject({
+      success: true,
+      applicationUrl: 'https://example.com/apply',
+    })
+  })
+
+  it('rejects an unfetched model-supplied application URL', () => {
+    expect(
+      validateExtractionProvenance({
+        sourceUrl: 'https://example.com/program',
+        applicationUrl: 'https://evil.example/phishing',
+        consultedPages: [],
+        visitedUrls: ['https://example.com/program'],
+      })
+    ).toMatchObject({ success: false })
+  })
+
+  it('rejects poisoned consulted-page provenance', () => {
+    expect(
+      validateExtractionProvenance({
+        sourceUrl: 'https://example.com/program',
+        applicationUrl: 'https://example.com/program',
+        consultedPages: [
+          {
+            url: 'https://evil.example/prompt',
+            role: 'main',
+          },
+        ],
+        visitedUrls: [
+          'https://example.com/program',
+          'https://evil.example/prompt',
+        ],
+      })
+    ).toMatchObject({ success: false })
+  })
+
+  it('allows an operator-approved external host after a real fetch', () => {
+    expect(
+      validateExtractionProvenance({
+        sourceUrl: 'https://example.com/program',
+        applicationUrl: 'https://apply.example.net/form',
+        consultedPages: [
+          {
+            url: 'https://apply.example.net/form',
+            role: 'application',
+          },
+        ],
+        visitedUrls: [
+          'https://example.com/program',
+          'https://apply.example.net/form',
+        ],
+        allowedExternalHosts: ['apply.example.net'],
+      })
+    ).toMatchObject({ success: true })
   })
 })
 

@@ -596,6 +596,14 @@
       "programs": "Reminders when a program you're subscribed to has an upcoming application deadline."
     }
   },
+  "project_invite": {
+    "title": "Project invitation",
+    "signin_description": "Sign in with the verified email address that received this invitation.",
+    "sign_in": "Sign in",
+    "success": "You joined the project.",
+    "view_project": "View project",
+    "error": "This invitation is invalid, expired, or belongs to another email address."
+  },
   "stats": {
     "monthly_users": "Monthly Active Students",
     "schools": "schools",

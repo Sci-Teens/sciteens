@@ -10,10 +10,11 @@
 //
 // Usage:
 //   node scripts/convert-legacy-files.js [--execute] [--project <id>]
-//     [--bucket <name>] [--soffice-bin <path>] [--prefix <storage-prefix>]
+//     [--bucket <name>] [--soffice-bin <path>] [--sandbox-bin <path>]
+//     [--prefix <storage-prefix>]
 //
-// Defaults to a dry run (lists what would happen, makes zero writes).
-// Pass --execute to actually convert + upload + delete.
+// Run this script on Linux with Bubblewrap. Dry runs make zero writes.
+// The --execute option converts, uploads, and deletes files.
 
 const fs = require('node:fs')
 const os = require('node:os')
@@ -31,7 +32,9 @@ const {
   deriveConvertedObjectPath,
   deriveLocalConvertedFilename,
   buildSofficeConvertArgv,
+  buildSandboxedSofficeCommand,
   buildConvertedFileRecord,
+  isSandboxMountedExecutable,
 } = require('./lib/legacyFileConversion')
 const {
   classifyObjectOwner,
@@ -45,6 +48,7 @@ function parseArgs(argv) {
     project: undefined,
     bucket: undefined,
     sofficeBin: undefined,
+    sandboxBin: undefined,
     prefix: '',
   }
   for (let i = 0; i < argv.length; i++) {
@@ -57,6 +61,8 @@ function parseArgs(argv) {
       args.bucket = argv[++i]
     } else if (arg === '--soffice-bin') {
       args.sofficeBin = argv[++i]
+    } else if (arg === '--sandbox-bin') {
+      args.sandboxBin = argv[++i]
     } else if (arg === '--prefix') {
       args.prefix = argv[++i]
     } else {
@@ -89,21 +95,57 @@ function loadEnvLocal(repoRoot) {
   }
 }
 
+function resolveExecutablePath(command) {
+  const candidates = command.includes(path.sep)
+    ? [command]
+    : (process.env.PATH || '')
+        .split(path.delimiter)
+        .filter(Boolean)
+        .map((directory) => path.join(directory, command))
+  for (const candidate of candidates) {
+    try {
+      fs.accessSync(candidate, fs.constants.X_OK)
+      return fs.realpathSync(candidate)
+    } catch {}
+  }
+  throw new Error(`Could not find executable "${command}".`)
+}
+
 // soffice crashes are the most likely failure mode on a machine that
 // hasn't set this up before, so this checks and explains itself before
 // any Storage call is made.
 function resolveAndVerifySofficeBin(sofficeBinArg) {
-  const bin =
+  const requested =
     sofficeBinArg || process.env.SOFFICE_BIN || 'soffice'
+  const bin = resolveExecutablePath(requested)
+  if (!isSandboxMountedExecutable(bin)) {
+    throw new Error(
+      `LibreOffice must resolve below /usr or /bin for the sandbox. Received "${bin}".`
+    )
+  }
   try {
     execFileSync(bin, ['--version'], { stdio: 'pipe' })
   } catch (err) {
     throw new Error(
-      `Could not run "${bin} --version" (${err.message}).\n` +
-        'LibreOffice headless is required for this script. Install it, e.g.:\n' +
-        '  Debian/Ubuntu: sudo apt-get install -y libreoffice\n' +
-        '  macOS:         brew install --cask libreoffice\n' +
-        'or pass --soffice-bin <path> / set SOFFICE_BIN to point at an existing install.'
+      `Could not run "${bin} --version" (${err.message}). Install LibreOffice or pass --soffice-bin <path>.`
+    )
+  }
+  return bin
+}
+
+function resolveAndVerifySandboxBin(sandboxBinArg) {
+  if (process.platform !== 'linux') {
+    throw new Error(
+      'Run this conversion on Linux. The sandbox requires Linux namespaces.'
+    )
+  }
+  const bin =
+    sandboxBinArg || process.env.BWRAP_BIN || 'bwrap'
+  try {
+    execFileSync(bin, ['--version'], { stdio: 'pipe' })
+  } catch (err) {
+    throw new Error(
+      `Could not run "${bin} --version" (${err.message}). Install bubblewrap or pass --sandbox-bin <path>.`
     )
   }
   return bin
@@ -116,6 +158,7 @@ async function convertOneFile({
   contentType,
   sourceExtension,
   sofficeBin,
+  sandboxBin,
 }) {
   const tmpDir = fs.mkdtempSync(
     path.join(os.tmpdir(), 'legacy-convert-')
@@ -135,8 +178,18 @@ async function convertOneFile({
       outputDir,
       profileDir,
     })
-    await execFileAsync(sofficeBin, argv, {
+    const sandboxed = buildSandboxedSofficeCommand({
+      sandboxBin,
+      sofficeBin,
+      tmpDir,
+      sofficeArgv: argv,
+    })
+    await execFileAsync(sandboxed.command, sandboxed.argv, {
       timeout: SOFFICE_TIMEOUT_MS,
+      env: {
+        LANG: 'C.UTF-8',
+        PATH: '/usr/bin:/bin',
+      },
     })
 
     const outputFileName =
@@ -299,6 +352,9 @@ async function main() {
   const sofficeBin = resolveAndVerifySofficeBin(
     args.sofficeBin
   )
+  const sandboxBin = args.execute
+    ? resolveAndVerifySandboxBin(args.sandboxBin)
+    : null
 
   const projectId =
     args.project || process.env.NEXT_PUBLIC_FB_PROJECT_ID
@@ -389,6 +445,7 @@ async function main() {
           contentType,
           sourceExtension: classification.sourceExtension,
           sofficeBin,
+          sandboxBin,
         })
       console.log(
         `converted: ${file.name} (${contentType}) -> ${newPath} (original deleted` +

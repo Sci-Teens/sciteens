@@ -21,6 +21,11 @@ playwright/.cache
 .DS_Store
 *.pem
 *.log
+.env
+.env.*
+.terraform
+*.tfstate
+*.tfstate.*
 firebase-debug.log
 firestore-debug.log
 ui-debug.log

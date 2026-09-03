@@ -695,7 +695,7 @@ describe('providerSignIn', () => {
 describe('buildFileRecord', () => {
   const base = {
     storagePath: 'projects/p1/abc123.png',
-    bucket: 'sciteens.appspot.com',
+    bucket: 'directed-relic-266701.appspot.com',
     name: 'my photo.png',
     contentType: 'image/png',
     size: 4096,
@@ -796,9 +796,9 @@ describe('getUploadStoragePath', () => {
 // half of firestore.rules#isStorageUrl.
 describe('isSafeFileUrl', () => {
   it.each([
-    'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/f1.png?alt=media',
-    'https://storage.googleapis.com/sciteens.appspot.com/f1.png',
-    'https://sciteens.firebasestorage.app/f1.png',
+    'https://firebasestorage.googleapis.com/v0/b/directed-relic-266701.appspot.com/o/f1.png?alt=media',
+    'https://storage.googleapis.com/directed-relic-266701.appspot.com/f1.png',
+    'https://directed-relic-266701.firebasestorage.app/f1.png',
   ])('accepts %s', (url) => {
     expect(isSafeFileUrl(url)).toBe(true)
   })
@@ -819,6 +819,9 @@ describe('isSafeFileUrl', () => {
     // Suffix, not a subdomain of, an allowlisted host.
     'https://firebasestorage.googleapis.com.evil.example/f1.png',
     'https://notfirebasestorage.app/f1.png',
+    'https://storage.googleapis.com/attacker-bucket/page.html',
+    'https://firebasestorage.googleapis.com/v0/b/attacker.appspot.com/o/page.html',
+    'https://attacker.firebasestorage.app/page.html',
     '//evil.example/f1.png',
     // Only ever produced pre-upload, and never persisted: the rules
     // reject a blob: url at write time.

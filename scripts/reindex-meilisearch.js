@@ -157,6 +157,54 @@ function makeMeiliClient(host, masterKey) {
   }
 }
 
+async function waitForMeiliTask(meili, task) {
+  if (!task || !Number.isInteger(task.taskUid)) return
+  const deadline = Date.now() + 5 * 60 * 1000
+  while (Date.now() < deadline) {
+    const status = await meili(`/tasks/${task.taskUid}`)
+    if (status.status === 'succeeded') return
+    if (
+      status.status === 'failed' ||
+      status.status === 'canceled'
+    ) {
+      throw new Error(
+        `Meilisearch task ${task.taskUid} ${
+          status.status
+        }: ${JSON.stringify(status.error || null)}`
+      )
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250))
+  }
+  throw new Error(
+    `Meilisearch task ${task.taskUid} timed out`
+  )
+}
+
+async function readIndexedProjectIds(meili) {
+  const ids = new Set()
+  const limit = 1000
+  for (let offset = 0; ; offset += limit) {
+    const page = await meili(
+      `/indexes/projects/documents?fields=id&limit=${limit}&offset=${offset}`
+    )
+    const results = Array.isArray(page?.results)
+      ? page.results
+      : []
+    for (const document of results) {
+      if (typeof document.id === 'string')
+        ids.add(document.id)
+    }
+    if (results.length < limit) return ids
+  }
+}
+
+function deleteProjectBatch(meili, ids) {
+  return meili('/indexes/projects/documents/delete-batch', {
+    method: 'POST',
+    body: ids,
+  })
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2))
   loadEnvLocal(path.resolve(__dirname, '..'))
@@ -187,15 +235,22 @@ async function main() {
     projectId,
   })
   const db = admin.firestore()
+  const indexedProjectIds = await readIndexedProjectIds(
+    meili
+  )
 
   const mode = args.execute ? '[EXECUTE]' : '[DRY RUN]'
   console.log(`${mode} reindexing projects/ into ${host}`)
 
   if (args.execute) {
-    await meili('/indexes/projects/settings', {
-      method: 'PATCH',
-      body: PROJECTS_INDEX_SETTINGS,
-    })
+    const settingsTask = await meili(
+      '/indexes/projects/settings',
+      {
+        method: 'PATCH',
+        body: PROJECTS_INDEX_SETTINGS,
+      }
+    )
+    await waitForMeiliTask(meili, settingsTask)
     console.log('Re-applied index settings.')
   }
 
@@ -216,16 +271,23 @@ async function main() {
       const documents = snap.docs.map((doc) =>
         toSearchDocument(doc.id, doc.data())
       )
+      for (const document of documents) {
+        indexedProjectIds.delete(document.id)
+      }
       scanned += documents.length
       withMemberNames += documents.filter(
         (doc) => doc.member_names.length > 0
       ).length
 
       if (args.execute) {
-        await meili('/indexes/projects/documents', {
-          method: 'POST',
-          body: documents,
-        })
+        const task = await meili(
+          '/indexes/projects/documents',
+          {
+            method: 'POST',
+            body: documents,
+          }
+        )
+        await waitForMeiliTask(meili, task)
         sent += documents.length
       }
 
@@ -244,17 +306,33 @@ async function main() {
     throw err
   }
 
+  let deleted = 0
+  const staleIds = [...indexedProjectIds]
+  if (args.execute) {
+    for (
+      let offset = 0;
+      offset < staleIds.length;
+      offset += BATCH_SIZE
+    ) {
+      const batch = staleIds.slice(
+        offset,
+        offset + BATCH_SIZE
+      )
+      const task = await deleteProjectBatch(meili, batch)
+      await waitForMeiliTask(meili, task)
+      deleted += batch.length
+    }
+  }
+
   console.log(
     `\n${mode} done: ${scanned} projects read, ${sent} upserted, ` +
-      `${withMemberNames} carry at least one searchable member name.`
+      `${deleted} stale documents deleted, ${withMemberNames} include a searchable member name.`
   )
   if (!args.execute) {
-    console.log('Re-run with --execute to write.')
-  } else {
     console.log(
-      'Meilisearch indexes asynchronously — poll GET /tasks until the ' +
-        'documentAdditionOrUpdate tasks report "succeeded".'
+      `${staleIds.length} stale documents will be deleted.`
     )
+    console.log('Run this command with --execute to write.')
   }
 }
 
@@ -265,4 +343,8 @@ if (require.main === module) {
   })
 }
 
-module.exports = { parseArgs, loadEnvLocal }
+module.exports = {
+  deleteProjectBatch,
+  loadEnvLocal,
+  parseArgs,
+}

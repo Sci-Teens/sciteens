@@ -229,9 +229,9 @@ request anymore**. A proxy inside the container
 (`docker/meilisearch/proxy/`) fronts Meilisearch and serves
 `POST /__snapshot_now__`, which creates a snapshot, waits for the task,
 and uploads it to GCS synchronously. `google_cloud_scheduler_job`
-`meili_snapshot` calls that endpoint every 15 minutes with an OIDC token
-for the runtime service account (also gated by email claim in the proxy;
-the master key works for manual runs). Cold starts restore
+`meili_snapshot` calls that endpoint every 15 minutes with an OIDC token.
+The proxy validates the configured audience and the runtime service-account
+email. The master key works for manual runs. Cold starts restore
 `gs://.../latest.snapshot` in entrypoint.sh; the residual data-loss window
 is one scheduler interval of project writes, which resync automatically
 the next time those docs are written (Firestore triggers in

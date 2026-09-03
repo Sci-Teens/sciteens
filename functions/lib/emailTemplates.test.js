@@ -51,7 +51,7 @@ describe('React email templates', () => {
         projectName: 'Solar Sail',
         projectLink: 'https://sciteens.org/project/abc',
       }),
-      'You joined a project',
+      'Project invitation',
     ],
     [
       'newsletter confirmation',

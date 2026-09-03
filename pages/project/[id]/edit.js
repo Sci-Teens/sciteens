@@ -309,6 +309,7 @@ export default function UpdateProject({ query }) {
           {
             emails: members,
             title: values.title.trim(),
+            requestedBy: signInCheckResult.user.uid,
           }
         )
       }

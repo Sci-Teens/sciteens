@@ -52,6 +52,17 @@ describe('opportunity-sources data file', () => {
     }
   })
 
+  it('uses bare hostnames for approved external sources', () => {
+    for (const source of sources) {
+      for (const host of source.allowedExternalHosts ||
+        []) {
+        expect(host).toMatch(
+          /^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/
+        )
+      }
+    }
+  })
+
   it('carries no keys beyond the documented shape', () => {
     const allowed = new Set([
       'slug',
@@ -59,6 +70,7 @@ describe('opportunity-sources data file', () => {
       'label',
       'category',
       'logoUrl',
+      'allowedExternalHosts',
     ])
     for (const source of sources) {
       for (const key of Object.keys(source)) {

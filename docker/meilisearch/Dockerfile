@@ -10,12 +10,12 @@
 # Run starves background loops of CPU, so the old background
 # snapshot-sync.sh design could not upload reliably.
 
-FROM golang:1.24-alpine AS proxy-build
+FROM golang:1.24-alpine@sha256:8bee1901f1e530bfb4a7850aa7a479d17ae3a18beb6e09064ed54cfd245b7191 AS proxy-build
 WORKDIR /src
-COPY proxy/go.mod proxy/main.go ./
+COPY proxy/go.mod proxy/go.sum proxy/main.go ./
 RUN go mod download && go mod tidy && CGO_ENABLED=0 go build -o /snapshot-proxy .
 
-FROM getmeili/meilisearch:v1.48.2
+FROM getmeili/meilisearch:v1.48.2@sha256:544bdb7d1934e2dbeb02225b65f9b813221bc045d567c241a5be7319b50122b6
 
 RUN apk add --no-cache curl
 

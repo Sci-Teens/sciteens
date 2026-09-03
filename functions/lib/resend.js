@@ -449,7 +449,7 @@ async function buildUnsubscribeLinks(uid, category) {
     token,
   })
   return {
-    pageUrl: `${SITE_URL}/unsubscribe?${params.toString()}`,
+    pageUrl: `${SITE_URL}/unsubscribe#${params.toString()}`,
     actionUrl: `${FUNCTIONS_BASE_URL}/unsubscribe?${params.toString()}`,
   }
 }

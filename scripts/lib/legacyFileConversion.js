@@ -159,6 +159,110 @@ function buildSofficeConvertArgv({
   ]
 }
 
+function isSandboxMountedExecutable(executablePath) {
+  return (
+    typeof executablePath === 'string' &&
+    (executablePath.startsWith('/usr/') ||
+      executablePath.startsWith('/bin/'))
+  )
+}
+
+function buildSandboxedSofficeCommand({
+  sandboxBin,
+  sofficeBin,
+  tmpDir,
+  sofficeArgv,
+}) {
+  if (
+    !sandboxBin ||
+    !sofficeBin ||
+    !tmpDir ||
+    !Array.isArray(sofficeArgv)
+  ) {
+    throw new Error(
+      'buildSandboxedSofficeCommand requires all command inputs'
+    )
+  }
+  return {
+    command: sandboxBin,
+    argv: [
+      '--die-with-parent',
+      '--new-session',
+      '--unshare-all',
+      '--clearenv',
+      '--setenv',
+      'HOME',
+      path.join(tmpDir, 'lo-profile'),
+      '--setenv',
+      'PATH',
+      '/usr/bin:/bin',
+      '--setenv',
+      'LANG',
+      'C.UTF-8',
+      '--proc',
+      '/proc',
+      '--dev',
+      '/dev',
+      '--tmpfs',
+      '/tmp',
+      '--ro-bind',
+      '/usr',
+      '/usr',
+      '--ro-bind',
+      '/bin',
+      '/bin',
+      '--ro-bind',
+      '/lib',
+      '/lib',
+      '--ro-bind',
+      '/lib64',
+      '/lib64',
+      '--dir',
+      '/etc',
+      '--ro-bind',
+      '/etc/passwd',
+      '/etc/passwd',
+      '--ro-bind',
+      '/etc/group',
+      '/etc/group',
+      '--ro-bind',
+      '/etc/nsswitch.conf',
+      '/etc/nsswitch.conf',
+      '--ro-bind',
+      '/etc/ld.so.cache',
+      '/etc/ld.so.cache',
+      '--ro-bind',
+      '/etc/localtime',
+      '/etc/localtime',
+      '--ro-bind',
+      '/etc/fonts',
+      '/etc/fonts',
+      '--ro-bind',
+      '/etc/libreoffice',
+      '/etc/libreoffice',
+      '--dir',
+      '/etc/gnutls',
+      '--ro-bind',
+      '/etc/gnutls/config',
+      '/etc/gnutls/config',
+      '--dir',
+      '/var',
+      '--dir',
+      '/var/cache',
+      '--ro-bind',
+      '/var/cache/fontconfig',
+      '/var/cache/fontconfig',
+      '--bind',
+      tmpDir,
+      tmpDir,
+      '--chdir',
+      tmpDir,
+      sofficeBin,
+      ...sofficeArgv,
+    ],
+  }
+}
+
 // The commit that made a Firestore `files` subcollection the sole
 // source of truth for "what files does this project/profile have"
 // (see scripts/lib/fileRecordBackfill.js) means a converted PDF needs
@@ -233,6 +337,8 @@ module.exports = {
   deriveConvertedObjectPath,
   deriveLocalConvertedFilename,
   buildSofficeConvertArgv,
+  buildSandboxedSofficeCommand,
+  isSandboxMountedExecutable,
   deriveConvertedDisplayName,
   buildConvertedFileRecord,
 }
