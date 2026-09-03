@@ -43,7 +43,7 @@ function imageFile(overrides = {}) {
   return {
     name: 'photo.png',
     type: 'image/png',
-    url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/photo.png',
+    url: 'https://firebasestorage.googleapis.com/v0/b/directed-relic-266701.appspot.com/o/photo.png',
     ...overrides,
   }
 }
@@ -52,7 +52,7 @@ function pdfFile(overrides = {}) {
   return {
     name: 'report.pdf',
     type: 'application/pdf',
-    url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report.pdf',
+    url: 'https://firebasestorage.googleapis.com/v0/b/directed-relic-266701.appspot.com/o/report.pdf',
     ...overrides,
   }
 }
@@ -92,7 +92,7 @@ describe('FileGallery', () => {
           {
             name: 'old.doc',
             type: 'application/msword',
-            url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/old.doc',
+            url: 'https://firebasestorage.googleapis.com/v0/b/directed-relic-266701.appspot.com/o/old.doc',
           },
         ]}
       />
@@ -172,7 +172,7 @@ describe('FileGallery', () => {
           imageFile({ name: 'first.png' }),
           imageFile({
             name: 'second.png',
-            url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/second.png',
+            url: 'https://firebasestorage.googleapis.com/v0/b/directed-relic-266701.appspot.com/o/second.png',
           }),
         ]}
       />
@@ -204,14 +204,19 @@ describe('FileGallery', () => {
     expect(iframe.tagName).toBe('IFRAME')
     expect(iframe).toHaveAttribute(
       'src',
-      'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report.pdf'
+      'https://firebasestorage.googleapis.com/v0/b/directed-relic-266701.appspot.com/o/report.pdf'
+    )
+    expect(iframe).toHaveAttribute('sandbox', '')
+    expect(iframe).toHaveAttribute(
+      'referrerpolicy',
+      'no-referrer'
     )
     const link = within(dialog).getByRole('link', {
       name: /file\.open_new_tab/,
     })
     expect(link).toHaveAttribute(
       'href',
-      'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report.pdf'
+      'https://firebasestorage.googleapis.com/v0/b/directed-relic-266701.appspot.com/o/report.pdf'
     )
     expect(link).toHaveAttribute('target', '_blank')
   })
@@ -232,7 +237,7 @@ describe('FileGallery', () => {
     )
 
     expect(openSpy).toHaveBeenCalledWith(
-      'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report.pdf',
+      'https://firebasestorage.googleapis.com/v0/b/directed-relic-266701.appspot.com/o/report.pdf',
       '_blank',
       'noopener,noreferrer'
     )

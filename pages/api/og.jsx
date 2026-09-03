@@ -120,6 +120,10 @@ function clamp(value, max) {
 }
 
 export default async function handler(req, res) {
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    res.setHeader('Allow', 'GET, HEAD')
+    return res.status(405).end()
+  }
   try {
     const { searchParams } = new URL(
       req.url,

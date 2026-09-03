@@ -1,6 +1,17 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-const { toSearchDocument } = require('./search')
+const {
+  indexProject,
+  toSearchDocument,
+} = require('./search')
+const realFetch = globalThis.fetch
+
+afterEach(() => {
+  globalThis.fetch = realFetch
+  delete process.env.MEILI_HOST
+  delete process.env.MEILI_MASTER_KEY
+  vi.restoreAllMocks()
+})
 
 describe('toSearchDocument', () => {
   it('maps a project into the indexed shape', () => {
@@ -100,5 +111,58 @@ describe('toSearchDocument', () => {
       'Biology',
       'Computer Science',
     ])
+  })
+})
+
+describe('Meilisearch mutation acknowledgement', () => {
+  it('polls a mutation task until it succeeds', async () => {
+    process.env.MEILI_HOST = 'https://search.example'
+    process.env.MEILI_MASTER_KEY = 'secret'
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValueOnce(
+        Response.json({ taskUid: 42 }, { status: 202 })
+      )
+      .mockResolvedValueOnce(
+        Response.json({ taskUid: 42, status: 'succeeded' })
+      )
+
+    await indexProject('p1', { title: 'Safe' })
+
+    expect(globalThis.fetch).toHaveBeenNthCalledWith(
+      2,
+      'https://search.example/tasks/42',
+      expect.any(Object)
+    )
+  })
+
+  it('reports a failed asynchronous mutation', async () => {
+    process.env.MEILI_HOST = 'https://search.example'
+    const error = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {})
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValueOnce(
+        Response.json({ taskUid: 43 }, { status: 202 })
+      )
+      .mockResolvedValueOnce(
+        Response.json({
+          taskUid: 43,
+          status: 'failed',
+          error: { message: 'index unavailable' },
+        })
+      )
+
+    await indexProject('p1', { title: 'Safe' })
+
+    expect(error).toHaveBeenCalledWith(
+      'search: failed to index project p1',
+      expect.objectContaining({
+        message: expect.stringContaining(
+          'Meilisearch task 43 failed'
+        ),
+      })
+    )
   })
 })

@@ -196,11 +196,11 @@ describe('/profiles/{uid}', () => {
 describe('/profiles/{uid}/files/{fileId}', () => {
   const validRecord = (overrides = {}) => ({
     path: 'profiles/alice/f1.png',
-    bucket: 'sciteens.appspot.com',
+    bucket: 'directed-relic-266701.appspot.com',
     name: 'photo.png',
     contentType: 'image/png',
     size: 1024,
-    url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/f1.png',
+    url: 'https://firebasestorage.googleapis.com/v0/b/directed-relic-266701.appspot.com/o/f1.png',
     uploadedBy: 'alice',
     isPhoto: false,
     createdAt: '2024-01-01T00:00:00.000Z',
@@ -255,6 +255,9 @@ describe('/profiles/{uid}/files/{fileId}', () => {
     'http://firebasestorage.googleapis.com/v0/b/x/o/f1.png',
     'https://firebasestorage.googleapis.com.evil.example/f1.png',
     'https://firebasestorage.googleapis.com@evil.example/f1.png',
+    'https://storage.googleapis.com/attacker-bucket/page.html',
+    'https://firebasestorage.googleapis.com/v0/b/attacker.appspot.com/o/page.html',
+    'https://attacker.firebasestorage.app/page.html',
     // Pins matches() as a whole-string match: a valid Storage url as a
     // substring must not carry the rest of the value through.
     'javascript:fetch("https://storage.googleapis.com/x")',
@@ -275,14 +278,24 @@ describe('/profiles/{uid}/files/{fileId}', () => {
   // bucket domain moved to *.firebasestorage.app, so that branch is the
   // one most likely to become load-bearing.
   it.each([
-    'https://storage.googleapis.com/sciteens.appspot.com/f1.png',
-    'https://sciteens.firebasestorage.app/f1.png',
+    'https://storage.googleapis.com/directed-relic-266701.appspot.com/f1.png',
+    'https://directed-relic-266701.firebasestorage.app/f1.png',
   ])('accepts the %s host', async (url) => {
     const db = ctxFirestore('alice')
     await assertSucceeds(
       setDoc(
         doc(db, 'profiles/alice/files/f1'),
         validRecord({ url })
+      )
+    )
+  })
+
+  it('rejects a record that claims another bucket', async () => {
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(
+        doc(db, 'profiles/alice/files/f1'),
+        validRecord({ bucket: 'attacker-bucket' })
       )
     )
   })
@@ -294,7 +307,7 @@ describe('/profiles/{uid}/files/{fileId}', () => {
     ['a plain gallery file', null],
     [
       'a PDF with a persisted thumbnail',
-      'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/thumb.png',
+      'https://firebasestorage.googleapis.com/v0/b/directed-relic-266701.appspot.com/o/thumb.png',
     ],
   ])(
     'accepts the real buildFileRecord payload for %s',
@@ -592,33 +605,93 @@ describe('/profiles-private/{uid}', () => {
 })
 
 describe('/projects/{projectId}', () => {
-  it('creator can create with themselves as member_uids[0]', async () => {
+  const creator = {
+    uid: 'alice',
+    display: 'Alice',
+    slug: 'alice',
+  }
+  const project = (overrides = {}) => ({
+    member_uids: ['alice'],
+    member_arr: [creator],
+    title: 'x',
+    ...overrides,
+  })
+  const seedCreator = () =>
+    seed((db) =>
+      setDoc(doc(db, 'profiles/alice'), {
+        uid: 'alice',
+        display: creator.display,
+        slug: creator.slug,
+      })
+    )
+
+  it('creator can create as the sole attributed member', async () => {
+    await seedCreator()
     const db = ctxFirestore('alice')
     await assertSucceeds(
-      setDoc(doc(db, 'projects/p1'), {
-        member_uids: ['alice'],
-        title: 'x',
-      })
+      setDoc(doc(db, 'projects/p1'), project())
     )
   })
 
-  it('rejects create when member_uids[0] is not the creator', async () => {
+  it('rejects create when member_uids names another user', async () => {
+    await seedCreator()
     const db = ctxFirestore('alice')
     await assertFails(
-      setDoc(doc(db, 'projects/p1'), {
-        member_uids: ['mallory'],
-        title: 'x',
-      })
+      setDoc(
+        doc(db, 'projects/p1'),
+        project({ member_uids: ['mallory'] })
+      )
     )
   })
 
   it('rejects create with an empty member_uids', async () => {
+    await seedCreator()
     const db = ctxFirestore('alice')
     await assertFails(
-      setDoc(doc(db, 'projects/p1'), {
-        member_uids: [],
-        title: 'x',
-      })
+      setDoc(
+        doc(db, 'projects/p1'),
+        project({ member_uids: [] })
+      )
+    )
+  })
+
+  it('rejects extra attributed members at create time', async () => {
+    await seedCreator()
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(
+        doc(db, 'projects/p1'),
+        project({
+          member_uids: ['alice', 'victim'],
+          member_arr: [
+            creator,
+            {
+              uid: 'victim',
+              display: 'Victim',
+              slug: 'victim',
+            },
+          ],
+        })
+      )
+    )
+  })
+
+  it('rejects a forged creator profile attribution', async () => {
+    await seedCreator()
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(
+        doc(db, 'projects/p1'),
+        project({
+          member_arr: [
+            {
+              uid: 'alice',
+              display: 'Victim',
+              slug: 'victim',
+            },
+          ],
+        })
+      )
     )
   })
 
@@ -706,37 +779,43 @@ describe('/projects/{projectId}', () => {
   })
 
   it('accepts create with a valid links list', async () => {
+    await seedCreator()
     const db = ctxFirestore('alice')
     await assertSucceeds(
-      setDoc(doc(db, 'projects/p1'), {
-        member_uids: ['alice'],
-        title: 'x',
-        links: ['https://github.com/sciteens'],
-      })
+      setDoc(
+        doc(db, 'projects/p1'),
+        project({
+          links: ['https://github.com/sciteens'],
+        })
+      )
     )
   })
 
   it('rejects create when links is not a list', async () => {
+    await seedCreator()
     const db = ctxFirestore('alice')
     await assertFails(
-      setDoc(doc(db, 'projects/p1'), {
-        member_uids: ['alice'],
-        title: 'x',
-        links: 'https://github.com/sciteens',
-      })
+      setDoc(
+        doc(db, 'projects/p1'),
+        project({
+          links: 'https://github.com/sciteens',
+        })
+      )
     )
   })
 
   it('rejects create when links has more than 10 entries', async () => {
+    await seedCreator()
     const db = ctxFirestore('alice')
     await assertFails(
-      setDoc(doc(db, 'projects/p1'), {
-        member_uids: ['alice'],
-        title: 'x',
-        links: new Array(11).fill(
-          'https://github.com/sciteens'
-        ),
-      })
+      setDoc(
+        doc(db, 'projects/p1'),
+        project({
+          links: new Array(11).fill(
+            'https://github.com/sciteens'
+          ),
+        })
+      )
     )
   })
 
@@ -1236,11 +1315,11 @@ describe('/projects/{projectId}/files/{fileId}', () => {
 
   const validRecord = (overrides = {}) => ({
     path: 'projects/p1/f1.pdf',
-    bucket: 'sciteens.appspot.com',
+    bucket: 'directed-relic-266701.appspot.com',
     name: 'report.pdf',
     contentType: 'application/pdf',
     size: 2048,
-    url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/f1.pdf',
+    url: 'https://firebasestorage.googleapis.com/v0/b/directed-relic-266701.appspot.com/o/f1.pdf',
     uploadedBy: 'alice',
     isPhoto: false,
     createdAt: '2024-01-01T00:00:00.000Z',
@@ -1361,23 +1440,35 @@ describe('/project-invites/{projectId}', () => {
   const invite = (overrides = {}) => ({
     emails: ['x@y.com'],
     title: 'Photosynthesis',
+    requestedBy: 'alice',
     ...overrides,
   })
 
-  it('a project member can create/update/delete an invite doc', async () => {
+  it('a project member can create one immutable invite request', async () => {
     await seedProject()
     const db = ctxFirestore('alice')
     await assertSucceeds(
       setDoc(doc(db, 'project-invites/p1'), invite())
     )
-    await assertSucceeds(
+    await assertFails(
       updateDoc(
         doc(db, 'project-invites/p1'),
         invite({ emails: ['z@y.com'] })
       )
     )
-    await assertSucceeds(
+    await assertFails(
       deleteDoc(doc(db, 'project-invites/p1'))
+    )
+  })
+
+  it('rejects a forged requestedBy uid', async () => {
+    await seedProject()
+    const db = ctxFirestore('alice')
+    await assertFails(
+      setDoc(
+        doc(db, 'project-invites/p1'),
+        invite({ requestedBy: 'mallory' })
+      )
     )
   })
 

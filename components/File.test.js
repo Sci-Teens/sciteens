@@ -130,7 +130,7 @@ describe('RenderFile', () => {
         file={{
           name: 'report.pdf',
           type: 'application/pdf',
-          url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report.pdf',
+          url: 'https://firebasestorage.googleapis.com/v0/b/directed-relic-266701.appspot.com/o/report.pdf',
         }}
         id={0}
       />
@@ -138,7 +138,7 @@ describe('RenderFile', () => {
     const anchor = container.querySelector('a')
     expect(anchor).toHaveAttribute(
       'href',
-      'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report.pdf'
+      'https://firebasestorage.googleapis.com/v0/b/directed-relic-266701.appspot.com/o/report.pdf'
     )
     expect(getByText('report.pdf')).toBeInTheDocument()
   })
@@ -149,14 +149,14 @@ describe('RenderFile', () => {
         file={{
           name: 'photo.png',
           type: 'image/png',
-          url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/photo.png',
+          url: 'https://firebasestorage.googleapis.com/v0/b/directed-relic-266701.appspot.com/o/photo.png',
         }}
         id={0}
       />
     )
     expect(container.querySelector('img')).toHaveAttribute(
       'src',
-      'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/photo.png'
+      'https://firebasestorage.googleapis.com/v0/b/directed-relic-266701.appspot.com/o/photo.png'
     )
   })
 
@@ -166,9 +166,9 @@ describe('RenderFile', () => {
         file={{
           name: 'report.pdf',
           type: 'application/pdf',
-          url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report.pdf',
+          url: 'https://firebasestorage.googleapis.com/v0/b/directed-relic-266701.appspot.com/o/report.pdf',
           thumbnailUrl:
-            'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report-thumb.png',
+            'https://firebasestorage.googleapis.com/v0/b/directed-relic-266701.appspot.com/o/report-thumb.png',
         }}
         id={0}
       />
@@ -177,7 +177,7 @@ describe('RenderFile', () => {
     expect(img).not.toBeNull()
     expect(img).toHaveAttribute(
       'src',
-      'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report-thumb.png'
+      'https://firebasestorage.googleapis.com/v0/b/directed-relic-266701.appspot.com/o/report-thumb.png'
     )
   })
 
@@ -187,7 +187,7 @@ describe('RenderFile', () => {
         file={{
           name: 'report.pdf',
           type: 'application/pdf',
-          url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report.pdf',
+          url: 'https://firebasestorage.googleapis.com/v0/b/directed-relic-266701.appspot.com/o/report.pdf',
         }}
         id={0}
       />
@@ -223,7 +223,7 @@ describe('RenderFile', () => {
         file={{
           name: 'report.pdf',
           type: 'application/pdf',
-          url: 'https://firebasestorage.googleapis.com/v0/b/sciteens.appspot.com/o/report.pdf',
+          url: 'https://firebasestorage.googleapis.com/v0/b/directed-relic-266701.appspot.com/o/report.pdf',
           thumbnailUrl: 'javascript:alert(1)',
         }}
         id={0}

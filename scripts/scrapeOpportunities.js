@@ -28,6 +28,7 @@ const {
   selectConsultedPages,
   buildPrefetchPrompt,
   buildExtractionSystemPrompt,
+  validateExtractionProvenance,
   withSeedPage,
 } = require('./lib/opportunitySchema')
 const MODEL = 'gemini-3.7-flash'
@@ -37,6 +38,9 @@ const MAX_FETCHES_PER_SOURCE = 5
 const CONCURRENCY = 3
 
 const IMAGE_FETCH_TIMEOUT_MS = 12000
+const MAX_IMAGE_RESPONSE_BYTES = 10 * 1024 * 1024
+const MAX_PAGE_RESOURCE_BYTES = 15 * 1024 * 1024
+const PAGE_RESOURCE_TIMEOUT_MS = 12_000
 const IMAGE_USER_AGENT =
   'Mozilla/5.0 (compatible; SciTeensImageFetcher/1.0; +https://sciteens.org)'
 
@@ -277,8 +281,10 @@ function extractPageContent(html, baseUrl) {
 
 const {
   fetchPublicUrl,
+  fetchPublicUrlOnce,
   isNonNetworkScheme,
   publicHttpUrlOrNull,
+  readResponseBuffer,
 } = require('./lib/publicUrl')
 
 async function fetchPage(browser, url) {
@@ -293,7 +299,8 @@ async function fetchPage(browser, url) {
   }
   const context = await browser.newContext()
   await context.route('**/*', async (route) => {
-    const requestUrl = route.request().url()
+    const request = route.request()
+    const requestUrl = request.url()
     let parsed
     try {
       parsed = new URL(requestUrl)
@@ -303,10 +310,50 @@ async function fetchPage(browser, url) {
     if (isNonNetworkScheme(parsed.protocol)) {
       return route.continue()
     }
-    const allowed = await publicHttpUrlOrNull(requestUrl)
-    return allowed
-      ? route.continue()
-      : route.abort('blockedbyclient')
+    if (request.method() !== 'GET') {
+      return route.abort('blockedbyclient')
+    }
+
+    const controller = new AbortController()
+    const timer = setTimeout(
+      () => controller.abort(),
+      PAGE_RESOURCE_TIMEOUT_MS
+    )
+    try {
+      const headers = {
+        ...request.headers(),
+        'accept-encoding': 'identity',
+      }
+      delete headers.host
+      delete headers['content-length']
+      const response = await fetchPublicUrlOnce(
+        requestUrl,
+        {
+          headers,
+          signal: controller.signal,
+        }
+      )
+      const body = response.body
+        ? await readResponseBuffer(
+            response,
+            MAX_PAGE_RESOURCE_BYTES
+          )
+        : Buffer.alloc(0)
+      const responseHeaders = Object.fromEntries(
+        response.headers.entries()
+      )
+      delete responseHeaders['content-length']
+      delete responseHeaders['transfer-encoding']
+      return route.fulfill({
+        status: response.status,
+        headers: responseHeaders,
+        body,
+      })
+    } catch {
+      return route.abort('blockedbyclient')
+    } finally {
+      clearTimeout(timer)
+    }
   })
   const page = await context.newPage()
   try {
@@ -341,21 +388,25 @@ async function downloadImageBuffer(imageUrl) {
     () => controller.abort(),
     IMAGE_FETCH_TIMEOUT_MS
   )
-  let res
   try {
-    res = await fetchPublicUrl(imageUrl, {
+    const res = await fetchPublicUrl(imageUrl, {
       signal: controller.signal,
       headers: { 'User-Agent': IMAGE_USER_AGENT },
     })
+    if (!res.ok) {
+      throw new Error(`image fetch HTTP ${res.status}`)
+    }
+    const contentType =
+      res.headers.get('content-type') || ''
+    return {
+      buffer: await readResponseBuffer(
+        res,
+        MAX_IMAGE_RESPONSE_BYTES
+      ),
+      ext: extForContentType(contentType),
+    }
   } finally {
     clearTimeout(timer)
-  }
-  if (!res.ok)
-    throw new Error(`image fetch HTTP ${res.status}`)
-  const contentType = res.headers.get('content-type') || ''
-  return {
-    buffer: Buffer.from(await res.arrayBuffer()),
-    ext: extForContentType(contentType),
   }
 }
 
@@ -584,8 +635,10 @@ async function runExtractionTurnLoop(
     for (const call of calls) {
       fetchCount += 1
       const url = call.args && call.args.url
-      visited.push(url)
       const result = await fetchPage(browser, url)
+      if (result.ok) {
+        visited.push(new URL(url).toString())
+      }
       responseParts.push(
         toFunctionResponsePart(call, result)
       )
@@ -616,7 +669,9 @@ async function runExtractionFromSeed(
     browser,
     genai,
     contents,
-    fetched.map((entry) => entry.url),
+    fetched
+      .filter((entry) => entry.page.ok)
+      .map((entry) => new URL(entry.url).toString()),
     8
   )
 }
@@ -652,7 +707,9 @@ async function runExtractionFromHistory(
     browser,
     genai,
     contents,
-    fetched.map((f) => f.url),
+    fetched
+      .filter((entry) => entry.page.ok)
+      .map((entry) => new URL(entry.url).toString()),
     4
   )
 }
@@ -989,6 +1046,27 @@ async function scrapeSource(runContext, source) {
   )
 
   const now = admin.firestore.FieldValue.serverTimestamp()
+
+  if (result.valid) {
+    const provenance = validateExtractionProvenance({
+      sourceUrl: url,
+      applicationUrl: result.data.applicationUrl,
+      consultedPages: result.data.consultedPages,
+      visitedUrls: result.visited,
+      allowedExternalHosts: Array.isArray(
+        source.allowedExternalHosts
+      )
+        ? source.allowedExternalHosts
+        : [],
+    })
+    if (!provenance.success) {
+      result.valid = false
+      result.error = provenance.error
+    } else {
+      result.data.applicationUrl = provenance.applicationUrl
+      result.data.consultedPages = provenance.consultedPages
+    }
+  }
 
   if (result.error || !result.valid) {
     const errorMessage = extractionFailureMessage(result)

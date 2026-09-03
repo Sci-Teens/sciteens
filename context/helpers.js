@@ -333,18 +333,11 @@ export function getLinkPlatformLabel(url) {
   return matchedHost ? LINK_HOST_LABELS[matchedHost] : null
 }
 
-// Hosts that may back a stored file record's `url`/`thumbnailUrl`.
-// Those fields are written by the client alongside every upload and
-// are rendered as an <a href>/<img src>/<iframe src> on public
-// profile and project pages, so a record whose url points anywhere
-// else (`javascript:`, an attacker's origin) must never become a
-// clickable target. firestore.rules#isStorageUrl enforces the same
-// set at write time; this is the render-time half, matching how
-// isAllowedLink is checked on both sides.
-const STORAGE_URL_HOSTS = [
-  'firebasestorage.googleapis.com',
-  'storage.googleapis.com',
-]
+// Stored file records can only reference this application's bucket.
+// Firestore rules enforce the same boundary at write time.
+const STORAGE_BUCKET = 'directed-relic-266701.appspot.com'
+const STORAGE_BUCKET_HOST =
+  'directed-relic-266701.firebasestorage.app'
 
 export function isSafeFileUrl(url) {
   if (typeof url !== 'string' || !url) return false
@@ -354,16 +347,17 @@ export function isSafeFileUrl(url) {
   } catch {
     return false
   }
-  // No blob: branch. Dropzone previews bypass this guard entirely
-  // (components/File.js returns URL.createObjectURL directly for a
-  // Blob), and firestore.rules forbids persisting a blob: url, so the
-  // only strings that ever reach here are stored https ones.
   if (parsed.protocol !== 'https:') return false
   const host = parsed.hostname.toLowerCase()
-  return (
-    STORAGE_URL_HOSTS.includes(host) ||
-    host.endsWith('.firebasestorage.app')
-  )
+  if (host === 'firebasestorage.googleapis.com') {
+    return parsed.pathname.startsWith(
+      `/v0/b/${STORAGE_BUCKET}/o/`
+    )
+  }
+  if (host === 'storage.googleapis.com') {
+    return parsed.pathname.startsWith(`/${STORAGE_BUCKET}/`)
+  }
+  return host === STORAGE_BUCKET_HOST
 }
 
 function generateUploadId() {

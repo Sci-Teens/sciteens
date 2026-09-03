@@ -60,17 +60,23 @@ service cloud.firestore {
         && request.resource.data.comment.size() <= 1000;
     }
 
-    // A file record's `url`/`thumbnailUrl` are rendered straight into an
-    // <a href>/<img src> on the public profile and project pages
-    // (components/File.js#getPreviewUrl), so they must resolve to Cloud
-    // Storage and nowhere else. Left unconstrained, the owner of any
-    // profile can store `javascript:...` here and land script execution
-    // on every visitor who clicks the file — the CSP can't help, since
-    // script-src still carries 'unsafe-inline' for Next's bootstrap.
+    // File URLs must stay in this Firebase project's bucket. The
+    // client writes every record, so a matching contentType cannot
+    // make an external GCS object trusted.
     function isStorageUrl(url) {
       return url is string
         && url.size() <= 2000
-        && url.matches('https://(firebasestorage\\.googleapis\\.com|storage\\.googleapis\\.com|[a-z0-9-]+\\.firebasestorage\\.app)/.*');
+        && (
+          url.matches(
+            'https://firebasestorage\\.googleapis\\.com/v0/b/directed-relic-266701\\.appspot\\.com/o/.*'
+          )
+          || url.matches(
+            'https://storage\\.googleapis\\.com/directed-relic-266701\\.appspot\\.com/.*'
+          )
+          || url.matches(
+            'https://directed-relic-266701\\.firebasestorage\\.app/.*'
+          )
+        );
     }
 
     // Shape guard for the Firestore record written alongside every
@@ -89,6 +95,8 @@ service cloud.firestore {
           'uploadedBy', 'isPhoto', 'createdAt'
         ])
         && request.resource.data.uploadedBy == uploaderUid
+        && request.resource.data.bucket
+            == 'directed-relic-266701.appspot.com'
         && isStorageUrl(request.resource.data.url)
         && (!('thumbnailUrl' in request.resource.data)
             || request.resource.data.thumbnailUrl == null
@@ -216,11 +224,26 @@ service cloud.firestore {
         && request.resource.data.upvote_count >= 0;
     }
 
+    function isValidProjectCreator() {
+      let profile = get(
+        /databases/$(database)/documents/profiles/$(request.auth.uid)
+      ).data;
+      return request.resource.data.member_uids is list
+        && request.resource.data.member_uids.size() == 1
+        && request.resource.data.member_uids[0] == request.auth.uid
+        && request.resource.data.member_arr is list
+        && request.resource.data.member_arr.size() == 1
+        && request.resource.data.member_arr[0].keys()
+            .hasOnly(['uid', 'display', 'slug'])
+        && request.resource.data.member_arr[0].uid == request.auth.uid
+        && request.resource.data.member_arr[0].display == profile.display
+        && request.resource.data.member_arr[0].slug == profile.slug;
+    }
+
     match /projects/{projectId} {
       allow read: if true;
       allow create: if request.auth != null
-        && request.resource.data.member_uids.size() >= 1
-        && request.resource.data.member_uids[0] == request.auth.uid
+        && isValidProjectCreator()
         && isValidLinks(request.resource.data)
         && (!('upvote_count' in request.resource.data)
             || request.resource.data.upvote_count == 0);
@@ -263,7 +286,9 @@ service cloud.firestore {
       // ---- Project discussion ------------------------------------------
       match /discussion/{feedbackId} {
         allow read: if true;
-        allow create: if isValidNewComment();
+        allow create: if
+          exists(/databases/$(database)/documents/projects/$(projectId))
+          && isValidNewComment();
         allow update: if isCommentBodyEdit();
         allow delete: if request.auth.uid == resource.data.uid;
       }
@@ -331,27 +356,22 @@ service cloud.firestore {
     }
 
     // ---- Project invites -----------------------------------------------
-    // Written by the project owner (client) to trigger the newProjectInvite
-    // function. Only members of the project with the same id may write.
+    // The server deletes each request after it reserves a global sender
+    // quota. Clients cannot update or recycle an in-flight request.
     match /project-invites/{projectId} {
       allow read: if false;
-      // The payload drives newProjectInvite, which emails every address
-      // in `emails` and interpolates `title` into the message body, so
-      // both are bounded here — an unvalidated array turns any project
-      // member into a mail relay with a SciTeens-branded template.
-      allow create, update: if
+      allow create: if
         exists(/databases/$(database)/documents/projects/$(projectId))
         && isProjectMember(projectId)
-        && request.resource.data.keys().hasOnly(['emails', 'title'])
+        && request.resource.data.keys()
+            .hasOnly(['emails', 'title', 'requestedBy'])
+        && request.resource.data.requestedBy == request.auth.uid
         && request.resource.data.emails is list
+        && request.resource.data.emails.size() > 0
         && request.resource.data.emails.size() <= 10
         && request.resource.data.title is string
         && request.resource.data.title.size() <= 200;
-      allow delete: if request.auth != null
-        && exists(/databases/$(database)/documents/projects/$(projectId))
-        && request.auth.uid in
-            get(/databases/$(database)/documents/projects/$(projectId))
-              .data.member_uids;
+      allow update, delete: if false;
     }
 
     // ---- Programs -------------------------------------------------------

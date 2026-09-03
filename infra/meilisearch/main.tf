@@ -2,6 +2,10 @@
 ## Extension, scoped to the `projects` collection. See README.md for the full
 ## design rationale (cost tradeoffs, manual bootstrap steps).
 
+locals {
+  snapshot_audience = "https://sciteens.com/internal/meilisearch-snapshot"
+}
+
 # ---------------------------------------------------------------------------
 # Snapshot storage
 # ---------------------------------------------------------------------------
@@ -168,6 +172,11 @@ resource "google_cloud_run_v2_service" "meilisearch" {
         name  = "SCHEDULER_SA_EMAIL"
         value = google_service_account.meilisearch.email
       }
+      env {
+        name  = "SNAPSHOT_AUDIENCE"
+        value = local.snapshot_audience
+      }
+
 
       # Read from Secret Manager at boot via Cloud Run's native secret-env-var
       # integration — not Application Default Credentials in-process.
@@ -262,7 +271,7 @@ resource "google_cloud_scheduler_job" "meili_snapshot" {
 
     oidc_token {
       service_account_email = google_service_account.meilisearch.email
-      audience              = google_cloud_run_v2_service.meilisearch.uri
+      audience              = local.snapshot_audience
     }
   }
 }

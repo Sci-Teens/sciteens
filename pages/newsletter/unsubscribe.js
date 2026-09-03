@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
@@ -14,14 +14,31 @@ export default function NewsletterUnsubscribe() {
   const { t } = useTranslation('common')
   const router = useRouter()
   const [status, setStatus] = useState('ready')
-  const subscriber =
-    typeof router.query.subscriber === 'string'
-      ? router.query.subscriber
-      : ''
-  const token =
-    typeof router.query.token === 'string'
-      ? router.query.token
-      : ''
+  const [capability, setCapability] = useState(null)
+  const subscriber = capability?.subscriber || ''
+  const token = capability?.token || ''
+
+  useEffect(() => {
+    if (!router.isReady) return
+    const fragment = new URLSearchParams(
+      window.location.hash.slice(1)
+    )
+    setCapability({
+      subscriber:
+        typeof router.query.subscriber === 'string'
+          ? router.query.subscriber
+          : fragment.get('subscriber'),
+      token:
+        typeof router.query.token === 'string'
+          ? router.query.token
+          : fragment.get('token'),
+    })
+    window.history.replaceState(
+      window.history.state,
+      '',
+      window.location.pathname
+    )
+  }, [router.isReady, router.query])
   const canUnsubscribe =
     router.isReady &&
     subscriber.length > 0 &&

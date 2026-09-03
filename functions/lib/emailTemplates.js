@@ -504,14 +504,14 @@ function projectUpdateTemplate({
   projectLink,
 }) {
   return template({
-    title: 'You joined a project',
-    preview: 'You have been added to a SciTeens project.',
+    title: 'Project invitation',
+    preview: 'You have been invited to a SciTeens project.',
     content: [
-      `You've been added to the project "${toText(
+      `You have been invited to join the project "${toText(
         projectName
       )}".`,
     ],
-    action: actionButton(projectLink, 'View Project'),
+    action: actionButton(projectLink, 'Review invitation'),
   })
 }
 

@@ -350,6 +350,8 @@ export default function FileGallery({ files }) {
           {openPdf && (
             <iframe
               src={getPreviewUrl(openPdf)}
+              sandbox=""
+              referrerPolicy="no-referrer"
               title={openPdf.name}
               className="border-border/60 h-full w-full flex-1 rounded-lg border"
             />

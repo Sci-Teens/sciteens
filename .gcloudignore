@@ -1,8 +1,10 @@
 .gcloudignore
 .gitignore
+.git
 
 # dependencies
 /node_modules
+**/node_modules
 /.pnp
 .pnp.js
 
@@ -11,6 +13,7 @@
 
 # next.js
 /.next/
+/.next-*/
 /out/
 
 # production
@@ -27,12 +30,13 @@ yarn-error.log*
 pnpm-debug.log*
 /.pnpm-store
 
-# local env files
-# .env.local
-# .env.development.local
-# .env.test.local
-# .env.production.local
-# .env*
+# local secrets and Terraform state
+.env
+.env.*
+.terraform
+*.tfstate
+**/.terraform/**
+*.tfstate.*
 
 # vercel
 .vercel

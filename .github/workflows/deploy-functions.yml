@@ -16,21 +16,31 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: deploy-functions
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
 
       - run: pnpm install --frozen-lockfile
 
       - id: auth
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2
         with:
-          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_FUNCTIONS_DEPLOYER_SA }}
 
       - name: Deploy functions
-        run: npx firebase-tools deploy --only functions --project directed-relic-266701 --force
+        run: pnpm exec firebase deploy --only functions --project "$GCP_PROJECT_ID" --force
+        env:
+          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}

@@ -204,8 +204,8 @@ async function main() {
 
         if (!args.execute) {
           console.log(
-            `[DRY RUN] would move profiles/${uid} -> profiles-private/${uid}: ${JSON.stringify(
-              privateData
+            `[DRY RUN] would move fields: ${piiPresent.join(
+              ', '
             )}`
           )
           counts.migrated++

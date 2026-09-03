@@ -44,10 +44,38 @@ export default function Unsubscribe() {
   const [unsubscribedCategory, setUnsubscribedCategory] =
     useState(null)
 
-  const { uid, token, category } = router.query
+  const [capability, setCapability] = useState(null)
+  const { uid, token, category } = capability || {}
 
   useEffect(() => {
     if (!router.isReady) return
+    const fragment = new URLSearchParams(
+      window.location.hash.slice(1)
+    )
+    const nextCapability = {
+      uid:
+        typeof router.query.uid === 'string'
+          ? router.query.uid
+          : fragment.get('uid'),
+      token:
+        typeof router.query.token === 'string'
+          ? router.query.token
+          : fragment.get('token'),
+      category:
+        typeof router.query.category === 'string'
+          ? router.query.category
+          : fragment.get('category'),
+    }
+    window.history.replaceState(
+      window.history.state,
+      '',
+      window.location.pathname
+    )
+    setCapability(nextCapability)
+  }, [router.isReady, router.query])
+
+  useEffect(() => {
+    if (!capability) return
     if (
       typeof uid !== 'string' ||
       typeof token !== 'string' ||
@@ -61,9 +89,6 @@ export default function Unsubscribe() {
     let cancelled = false
     async function run() {
       try {
-        // Clicking the link is the opt-out: unsubscribe the linked
-        // category immediately, then load full state so every list
-        // can be managed from this one page.
         await callUnsubscribeApi({
           uid,
           token,
@@ -80,7 +105,7 @@ export default function Unsubscribe() {
         setUnsubscribedCategory(category)
         setSubscriptions(current)
         setStatus('ready')
-      } catch (err) {
+      } catch {
         if (!cancelled) setStatus('invalid')
       }
     }
@@ -88,7 +113,7 @@ export default function Unsubscribe() {
     return () => {
       cancelled = true
     }
-  }, [router.isReady, uid, token, category])
+  }, [capability, uid, token, category])
 
   const toggleCategory = useCallback(
     async (categoryKey, nextSubscribed) => {
