@@ -115,183 +115,8 @@ function toSearchDocument(id, data) {
   }
 }
 
-const OPPORTUNITY_STATE_LOCATIONS = [
-  ['AL', 'Alabama'],
-  ['AK', 'Alaska'],
-  ['AZ', 'Arizona'],
-  ['AR', 'Arkansas'],
-  ['CA', 'California'],
-  ['CO', 'Colorado'],
-  ['CT', 'Connecticut'],
-  ['DE', 'Delaware'],
-  ['DC', 'District of Columbia'],
-  ['FL', 'Florida'],
-  ['GA', 'Georgia'],
-  ['HI', 'Hawaii'],
-  ['ID', 'Idaho'],
-  ['IL', 'Illinois'],
-  ['IN', 'Indiana'],
-  ['IA', 'Iowa'],
-  ['KS', 'Kansas'],
-  ['KY', 'Kentucky'],
-  ['LA', 'Louisiana'],
-  ['ME', 'Maine'],
-  ['MD', 'Maryland'],
-  ['MA', 'Massachusetts'],
-  ['MI', 'Michigan'],
-  ['MN', 'Minnesota'],
-  ['MS', 'Mississippi'],
-  ['MO', 'Missouri'],
-  ['MT', 'Montana'],
-  ['NE', 'Nebraska'],
-  ['NV', 'Nevada'],
-  ['NH', 'New Hampshire'],
-  ['NJ', 'New Jersey'],
-  ['NM', 'New Mexico'],
-  ['NY', 'New York'],
-  ['NC', 'North Carolina'],
-  ['ND', 'North Dakota'],
-  ['OH', 'Ohio'],
-  ['OK', 'Oklahoma'],
-  ['OR', 'Oregon'],
-  ['PA', 'Pennsylvania'],
-  ['RI', 'Rhode Island'],
-  ['SC', 'South Carolina'],
-  ['SD', 'South Dakota'],
-  ['TN', 'Tennessee'],
-  ['TX', 'Texas'],
-  ['UT', 'Utah'],
-  ['VT', 'Vermont'],
-  ['VA', 'Virginia'],
-  ['WA', 'Washington'],
-  ['WV', 'West Virginia'],
-  ['WI', 'Wisconsin'],
-  ['WY', 'Wyoming'],
-]
-const OPPORTUNITY_STATE_BY_CODE = new Map(
-  OPPORTUNITY_STATE_LOCATIONS
-)
-const OPPORTUNITY_STATE_NAMES = new Set(
-  OPPORTUNITY_STATE_LOCATIONS.map(([, name]) =>
-    name.toLowerCase()
-  )
-)
-const OPPORTUNITY_STATE_NAME_MATCHERS = [
-  ...OPPORTUNITY_STATE_LOCATIONS,
-]
-  .sort((a, b) => b[1].length - a[1].length)
-  .map(([, name]) => [
-    name,
-    new RegExp(
-      `(^|[^A-Za-z])(${name})(?=$|[^A-Za-z])`,
-      'i'
-    ),
-  ])
-const OPPORTUNITY_STATE_CODE_MATCHERS =
-  OPPORTUNITY_STATE_LOCATIONS.map(([code, name]) => [
-    name,
-    new RegExp(`(?:^|[^A-Za-z])${code}(?=$|[^A-Za-z])`),
-  ])
-const NON_GEOGRAPHIC_CATEGORY =
-  /\b(programs?|competitions?|research|university|coding|tech|labs?|government|schools?|academic|affiliated)\b/i
-const UNKNOWN_LOCATIONS = new Set([
-  'not specified',
-  'unsure',
-  'unknown',
-])
-
 function cleanString(value) {
   return typeof value === 'string' ? value.trim() : ''
-}
-
-function opportunityLocationFacets(
-  locationValue,
-  sourceCategoryValue
-) {
-  const facets = []
-  const values = [
-    [cleanString(locationValue), true],
-    [cleanString(sourceCategoryValue), false],
-  ]
-
-  for (const [location, allowAllSegments] of values) {
-    if (!location) continue
-    if (/\b(virtual|online|remote)\b/i.test(location)) {
-      facets.push('Virtual')
-    }
-    if (
-      /\b(nationwide|multiple locations|various locations|all 50 states|multi-state)\b/i.test(
-        location
-      )
-    ) {
-      facets.push('Nationwide')
-    }
-    if (/\b(USA|United States)\b/i.test(location)) {
-      facets.push('United States')
-    }
-
-    const matchedStateNames = new Set()
-    let unmatchedStateNames = location
-    for (const [
-      name,
-      matcher,
-    ] of OPPORTUNITY_STATE_NAME_MATCHERS) {
-      const match = matcher.exec(unmatchedStateNames)
-      if (!match) continue
-      matchedStateNames.add(name)
-      const nameStart = match.index + match[1].length
-      unmatchedStateNames =
-        unmatchedStateNames.slice(0, nameStart) +
-        ' '.repeat(name.length) +
-        unmatchedStateNames.slice(nameStart + name.length)
-    }
-
-    const codeLocation = location.replace(/\./g, '')
-    for (const [
-      name,
-      matcher,
-    ] of OPPORTUNITY_STATE_CODE_MATCHERS) {
-      if (
-        matchedStateNames.has(name) ||
-        matcher.test(codeLocation)
-      ) {
-        facets.push(name)
-      }
-    }
-
-    for (const rawSegment of location.split(/[,;/|]+/)) {
-      const segment = cleanString(
-        rawSegment.replace(/\s*\(general\)\s*/gi, '')
-      )
-      const stateCode = segment.replace(/\./g, '')
-      const lowercaseSegment = segment.toLowerCase()
-      if (
-        !segment ||
-        UNKNOWN_LOCATIONS.has(lowercaseSegment) ||
-        OPPORTUNITY_STATE_BY_CODE.has(stateCode) ||
-        /\b(virtual|online|remote|USA|United States)\b/i.test(
-          segment
-        ) ||
-        (!allowAllSegments &&
-          NON_GEOGRAPHIC_CATEGORY.test(segment))
-      ) {
-        continue
-      }
-
-      const includesStateName = [
-        ...OPPORTUNITY_STATE_NAMES,
-      ].some((name) => lowercaseSegment.includes(name))
-      if (
-        includesStateName &&
-        !OPPORTUNITY_STATE_NAMES.has(lowercaseSegment)
-      ) {
-        continue
-      }
-      if (segment.length <= 80) facets.push(segment)
-    }
-  }
-
-  return [...new Set(facets)]
 }
 
 function opportunityGradeLevels(low, high) {
@@ -324,10 +149,12 @@ function toOpportunitySearchDocument(id, data) {
     name: cleanString(data.name),
     about: stripHtml(data.about || '') || '',
     location: cleanString(data.location),
-    location_facets: opportunityLocationFacets(
-      data.location,
-      data.sourceCategory
+    locationCity: cleanString(data.locationCity),
+    locationState: cleanString(data.locationState),
+    locationPostalCode: cleanString(
+      data.locationPostalCode
     ),
+    locationCountry: cleanString(data.locationCountry),
     startDate: toMillis(data.startDate),
     endDate: toMillis(data.endDate),
     applicationDeadline: toMillis(data.applicationDeadline),
@@ -482,8 +309,6 @@ function deleteOpportunityFromIndex(id) {
 
 module.exports = {
   CANONICAL_FIELDS,
-  OPPORTUNITY_STATE_LOCATIONS,
-  opportunityLocationFacets,
   toSearchDocument,
   toOpportunitySearchDocument,
   indexProject,

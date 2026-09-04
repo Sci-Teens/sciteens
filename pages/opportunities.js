@@ -10,7 +10,7 @@ import {
   initializeApp,
 } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
-import { useTranslation } from 'next-i18next'
+import { Trans, useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useRouter } from 'next/router'
 
@@ -51,16 +51,16 @@ import {
   OPPORTUNITIES_SEARCH_HITS_PER_PAGE,
   OPPORTUNITY_PROGRAM_TYPES,
   OPPORTUNITY_STATUS_OPTIONS,
+  defaultOpportunityStatus,
 } from '@/lib/opportunitySearch'
 import { cn } from '@/lib/utils'
 
 const OPPORTUNITIES_EMAIL = 'opportunities@sciteens.org'
 const GRADE_OPTIONS = ['9', '10', '11', '12']
-const DEFAULT_STATUS = 'open'
+const DEFAULT_BROWSE_STATUS = 'open'
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/
 const EMPTY_FACETS = {
   fields: [],
-  locations: [],
   programTypes: [],
 }
 
@@ -81,13 +81,6 @@ const PROGRAM_TYPE_KEYS = {
   Other: 'opportunities.program_types.other',
 }
 
-const LOCATION_KEYS = {
-  Virtual: 'opportunities.location_values.virtual',
-  Nationwide: 'opportunities.location_values.nationwide',
-  'United States':
-    'opportunities.location_values.united_states',
-}
-
 function firstQueryValue(value) {
   return Array.isArray(value) ? value[0] : value || ''
 }
@@ -103,17 +96,10 @@ function programTypeLabel(t, value) {
     : value
 }
 
-function locationLabel(t, value) {
-  return LOCATION_KEYS[value]
-    ? t(LOCATION_KEYS[value])
-    : value
-}
-
 async function fetchOpportunitiesSearchPage({
   search,
   field,
   grade,
-  location,
   programType,
   deadlineFrom,
   deadlineTo,
@@ -124,7 +110,6 @@ async function fetchOpportunitiesSearchPage({
   if (search) params.set('q', search)
   if (field) params.set('field', field)
   if (grade) params.set('grade', grade)
-  if (location) params.set('location', location)
   if (programType) params.set('type', programType)
   if (deadlineFrom) params.set('deadlineFrom', deadlineFrom)
   if (deadlineTo) params.set('deadlineTo', deadlineTo)
@@ -213,6 +198,33 @@ function pastDeadlineMeta(program, locale, t) {
     t
   )
 }
+function isPastDeadline(program, now = Date.now()) {
+  if (
+    program.deadlineStatus !== 'dated' ||
+    !program.applicationDeadline
+  ) {
+    return false
+  }
+  const current = new Date(now)
+  const today = Date.UTC(
+    current.getUTCFullYear(),
+    current.getUTCMonth(),
+    current.getUTCDate()
+  )
+  return (
+    new Date(program.applicationDeadline).getTime() < today
+  )
+}
+
+function allOpportunityMeta(program, locale, t) {
+  if (program.deadlineStatus === 'upcoming') {
+    return applicationOpensMeta(program, locale, t)
+  }
+  if (isPastDeadline(program)) {
+    return pastDeadlineMeta(program, locale, t)
+  }
+  return upcomingDeadlineMeta(program, locale, t)
+}
 
 function TopicBadges({ fields, translatedFields }) {
   return (
@@ -279,8 +291,6 @@ function FilterPanel({
   onFieldSelect,
   grade,
   onGradeChange,
-  location,
-  onLocationChange,
   programType,
   onProgramTypeChange,
   deadlineRange,
@@ -294,15 +304,6 @@ function FilterPanel({
   const deadlineToId = useId()
   const gradeId = useId()
   const programTypeId = useId()
-  const locationId = useId()
-  const locations = location
-    ? [
-        { value: location, count: 0 },
-        ...facets.locations.filter(
-          (option) => option.value !== location
-        ),
-      ]
-    : facets.locations
 
   return (
     <div className="flex flex-col gap-6">
@@ -398,48 +399,6 @@ function FilterPanel({
             </SelectContent>
           </Select>
         </div>
-
-        <div>
-          <label
-            htmlFor={locationId}
-            className="text-muted-foreground mb-1 block text-xs"
-          >
-            {t('opportunities.location')}
-          </label>
-          <Select
-            value={location || 'any'}
-            onValueChange={(value) =>
-              onLocationChange(value === 'any' ? '' : value)
-            }
-          >
-            <SelectTrigger
-              id={locationId}
-              aria-label={t('opportunities.location')}
-              className="bg-card w-full shadow-sm"
-            >
-              <SelectValue>
-                {(value) =>
-                  value === 'any'
-                    ? t('opportunities.any_location')
-                    : locationLabel(t, value)
-                }
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="any">
-                {t('opportunities.any_location')}
-              </SelectItem>
-              {locations.map((option) => (
-                <SelectItem
-                  key={option.value}
-                  value={option.value}
-                >
-                  {locationLabel(t, option.value)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
       </div>
 
       <Separator />
@@ -528,9 +487,6 @@ function Opportunities({
   const gradeParam = GRADE_OPTIONS.includes(rawGradeParam)
     ? rawGradeParam
     : ''
-  const locationParam = firstQueryValue(
-    router.query?.location
-  ).slice(0, 100)
   const rawProgramTypeParam = firstQueryValue(
     router.query?.type
   )
@@ -547,11 +503,11 @@ function Opportunities({
   const rawStatusParam = firstQueryValue(
     router.query?.status
   )
-  const statusParam = OPPORTUNITY_STATUS_OPTIONS.includes(
-    rawStatusParam
-  )
+  const hasExplicitStatus =
+    OPPORTUNITY_STATUS_OPTIONS.includes(rawStatusParam)
+  const statusParam = hasExplicitStatus
     ? rawStatusParam
-    : DEFAULT_STATUS
+    : defaultOpportunityStatus(searchParam)
 
   useEffect(() => {
     if (!router.isReady) return
@@ -562,11 +518,10 @@ function Opportunities({
     searchParam ||
       fieldParam ||
       gradeParam ||
-      locationParam ||
       programTypeParam ||
       deadlineFromParam ||
       deadlineToParam ||
-      statusParam !== DEFAULT_STATUS
+      statusParam !== defaultOpportunityStatus(searchParam)
   )
 
   const initialData = useMemo(() => {
@@ -574,11 +529,10 @@ function Opportunities({
       searchParam ||
       fieldParam ||
       gradeParam ||
-      locationParam ||
       programTypeParam ||
       deadlineFromParam ||
       deadlineToParam ||
-      statusParam !== DEFAULT_STATUS ||
+      statusParam !== DEFAULT_BROWSE_STATUS ||
       initialOpenNow.length === 0
     ) {
       return undefined
@@ -604,7 +558,6 @@ function Opportunities({
     gradeParam,
     initialOpenNow,
     initialOpenNowTotal,
-    locationParam,
     programTypeParam,
     searchParam,
     statusParam,
@@ -616,7 +569,6 @@ function Opportunities({
       searchParam,
       fieldParam,
       gradeParam,
-      locationParam,
       programTypeParam,
       deadlineFromParam,
       deadlineToParam,
@@ -631,7 +583,6 @@ function Opportunities({
         search: searchParam,
         field: fieldParam,
         grade: gradeParam,
-        location: locationParam,
         programType: programTypeParam,
         deadlineFrom: deadlineFromParam,
         deadlineTo: deadlineToParam,
@@ -663,7 +614,6 @@ function Opportunities({
       search: searchParam,
       field: fieldParam,
       grade: gradeParam,
-      location: locationParam,
       type: programTypeParam,
       deadlineFrom: deadlineFromParam,
       deadlineTo: deadlineToParam,
@@ -674,12 +624,27 @@ function Opportunities({
     if (next.search) query.search = next.search
     if (next.field) query.field = next.field
     if (next.grade) query.grade = next.grade
-    if (next.location) query.location = next.location
     if (next.type) query.type = next.type
     if (next.deadlineFrom)
       query.deadlineFrom = next.deadlineFrom
     if (next.deadlineTo) query.deadlineTo = next.deadlineTo
-    if (next.status && next.status !== DEFAULT_STATUS) {
+    if (
+      Object.prototype.hasOwnProperty.call(
+        overrides,
+        'search'
+      ) &&
+      !hasExplicitStatus &&
+      !Object.prototype.hasOwnProperty.call(
+        overrides,
+        'status'
+      )
+    ) {
+      next.status = defaultOpportunityStatus(next.search)
+    }
+    if (
+      next.status &&
+      next.status !== defaultOpportunityStatus(next.search)
+    ) {
       query.status = next.status
     }
     router.push({ pathname: '/opportunities', query })
@@ -708,11 +673,6 @@ function Opportunities({
 
   function handleGradeChange(grade) {
     pushFilters({ grade })
-    closeMobileFilters()
-  }
-
-  function handleLocationChange(location) {
-    pushFilters({ location })
     closeMobileFilters()
   }
 
@@ -747,12 +707,14 @@ function Opportunities({
     12: t('opportunities.grade_12'),
   }
   const statusLabels = {
+    all: t('opportunities.all_opportunities'),
     open: t('opportunities.open_now'),
     opening_soon: t('opportunities.opening_soon'),
     closed_recently: t('opportunities.closed_recently'),
     deadline_unknown: t('opportunities.deadline_unknown'),
   }
   const metaForStatus = {
+    all: allOpportunityMeta,
     open: upcomingDeadlineMeta,
     opening_soon: applicationOpensMeta,
     closed_recently: pastDeadlineMeta,
@@ -802,18 +764,6 @@ function Opportunities({
       onRemove: () => handleGradeChange(''),
     })
   }
-  if (locationParam) {
-    const label = locationLabel(t, locationParam)
-    activeFilters.push({
-      key: 'location',
-      label: t('opportunities.location'),
-      value: label,
-      removeLabel: t('opportunities.remove_filter', {
-        filter: `${t('opportunities.location')} ${label}`,
-      }),
-      onRemove: () => handleLocationChange(''),
-    })
-  }
   if (programTypeParam) {
     const label = programTypeLabel(t, programTypeParam)
     activeFilters.push({
@@ -856,7 +806,9 @@ function Opportunities({
         handleDeadlineRangeChange({ from: '', to: '' }),
     })
   }
-  if (statusParam !== DEFAULT_STATUS) {
+  if (
+    statusParam !== defaultOpportunityStatus(searchParam)
+  ) {
     const label = statusLabels[statusParam]
     activeFilters.push({
       key: 'status',
@@ -867,7 +819,10 @@ function Opportunities({
           'opportunities.status_filter'
         )} ${label}`,
       }),
-      onRemove: () => handleStatusChange(DEFAULT_STATUS),
+      onRemove: () =>
+        handleStatusChange(
+          defaultOpportunityStatus(searchParam)
+        ),
     })
   }
 
@@ -877,8 +832,6 @@ function Opportunities({
     onFieldSelect: handleFieldSelect,
     grade: gradeParam,
     onGradeChange: handleGradeChange,
-    location: locationParam,
-    onLocationChange: handleLocationChange,
     programType: programTypeParam,
     onProgramTypeChange: handleProgramTypeChange,
     deadlineRange: {
@@ -948,7 +901,7 @@ function Opportunities({
           >
             <SelectTrigger
               aria-label={t('opportunities.status_filter')}
-              className="bg-card w-full shadow-sm sm:w-44"
+              className="bg-card w-full shadow-sm sm:w-52"
             >
               <SelectValue>
                 {(value) => statusLabels[value]}
@@ -963,6 +916,25 @@ function Opportunities({
             </SelectContent>
           </Select>
         </SearchToolbar>
+        <p className="text-muted-foreground mt-2 text-xs">
+          <Trans
+            i18nKey="opportunities.location_search_hint"
+            components={{
+              osm: (
+                <a
+                  className="underline underline-offset-2"
+                  href="https://www.openstreetmap.org/copyright"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {t(
+                    'opportunities.openstreetmap_contributors'
+                  )}
+                </a>
+              ),
+            }}
+          />
+        </p>
 
         <ActiveFilters
           label={t('opportunities.active_filters')}
@@ -1045,7 +1017,11 @@ function Opportunities({
                     t
                   )}
                   translatedFields={translatedFields}
-                  muted={muted}
+                  muted={
+                    muted ||
+                    (statusParam === 'all' &&
+                      isPastDeadline(program))
+                  }
                   priority={index < 2}
                 />
               </div>

@@ -3,7 +3,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 const {
   indexOpportunity,
   indexProject,
-  opportunityLocationFacets,
   toOpportunitySearchDocument,
   toSearchDocument,
 } = require('./search')
@@ -123,6 +122,10 @@ describe('toOpportunitySearchDocument', () => {
       name: 'Global <Research>',
       about: 'Study <b>biology</b>&nbsp;abroad.',
       location: 'Cambridge, MA',
+      locationCity: 'Cambridge',
+      locationState: 'Massachusetts',
+      locationPostalCode: '02139',
+      locationCountry: 'United States',
       sourceCategory: 'University research programs',
       startDate: '2027-06-01T00:00:00.000Z',
       applicationDeadline: {
@@ -149,7 +152,10 @@ describe('toOpportunitySearchDocument', () => {
       name: 'Global <Research>',
       about: 'Study biology abroad.',
       location: 'Cambridge, MA',
-      location_facets: ['Massachusetts', 'Cambridge'],
+      locationCity: 'Cambridge',
+      locationState: 'Massachusetts',
+      locationPostalCode: '02139',
+      locationCountry: 'United States',
       grade_levels: [9, 10, 11],
       fields_facet: ['Biology', 'Computer Science'],
       applicationDeadline: 1800000000000,
@@ -159,41 +165,6 @@ describe('toOpportunitySearchDocument', () => {
     expect(document.reasoning).toBeUndefined()
     expect(document.consultedPages).toBeUndefined()
     expect(document.sourceCategory).toBeUndefined()
-  })
-
-  it('uses international source categories and future location segments', () => {
-    expect(
-      opportunityLocationFacets('Unsure', 'Australia')
-    ).toEqual(['Australia'])
-    expect(
-      opportunityLocationFacets('', 'Singapore')
-    ).toEqual(['Singapore'])
-    expect(
-      opportunityLocationFacets('Nairobi, Kenya', '')
-    ).toEqual(['Nairobi', 'Kenya'])
-  })
-
-  it('does not treat West Virginia as Virginia', () => {
-    expect(
-      opportunityLocationFacets(
-        'Charleston, West Virginia',
-        ''
-      )
-    ).toEqual(['West Virginia', 'Charleston'])
-  })
-
-  it('normalizes remote and United States locations', () => {
-    expect(
-      opportunityLocationFacets(
-        'Remote; Washington, DC',
-        'USA (general)'
-      )
-    ).toEqual([
-      'Virtual',
-      'District of Columbia',
-      'Washington',
-      'United States',
-    ])
   })
 })
 
@@ -213,6 +184,8 @@ describe('opportunity index sync', () => {
     await indexOpportunity('global', {
       name: 'Global Program',
       location: 'Singapore',
+      locationCity: 'Singapore',
+      locationCountry: 'Singapore',
     })
 
     expect(globalThis.fetch).toHaveBeenNthCalledWith(
@@ -227,7 +200,8 @@ describe('opportunity index sync', () => {
     const request = globalThis.fetch.mock.calls[0][1]
     expect(JSON.parse(request.body)[0]).toMatchObject({
       id: 'global',
-      location_facets: ['Singapore'],
+      locationCity: 'Singapore',
+      locationCountry: 'Singapore',
     })
   })
 })

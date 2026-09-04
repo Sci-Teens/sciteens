@@ -2,6 +2,7 @@ import {
   OPPORTUNITY_PROGRAM_TYPES,
   OPPORTUNITY_STATUS_OPTIONS,
   buildOpportunitySearchQueries,
+  defaultOpportunityStatus,
   formatOpportunityFacets,
   mapOpportunitySearchHit,
 } from '@/lib/opportunitySearch'
@@ -89,7 +90,6 @@ export default async function handler(req, res) {
     q,
     field,
     grade,
-    location,
     type,
     deadlineFrom,
     deadlineTo,
@@ -99,11 +99,11 @@ export default async function handler(req, res) {
 
   try {
     const pageParam = parsePageParam(firstParam(page))
+    const search = queryText(q)
     const queries = buildOpportunitySearchQueries({
-      search: queryText(q),
+      search,
       field: facetValue(field),
       grade: gradeValue(grade),
-      location: facetValue(location),
       programType: allowedValue(
         type,
         OPPORTUNITY_PROGRAM_TYPES
@@ -112,17 +112,13 @@ export default async function handler(req, res) {
       deadlineTo: dateValue(deadlineTo),
       status:
         allowedValue(status, OPPORTUNITY_STATUS_OPTIONS) ||
-        'open',
+        defaultOpportunityStatus(search),
       page: pageParam,
     })
 
     const { results = [] } = await meiliMultiSearch(queries)
-    const [
-      result = {},
-      fieldResult = {},
-      locationResult = {},
-      typeResult = {},
-    ] = results
+    const [result = {}, fieldResult = {}, typeResult = {}] =
+      results
 
     res.setHeader('Cache-Control', 'private, no-store')
     res.status(200).json({
@@ -138,10 +134,6 @@ export default async function handler(req, res) {
           field: value,
           count,
         })),
-        locations: formatOpportunityFacets(
-          locationResult.facetDistribution,
-          'location_facets'
-        ),
         programTypes: formatOpportunityFacets(
           typeResult.facetDistribution,
           'programType'
