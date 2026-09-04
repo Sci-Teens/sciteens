@@ -238,7 +238,6 @@ describe('opportunities index settings', () => {
       expect.arrayContaining([
         'fields_facet',
         'grade_levels',
-        'location_facets',
         'programType',
         'deadlineStatus',
         'applicationDeadline',
@@ -262,6 +261,10 @@ describe('opportunities index settings', () => {
     ).toEqual(
       expect.arrayContaining([
         'location',
+        'locationCity',
+        'locationState',
+        'locationPostalCode',
+        'locationCountry',
         'eligibilityNotes',
         'cost',
         'financialAid',

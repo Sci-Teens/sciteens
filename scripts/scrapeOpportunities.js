@@ -31,6 +31,9 @@ const {
   validateExtractionProvenance,
   withSeedPage,
 } = require('./lib/opportunitySchema')
+const {
+  locationComponentsFromNominatim,
+} = require('./lib/opportunityLocations')
 const MODEL = 'gemini-3.7-flash'
 const DEFAULT_VERTEX_LOCATION = 'global'
 const MAX_OUTPUT_TOKENS = 8192
@@ -411,20 +414,58 @@ async function downloadImageBuffer(imageUrl) {
 }
 
 let lastGeocodeRequestAt = 0
+let geocodeQueue = Promise.resolve()
 
-async function geocodeLocation(locationText) {
-  const normalized = String(locationText || '')
-    .trim()
-    .toLowerCase()
+const LOCATION_GEOCODE_FIELDS = [
+  'locationLat',
+  'locationLng',
+  'locationFormattedAddress',
+  'locationCity',
+  'locationState',
+  'locationPostalCode',
+  'locationCountry',
+]
+
+function emptyLocationGeocode() {
+  return Object.fromEntries(
+    LOCATION_GEOCODE_FIELDS.map((field) => [field, null])
+  )
+}
+
+function cachedLocationGeocode(opportunity, locationText) {
   if (
-    !normalized ||
-    NON_GEOCODABLE_LOCATIONS.has(normalized)
+    !opportunity ||
+    opportunity.location !== locationText ||
+    !LOCATION_GEOCODE_FIELDS.every((field) =>
+      Object.prototype.hasOwnProperty.call(
+        opportunity,
+        field
+      )
+    )
   ) {
     return null
   }
+  const normalized = String(locationText || '')
+    .trim()
+    .toLowerCase()
+  const resolved =
+    Number.isFinite(opportunity.locationLat) &&
+    Number.isFinite(opportunity.locationLng)
+  if (
+    !resolved &&
+    !NON_GEOCODABLE_LOCATIONS.has(normalized)
+  ) {
+    return null
+  }
+  return Object.fromEntries(
+    LOCATION_GEOCODE_FIELDS.map((field) => [
+      field,
+      opportunity[field] ?? null,
+    ])
+  )
+}
 
-  // Nominatim's usage policy caps unauthenticated use at one
-  // request per second: https://operations.osmfoundation.org/policies/nominatim/
+async function requestLocationGeocode(locationText) {
   const waitMs =
     lastGeocodeRequestAt +
     GEOCODE_MIN_INTERVAL_MS -
@@ -440,6 +481,7 @@ async function geocodeLocation(locationText) {
     q: locationText,
     format: 'jsonv2',
     limit: '1',
+    addressdetails: '1',
   })
   const controller = new AbortController()
   const timer = setTimeout(
@@ -466,12 +508,32 @@ async function geocodeLocation(locationText) {
       locationLat: lat,
       locationLng: lng,
       locationFormattedAddress: top.display_name || null,
+      ...locationComponentsFromNominatim(top),
     }
   } catch {
     return null
   } finally {
     clearTimeout(timer)
   }
+}
+
+function geocodeLocation(locationText) {
+  const normalized = String(locationText || '')
+    .trim()
+    .toLowerCase()
+  if (
+    !normalized ||
+    NON_GEOCODABLE_LOCATIONS.has(normalized)
+  ) {
+    return Promise.resolve(null)
+  }
+
+  // Serialize and cache requests to meet Nominatim's public-use policy.
+  const request = geocodeQueue.then(() =>
+    requestLocationGeocode(locationText)
+  )
+  geocodeQueue = request.catch(() => null)
+  return request
 }
 
 async function ogImageUrl(browser, sourceUrl) {
@@ -915,20 +977,16 @@ async function recordSourceFailure(
     })
 }
 
-async function existingCoverUrl(db, slug) {
+async function existingOpportunityData(db, slug) {
   const snap = await db
     .collection('opportunities')
     .doc(slug)
     .get()
-  if (!snap.exists) return null
-  const current = snap.data().imageUrl
-  return typeof current === 'string' && current
-    ? current
-    : null
+  return snap.exists ? snap.data() : null
 }
 
 async function imagePatchOrEmpty(
-  db,
+  existingOpportunity,
   browser,
   bucket,
   slug,
@@ -937,8 +995,8 @@ async function imagePatchOrEmpty(
   refreshImages
 ) {
   if (!refreshImages) {
-    const existing = await existingCoverUrl(db, slug)
-    if (existing) {
+    const current = existingOpportunity?.imageUrl
+    if (typeof current === 'string' && current) {
       console.log(
         `  [SKIP] ${slug}: cover already set, pass --refresh-images to replace it`
       )
@@ -1094,16 +1152,19 @@ async function scrapeSource(runContext, source) {
 
   const { reasoning, consultedPages, ...extracted } =
     result.data
-  const geocode = await geocodeLocation(extracted.location)
-  extracted.locationLat = geocode
-    ? geocode.locationLat
-    : null
-  extracted.locationLng = geocode
-    ? geocode.locationLng
-    : null
-  extracted.locationFormattedAddress = geocode
-    ? geocode.locationFormattedAddress
-    : null
+  const existingOpportunity = await existingOpportunityData(
+    db,
+    slug
+  )
+  const geocode =
+    cachedLocationGeocode(
+      existingOpportunity,
+      extracted.location
+    ) || (await geocodeLocation(extracted.location))
+  Object.assign(
+    extracted,
+    geocode || emptyLocationGeocode()
+  )
   console.log(
     `  [OK]   ${slug} (${elapsed}s): deadlineStatus=${extracted.deadlineStatus}`
   )
@@ -1116,7 +1177,7 @@ async function scrapeSource(runContext, source) {
 
   if (!dryRun) {
     const imagePatch = await imagePatchOrEmpty(
-      db,
+      existingOpportunity,
       browser,
       bucket,
       slug,

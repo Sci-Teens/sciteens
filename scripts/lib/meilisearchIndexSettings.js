@@ -202,6 +202,10 @@ const OPPORTUNITIES_INDEX_SETTINGS = {
     'programType',
     'fields',
     'location',
+    'locationCity',
+    'locationState',
+    'locationPostalCode',
+    'locationCountry',
     'about',
     'eligibilityNotes',
     'cost',
@@ -212,7 +216,6 @@ const OPPORTUNITIES_INDEX_SETTINGS = {
   filterableAttributes: [
     'fields_facet',
     'grade_levels',
-    'location_facets',
     'programType',
     'deadlineStatus',
     'applicationDeadline',
