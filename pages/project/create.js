@@ -46,6 +46,7 @@ import { AppContext } from '../../context/context'
 import LinksField from '../../components/LinksField'
 import FileUploadField from '../../components/FileUploadField'
 import MemberInviteField from '../../components/MemberInviteField'
+import ProjectOpportunityField from '../../components/ProjectOpportunityField'
 import AuthCard from '../../components/AuthCard'
 import firebaseConfig from '../../firebaseConfig'
 import FormPageSkeleton from '../../components/FormPageSkeleton'
@@ -91,18 +92,37 @@ export default function CreateProject() {
     useSigninCheck()
 
   const router = useRouter()
+  const requestedOpportunity = router.isReady
+    ? Array.isArray(router.query.opportunity)
+      ? router.query.opportunity[0]
+      : router.query.opportunity
+    : ''
+  const hasValidRequestedOpportunity =
+    typeof requestedOpportunity === 'string' &&
+    requestedOpportunity.length <= 120 &&
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(requestedOpportunity)
+  const signInRef = hasValidRequestedOpportunity
+    ? `project|create|${requestedOpportunity}`
+    : 'project|create'
 
   useEffect(() => {
     if (
+      router.isReady &&
       status == 'success' &&
       !signInCheckResult?.signedIn
     ) {
       router.push({
         pathname: '/signin/student',
-        query: { ref: 'project|create' },
+        query: { ref: signInRef },
       })
     }
-  })
+  }, [
+    router,
+    router.isReady,
+    signInCheckResult?.signedIn,
+    signInRef,
+    status,
+  ])
 
   const schema = z
     .object({
@@ -122,6 +142,7 @@ export default function CreateProject() {
       abstract: z
         .string()
         .min(1, t('project_create_edit.error_abstract')),
+      opportunity_id: z.string(),
     })
     .superRefine((data, ctx) => {
       if (
@@ -145,6 +166,7 @@ export default function CreateProject() {
       start_date: '',
       end_date: '',
       abstract: '',
+      opportunity_id: '',
     },
   })
 
@@ -176,6 +198,7 @@ export default function CreateProject() {
             ? moment(values.end_date).toISOString()
             : '',
           abstract: values.abstract.trim(),
+          opportunity_id: values.opportunity_id || null,
           need_mentor: false,
           links: links.filter(isAllowedLink),
           date: moment().toISOString(),
@@ -495,6 +518,16 @@ export default function CreateProject() {
                 )}
               />
             </div>
+
+            <ProjectOpportunityField
+              control={form.control}
+              defaultOpportunityId={
+                hasValidRequestedOpportunity
+                  ? requestedOpportunity
+                  : undefined
+              }
+              setValue={form.setValue}
+            />
 
             <Controller
               name="abstract"

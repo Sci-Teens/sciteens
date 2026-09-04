@@ -5,6 +5,7 @@ import {
   render,
   screen,
 } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import Program from '@/pages/program/[slug]'
 
@@ -27,7 +28,16 @@ vi.mock('next-i18next', () => ({
   }),
 }))
 
-afterEach(cleanup)
+vi.mock('@/components/ProjectCard', () => ({
+  default: ({ project }) => (
+    <a href={`/project/${project.id}`}>{project.title}</a>
+  ),
+}))
+
+afterEach(() => {
+  cleanup()
+  vi.unstubAllGlobals()
+})
 
 const program = {
   slug: 'research-week',
@@ -85,6 +95,87 @@ describe('Program', () => {
         name: 'program@example.org',
       })
     ).toHaveAttribute('href', 'mailto:program@example.org')
+  })
+
+  it('shows every project linked to the opportunity', () => {
+    render(
+      <Program
+        program={program}
+        projects={[
+          { id: 'p1', title: 'First Project' },
+          { id: 'p2', title: 'Second Project' },
+        ]}
+      />
+    )
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'opportunities.student_projects',
+      })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: 'First Project' })
+    ).toHaveAttribute('href', '/project/p1')
+    expect(
+      screen.getByRole('link', { name: 'Second Project' })
+    ).toHaveAttribute('href', '/project/p2')
+    expect(
+      screen.getByRole('link', {
+        name: 'opportunities.add_project',
+      })
+    ).toHaveAttribute(
+      'href',
+      '/project/create?opportunity=research-week'
+    )
+  })
+
+  it('loads every additional project page on request', async () => {
+    const user = userEvent.setup()
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        projects: [{ id: 'p2', title: 'Second Project' }],
+        nextCursor: null,
+      }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    render(
+      <Program
+        program={program}
+        projects={[{ id: 'p1', title: 'First Project' }]}
+        projectCursor="p1"
+      />
+    )
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'opportunities.load_more_projects',
+      })
+    )
+
+    expect(
+      await screen.findByRole('link', {
+        name: 'Second Project',
+      })
+    ).toHaveAttribute('href', '/project/p2')
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/program-projects?opportunity=research-week&cursor=p1'
+    )
+    expect(
+      screen.queryByRole('button', {
+        name: 'opportunities.load_more_projects',
+      })
+    ).not.toBeInTheDocument()
+  })
+
+  it('shows a useful empty state when no projects are linked', () => {
+    render(<Program program={program} />)
+
+    expect(
+      screen.getByText(
+        'opportunities.student_projects_empty'
+      )
+    ).toBeInTheDocument()
   })
 
   it('links an in-person location to Google Maps', () => {

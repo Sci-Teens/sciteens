@@ -223,6 +223,22 @@ describe('resolveRefPath', () => {
       '/profile/abc_123-DEF'
     )
   })
+
+  it('preserves a safe opportunity on a project-create ref', () => {
+    expect(
+      resolveRefPath('project|create|research-week')
+    ).toBe('/project/create?opportunity=research-week')
+  })
+
+  it.each([
+    'project|create|../../admin',
+    'project|create|UPPERCASE',
+    'project|create|research_week',
+    'profile|abc123|extra',
+    'project|create|research-week|extra',
+  ])('rejects an unsafe extended ref (%s)', (ref) => {
+    expect(resolveRefPath(ref)).toBeNull()
+  })
 })
 
 describe('isLegacyUnsupportedFile', () => {

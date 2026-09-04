@@ -39,6 +39,7 @@ import { useDropzone } from 'react-dropzone'
 import LinksField from '../../../components/LinksField'
 import FileUploadField from '../../../components/FileUploadField'
 import MemberInviteField from '../../../components/MemberInviteField'
+import ProjectOpportunityField from '../../../components/ProjectOpportunityField'
 import AuthCard from '../../../components/AuthCard'
 import {
   ALLOWED_UPLOAD_MIME_TYPES,
@@ -125,6 +126,7 @@ export default function UpdateProject({ query }) {
       abstract: z
         .string()
         .min(1, t('project_create_edit.error_abstract')),
+      opportunity_id: z.string(),
     })
     .superRefine((data, ctx) => {
       if (
@@ -148,6 +150,7 @@ export default function UpdateProject({ query }) {
       start_date: '',
       end_date: '',
       abstract: '',
+      opportunity_id: '',
     },
   })
 
@@ -202,6 +205,7 @@ export default function UpdateProject({ query }) {
           end_date: projectData.end
             ? moment(projectData.end).format('yyyy-MM-DD')
             : '',
+          opportunity_id: projectData.opportunity_id || '',
         })
         // A project stored before a field was required (an older doc
         // with no `end`) loads straight into a disabled Update button.
@@ -295,6 +299,7 @@ export default function UpdateProject({ query }) {
             ? moment(values.end_date).toISOString()
             : '',
           abstract: values.abstract.trim(),
+          opportunity_id: values.opportunity_id || null,
           need_mentor: false,
           links: links.filter(isAllowedLink),
           date: moment().toISOString(),
@@ -709,6 +714,10 @@ export default function UpdateProject({ query }) {
               />
             </div>
 
+            <ProjectOpportunityField
+              control={form.control}
+            />
+
             <Controller
               name="abstract"
               control={form.control}
@@ -838,7 +847,7 @@ export async function getServerSideProps({
 }) {
   return {
     props: {
-      query: query,
+      query,
       ...(await serverSideTranslations(locale, ['common'])),
     },
   }

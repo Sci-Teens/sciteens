@@ -66,6 +66,26 @@ describe('ProjectCard', () => {
     expect(container.textContent).not.toMatch(/By/)
   })
 
+  it('encodes the project id as one route segment', () => {
+    render(
+      <ProjectCard
+        project={{
+          id: 'student project?#1',
+          title: 'Special ID Project',
+        }}
+      />
+    )
+
+    expect(
+      screen.getByRole('link', {
+        name: 'Special ID Project',
+      })
+    ).toHaveAttribute(
+      'href',
+      '/project/student%20project%3F%231'
+    )
+  })
+
   it('renders the "By" label once real members are present', () => {
     render(
       <ProjectCard
