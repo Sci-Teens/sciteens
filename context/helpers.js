@@ -442,8 +442,8 @@ export function buildFileRecord({
 }
 
 // Resolve a post-login `?ref=section|id` query into an internal path,
-// allowing only known section prefixes. Returns null if the ref is
-// missing or references an unknown section.
+// allowing only known section prefixes. A project-create ref can include
+// one validated opportunity slug so the form keeps its source context.
 export function resolveRefPath(ref) {
   if (!ref || typeof ref !== 'string') return null
   const parts = ref.split('|')
@@ -458,10 +458,26 @@ export function resolveRefPath(ref) {
     'course',
   ]
   if (!allowed.includes(section)) return null
-  // Reject IDs containing path separators, dot-segments, or any
-  // character outside the safe set. Never mutate/strip — that can
-  // silently redirect to a different resource.
+
   const id = parts[1]
+  if (
+    parts.length === 3 &&
+    section === 'project' &&
+    id === 'create'
+  ) {
+    const opportunityId = parts[2]
+    if (
+      opportunityId.length > 120 ||
+      !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(opportunityId)
+    ) {
+      return null
+    }
+    return `/project/create?opportunity=${opportunityId}`
+  }
+  if (parts.length !== 2) return null
+
+  // Reject IDs containing path separators, dot-segments, or any
+  // character outside the safe set. Never mutate or strip the value.
   if (!/^[A-Za-z0-9_-]+$/.test(id)) return null
   return `/${section}/${id}`
 }

@@ -738,6 +738,96 @@ describe('/projects/{projectId}', () => {
     )
   })
 
+  it('allows a project to reference an existing opportunity', async () => {
+    await seedCreator()
+    await seed((db) =>
+      setDoc(doc(db, 'opportunities/research-week'), {
+        name: 'Research Week',
+      })
+    )
+    const db = ctxFirestore('alice')
+
+    await assertSucceeds(
+      setDoc(
+        doc(db, 'projects/p1'),
+        project({ opportunity_id: 'research-week' })
+      )
+    )
+  })
+
+  it('rejects a project that references a missing opportunity', async () => {
+    await seedCreator()
+    const db = ctxFirestore('alice')
+
+    await assertFails(
+      setDoc(
+        doc(db, 'projects/p1'),
+        project({ opportunity_id: 'missing-program' })
+      )
+    )
+  })
+
+  it('allows a member to set and clear a valid opportunity', async () => {
+    await seed((db) =>
+      Promise.all([
+        setDoc(doc(db, 'opportunities/research-week'), {
+          name: 'Research Week',
+        }),
+        setDoc(doc(db, 'projects/p1'), {
+          member_uids: ['alice'],
+          opportunity_id: null,
+          title: 'x',
+        }),
+      ])
+    )
+    const projectRef = doc(
+      ctxFirestore('alice'),
+      'projects/p1'
+    )
+
+    await assertSucceeds(
+      updateDoc(projectRef, {
+        opportunity_id: 'research-week',
+      })
+    )
+    await assertSucceeds(
+      updateDoc(projectRef, { opportunity_id: null })
+    )
+  })
+
+  it('rejects an update to a missing opportunity', async () => {
+    await seed((db) =>
+      setDoc(doc(db, 'projects/p1'), {
+        member_uids: ['alice'],
+        title: 'x',
+      })
+    )
+    const db = ctxFirestore('alice')
+
+    await assertFails(
+      updateDoc(doc(db, 'projects/p1'), {
+        opportunity_id: 'missing-program',
+      })
+    )
+  })
+
+  it('rejects other edits when a linked opportunity was removed', async () => {
+    await seed((db) =>
+      setDoc(doc(db, 'projects/p1'), {
+        member_uids: ['alice'],
+        opportunity_id: 'removed-program',
+        title: 'x',
+      })
+    )
+    const db = ctxFirestore('alice')
+
+    await assertFails(
+      updateDoc(doc(db, 'projects/p1'), {
+        title: 'updated',
+      })
+    )
+  })
+
   it('a member cannot mutate subscribers via update', async () => {
     await seed((db) =>
       setDoc(doc(db, 'projects/p1'), {
@@ -875,6 +965,25 @@ describe('/projects/{id}/upvotes/{uid}', () => {
     await seedProject()
     const db = ctxFirestore('mallory')
     await assertSucceeds(
+      runTransaction(db, async (tx) => {
+        tx.set(
+          doc(db, 'projects/p1/upvotes/mallory'),
+          validUpvote
+        )
+        tx.update(doc(db, 'projects/p1'), {
+          upvote_count: 1,
+        })
+      })
+    )
+  })
+
+  it('rejects an upvote when the linked opportunity was removed', async () => {
+    await seedProject({
+      opportunity_id: 'removed-program',
+    })
+    const db = ctxFirestore('mallory')
+
+    await assertFails(
       runTransaction(db, async (tx) => {
         tx.set(
           doc(db, 'projects/p1/upvotes/mallory'),

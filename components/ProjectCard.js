@@ -95,7 +95,9 @@ export default function ProjectCard({
           `outline-offset: 2px` focus ring paints outside the clip box
           and disappears entirely. */}
       <Link
-        href={`/project/${normalizedProject.id}`}
+        href={`/project/${encodeURIComponent(
+          normalizedProject.id
+        )}`}
         aria-label={cardLabel}
         className="focus-visible:outline-ring focus-visible:-outline-offset-2 absolute inset-0 z-10 rounded-xl focus-visible:outline-2"
       />

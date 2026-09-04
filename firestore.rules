@@ -240,11 +240,28 @@ service cloud.firestore {
         && request.resource.data.member_arr[0].slug == profile.slug;
     }
 
+    function isValidProjectOpportunity(data) {
+      return !('opportunity_id' in data)
+        || data.opportunity_id == null
+        || (
+          data.opportunity_id is string
+          && data.opportunity_id.size() <= 120
+          && data.opportunity_id.matches(
+            '^[a-z0-9]+(-[a-z0-9]+)*$'
+          )
+          && exists(
+            /databases/$(database)/documents/opportunities/$(data.opportunity_id)
+          )
+        );
+    }
+
+
     match /projects/{projectId} {
       allow read: if true;
       allow create: if request.auth != null
         && isValidProjectCreator()
         && isValidLinks(request.resource.data)
+        && isValidProjectOpportunity(request.resource.data)
         && (!('upvote_count' in request.resource.data)
             || request.resource.data.upvote_count == 0);
       allow update: if (
@@ -258,9 +275,11 @@ service cloud.firestore {
                   'upvote_count'
                 ])
             && isValidLinks(request.resource.data)
+            && isValidProjectOpportunity(request.resource.data)
           )
           || (
             isUpvoteCountOnlyUpdate()
+            && isValidProjectOpportunity(request.resource.data)
             && (
               (
                 request.resource.data.upvote_count

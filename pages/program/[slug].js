@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -18,6 +19,8 @@ import {
 import SocialMeta from '@/components/SocialMeta'
 import PageHeading from '@/components/PageHeading'
 import OpportunityFieldIcons from '@/components/OpportunityFieldIcons'
+import ProjectCard from '@/components/ProjectCard'
+import LoadingSpinner from '@/components/LoadingSpinner'
 import {
   DetailMain,
   DetailSection,
@@ -36,6 +39,7 @@ import {
 } from '../../lib/opportunities'
 import firebaseConfig from '../../firebaseConfig'
 import { INLINE_LINK } from '../../lib/typography'
+import { fetchProgramProjectsPage } from '../../lib/programProjects'
 
 const OPPORTUNITIES_EMAIL = 'opportunities@sciteens.org'
 
@@ -109,7 +113,107 @@ function OpportunityDetails({ items }) {
   )
 }
 
-function Program({ program }) {
+function ProgramProjects({
+  program,
+  initialProjects,
+  initialCursor,
+}) {
+  const { t } = useTranslation('common')
+  const [projects, setProjects] = useState(initialProjects)
+  const [cursor, setCursor] = useState(initialCursor)
+  const [status, setStatus] = useState('idle')
+
+  const loadMore = async () => {
+    setStatus('loading')
+    const params = new URLSearchParams({
+      opportunity: program.slug,
+      cursor,
+    })
+
+    try {
+      const response = await fetch(
+        `/api/program-projects?${params.toString()}`
+      )
+      if (!response.ok) {
+        throw new Error('Program projects are unavailable.')
+      }
+      const page = await response.json()
+      setProjects((current) => [
+        ...current,
+        ...page.projects,
+      ])
+      setCursor(page.nextCursor)
+      setStatus('idle')
+    } catch (error) {
+      console.error(
+        'Program projects request failed:',
+        error
+      )
+      setStatus('error')
+    }
+  }
+
+  return (
+    <DetailSection
+      title={t('opportunities.student_projects')}
+    >
+      <p className="text-muted-foreground text-pretty mt-3 leading-relaxed">
+        {projects.length > 0
+          ? t('opportunities.student_projects_description')
+          : t('opportunities.student_projects_empty')}
+      </p>
+      {projects.length > 0 && (
+        <div className="mt-5 grid gap-4">
+          {projects.map((project) => (
+            <ProjectCard
+              key={project.id}
+              project={project}
+            />
+          ))}
+        </div>
+      )}
+      {status === 'error' && (
+        <p
+          className="text-destructive mt-4 text-sm"
+          role="alert"
+        >
+          {t('opportunities.projects_unavailable')}
+        </p>
+      )}
+      <div className="mt-5 flex flex-wrap gap-3">
+        {cursor && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={loadMore}
+            disabled={status === 'loading'}
+          >
+            {t('opportunities.load_more_projects')}
+            {status === 'loading' && <LoadingSpinner />}
+          </Button>
+        )}
+        <Button
+          variant="outline"
+          render={
+            <Link
+              href={`/project/create?opportunity=${encodeURIComponent(
+                program.slug
+              )}`}
+            />
+          }
+        >
+          {t('opportunities.add_project')}
+        </Button>
+      </div>
+    </DetailSection>
+  )
+}
+
+function Program({
+  program,
+  projects = [],
+  projectCursor = null,
+}) {
   const router = useRouter()
   const { t } = useTranslation('common')
   const translatedFields = getTranslatedFieldsDict(t)
@@ -353,6 +457,12 @@ function Program({ program }) {
           }
         />
 
+        <ProgramProjects
+          program={program}
+          initialProjects={projects}
+          initialCursor={projectCursor}
+        />
+
         <DetailSection
           title={t('opportunities.report_outdated_title')}
         >
@@ -389,9 +499,12 @@ export async function getStaticProps({ params, locale }) {
       : getApp()
   const buildFirestore = getFirestore(app)
 
-  const snapshot = await getDoc(
-    doc(buildFirestore, 'opportunities', params.slug)
-  )
+  const [snapshot, projectPage] = await Promise.all([
+    getDoc(
+      doc(buildFirestore, 'opportunities', params.slug)
+    ),
+    fetchProgramProjectsPage(buildFirestore, params.slug),
+  ])
   if (!snapshot.exists()) {
     return { notFound: true }
   }
@@ -399,13 +512,19 @@ export async function getStaticProps({ params, locale }) {
     slug: snapshot.id,
     ...snapshot.data(),
   })
+  const projects = projectPage.projects
 
   const translations = await serverSideTranslations(
     locale,
     ['common']
   )
   return {
-    props: { program, ...translations },
+    props: {
+      program,
+      projects,
+      projectCursor: projectPage.nextCursor,
+      ...translations,
+    },
     revalidate: 3600,
   }
 }
