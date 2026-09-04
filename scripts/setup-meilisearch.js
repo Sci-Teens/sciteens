@@ -1,26 +1,27 @@
 #!/usr/bin/env node
-// One-time (and re-run-safe) operator script: provisions the `projects`
-// index on a fresh Meilisearch instance and prints a scoped search-only
-// API key to store as MEILI_SEARCH_KEY.
+// Creates the Meilisearch indexes and a search-only API key.
 //
 // Usage:
 //   MEILI_HOST=https://meilisearch-xxxx.a.run.app \
 //   MEILI_MASTER_KEY=<master key from Secret Manager> \
 //   node scripts/setup-meilisearch.js
 //
-// Safe to re-run: index creation and settings updates are idempotent, and
-// re-running only prints a *new* search key (Meilisearch does not let you
-// recover a key's plaintext after creation) — if you already have one
-// deployed, keep it and skip updating MEILI_SEARCH_KEY.
-//
-// Changing the settings below only affects how already-indexed documents are
-// searched. Adding a new *document* attribute (as `member_names` was) needs
-// scripts/reindex-meilisearch.js afterwards to backfill existing projects.
+// The script is safe to run more than once. Each run creates a new search
+// key because Meilisearch does not show an existing key value.
 'use strict'
 
 const {
+  OPPORTUNITIES_INDEX_SETTINGS,
   PROJECTS_INDEX_SETTINGS,
 } = require('./lib/meilisearchIndexSettings')
+
+const INDEXES = [
+  { uid: 'projects', settings: PROJECTS_INDEX_SETTINGS },
+  {
+    uid: 'opportunities',
+    settings: OPPORTUNITIES_INDEX_SETTINGS,
+  },
+]
 
 const host = (process.env.MEILI_HOST || '').replace(
   /\/+$/,
@@ -30,7 +31,7 @@ const masterKey = process.env.MEILI_MASTER_KEY
 
 if (!host || !masterKey) {
   console.error(
-    'Usage: MEILI_HOST=<url> MEILI_MASTER_KEY=<key> node scripts/setup-meilisearch.js'
+    'Set MEILI_HOST and MEILI_MASTER_KEY before you run this script.'
   )
   process.exit(1)
 }
@@ -54,64 +55,63 @@ async function meili(path, { method = 'GET', body } = {}) {
   return json
 }
 
-// Meilisearch task queue is async — most of the calls below return a task
-// object immediately. We don't need to block on task completion for a
-// one-time setup script; a search or key-creation call issued moments
-// later against the same index will simply see settings apply shortly
-// after, and the index itself accepts writes immediately upon creation.
-async function ensureIndex() {
+async function ensureIndex(index) {
   try {
     await meili('/indexes', {
       method: 'POST',
-      body: { uid: 'projects', primaryKey: 'id' },
+      body: { uid: index.uid, primaryKey: 'id' },
     })
-    console.log('Created index "projects".')
+    console.log(`Created the "${index.uid}" index.`)
   } catch (err) {
     if (
       String(err.message).includes('index_already_exists')
     ) {
-      console.log('Index "projects" already exists.')
-    } else {
-      throw err
+      console.log(
+        `The "${index.uid}" index already exists.`
+      )
+      return
     }
+    throw err
   }
 }
 
-async function applySettings() {
-  await meili('/indexes/projects/settings', {
+async function applySettings(index) {
+  await meili(`/indexes/${index.uid}/settings`, {
     method: 'PATCH',
-    body: PROJECTS_INDEX_SETTINGS,
+    body: index.settings,
   })
-  console.log('Applied index settings.')
+  console.log(`Applied the "${index.uid}" index settings.`)
 }
 
 async function createSearchKey() {
   const key = await meili('/keys', {
     method: 'POST',
     body: {
-      name: 'sciteens-projects-search',
+      name: 'sciteens-search',
       description:
-        'Read-only search key for the /api/search/projects proxy. Never exposed to the browser.',
+        'Search-only key for the SciTeens API routes. The browser never receives this key.',
       actions: ['search'],
-      indexes: ['projects'],
+      indexes: INDEXES.map(({ uid }) => uid),
       expiresAt: null,
     },
   })
-  console.log('\nCreated a scoped search-only API key.')
+  console.log('Created a search-only API key.')
   console.log(
-    'Store this as MEILI_SEARCH_KEY (Secret Manager / functions & website env) — it is shown once:\n'
+    'Store this value as MEILI_SEARCH_KEY. Meilisearch shows it one time.'
   )
-  console.log(`  ${key.key}\n`)
+  console.log(`  ${key.key}`)
 }
 
 async function main() {
-  await ensureIndex()
-  await applySettings()
+  for (const index of INDEXES) {
+    await ensureIndex(index)
+    await applySettings(index)
+  }
   await createSearchKey()
-  console.log('Setup complete.')
+  console.log('The Meilisearch setup is complete.')
 }
 
 main().catch((err) => {
-  console.error('setup-meilisearch failed:', err)
+  console.error('The Meilisearch setup failed.', err)
   process.exit(1)
 })

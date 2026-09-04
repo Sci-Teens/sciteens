@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 // whatever the user had scrolled to).
 export default function FilterAside({ children }) {
   return (
-    <aside className="sticky top-24 hidden w-72 shrink-0 lg:block">
+    <aside className="sticky top-24 hidden max-h-[calc(100dvh-7rem)] w-72 shrink-0 overflow-y-auto overscroll-contain lg:block">
       <Card className="border-border/60 shadow-sm">
         <CardContent>{children}</CardContent>
       </Card>

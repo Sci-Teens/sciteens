@@ -980,6 +980,7 @@ async function commitOpportunityUpsert({
       ...extracted,
       ...queryableDates,
       sourceUrl: url,
+      sourceCategory: source.category || '',
       ...imagePatch,
       sourceType: source.sourceType || 'curated',
       lastScrapedAt: now,

@@ -28,7 +28,7 @@ variable "meili_master_key" {
 }
 
 variable "meili_search_key" {
-  description = "Optional Meilisearch public search-only API key value to seed into Secret Manager on apply. Sensitive; NOT recommended for routine use since it lands in Terraform state. Leave null (default) and set the secret value out-of-band with `gcloud secrets versions add meilisearch-search-key --data-file=-` instead."
+  description = "Optional server-side Meilisearch search-only key to seed into Secret Manager. Sensitive. This value lands in Terraform state. Leave null and add it out-of-band with `gcloud secrets versions add meilisearch-search-key --data-file=-`."
   type        = string
   sensitive   = true
   default     = null
