@@ -168,6 +168,7 @@ function requestPinnedUrl(
   { address, family, headers, signal }
 ) {
   const parsed = new URL(url)
+  parsed.hash = ''
   const client = parsed.protocol === 'https:' ? https : http
   const requestHeaders = Object.fromEntries(
     new Headers(headers || {}).entries()
@@ -179,8 +180,12 @@ function requestPinnedUrl(
       {
         headers: requestHeaders,
         signal,
+        // Node 20+ connects with autoSelectFamily on, which calls lookup
+        // with { all: true } and expects an array of { address, family };
+        // handing it the bare address there fails with
+        // "Invalid IP address: undefined".
         lookup: (_hostname, options, callback) => {
-          if (options.all) {
+          if (options && options.all) {
             callback(null, [{ address, family }])
           } else {
             callback(null, address, family)
@@ -205,13 +210,15 @@ function requestPinnedUrl(
           ? null
           : Readable.toWeb(incoming)
         if (body === null) incoming.resume()
-        resolve(
-          new Response(body, {
-            status,
-            statusText: incoming.statusMessage,
-            headers: responseHeaders,
-          })
-        )
+        const response = new Response(body, {
+          status,
+          statusText: incoming.statusMessage,
+          headers: responseHeaders,
+        })
+        Object.defineProperty(response, 'url', {
+          value: parsed.toString(),
+        })
+        resolve(response)
       }
     )
     request.on('error', reject)
@@ -262,6 +269,7 @@ async function fetchPublicUrl(
     }
     const location = response.headers.get('location')
     if (!location) return response
+    await response.body?.cancel()
     target = new URL(location, target).toString()
   }
   throw new Error(

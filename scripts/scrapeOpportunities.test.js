@@ -135,6 +135,7 @@ async function runCli(sources, options = {}) {
   const browser = {
     async newContext() {
       let handler
+      let currentUrl
       const frame = {}
       const context = {
         closed: false,
@@ -149,6 +150,7 @@ async function runCli(sources, options = {}) {
           }
           handler = callback
         },
+        async routeWebSocket() {},
         async newPage() {
           if (options.setupFailure === 'newPage') {
             throw Object.assign(
@@ -190,7 +192,9 @@ async function runCli(sources, options = {}) {
       }
       const page = {
         mainFrame: () => frame,
+        url: () => currentUrl,
         async goto(url) {
+          currentUrl = url
           await navigate(url, true)
           if (options.failedSubresource) {
             await navigate(
@@ -271,6 +275,8 @@ async function runCli(sources, options = {}) {
           )
         }
         return {
+          ok: true,
+          url,
           body: null,
           status: 200,
           headers: new Map(),
@@ -278,6 +284,24 @@ async function runCli(sources, options = {}) {
       },
     },
   }
+  mocks['./lib/publicUrl'].fetchPublicUrl =
+    mocks['./lib/publicUrl'].fetchPublicUrlOnce
+  const pageModule = { exports: {} }
+  const pagePath = fileURLToPath(
+    new URL('./lib/opportunityPage.js', import.meta.url)
+  )
+  runInNewContext(readFileSync(pagePath, 'utf8'), {
+    module: pageModule,
+    require: (name) =>
+      mocks[`./lib/${name.slice(2)}`] ||
+      createRequire(pagePath)(name),
+    URL,
+    Buffer,
+    AbortController,
+    setTimeout,
+    clearTimeout,
+  })
+  mocks['./lib/opportunityPage'] = pageModule.exports
   await runInNewContext(
     script,
     {

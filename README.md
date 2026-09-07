@@ -29,6 +29,32 @@ Before you begin, make sure that you have both [Git](https://git-scm.com/downloa
 4. Type in `corepack pnpm dev` and visit localhost:3000 in your browser. This will show the development build!
 5. If you encounter an error at the step above, it's likely because you don't have access to the API keys. If you'd like to join the team to contribute to the website, [reach out](mailto:info@sciteens.com)!
 
+# Opportunity discovery
+
+The `Discover Opportunity Sources` GitHub Actions workflow runs only
+when an operator starts it. It has no scheduled trigger.
+
+1. Open the repository's **Actions** tab.
+2. Select **Discover Opportunity Sources**.
+3. Select **Run workflow**.
+4. Leave `execute` unchecked for a dry run.
+
+If you want to write the results to Firestore, select `execute`.
+The write run creates active sources for accepted programs and records
+final rejections. Each run performs a new search. A write run does not
+reuse results from a previous dry run.
+
+Discovery uses the `scrape-opportunities` environment and its existing
+GCP variables. Dry runs still call the model and fetch public pages.
+The separate `Scrape Opportunities` workflow continues its weekly
+refresh of active sources.
+
+Discovery requires a successful HTTPS page fetch before the model verdict.
+An official source URL must match a successful fetch from that verification.
+Name mismatches remain eligible for another discovery run, including
+previous mismatch rejection records. Discovery decisions use
+`discoveryReasoning` and `discoveryRedFlags`. Scraper updates retain them.
+
 # Scheduled opportunity scraper
 
 GitHub Actions schedules the opportunity scraper each Monday at 06:00 UTC.
@@ -39,6 +65,11 @@ status, so GitHub Actions marks the run as failed.
 If every prefetched page fails, the scraper stops extraction before the
 model call. When the transport supplies an error code, the failure record
 retains it. Public-address checks and URL provenance checks still apply.
+
+Both scripts use the same constrained browser transport. Initial redirects
+pass through the public-address guard before the browser receives the page.
+The browser blocks later redirects, service workers, and WebSockets.
+A blocked main-page redirect causes a fetch failure, not publication.
 
 # Scheduled social posts
 

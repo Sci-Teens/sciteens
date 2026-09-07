@@ -1,0 +1,22 @@
+[
+  {
+    "category": "newly-launched",
+    "query": "STEM summer program for high school students newly launched or first offered in 2026 or 2027, not affiliated with MIT, Ivy League, or other nationally famous universities"
+  },
+  {
+    "category": "environmental",
+    "query": "environmental science or climate research program for high school students at a public state university, regional or state-level program not nationally famous"
+  },
+  {
+    "category": "engineering-cs",
+    "query": "free engineering or computer science summer program for high school students hosted by a community college, state university, or nonprofit, with financial aid or stipend"
+  },
+  {
+    "category": "biomedical",
+    "query": "high school summer research internship in biology, medicine, or public health at a hospital, medical school, or state university, with a stipend, not nationally famous"
+  },
+  {
+    "category": "regional-midwest-south",
+    "query": "STEM research or engineering summer program for high school students in the Midwest or Southern United States at a public university, free or low cost"
+  }
+]

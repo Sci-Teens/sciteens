@@ -19,9 +19,9 @@ import {
   isPrivateIpv6,
   MAX_REDIRECTS,
   publicHttpUrlOrNull,
+  requestPinnedUrl,
   resolvePublicTarget,
   readResponseBuffer,
-  requestPinnedUrl,
 } from './publicUrl.js'
 
 afterEach(() => {
@@ -231,6 +231,7 @@ describe('requestPinnedUrl', () => {
           signal: AbortSignal.timeout(2000),
         })
         expect(response.status).toBe(200)
+        expect(response.url).toBe(url)
         await expect(response.text()).resolves.toBe(
           `${host}/resource`
         )

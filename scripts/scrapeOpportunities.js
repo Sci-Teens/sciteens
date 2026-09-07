@@ -6,8 +6,10 @@ const os = require('node:os')
 const path = require('node:path')
 const { execFileSync } = require('node:child_process')
 const { chromium } = require('playwright')
-const cheerio = require('cheerio')
-const { extractPageMarkdown } = require('./lib/pageContent')
+const {
+  BROWSER_LAUNCH_OPTIONS,
+  fetchPage,
+} = require('./lib/opportunityPage')
 
 const {
   GoogleGenAI,
@@ -42,8 +44,6 @@ const CONCURRENCY = 3
 
 const IMAGE_FETCH_TIMEOUT_MS = 12000
 const MAX_IMAGE_RESPONSE_BYTES = 10 * 1024 * 1024
-const MAX_PAGE_RESOURCE_BYTES = 15 * 1024 * 1024
-const PAGE_RESOURCE_TIMEOUT_MS = 12_000
 const IMAGE_USER_AGENT =
   'Mozilla/5.0 (compatible; SciTeensImageFetcher/1.0; +https://sciteens.org)'
 
@@ -250,153 +250,10 @@ const SUBMIT_TOOL = {
   },
 }
 
-function extractPageContent(html, baseUrl) {
-  const $ = cheerio.load(html)
-  const title = $('title').first().text().trim()
-  const ogImage =
-    $('meta[property="og:image"]').attr('content') || ''
-  const bodyMarkdown = extractPageMarkdown(html, baseUrl)
-
-  const links = []
-  const seen = new Set()
-  $('a[href]').each((_, el) => {
-    const href = $(el).attr('href')
-    const text = $(el).text().replace(/\s+/g, ' ').trim()
-    if (!href || !text) return
-    let abs
-    try {
-      abs = new URL(href, baseUrl).toString()
-    } catch {
-      return
-    }
-    if (seen.has(abs)) return
-    seen.add(abs)
-    links.push({ url: abs, text: text.slice(0, 80) })
-  })
-
-  return {
-    title,
-    ogImage,
-    bodyMarkdown,
-    links: links.slice(0, 60),
-  }
-}
-
 const {
   fetchPublicUrl,
-  fetchPublicUrlOnce,
-  isNonNetworkScheme,
-  publicHttpUrlOrNull,
   readResponseBuffer,
 } = require('./lib/publicUrl')
-
-function pageFetchFailure(error) {
-  const code = error?.code || error?.cause?.code
-  const reason =
-    typeof code === 'string' &&
-    /^[A-Z][A-Z0-9_]{1,63}$/.test(code)
-      ? code
-      : error?.name === 'TimeoutError' ||
-        error?.name === 'AbortError'
-      ? error.name
-      : 'transport error'
-  return `Page fetch failed (${reason}).`
-}
-
-async function fetchPage(browser, url) {
-  const safeUrl = await publicHttpUrlOrNull(url)
-  if (!safeUrl) {
-    return {
-      ok: false,
-      error: 'Refused to fetch a non-public URL.',
-    }
-  }
-  const context = await browser.newContext()
-  let navigationFailure
-  try {
-    await context.route('**/*', async (route) => {
-      const request = route.request()
-      const requestUrl = request.url()
-      let parsed
-      try {
-        parsed = new URL(requestUrl)
-      } catch {
-        return route.abort('blockedbyclient')
-      }
-      if (isNonNetworkScheme(parsed.protocol)) {
-        return route.continue()
-      }
-      if (request.method() !== 'GET') {
-        return route.abort('blockedbyclient')
-      }
-
-      const controller = new AbortController()
-      const timer = setTimeout(
-        () => controller.abort(),
-        PAGE_RESOURCE_TIMEOUT_MS
-      )
-      try {
-        const headers = {
-          ...request.headers(),
-          'accept-encoding': 'identity',
-        }
-        delete headers.host
-        delete headers['content-length']
-        const response = await fetchPublicUrlOnce(
-          requestUrl,
-          {
-            headers,
-            signal: controller.signal,
-          }
-        )
-        const body = response.body
-          ? await readResponseBuffer(
-              response,
-              MAX_PAGE_RESOURCE_BYTES
-            )
-          : Buffer.alloc(0)
-        const responseHeaders = Object.fromEntries(
-          response.headers.entries()
-        )
-        delete responseHeaders['content-length']
-        delete responseHeaders['transfer-encoding']
-        return route.fulfill({
-          status: response.status,
-          headers: responseHeaders,
-          body,
-        })
-      } catch (err) {
-        if (
-          request.isNavigationRequest() &&
-          request.frame() === page.mainFrame()
-        ) {
-          navigationFailure = pageFetchFailure(err)
-        }
-        return route.abort('blockedbyclient')
-      } finally {
-        clearTimeout(timer)
-      }
-    })
-    const page = await context.newPage()
-    await page.goto(safeUrl, {
-      waitUntil: 'domcontentloaded',
-      timeout: 20000,
-    })
-    await page.waitForTimeout(1500)
-    const html = await page.content()
-    return {
-      ok: true,
-      ...extractPageContent(html, safeUrl),
-    }
-  } catch (err) {
-    return {
-      ok: false,
-      error: navigationFailure || pageFetchFailure(err),
-    }
-  } finally {
-    await context.close()
-  }
-}
 
 function faviconFallbackUrl(pageUrl) {
   const domain = new URL(pageUrl).hostname
@@ -558,7 +415,7 @@ async function ogImageUrl(browser, sourceUrl) {
   try {
     const page = await fetchPage(browser, sourceUrl)
     if (page.ok && page.ogImage) {
-      return new URL(page.ogImage, sourceUrl).toString()
+      return new URL(page.ogImage, page.finalUrl).toString()
     }
   } catch {
     return null
@@ -1280,7 +1137,9 @@ async function main() {
     `Scraping ${sources.length} source(s), concurrency ${CONCURRENCY}, dryRun=${args.dryRun}, prefetch=${args.prefetch}`
   )
 
-  const browser = await chromium.launch({ headless: true })
+  const browser = await chromium.launch(
+    BROWSER_LAUNCH_OPTIONS
+  )
   let succeeded = 0
   let failed = 0
 
