@@ -179,8 +179,12 @@ function requestPinnedUrl(
       {
         headers: requestHeaders,
         signal,
-        lookup: (_hostname, _options, callback) => {
-          callback(null, address, family)
+        lookup: (_hostname, options, callback) => {
+          if (options.all) {
+            callback(null, [{ address, family }])
+          } else {
+            callback(null, address, family)
+          }
         },
       },
       (incoming) => {
@@ -200,6 +204,7 @@ function requestPinnedUrl(
         const body = [101, 204, 205, 304].includes(status)
           ? null
           : Readable.toWeb(incoming)
+        if (body === null) incoming.resume()
         resolve(
           new Response(body, {
             status,

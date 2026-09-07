@@ -290,76 +290,94 @@ const {
   readResponseBuffer,
 } = require('./lib/publicUrl')
 
+function pageFetchFailure(error) {
+  const code = error?.code || error?.cause?.code
+  const reason =
+    typeof code === 'string' &&
+    /^[A-Z][A-Z0-9_]{1,63}$/.test(code)
+      ? code
+      : error?.name === 'TimeoutError' ||
+        error?.name === 'AbortError'
+      ? error.name
+      : 'transport error'
+  return `Page fetch failed (${reason}).`
+}
+
 async function fetchPage(browser, url) {
   const safeUrl = await publicHttpUrlOrNull(url)
   if (!safeUrl) {
     return {
       ok: false,
-      error: `refused to fetch non-public URL: ${String(
-        url
-      ).slice(0, 200)}`,
+      error: 'Refused to fetch a non-public URL.',
     }
   }
   const context = await browser.newContext()
-  await context.route('**/*', async (route) => {
-    const request = route.request()
-    const requestUrl = request.url()
-    let parsed
-    try {
-      parsed = new URL(requestUrl)
-    } catch {
-      return route.abort('blockedbyclient')
-    }
-    if (isNonNetworkScheme(parsed.protocol)) {
-      return route.continue()
-    }
-    if (request.method() !== 'GET') {
-      return route.abort('blockedbyclient')
-    }
-
-    const controller = new AbortController()
-    const timer = setTimeout(
-      () => controller.abort(),
-      PAGE_RESOURCE_TIMEOUT_MS
-    )
-    try {
-      const headers = {
-        ...request.headers(),
-        'accept-encoding': 'identity',
-      }
-      delete headers.host
-      delete headers['content-length']
-      const response = await fetchPublicUrlOnce(
-        requestUrl,
-        {
-          headers,
-          signal: controller.signal,
-        }
-      )
-      const body = response.body
-        ? await readResponseBuffer(
-            response,
-            MAX_PAGE_RESOURCE_BYTES
-          )
-        : Buffer.alloc(0)
-      const responseHeaders = Object.fromEntries(
-        response.headers.entries()
-      )
-      delete responseHeaders['content-length']
-      delete responseHeaders['transfer-encoding']
-      return route.fulfill({
-        status: response.status,
-        headers: responseHeaders,
-        body,
-      })
-    } catch {
-      return route.abort('blockedbyclient')
-    } finally {
-      clearTimeout(timer)
-    }
-  })
-  const page = await context.newPage()
+  let navigationFailure
   try {
+    await context.route('**/*', async (route) => {
+      const request = route.request()
+      const requestUrl = request.url()
+      let parsed
+      try {
+        parsed = new URL(requestUrl)
+      } catch {
+        return route.abort('blockedbyclient')
+      }
+      if (isNonNetworkScheme(parsed.protocol)) {
+        return route.continue()
+      }
+      if (request.method() !== 'GET') {
+        return route.abort('blockedbyclient')
+      }
+
+      const controller = new AbortController()
+      const timer = setTimeout(
+        () => controller.abort(),
+        PAGE_RESOURCE_TIMEOUT_MS
+      )
+      try {
+        const headers = {
+          ...request.headers(),
+          'accept-encoding': 'identity',
+        }
+        delete headers.host
+        delete headers['content-length']
+        const response = await fetchPublicUrlOnce(
+          requestUrl,
+          {
+            headers,
+            signal: controller.signal,
+          }
+        )
+        const body = response.body
+          ? await readResponseBuffer(
+              response,
+              MAX_PAGE_RESOURCE_BYTES
+            )
+          : Buffer.alloc(0)
+        const responseHeaders = Object.fromEntries(
+          response.headers.entries()
+        )
+        delete responseHeaders['content-length']
+        delete responseHeaders['transfer-encoding']
+        return route.fulfill({
+          status: response.status,
+          headers: responseHeaders,
+          body,
+        })
+      } catch (err) {
+        if (
+          request.isNavigationRequest() &&
+          request.frame() === page.mainFrame()
+        ) {
+          navigationFailure = pageFetchFailure(err)
+        }
+        return route.abort('blockedbyclient')
+      } finally {
+        clearTimeout(timer)
+      }
+    })
+    const page = await context.newPage()
     await page.goto(safeUrl, {
       waitUntil: 'domcontentloaded',
       timeout: 20000,
@@ -373,7 +391,7 @@ async function fetchPage(browser, url) {
   } catch (err) {
     return {
       ok: false,
-      error: String(err && err.message ? err.message : err),
+      error: navigationFailure || pageFetchFailure(err),
     }
   } finally {
     await context.close()
@@ -719,6 +737,9 @@ async function runExtractionFromSeed(
     browser,
     withSeedPage(seedUrl, [])
   )
+  if (fetched.every((entry) => !entry.page.ok)) {
+    return { visited: [], error: fetched[0].page.error }
+  }
   const contents = [
     {
       role: 'user',
@@ -757,6 +778,9 @@ async function runExtractionFromHistory(
     browser,
     withSeedPage(seedUrl, entries, MAX_FETCHES_PER_SOURCE)
   )
+  if (fetched.every((entry) => !entry.page.ok)) {
+    return { visited: [], error: fetched[0].page.error }
+  }
   const contents = [
     {
       role: 'user',
@@ -1276,9 +1300,34 @@ async function main() {
       sources,
       CONCURRENCY,
       async (source) => {
-        const ok = await scrapeSource(runContext, source)
-        if (ok) succeeded += 1
-        else failed += 1
+        try {
+          const ok = await scrapeSource(runContext, source)
+          if (ok) succeeded += 1
+          else failed += 1
+        } catch (err) {
+          failed += 1
+          const errorMessage = String(
+            err?.message || err
+          ).slice(0, 500)
+          console.error(
+            `  [FAIL] ${source.slug}: ${errorMessage}`
+          )
+          if (!args.dryRun) {
+            try {
+              await recordSourceFailure(
+                admin,
+                db,
+                source.slug,
+                errorMessage,
+                admin.firestore.FieldValue.serverTimestamp()
+              )
+            } catch {
+              console.error(
+                `The scraper did not save the failure record for ${source.slug}.`
+              )
+            }
+          }
+        }
       }
     )
   } finally {
@@ -1288,9 +1337,10 @@ async function main() {
   console.log(
     `\nDone: ${succeeded} succeeded, ${failed} failed, out of ${sources.length}.`
   )
+  if (failed > 0) process.exitCode = 1
 }
 
 main().catch((err) => {
   console.error(err)
-  process.exit(1)
+  process.exitCode = 1
 })

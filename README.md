@@ -29,10 +29,21 @@ Before you begin, make sure that you have both [Git](https://git-scm.com/downloa
 4. Type in `corepack pnpm dev` and visit localhost:3000 in your browser. This will show the development build!
 5. If you encounter an error at the step above, it's likely because you don't have access to the API keys. If you'd like to join the team to contribute to the website, [reach out](mailto:info@sciteens.com)!
 
+# Scheduled opportunity scraper
+
+GitHub Actions schedules the opportunity scraper each Monday at 06:00 UTC.
+The scraper completes the batch and saves successful results even when
+another source fails. Any failed source gives the process a nonzero exit
+status, so GitHub Actions marks the run as failed.
+
+If every prefetched page fails, the scraper stops extraction before the
+model call. When the transport supplies an error code, the failure record
+retains it. Public-address checks and URL provenance checks still apply.
+
 # Scheduled social posts
 
-GitHub Actions runs the opportunity deadline post each Monday at
-12:30 UTC. It selects dated opportunities due in the next 30 days.
+GitHub Actions schedules the opportunity deadline post each Monday at
+10:00 UTC. It selects dated opportunities due in the next 30 days.
 Each carousel places the nearest deadline first. The workflow creates
 another ordered carousel when more than nine opportunities qualify.
 
@@ -42,6 +53,23 @@ Create a `social-posts` GitHub environment. Set these variables:
 - `GCP_WIF_PROVIDER`
 - `GCP_SCRAPER_SA`
 - `SITE_URL`
+
+The Google Cloud Workload Identity provider must accept the identity for
+the `social-posts` environment:
+
+```text
+repo:Sci-Teens/sciteens:environment:social-posts
+```
+
+Keep the repository, branch, and workflow restrictions in the provider's
+attribute condition. The service account must also grant
+`roles/iam.workloadIdentityUser` to this identity.
+The `scrape-opportunities` environment uses a different identity.
+Access for that environment does not authorize `social-posts`.
+
+If authentication reports `The given credential is rejected by the attribute condition.`,
+inspect the provider's attribute condition before the service account policy.
+The scheduler does not start when this check fails.
 
 Set the `BUFFER_API_KEY` secret. The workflow uses the `Directed Relic`
 Buffer project by default. Set `BUFFER_ORGANIZATION_NAME` only to use

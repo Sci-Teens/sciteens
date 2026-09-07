@@ -1,9 +1,17 @@
+import { execFile } from 'node:child_process'
+import nodeDns from 'node:dns'
 import dns from 'node:dns/promises'
+import { once } from 'node:events'
+import http from 'node:http'
+import net from 'node:net'
+import { fileURLToPath } from 'node:url'
+import { promisify } from 'node:util'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
   assertPublicHttpUrl,
   fetchPublicUrl,
+  fetchPublicUrlOnce,
   ipv4FromMappedIpv6,
   isNonNetworkScheme,
   isPrivateHost,
@@ -13,6 +21,7 @@ import {
   publicHttpUrlOrNull,
   resolvePublicTarget,
   readResponseBuffer,
+  requestPinnedUrl,
 } from './publicUrl.js'
 
 afterEach(() => {
@@ -174,6 +183,128 @@ describe('resolvePublicTarget', () => {
     await expect(
       resolvePublicTarget('https://rebind.example/page')
     ).resolves.toBeNull()
+  })
+})
+
+describe('requestPinnedUrl', () => {
+  it.each([
+    { address: '127.0.0.1', family: 4, all: true },
+    { address: '127.0.0.1', family: 4, all: false },
+    { address: '::1', family: 6, all: true },
+    { address: '::1', family: 6, all: false },
+  ])(
+    'connects to the IPv$family pin with all=$all without another DNS lookup',
+    async ({ address, family, all }) => {
+      const originalAutoSelectFamily =
+        net.getDefaultAutoSelectFamily()
+      let requests = 0
+      const server = http.createServer(
+        (request, response) => {
+          requests++
+          response.setHeader('Connection', 'close')
+          response.end(
+            `${request.headers.host}${request.url}`
+          )
+        }
+      )
+
+      try {
+        server.listen(0, address)
+        await once(server, 'listening')
+        net.setDefaultAutoSelectFamily(all)
+        vi.spyOn(nodeDns, 'lookup').mockImplementation(
+          () => {
+            throw new Error(
+              'The request must not repeat the DNS lookup.'
+            )
+          }
+        )
+        const host = `pinned.invalid:${
+          server.address().port
+        }`
+        const url = `http://${host}/resource`
+
+        // This transport receives a trusted pin. Only this test uses loopback.
+        const response = await requestPinnedUrl(url, {
+          address,
+          family,
+          signal: AbortSignal.timeout(2000),
+        })
+        expect(response.status).toBe(200)
+        await expect(response.text()).resolves.toBe(
+          `${host}/resource`
+        )
+        expect(requests).toBe(1)
+
+        // The public entry point must reject even a mixed DNS answer.
+        vi.spyOn(dns, 'lookup').mockResolvedValue([
+          { address, family },
+          {
+            address:
+              family === 4 ? '8.8.8.8' : '2606:4700::1',
+            family,
+          },
+        ])
+        await expect(
+          fetchPublicUrlOnce(url, {
+            signal: AbortSignal.timeout(2000),
+          })
+        ).rejects.toThrow(/refused to fetch non-public URL/)
+        expect(requests).toBe(1)
+      } finally {
+        net.setDefaultAutoSelectFamily(
+          originalAutoSelectFamily
+        )
+        server.closeAllConnections()
+        await new Promise((resolve, reject) => {
+          server.close((error) => {
+            if (error) reject(error)
+            else resolve()
+          })
+        })
+      }
+    }
+  )
+
+  it('lets the process exit after a bodyless response', async () => {
+    const server = http.createServer(
+      (_request, response) => {
+        response.writeHead(204)
+        response.end()
+      }
+    )
+    try {
+      server.listen(0, '127.0.0.1')
+      await once(server, 'listening')
+      const modulePath = fileURLToPath(
+        new URL('./publicUrl.js', import.meta.url)
+      )
+      const script = `
+        const { requestPinnedUrl } = require(${JSON.stringify(
+          modulePath
+        )})
+        requestPinnedUrl('http://pinned.invalid:${
+          server.address().port
+        }/', {
+          address: '127.0.0.1',
+          family: 4,
+        }).then(response => {
+          console.log(response.status)
+        }).catch(error => {
+          console.error(error)
+          process.exitCode = 1
+        })
+      `
+      const { stdout } = await promisify(execFile)(
+        process.execPath,
+        ['-e', script],
+        { timeout: 2000 }
+      )
+      expect(stdout.trim()).toBe('204')
+    } finally {
+      server.closeAllConnections()
+      await new Promise((resolve) => server.close(resolve))
+    }
   })
 })
 
