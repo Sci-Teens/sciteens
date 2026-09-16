@@ -571,7 +571,7 @@
     "newsletter_placeholder": "aap@example.org",
     "newsletter_submit": "सदस्यता लें",
     "newsletter_submitting": "भेजा जा रहा है…",
-    "newsletter_confirmation_sent": "अपनी सदस्यता की पुष्टि के लिए अपना इनबॉक्स देखें।",
+    "newsletter_confirmation_sent": "आपने न्यूज़लेटर की सदस्यता ले ली है।",
     "newsletter_error": "एक मान्य ईमेल पता दर्ज करें और फिर से प्रयास करें।",
     "newsletter_privacy_prefix": "सदस्यता लेकर आप हमारी",
     "newsletter_privacy_link": "गोपनीयता नीति"

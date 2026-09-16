@@ -30,6 +30,12 @@ const newsletter = {
       'A student team built a sensor for local streams.',
     href: 'https://sciteens.org/project/water-sensor',
   },
+  community: {
+    title: 'Share SciTeens',
+    description:
+      'Help more students find research inspiration.',
+    href: 'https://sciteens.org/',
+  },
   opportunities: [
     {
       title: 'Research internship',
@@ -80,6 +86,7 @@ describe('monthly newsletter template', () => {
 
     expect(html).toContain('Featured article')
     expect(html).toContain('Featured project')
+    expect(html).toContain('Share SciTeens')
     expect(html).toContain('Opportunities closing soon')
     expect(html).toContain('Research internship')
     expect(html).toContain('background-color:#f5fff5')
@@ -98,8 +105,6 @@ describe('monthly newsletter template', () => {
       monthlyNewsletterTemplate(newsletter)
     )
 
-    expect(html).toContain(
-      'href="{{{contact.properties.newsletter_unsubscribe_url}}}"'
-    )
+    expect(html).toContain('href="{{unsubscribeUrl}}"')
   })
 })

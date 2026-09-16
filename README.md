@@ -113,41 +113,50 @@ queue, so Buffer selects the next configured posting time.
 
 # Monthly newsletter
 
-SciTeens sends the monthly newsletter through Resend Broadcasts.
+SciTeens sends the monthly newsletter through Plunk campaigns.
 The newsletter uses React Email templates in `functions/lib/emailTemplates.js`.
 
-The system uses two Resend segments:
+The system uses two Plunk static segments:
 
 - `SciTeens - Transactional` contains website account contacts.
 - `SciTeens - Newsletter` contains confirmed newsletter subscribers.
 
-The `SciTeens Newsletter` topic controls newsletter consent.
+The newsletter segment and Plunk subscription state control newsletter consent.
 A newsletter opt-out does not stop transactional email delivery.
 
 ## Initial setup
 
-1. Verify the `sciteens.org` sending domain in Resend.
-2. Create a Resend API key that can manage contacts, segments, topics, and broadcasts.
-3. Set the API key as the Firebase `RESEND_APIKEY` secret.
+1. Verify the `sciteens.org` sending domain in Plunk.
+2. Create a Plunk secret API key (`sk_*`) that can manage contacts, segments, and campaigns.
+3. Set the API key as the Firebase `PLUNK_SECRET_KEY` secret.
 4. Deploy the Cloud Functions.
 5. Authenticate the local Google Cloud CLI with Application Default Credentials.
-6. Set `RESEND_APIKEY` in the local shell.
+6. Set `PLUNK_SECRET_KEY` in the local shell.
 7. Run the contact migration.
 
 ```bash
-firebase functions:secrets:set RESEND_APIKEY
+firebase functions:secrets:set PLUNK_SECRET_KEY
 firebase deploy --only functions
 
 export GCP_PROJECT_ID=<gcp-project-id>
-export RESEND_APIKEY=<resend-api-key>
+export PLUNK_SECRET_KEY=<plunk-secret-key>
 gcloud auth application-default login
 pnpm newsletter:sync -- --project "$GCP_PROJECT_ID"
 ```
 
-The first sync, confirmation, or broadcast that needs them creates the Newsletter segment and topic.
-The first sync moves existing account and confirmed newsletter contacts into their correct segments.
+The first sync, confirmation, or campaign that needs it creates the Newsletter segment.
+The first sync moves website accounts and newsletter records from Firestore into their correct segments.
+To migrate the existing Resend address book, run the one-time Resend migration with both API keys in your local shell:
+
+```bash
+export RESEND_APIKEY=<resend-api-key>
+export PLUNK_SECRET_KEY=<plunk-secret-key>
+pnpm newsletter:migrate-resend -- --project "$GCP_PROJECT_ID"
+```
+
+The migration subscribes every Resend contact except contacts already globally unsubscribed in Resend or through the SciTeens newsletter unsubscribe page.
 The first sync creates replacement unsubscribe tokens only for unmarked newsletter subscribers.
-Later syncs update segment and topic membership without token rotation.
+Later syncs update segment membership without token rotation.
 
 ## Monthly workflow
 
@@ -205,7 +214,7 @@ pnpm newsletter:create -- \
 ```
 
 The command writes an HTML file beside the JSON file.
-Read the HTML file before you create a Resend draft.
+Read the HTML file before you create a Plunk draft.
 
 Then create a draft broadcast.
 
@@ -215,8 +224,8 @@ pnpm newsletter:create -- \
   --project "$GCP_PROJECT_ID"
 ```
 
-The command creates a Resend draft by default.
-Review the audience, content, and schedule in Resend.
+The command creates a Plunk draft by default.
+Review the audience, content, and schedule in Plunk.
 
 If the draft is correct, send it now.
 
@@ -243,5 +252,5 @@ pnpm newsletter:create -- \
 Give an agent the JSON field list in this section.
 Ask the agent to use confirmed site content and HTTPS SciTeens URLs.
 Ask the agent to run the dry command first.
-Do not give an agent `RESEND_APIKEY` when it only prepares content.
+Do not give an agent `PLUNK_SECRET_KEY` when it only prepares content.
 Give send access only to an agent that can create broadcasts.

@@ -1,0 +1,28 @@
+{
+  "name": "September 2026",
+  "subject": "September at SciTeens",
+  "preview": "A new article, a student project, and STEM opportunities to explore.",
+  "title": "September at SciTeens",
+  "opening": [
+    "Hey, it's been a while! We're glad to be back in your inbox with fresh science to read, student work to explore, and new ways to find your next STEM opportunity.",
+    "We have also revamped the SciTeens website to include a new opportunities section, making it easier to find STEM programs, competitions, and research experiences in one place.",
+    "This month, learn why melanoma can spread so quickly, take a look at a student-built Smart Dustbin, and browse new opportunities for your next step in STEM."
+  ],
+  "featuredArticle": {
+    "title": "Why Melanoma Spreads So Fast: The Hidden Story of BRAF, MAPK and Cellular Chaos",
+    "description": "A clear look at how BRAF mutations can put the MAPK pathway into overdrive, helping explain why melanoma is one of the most aggressive skin cancers.",
+    "href": "https://sciteens.org/article/why-melanoma-spreads-so-fast-braf-mapk-and-cellular-chaos",
+    "imageUrl": "https://sciteens.org/content/media/melanoma-epithelium-40178ab6.webp",
+    "imageAlt": "Microscopic image of melanoma tissue"
+  },
+  "featuredProject": {
+    "title": "Smart Dustbin",
+    "description": "Explore a student project that applies thoughtful engineering to a familiar everyday challenge.",
+    "href": "https://sciteens.org/project/jMTXdXWMubqxWPstY7bp"
+  },
+  "community": {
+    "title": "Have a friend looking for their next science idea?",
+    "description": "Share SciTeens with friends and family looking for research inspiration or a great opportunity. It might help them find their next project, program, or science community.",
+    "href": "https://sciteens.org/"
+  }
+}
