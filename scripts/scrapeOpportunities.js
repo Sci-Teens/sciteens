@@ -36,7 +36,7 @@ const {
 const {
   locationComponentsFromNominatim,
 } = require('./lib/opportunityLocations')
-const MODEL = 'gemini-3.7-flash'
+const MODEL = 'gemini-3.1-flash-lite'
 const DEFAULT_VERTEX_LOCATION = 'global'
 const MAX_OUTPUT_TOKENS = 8192
 const MAX_FETCHES_PER_SOURCE = 5
