@@ -8,7 +8,8 @@
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
     "newsletter:create": "node scripts/create-newsletter-broadcast.js",
-    "newsletter:sync": "node scripts/sync-email-contact-lists.js"
+    "newsletter:sync": "node scripts/sync-email-contact-lists.js",
+    "newsletter:migrate-resend": "node scripts/migrate-resend-contacts.js"
   },
   "engines": {
     "node": "22"
@@ -20,7 +21,6 @@
     "firebase-functions": "^7.3.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "resend": "^6.17.2",
     "sharp": "^0.35.3",
     "slugify": "^1.6.9"
   },

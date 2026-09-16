@@ -1,9 +1,8 @@
 const admin = require('firebase-admin')
-const { Resend } = require('resend')
 const {
   addNewsletterContact,
   addTransactionalContact,
-} = require('../lib/resend')
+} = require('../lib/plunk')
 const {
   createNewsletterToken,
   hashNewsletterValue,
@@ -13,7 +12,7 @@ const {
 
 const PAGE_SIZE = 100
 const SITE_URL = 'https://sciteens.org'
-const RESEND_CONTACT_DELAY_MS = 1000
+const PLUNK_CONTACT_DELAY_MS = 200
 
 function wait(milliseconds) {
   return new Promise((resolve) => {
@@ -25,7 +24,7 @@ async function syncWithRetry(sync) {
   for (let attempt = 0; attempt < 3; attempt += 1) {
     if (await sync()) return true
     if (attempt < 2) {
-      await wait(RESEND_CONTACT_DELAY_MS * (attempt + 1))
+      await wait(PLUNK_CONTACT_DELAY_MS * (attempt + 1))
     }
   }
   return false
@@ -68,10 +67,10 @@ function usage() {
   return [
     'Use: pnpm newsletter:sync -- --project <id> [--dry-run]',
     '',
-    'The command adds website accounts to the Transactional list.',
-    'The command adds confirmed newsletter subscribers to the Newsletter list.',
+    'The command adds website accounts to the Transactional segment.',
+    'The command adds confirmed newsletter subscribers to the Newsletter segment.',
     'The first sync creates tokens for unmarked newsletter subscribers.',
-    'Use --dry-run to count records without changing Resend or Firestore.',
+    'Use --dry-run to count records without changing Plunk or Firestore.',
   ].join('\n')
 }
 
@@ -119,15 +118,27 @@ async function run() {
     projectId: options.project,
   })
   const db = admin.firestore(app)
-  const apiKey = process.env.RESEND_APIKEY
+  const apiKey = process.env.PLUNK_SECRET_KEY
   if (!options.dryRun && !apiKey) {
     throw new Error(
-      'Set RESEND_APIKEY before you sync contacts.'
+      'Set PLUNK_SECRET_KEY before you sync contacts.'
     )
   }
-  const resend = apiKey ? new Resend(apiKey) : null
   let transactional = 0
   let newsletter = 0
+  const confirmedNewsletterEmails = new Set()
+
+  await pageThrough(
+    db
+      .collection('newsletter-subscribers')
+      .where('status', '==', 'subscribed'),
+    async (doc) => {
+      const email = normalizeNewsletterEmail(
+        doc.data().email
+      )
+      if (email) confirmedNewsletterEmails.add(email)
+    }
+  )
 
   await pageThrough(
     db.collection('emails'),
@@ -138,7 +149,10 @@ async function run() {
       if (!email) return
       if (!options.dryRun) {
         const synced = await syncWithRetry(() =>
-          addTransactionalContact({ email }, resend)
+          addTransactionalContact({ email }, apiKey, {
+            subscribed:
+              confirmedNewsletterEmails.has(email),
+          })
         )
         if (!synced) {
           throw new Error(
@@ -148,7 +162,7 @@ async function run() {
       }
       transactional += 1
       if (!options.dryRun) {
-        await wait(RESEND_CONTACT_DELAY_MS)
+        await wait(PLUNK_CONTACT_DELAY_MS)
       }
     }
   )
@@ -163,7 +177,7 @@ async function run() {
       if (!email) return
       if (!options.dryRun) {
         const needsTokenMigration =
-          !data.resendNewsletterSyncedAt
+          !data.plunkNewsletterSyncedAt
         const token = needsTokenMigration
           ? createNewsletterToken()
           : null
@@ -185,7 +199,7 @@ async function run() {
                 },
               }),
             },
-            resend
+            apiKey
           )
         )
         if (!subscribed) {
@@ -200,7 +214,7 @@ async function run() {
               admin.firestore.FieldValue.delete(),
             unsubscribeTokenHash:
               hashNewsletterValue(token),
-            resendNewsletterSyncedAt:
+            plunkNewsletterSyncedAt:
               admin.firestore.FieldValue.serverTimestamp(),
             updatedAt:
               admin.firestore.FieldValue.serverTimestamp(),
@@ -209,7 +223,7 @@ async function run() {
       }
       newsletter += 1
       if (!options.dryRun) {
-        await wait(RESEND_CONTACT_DELAY_MS)
+        await wait(PLUNK_CONTACT_DELAY_MS)
       }
     }
   )

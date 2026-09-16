@@ -12,7 +12,7 @@ import { FieldLabel } from '@/components/ui/field'
 
 // Firebase Functions v1 HTTPS triggers deploy to us-central1 by default
 // under the directed-relic-266701 project (see .firebaserc and
-// functions/lib/resend.js#FUNCTIONS_BASE_URL, which this must match).
+// functions/lib/plunk.js#FUNCTIONS_BASE_URL, which this must match).
 const UNSUBSCRIBE_ENDPOINT =
   'https://us-central1-directed-relic-266701.cloudfunctions.net/unsubscribe'
 

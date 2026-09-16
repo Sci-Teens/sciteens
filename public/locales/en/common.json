@@ -571,7 +571,7 @@
     "newsletter_placeholder": "you@example.org",
     "newsletter_submit": "Subscribe",
     "newsletter_submitting": "Sending…",
-    "newsletter_confirmation_sent": "Check your inbox to confirm your subscription.",
+    "newsletter_confirmation_sent": "You are subscribed to the newsletter.",
     "newsletter_error": "Enter a valid email address and try again.",
     "newsletter_privacy_prefix": "By subscribing, you agree to our",
     "newsletter_privacy_link": "Privacy Policy"

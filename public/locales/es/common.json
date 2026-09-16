@@ -571,7 +571,7 @@
     "newsletter_placeholder": "usted@ejemplo.org",
     "newsletter_submit": "Suscribirse",
     "newsletter_submitting": "Enviando…",
-    "newsletter_confirmation_sent": "Revise su bandeja de entrada para confirmar su suscripción.",
+    "newsletter_confirmation_sent": "Se ha suscrito al boletín.",
     "newsletter_error": "Escriba una dirección de correo válida e inténtelo de nuevo.",
     "newsletter_privacy_prefix": "Al suscribirse, acepta nuestra",
     "newsletter_privacy_link": "Política de privacidad"

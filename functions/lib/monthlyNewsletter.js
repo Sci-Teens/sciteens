@@ -77,6 +77,13 @@ function feature(value, field) {
   }
 }
 
+function optionalFeature(value, field) {
+  if (value === undefined || value === null) {
+    return null
+  }
+  return feature(value, field)
+}
+
 function opportunity(value, index) {
   const item = record(value, `opportunities[${index}]`)
   return {
@@ -142,6 +149,10 @@ function normalizeMonthlyNewsletter(value) {
     featuredProject: feature(
       newsletter.featuredProject,
       'featuredProject'
+    ),
+    community: optionalFeature(
+      newsletter.community,
+      'community'
     ),
     opportunities:
       newsletter.opportunities.map(opportunity),

@@ -23,9 +23,9 @@ const meiliMasterKey = defineSecret('MEILI_MASTER_KEY')
 // Google
 const vision = require('@google-cloud/vision')
 
-// Resend
+// Plunk
 const {
-  resendApiKey,
+  plunkSecretKey,
   sendEmail,
   addTransactionalContact,
   addNewsletterContact,
@@ -33,16 +33,14 @@ const {
   verifyUnsubscribeToken,
   getSubscriptions,
   setSubscription,
-  setResendCategorySubscription,
   setNewsletterContactSubscription,
-} = require('./lib/resend')
+} = require('./lib/plunk')
 const {
   verifyEmailTemplate,
   welcomeTemplate,
   newFeedbackTemplate,
   upcomingProgramTemplate,
   projectUpdateTemplate,
-  newsletterConfirmationTemplate,
   newsletterWelcomeTemplate,
 } = require('./lib/emailTemplates')
 const {
@@ -350,6 +348,18 @@ async function reserveSignupEmailDelivery(email, uid) {
       return 'acquired'
     })
   return { status, ref }
+}
+
+async function isNewsletterSubscribed(email) {
+  const snapshot = await admin
+    .firestore()
+    .collection('newsletter-subscribers')
+    .doc(hashNewsletterValue(email))
+    .get()
+  return (
+    snapshot.exists &&
+    snapshot.data().status === 'subscribed'
+  )
 }
 
 function setNewsletterCors(req, res) {
@@ -744,7 +754,7 @@ async function sendNewUserEmails(user) {
 
 exports.newUser = functions
   .runWith({
-    secrets: [resendApiKey],
+    secrets: [plunkSecretKey],
   })
   .auth.user()
   .onCreate(async (user) => {
@@ -804,11 +814,19 @@ exports.newUser = functions
     const [firstName, ...rest] = (
       user.displayName || ''
     ).split(' ')
-    await addTransactionalContact({
-      email: user.email,
-      firstName,
-      lastName: rest.join(' '),
-    })
+    await addTransactionalContact(
+      {
+        email: user.email,
+        firstName,
+        lastName: rest.join(' '),
+      },
+      undefined,
+      {
+        subscribed: await isNewsletterSubscribed(
+          normalizedEmail
+        ),
+      }
+    )
     await sendNewUserEmails(user)
     await delivery.ref.update({
       completed: true,
@@ -990,7 +1008,7 @@ exports.updateProgram = functions.firestore
 
 exports.newDiscussion = functions
   .runWith({
-    secrets: [resendApiKey],
+    secrets: [plunkSecretKey],
   })
   .firestore.document(
     'projects/{projectID}/discussion/{feedbackID}'
@@ -1073,7 +1091,7 @@ exports.newDiscussion = functions
 */
 exports.scheduledProgramEmailer = functions
   .runWith({
-    secrets: [resendApiKey],
+    secrets: [plunkSecretKey],
   })
   .pubsub.schedule('5 0 * * *')
   .timeZone('America/New_York') // Users can choose timezone - default is America/Los_Angeles
@@ -1152,16 +1170,16 @@ exports.scheduledProgramEmailer = functions
     Function unsubscribe()
 
     Public HTTPS endpoint backing per-category email unsubscribe links
-    (see functions/lib/resend.js#buildUnsubscribeLinks). Verifies the
+    (see functions/lib/plunk.js#buildUnsubscribeLinks). Verifies the
     opaque per-user token stored in emails/{uid}.unsubscribeToken, then
     reads/writes profiles/{uid}.emailSubscriptions — the source of
-    truth sendEmail() gates on — and best-effort mirrors the change
-    into the matching Resend audience. Also serves ?action=status so
+    truth sendEmail() gates on. Plunk's subscription setting is global,
+    so category preferences are not mirrored there. Also serves ?action=status so
     the /unsubscribe page can render every category's current state.
 */
 exports.unsubscribe = functions
   .runWith({
-    secrets: [resendApiKey],
+    secrets: [plunkSecretKey],
   })
   .https.onRequest(async (req, res) => {
     const allowedOrigins = [
@@ -1234,22 +1252,6 @@ exports.unsubscribe = functions
     const subscribed = action === 'subscribe'
     await setSubscription(uid, category, subscribed)
 
-    const emailSnap = await admin
-      .firestore()
-      .collection('emails')
-      .doc(uid)
-      .get()
-    const email = emailSnap.exists
-      ? emailSnap.data().email
-      : null
-    if (email) {
-      await setResendCategorySubscription({
-        email,
-        category,
-        unsubscribed: !subscribed,
-      })
-    }
-
     return res
       .status(200)
       .json({ ok: true, category, subscribed })
@@ -1257,7 +1259,7 @@ exports.unsubscribe = functions
 
 exports.newsletter = functions
   .runWith({
-    secrets: [resendApiKey],
+    secrets: [plunkSecretKey],
   })
   .https.onRequest(async (req, res) => {
     if (!setNewsletterCors(req, res)) return
@@ -1357,7 +1359,7 @@ exports.newsletter = functions
               admin.firestore.FieldValue.delete(),
             confirmationExpiresAt:
               admin.firestore.FieldValue.delete(),
-            resendNewsletterSyncedAt:
+            plunkNewsletterSyncedAt:
               admin.firestore.FieldValue.serverTimestamp(),
           })
         } catch (err) {
@@ -1521,7 +1523,6 @@ exports.newsletter = functions
     }
 
     const subscriber = hashNewsletterValue(email)
-    const confirmationToken = createNewsletterToken()
     const unsubscribeToken = createNewsletterToken()
     const subscriberLocale = newsletterLocale(
       req.body.locale
@@ -1539,48 +1540,65 @@ exports.newsletter = functions
       return res.status(200).json({ ok: true })
     }
 
-    await ref.set(
-      {
-        email,
-        status: 'pending',
-        locale: subscriberLocale,
-        confirmationTokenHash: hashNewsletterValue(
-          confirmationToken
-        ),
-        confirmationExpiresAt: new Date(
-          Date.now() + NEWSLETTER_CONFIRMATION_WINDOW
-        ),
-        unsubscribeTokenHash: hashNewsletterValue(
-          unsubscribeToken
-        ),
-        updatedAt:
-          admin.firestore.FieldValue.serverTimestamp(),
-      },
-      { merge: true }
+    const unsubscribeUrl = newsletterUnsubscribePage(
+      subscriberLocale,
+      subscriber,
+      unsubscribeToken
     )
+    try {
+      const contactAdded = await addNewsletterContact({
+        email,
+        properties: {
+          newsletter_unsubscribe_url: unsubscribeUrl,
+        },
+      })
+      if (!contactAdded) {
+        throw new Error('Newsletter contact setup failed.')
+      }
+      await ref.set(
+        {
+          email,
+          status: 'subscribed',
+          locale: subscriberLocale,
+          confirmedAt:
+            admin.firestore.FieldValue.serverTimestamp(),
+          confirmationTokenHash:
+            admin.firestore.FieldValue.delete(),
+          confirmationExpiresAt:
+            admin.firestore.FieldValue.delete(),
+          unsubscribeTokenHash: hashNewsletterValue(
+            unsubscribeToken
+          ),
+          plunkNewsletterSyncedAt:
+            admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt:
+            admin.firestore.FieldValue.serverTimestamp(),
+        },
+        { merge: true }
+      )
+    } catch (err) {
+      console.error('Newsletter contact setup failed:', err)
+      return res
+        .status(503)
+        .json({ ok: false, error: 'delivery_failed' })
+    }
 
     try {
       await sendEmail({
         to: email,
-        subject:
-          'Confirm your SciTeens newsletter subscription',
-        react: newsletterConfirmationTemplate({
-          link: newsletterConfirmationLink(
-            subscriber,
-            confirmationToken,
-            unsubscribeToken,
-            subscriberLocale
-          ),
+        subject: 'Your SciTeens newsletter subscription',
+        react: newsletterWelcomeTemplate({
+          unsubscribeUrl,
         }),
+        unsubscribeActionUrl: newsletterLink(
+          'unsubscribe',
+          subscriber,
+          unsubscribeToken,
+          subscriberLocale
+        ),
       })
     } catch (err) {
-      console.error(
-        'Newsletter confirmation email failed:',
-        err
-      )
-      return res
-        .status(503)
-        .json({ ok: false, error: 'delivery_failed' })
+      console.error('Newsletter welcome email failed:', err)
     }
 
     return res.status(200).json({ ok: true })
@@ -1982,7 +2000,7 @@ exports.acceptProjectInvite = functions.https.onRequest(
 
 exports.newProjectInvite = functions
   .runWith({
-    secrets: [resendApiKey],
+    secrets: [plunkSecretKey],
   })
   .firestore.document('project-invites/{projectID}')
   .onCreate(async (event) => {

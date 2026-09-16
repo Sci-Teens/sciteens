@@ -283,7 +283,7 @@ export const MAX_LINKS = 10
 
 // Bounds on the project-invite document the create/edit forms write.
 // firestore.rules enforces the same numbers, and newProjectInvite
-// re-checks them again before spending Resend quota; mirrored here so
+// re-checks them again before spending email-provider quota; mirrored here so
 // an honest user is stopped by a field error instead of a
 // permission-denied thrown after the project doc has already been
 // committed.

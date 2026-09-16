@@ -6,8 +6,7 @@ const {
 const h = React.createElement
 const SITE_URL = 'https://sciteens.org'
 const LOGO_URL = `${SITE_URL}/assets/sciteens-logo-main.png`
-const NEWSLETTER_UNSUBSCRIBE_URL =
-  '{{{contact.properties.newsletter_unsubscribe_url}}}'
+const NEWSLETTER_UNSUBSCRIBE_URL = '{{unsubscribeUrl}}'
 
 const styles = {
   body: {
@@ -631,6 +630,14 @@ function monthlyNewsletterTemplate(value) {
         feature: newsletter.featuredProject,
         actionLabel: 'View project',
       }),
+      newsletter.community
+        ? newsletterFeature({
+            key: 'community',
+            label: 'Share SciTeens',
+            feature: newsletter.community,
+            actionLabel: 'Explore SciTeens',
+          })
+        : null,
       h(
         'h2',
         {

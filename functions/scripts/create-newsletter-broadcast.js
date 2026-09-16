@@ -9,9 +9,7 @@ const {
   normalizeMonthlyNewsletter,
   MAX_OPPORTUNITIES,
 } = require('../lib/monthlyNewsletter')
-const {
-  createNewsletterBroadcast,
-} = require('../lib/resend')
+const { createNewsletterCampaign } = require('../lib/plunk')
 
 function usage() {
   return [
@@ -23,8 +21,8 @@ function usage() {
     '',
     'Options:',
     '--project <id>              Google Cloud project id.',
-    '--send                      Send the Resend broadcast now.',
-    '--scheduled-at <ISO date>   Schedule the broadcast. Use with --send.',
+    '--send                      Send the Plunk campaign now.',
+    '--scheduled-at <ISO date>   Schedule the campaign. Use with --send.',
     '--dry-run                   Render HTML. Do not create a broadcast.',
     '--output <file>             Set the HTML preview path.',
     '',
@@ -111,7 +109,10 @@ async function readJson(file) {
   }
 }
 
-async function fetchClosingOpportunities(projectId) {
+async function fetchClosingOpportunities(
+  projectId,
+  referenceDate = new Date()
+) {
   if (!projectId) {
     throw new Error(
       'Set --project or GCP_PROJECT_ID to select opportunities.'
@@ -125,7 +126,7 @@ async function fetchClosingOpportunities(projectId) {
     projectId,
   })
   const db = admin.firestore(app)
-  const { start, end } = deadlineWindow(new Date())
+  const { start, end } = deadlineWindow(referenceDate)
   const snapshot = await db
     .collection('opportunities')
     .where('deadlineStatus', '==', 'dated')
@@ -196,7 +197,12 @@ async function run() {
   const input = await readJson(inputPath)
   const opportunities = Array.isArray(input.opportunities)
     ? input.opportunities
-    : await fetchClosingOpportunities(options.project)
+    : await fetchClosingOpportunities(
+        options.project,
+        options.scheduledAt
+          ? new Date(options.scheduledAt)
+          : new Date()
+      )
   const newsletter = normalizeMonthlyNewsletter({
     ...input,
     opportunities,
@@ -212,13 +218,13 @@ async function run() {
 
   if (options.dryRun) return
 
-  const apiKey = process.env.RESEND_APIKEY
+  const apiKey = process.env.PLUNK_SECRET_KEY
   if (!apiKey) {
     throw new Error(
-      'Set RESEND_APIKEY before you create a broadcast.'
+      'Set PLUNK_SECRET_KEY before you create a campaign.'
     )
   }
-  const result = await createNewsletterBroadcast({
+  const result = await createNewsletterCampaign({
     apiKey,
     name: newsletter.name,
     subject: newsletter.subject,
@@ -226,9 +232,9 @@ async function run() {
     send: options.send,
     scheduledAt: options.scheduledAt,
   })
-  const id = result.data?.id || 'unknown'
+  const id = result.id || 'unknown'
   const status = options.send ? 'Sent' : 'Created'
-  console.log(`${status} newsletter broadcast ${id}.`)
+  console.log(`${status} newsletter campaign ${id}.`)
 }
 
 run().catch((error) => {
