@@ -2602,5 +2602,275 @@
     "url": "https://wyomingspacegrant.org/k12programs/stemcamp/",
     "label": "UW Teton STEM Academy",
     "category": "Wyoming"
+  },
+  {
+    "slug": "alabama-uab-cord-summer-science-institute-iii",
+    "url": "https://www.uab.edu/cord/program?catid=21&id=44&view=article",
+    "label": "UAB CORD Summer Science Institute III Student Research Internship",
+    "category": "Alabama"
+  },
+  {
+    "slug": "alaska-geoforce",
+    "url": "https://geoforce.alaska.edu/about",
+    "label": "GeoFORCE Alaska",
+    "category": "Alaska"
+  },
+  {
+    "slug": "alaska-t3-student-summer",
+    "url": "https://t3.alaska.edu/student-summer-program/",
+    "label": "T3 Alaska Student Summer Program",
+    "category": "Alaska"
+  },
+  {
+    "slug": "arizona-joaquin-bustoz-math-science",
+    "url": "https://qrlssp.asu.edu/institutes/jbmshp",
+    "label": "Joaquin Bustoz Math-Science Honors Program",
+    "category": "Arizona"
+  },
+  {
+    "slug": "arizona-keys-research-internship",
+    "url": "https://keys.arizona.edu/",
+    "label": "Keep Engaging Youth in Science (KEYS) Research Internship",
+    "category": "Arizona"
+  },
+  {
+    "slug": "arizona-tgen-bioscience-leadership",
+    "url": "https://www.tgen.org/education/tgen-bioscience-leadership-academy/",
+    "label": "TGen Bioscience Leadership Academy",
+    "category": "Arizona"
+  },
+  {
+    "slug": "arkansas-uams-ar-tech-dash",
+    "url": "https://medicine.uams.edu/neuroscience/outreach/ar-tech-dash/",
+    "label": "UAMS AR Tech DaSH",
+    "category": "Arkansas"
+  },
+  {
+    "slug": "doe-national-science-bowl",
+    "url": "https://science.osti.gov/wdts/nsb",
+    "label": "DOE National Science Bowl",
+    "category": "Competitions"
+  },
+  {
+    "slug": "mathworks-math-modeling-challenge",
+    "url": "https://m3challenge.siam.org/",
+    "label": "MathWorks Math Modeling Challenge",
+    "category": "Competitions"
+  },
+  {
+    "slug": "science-olympiad",
+    "url": "https://www.soinc.org/participants/discover-science-olympiad",
+    "label": "Science Olympiad",
+    "category": "Competitions"
+  },
+  {
+    "slug": "usa-computing-olympiad",
+    "url": "https://usaco.org/",
+    "label": "USA Computing Olympiad (USACO)",
+    "category": "Competitions"
+  },
+  {
+    "slug": "uconn-yes-stem",
+    "url": "https://health.uconn.edu/young-explorers-science/",
+    "label": "Young Explorers of Science (Y.E.S.)",
+    "category": "Connecticut"
+  },
+  {
+    "slug": "udel-summer-math-modeling",
+    "url": "https://www.udel.edu/academics/colleges/cas/units/departments/mathematical-sciences/about-us/summer-programs/summer-math-modeling-high-school/",
+    "label": "Summer Math Modeling Program for High Schoolers (University of Delaware)",
+    "category": "Delaware"
+  },
+  {
+    "slug": "hawaii-haaea-summer-bridge",
+    "url": "https://manoa.hawaii.edu/haaea/summer-bridge-program/",
+    "label": "Hawaiʻi’s Aspiring Aerospace Engineers Academy (HAAEA) Summer Bridge Program",
+    "category": "Hawaii"
+  },
+  {
+    "slug": "idaho-summer-stem-bridge",
+    "url": "https://www.cei.edu/summer-stem-bridge",
+    "label": "College of Eastern Idaho Summer STEM Bridge",
+    "category": "Idaho"
+  },
+  {
+    "slug": "idaho-science-aerospace-scholars",
+    "url": "https://www.sde.idaho.gov/about-us/departments/content-and-curriculum/science/idaho-science-and-aerospace-scholars/",
+    "label": "Idaho Science and Aerospace Scholars (ISAS)",
+    "category": "Idaho"
+  },
+  {
+    "slug": "kansas-kstate-excite",
+    "url": "https://www.k-state.edu/kawse/excite/",
+    "label": "K-State EXCITE Program",
+    "category": "Kansas"
+  },
+  {
+    "slug": "louisiana-lsu-engineering-high-school-summer-research",
+    "url": "https://www.cfr.lsu.edu/eng/future/summer-camps/hssrprogram.php",
+    "label": "LSU College of Engineering High School Summer Research Program",
+    "category": "Louisiana"
+  },
+  {
+    "slug": "louisiana-lsuhsc-smart-program",
+    "url": "https://research.lsuhs.edu/about/student-research-programs/smart-program/apply",
+    "label": "LSU Health Shreveport SMART Program",
+    "category": "Louisiana"
+  },
+  {
+    "slug": "usm-maine-smart-research",
+    "url": "https://usm.maine.edu/stem-outreach/smart-high-school-research-program/",
+    "label": "Maine-SMART High School Research Program (University of Southern Maine)",
+    "category": "Maine"
+  },
+  {
+    "slug": "mississippi-ole-miss-engineering-summer-academy",
+    "url": "https://www.outreach.olemiss.edu/pre-college/engineering-summer-academy/",
+    "label": "Ole Miss Engineering Summer Academy",
+    "category": "Mississippi"
+  },
+  {
+    "slug": "same-stem-engineering-construction-camps",
+    "url": "https://www.same.org/camps/",
+    "label": "SAME STEM/Engineering & Construction Camps",
+    "category": "Multi-state"
+  },
+  {
+    "slug": "nebraska-young-nebraska-scientists-high-school-researchers",
+    "url": "https://yns.nebraska.edu/gain-hands-on-experience-in-stem/high-school-research",
+    "label": "Young Nebraska Scientists High School Researchers",
+    "category": "Nebraska"
+  },
+  {
+    "slug": "unh-dinah-whipple-steam",
+    "url": "https://ceps.unh.edu/outreach/tech-camp/programs/dinah-whipple-steam-academy",
+    "label": "Dinah Whipple STEAM Academy (University of New Hampshire)",
+    "category": "New Hampshire"
+  },
+  {
+    "slug": "unh-techleaders-bridge-college",
+    "url": "https://ceps.unh.edu/outreach/tech-camp/programs/techleaders-bridge-college",
+    "label": "TechLeaders: Bridge to College (University of New Hampshire)",
+    "category": "New Hampshire"
+  },
+  {
+    "slug": "new-mexico-nmt-buzzcamp",
+    "url": "https://www.nmt.edu/buzzcamp/index.php",
+    "label": "New Mexico Tech BuzzCamp",
+    "category": "New Mexico"
+  },
+  {
+    "slug": "new-mexico-nmt-summer-stem-experience",
+    "url": "https://apply.nmt.edu/portal/summer_stem",
+    "label": "New Mexico Tech Summer STEM Experience",
+    "category": "New Mexico"
+  },
+  {
+    "slug": "new-mexico-stem-mavericks",
+    "url": "https://psl.nmsu.edu/student-programs/stem-mavericks.html",
+    "label": "NMSU STEM Mavericks",
+    "category": "New Mexico"
+  },
+  {
+    "slug": "ncsu-catalyst-stem",
+    "url": "https://sciencehouse.ncsu.edu/studentprograms/catalyst/",
+    "label": "Catalyst: Building a Strong and Innovative STEM Workforce (NC State)",
+    "category": "North Carolina"
+  },
+  {
+    "slug": "ncsu-high-school-forestry-research",
+    "url": "https://cnr.ncsu.edu/fer/extension-and-outreach/high-school-research/",
+    "label": "High School Summer Research Program (NC State Forestry and Environmental Resources)",
+    "category": "North Carolina"
+  },
+  {
+    "slug": "nc-step-up-to-stem",
+    "url": "https://www.ncssm.edu/summer/step-up-to-stem",
+    "label": "Step Up to STEM (North Carolina School of Science and Mathematics)",
+    "category": "North Carolina"
+  },
+  {
+    "slug": "north-dakota-ndsu-picnics",
+    "url": "https://www.ndsu.edu/chemistry/picnics",
+    "label": "NDSU PICNICS Summer Research Program",
+    "category": "North Dakota"
+  },
+  {
+    "slug": "oklahoma-cameron-nanoexplorers",
+    "url": "https://www.cameron.edu/chem-phys-eng/beyond-the-classroom/nanoexplorers",
+    "label": "Cameron University NanoExplorers High School Summer Science Academy",
+    "category": "Oklahoma"
+  },
+  {
+    "slug": "oklahoma-uco-explore-engineering-summer-academy",
+    "url": "https://sites.uco.edu/cms/students/soe-academy",
+    "label": "University of Central Oklahoma Explore Engineering Summer Academy",
+    "category": "Oklahoma"
+  },
+  {
+    "slug": "pa-governors-school-sciences",
+    "url": "https://sciences.pa-gov-schools.org/",
+    "label": "Pennsylvania Governor’s School for the Sciences",
+    "category": "Pennsylvania"
+  },
+  {
+    "slug": "psu-harrisburg-stem-enrichment",
+    "url": "https://harrisburg.psu.edu/science-engineering-technology/STEM/summer-STEM-program",
+    "label": "STEM Summer Enrichment Program (Penn State Harrisburg)",
+    "category": "Pennsylvania"
+  },
+  {
+    "slug": "brown-cores-earth-science",
+    "url": "https://deeps.brown.edu/outreach/cores",
+    "label": "Career Opportunities and Research in Earth Science (CORES)",
+    "category": "Rhode Island"
+  },
+  {
+    "slug": "uri-smile",
+    "url": "https://web.uri.edu/smile/",
+    "label": "Science and Math Investigative Learning Experiences (SMILE)",
+    "category": "Rhode Island"
+  },
+  {
+    "slug": "brown-stem-rising-9-10",
+    "url": "https://precollege.brown.edu/stem-rising",
+    "label": "STEM for Rising 9th and 10th Graders (Brown University)",
+    "category": "Rhode Island"
+  },
+  {
+    "slug": "south-dakota-mines-geology-rocks",
+    "url": "https://www.sdsmt.edu/events/education-outreach/summer-camps/geology-rocks.html",
+    "label": "Geology Rocks! at South Dakota Mines",
+    "category": "South Dakota"
+  },
+  {
+    "slug": "vermont-giv-engineering-institute",
+    "url": "https://giv.org/summer-institutes/engineering/",
+    "label": "The Engineering Institute (Governor’s Institutes of Vermont)",
+    "category": "Vermont"
+  },
+  {
+    "slug": "vermont-giv-health-medicine-institute",
+    "url": "https://giv.org/summer-institutes/health-medicine/",
+    "label": "The Health & Medicine Institute (Governor’s Institutes of Vermont)",
+    "category": "Vermont"
+  },
+  {
+    "slug": "vermont-giv-weather-climate-science",
+    "url": "https://giv.org/summer-institutes/weather-climate-science/",
+    "label": "The Weather & Climate Science Institute (Governor’s Institutes of Vermont)",
+    "category": "Vermont"
+  },
+  {
+    "slug": "marshall-health-care-pathway-initiative",
+    "url": "https://jcesom.marshall.edu/students/student-outreach-engagement/health-care-pathway-initiative/",
+    "label": "Health Care Pathway Initiative (Marshall University)",
+    "category": "West Virginia"
+  },
+  {
+    "slug": "wyoming-engineering-summer-program",
+    "url": "https://www.uwyo.edu/ceps/resources/outreach/programs/esp.html",
+    "label": "University of Wyoming Engineering Summer Program (ESP)",
+    "category": "Wyoming"
   }
 ]
