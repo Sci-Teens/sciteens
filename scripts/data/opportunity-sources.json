@@ -2380,5 +2380,227 @@
     "url": "https://www.massgeneral.org/neurology/education-and-training/youth-research-and-education",
     "label": "Youth Neurology Education and Research Program @ Massachusetts General Hospital (MGH)",
     "category": "Massachusetts"
+  },
+  {
+    "slug": "alabama-una-summer-stem-camps",
+    "url": "https://www.una.edu/stemcamp/",
+    "label": "University of North Alabama Summer STEM Camps",
+    "category": "Alabama"
+  },
+  {
+    "slug": "alaska-uaa-summer-engineering-academies",
+    "url": "https://www.uaa.alaska.edu/academics/college-of-engineering/community/summer-academies/index.cshtml",
+    "label": "UAA Summer Engineering Academies",
+    "category": "Alaska"
+  },
+  {
+    "slug": "arkansas-uark-engineering-summer-academy",
+    "url": "https://engineering.uark.edu/summer-camps/engineering-summer-academy.php",
+    "label": "University of Arkansas Engineering Summer Academy",
+    "category": "Arkansas"
+  },
+  {
+    "slug": "hawaii-pac-step",
+    "url": "https://sites.google.com/hawaii.edu/pac-stephawaii",
+    "label": "Pacific Summer Transportation Education Program (PAC-STEP Hawaii)",
+    "category": "Hawaii"
+  },
+  {
+    "slug": "hawaii-project-hokulani",
+    "url": "https://cds.coe.hawaii.edu/hokulani/",
+    "label": "Project Hōkūlani",
+    "category": "Hawaii"
+  },
+  {
+    "slug": "idaho-hoist",
+    "url": "https://www.uidaho.edu/campus-communities/tribal-nations-student-affairs/hoist",
+    "label": "University of Idaho HOIST STEM Summer Program",
+    "category": "Idaho"
+  },
+  {
+    "slug": "uk-microbiology-high-school-summer-research-fellowship",
+    "url": "https://medicine.uky.edu/departments/microbiology/high-school-summer-fellowship",
+    "label": "University of Kentucky Microbiology High School Summer Research Fellowship",
+    "category": "Kentucky"
+  },
+  {
+    "slug": "uk-summer-engineering-exploration-kamp-seek",
+    "url": "https://civil.engr.uky.edu/seek",
+    "label": "University of Kentucky Summer Engineering Exploration Kamp (SEEK)",
+    "category": "Kentucky"
+  },
+  {
+    "slug": "mississippi-state-agristem-camp",
+    "url": "https://www.guestservices.msstate.edu/camps/camp-participants/registration/agristem-summer-camp",
+    "label": "Mississippi State University AgriSTEM Summer Camp",
+    "category": "Mississippi"
+  },
+  {
+    "slug": "ole-miss-arise-stem-summer-program",
+    "url": "https://www.outreach.olemiss.edu/pre-college/summer-college/arise%40um.html",
+    "label": "Ole Miss ARISE STEM Summer Program",
+    "category": "Mississippi"
+  },
+  {
+    "slug": "montana-math-circle-summer-camp",
+    "url": "https://www.montana.edu/smrc/stem-outreach/math-circle/math-camp.html",
+    "label": "Montana Math Circle Summer Camp",
+    "category": "Montana"
+  },
+  {
+    "slug": "unl-matc-stem-academy",
+    "url": "https://matc.unl.edu/education/stem-academy/",
+    "label": "UNL Mid-America Transportation Center STEM Academy",
+    "category": "Nebraska"
+  },
+  {
+    "slug": "unl-ncmn-high-school-internship",
+    "url": "https://ncmn.unl.edu/hs-interns/",
+    "label": "UNL Nebraska Center for Materials and Nanoscience High School Internship",
+    "category": "Nebraska"
+  },
+  {
+    "slug": "nevada-unr-engineering-summer-camps",
+    "url": "https://www.unr.edu/engineering/about/outreach/k-12/camps",
+    "label": "UNR Engineering Summer Camps",
+    "category": "Nevada"
+  },
+  {
+    "slug": "new-mexico-nmjc-steam-enrichment-program",
+    "url": "https://www.nmjc.edu/admission/nmjc_foundation/NSEP.aspx",
+    "label": "New Mexico Junior College S.T.E.A.M. Enrichment Program",
+    "category": "New Mexico"
+  },
+  {
+    "slug": "new-mexico-nmsu-prep-high-school-academy",
+    "url": "https://engrnm.nmsu.edu/aggie-stem-connection/nm-prep.html",
+    "label": "NMSU NM PREP High School Academy",
+    "category": "New Mexico"
+  },
+  {
+    "slug": "ndsu-explore-engineering-high-school-camp",
+    "url": "https://www.ndsu.edu/engineering/outreach/explore-engineering",
+    "label": "NDSU Explore Engineering High School Camp",
+    "category": "North Dakota"
+  },
+  {
+    "slug": "nd-governors-school",
+    "url": "https://www.ndsu.edu/govschool",
+    "label": "North Dakota Governor's School",
+    "category": "North Dakota"
+  },
+  {
+    "slug": "oklahoma-nsu-camp-biomed",
+    "url": "https://academics.nsuok.edu/continuingeducation/YouthPrograms/camp_biomed.aspx",
+    "label": "Northeastern State University Camp Biomed",
+    "category": "Oklahoma"
+  },
+  {
+    "slug": "osuit-emerging-converging-technology-academy",
+    "url": "https://osuit.edu/summer-academy",
+    "label": "OSUIT Emerging and Converging Technology STEM Summer Academy",
+    "category": "Oklahoma"
+  },
+  {
+    "slug": "south-carolina-goscitech-residential-camp",
+    "url": "https://www.scgssm.org/goscitech-residential",
+    "label": "South Carolina Governor’s School for Science and Mathematics GoSciTech Residential Camp",
+    "category": "South Carolina"
+  },
+  {
+    "slug": "south-dakota-mines-physics-camp",
+    "url": "https://www.sdsmt.edu/events/education-outreach/summer-camps/physics-%40sdmines.html",
+    "label": "Physics @ South Dakota Mines",
+    "category": "South Dakota"
+  },
+  {
+    "slug": "south-dakota-mines-nucor-research-scholars",
+    "url": "https://www.sdsmt.edu/events/education-outreach/summer-camps/nucor-research-scholars.html",
+    "label": "South Dakota Mines Nucor Research Scholars",
+    "category": "South Dakota"
+  },
+  {
+    "slug": "usu-aspire-summer-ev-academy",
+    "url": "https://aspire.usu.edu/summer-academy/",
+    "label": "ASPIRE Summer EV Academy",
+    "category": "Utah"
+  },
+  {
+    "slug": "code-adventure-utah",
+    "url": "https://www.codeadventure.net/",
+    "label": "CodeAdventure Utah Summer Coding Camp",
+    "category": "Utah"
+  },
+  {
+    "slug": "utah-cancer-research-high-school-program",
+    "url": "https://uofuhealth.utah.edu/huntsman/education-training/high-school/crhs",
+    "label": "University of Utah Cancer Research High School Program",
+    "category": "Utah"
+  },
+  {
+    "slug": "utah-hi-gear",
+    "url": "https://www.price.utah.edu/k12/summer-camps",
+    "label": "University of Utah Hi-GEAR Camp",
+    "category": "Utah"
+  },
+  {
+    "slug": "utah-high-school-summer-research-internship",
+    "url": "https://www.price.utah.edu/k12/high-school-summer-research-internship",
+    "label": "University of Utah High School Summer Research Internship",
+    "category": "Utah"
+  },
+  {
+    "slug": "utah-summer-mathematics-program-high-school",
+    "url": "https://www.math.utah.edu/high-school-program/summerhsp.php",
+    "label": "University of Utah Summer Mathematics Program for High School Students",
+    "category": "Utah"
+  },
+  {
+    "slug": "uvu-empowered-professionals",
+    "url": "https://www.uvu.edu/bridge/",
+    "label": "UVU Empowered Professionals of Tomorrow",
+    "category": "Utah"
+  },
+  {
+    "slug": "weber-state-2d-video-gaming-camp",
+    "url": "https://secure.touchnet.com/C20249_ustores/web/product_detail.jsp?PRODUCTID=5130",
+    "label": "Weber State 2D Video Gaming Camp",
+    "category": "Utah"
+  },
+  {
+    "slug": "weber-state-medical-academy",
+    "url": "https://www.weber.edu/medicalacademy/",
+    "label": "Weber State Medical Academy",
+    "category": "Utah"
+  },
+  {
+    "slug": "vermont-governors-institute-mathematical-sciences",
+    "url": "https://giv.org/summer-institutes/mathematics/",
+    "label": "Governor’s Institute of Vermont Mathematical Sciences Institute",
+    "category": "Vermont"
+  },
+  {
+    "slug": "vermont-governors-institute-technology-design",
+    "url": "https://giv.org/summer-institutes/technology-design/",
+    "label": "Governor’s Institute of Vermont Technology & Design Institute",
+    "category": "Vermont"
+  },
+  {
+    "slug": "west-virginia-governors-computer-science-institute",
+    "url": "https://wvde.us/academics/middle-secondary-education/student-events-programs-initiatives/governors-schools-west-virginia/governors-computer-science-institute-gcsi",
+    "label": "West Virginia Governor’s Computer Science Institute",
+    "category": "West Virginia"
+  },
+  {
+    "slug": "west-virginia-health-sciences-technology-academy",
+    "url": "https://health.wvu.edu/health-sciences-and-technology-academy/",
+    "label": "West Virginia Health Sciences & Technology Academy (HSTA)",
+    "category": "West Virginia"
+  },
+  {
+    "slug": "wyoming-teton-stem-academy",
+    "url": "https://wyomingspacegrant.org/k12programs/stemcamp/",
+    "label": "UW Teton STEM Academy",
+    "category": "Wyoming"
   }
 ]
