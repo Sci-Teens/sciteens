@@ -25,7 +25,7 @@
   },
   {
     "slug": "mathroots",
-    "url": "https://math.mit.edu/mathroots/",
+    "url": "https://mathroots.mit.edu/",
     "label": "MIT mathroots",
     "category": "MIT-affiliated"
   },
@@ -74,7 +74,7 @@
   },
   {
     "slug": "ucla-summer-sessions",
-    "url": "https://www.summer.ucla.edu/high-school-programs",
+    "url": "https://summer.ucla.edu/student-types/high-school-students/",
     "label": "UCLA Summer Sessions (pre-college)",
     "category": "University research programs"
   },
@@ -283,7 +283,7 @@
   },
   {
     "slug": "artificial-intelligence-study-in-earth-exploration-aisee-summer-academy",
-    "url": "https://www.clayton.edu/celt/aisee.php",
+    "url": "https://www.clayton.edu/cstem/csit/aisee.php",
     "label": "Artificial Intelligence Study in Earth Exploration (AISEE) Summer Academy",
     "category": "USA (general)"
   },
@@ -607,7 +607,7 @@
   },
   {
     "slug": "csi-and-forensics-camp-at-xavier-university",
-    "url": "https://www.xavier.edu/summer-programs/high-school/csi-forensics-camp",
+    "url": "https://www.xavier.edu/summer-programs/csi-forensics-camp",
     "label": "CSI & Forensics Camp at Xavier University",
     "category": "Cincinnati Ohio"
   },
@@ -721,7 +721,7 @@
   },
   {
     "slug": "environment-climate-and-ocean-eco-camp",
-    "url": "https://www.udel.edu/academics/colleges/ceoe/community/summer-opportunities/summer-camp/",
+    "url": "https://www.udel.edu/academics/colleges/ceoe/prospective-students/summer-camp/",
     "label": "Environment, Climate, and Ocean (ECO) Camp",
     "category": "Delaware"
   },
@@ -931,7 +931,7 @@
   },
   {
     "slug": "high-school-science-research-internship-program",
-    "url": "https://www.madison.k12.wi.us/curriculum-instruction/science/high-school-science-research-internship-program",
+    "url": "https://www.madison.k12.wi.us/departments/office-schools-learning/curriculum-instruction/science/high-school-science-research-internship-program",
     "label": "High School Science Research Internship Program",
     "category": "Wisconsin"
   },
@@ -1087,7 +1087,7 @@
   },
   {
     "slug": "massachusetts-institute-of-technology-s-women-s-technology-program-wtp-mechanical-engineering",
-    "url": "https://web.mit.edu/wtp/",
+    "url": "https://wtp.mit.edu/",
     "label": "Massachusetts Institute of Technology’s Women’s Technology Program (WTP): Mechanical Engineering",
     "category": "Massachusetts"
   },
@@ -1237,7 +1237,7 @@
   },
   {
     "slug": "nasa-and-ut-austin-s-sees-high-school-summer-intern-program",
-    "url": "https://www.csr.utexas.edu/education-outreach/high-school-internships/sees/",
+    "url": "https://csr.utexas.edu/education-outreach/high-school-internships/sees/",
     "label": "NASA and UT Austin’s SEES High School Summer Intern Program",
     "category": "Texas"
   },
@@ -1297,7 +1297,7 @@
   },
   {
     "slug": "ntu-genai-bootcamp",
-    "url": "https://www.ntu.edu.sg/pace/for-individuals/student-immersion-programmes/genai-bootcamp--ai-skills-for-the-digital-future",
+    "url": "https://www.ntu.edu.sg/admissions/continuing-education-programmes/detail/pace-uip-gaib-ugpg-genai-bootcamp-ai-skills-for-the-digital-future",
     "label": "NTU GenAI Bootcamp",
     "category": "Singapore"
   },
@@ -1321,7 +1321,7 @@
   },
   {
     "slug": "nysf-year-12-program-national-youth-science-forum",
-    "url": "https://www.nysf.edu.au/programs/year-12-program/",
+    "url": "https://nysf.edu.au/program-year12/",
     "label": "NYSF Year 12 Program – National Youth Science Forum",
     "category": "Australia"
   },
@@ -1351,7 +1351,7 @@
   },
   {
     "slug": "optimus-outreach-program",
-    "url": "https://moorescancercenter.ucsd.edu/education/optimus/index.html",
+    "url": "https://moorescancercenter.ucsd.edu/education/training-programs/high-school.html",
     "label": "OPTIMUS Outreach Program",
     "category": "USA (general)"
   },
@@ -1531,7 +1531,7 @@
   },
   {
     "slug": "science-and-engineering-apprenticeship-program-seap",
-    "url": "https://www.navalsteminterns.us/seap/",
+    "url": "https://www.navalsteminterns.us/internships/seap/",
     "label": "Science and Engineering Apprenticeship Program (SEAP)",
     "category": "Multi-state"
   },
@@ -1675,7 +1675,7 @@
   },
   {
     "slug": "student-research-internships-at-scripps-research-translational-institute",
-    "url": "https://www.scripps.edu/science-and-medicine/translational-institute/education-and-training/student-research-internship/",
+    "url": "https://www.scripps.edu/science/translational-institute/education-training/student-research-internship-program/",
     "label": "Student Research Internships at Scripps Research Translational Institute",
     "category": "San Diego"
   },
@@ -1735,7 +1735,7 @@
   },
   {
     "slug": "summer-multicultural-engineering-training-summet-program-at-colorado-state-university",
-    "url": "https://www.mines.edu/undergraduate-admissions/summer-multicultural-engineering-training-summet/",
+    "url": "https://undergraduate-admissions.mines.edu/summer-mines-engineering-and-training-summet/",
     "label": "Summer Multicultural Engineering Training (SUMMET) Program at Colorado State University",
     "category": "Colorado"
   },
@@ -1807,7 +1807,7 @@
   },
   {
     "slug": "the-engineering-summer-academy-at-penn-esap-university-of-pennsylvania",
-    "url": "https://esap.seas.upenn.edu/",
+    "url": "https://esap.engineering.upenn.edu/",
     "label": "The Engineering Summer Academy at Penn (ESAP) - University of Pennsylvania",
     "category": "Pennsylvania"
   },
@@ -1915,7 +1915,7 @@
   },
   {
     "slug": "ucsd-s-optimus",
-    "url": "https://moorescancercenter.ucsd.edu/education/optimus/index.html",
+    "url": "https://moorescancercenter.ucsd.edu/education/training-programs/high-school.html",
     "label": "UCSD’s OPTIMUS",
     "category": "San Diego"
   },
@@ -1969,7 +1969,7 @@
   },
   {
     "slug": "umkc-gencyber-cybersecurity-camp",
-    "url": "https://sse.umkc.edu/academics/k-12-programs/gencyber-camp.html",
+    "url": "https://research.umkc.edu/dxu/cybersecurity-camp-high-school-students-camp-not-offered-summer-2026",
     "label": "UMKC GenCyber Cybersecurity Camp",
     "category": "Missouri"
   },
@@ -2071,7 +2071,7 @@
   },
   {
     "slug": "university-of-michigan-college-of-engineering-s-harper-academy-4-future-nuclear-engineers",
-    "url": "https://campsforkids.engin.umich.edu/harper-academy",
+    "url": "https://ners.engin.umich.edu/academics/harperacademy/",
     "label": "University of Michigan College of Engineering’s Harper Academy 4 Future Nuclear Engineers",
     "category": "Michigan"
   },
@@ -2197,7 +2197,7 @@
   },
   {
     "slug": "ut-dallas-summer-biology-research-workshop-sbrw",
-    "url": "https://biology.utdallas.edu/summercamp2025/",
+    "url": "https://biology.utdallas.edu/summercamp2026/",
     "label": "UT Dallas Summer Biology Research Workshop (SBRW)",
     "category": "Dallas"
   },
@@ -2707,7 +2707,7 @@
   },
   {
     "slug": "louisiana-lsu-engineering-high-school-summer-research",
-    "url": "https://www.cfr.lsu.edu/eng/future/summer-camps/hssrprogram.php",
+    "url": "https://www.lsu.edu/eng/future/summer-camps/hssrprogram.php",
     "label": "LSU College of Engineering High School Summer Research Program",
     "category": "Louisiana"
   },

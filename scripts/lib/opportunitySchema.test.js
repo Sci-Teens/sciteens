@@ -158,6 +158,52 @@ describe('validateExtractionProvenance', () => {
     })
   })
 
+  it('accepts an application anchor within a fetched document', () => {
+    expect(
+      validateExtractionProvenance({
+        sourceUrl: 'https://example.com/program',
+        applicationUrl: 'https://example.com/program#apply',
+        consultedPages: [
+          {
+            url: 'https://example.com/program#dates',
+            role: 'dates',
+          },
+        ],
+        visitedUrls: [
+          'https://example.com/program#overview',
+        ],
+      })
+    ).toMatchObject({
+      success: true,
+      applicationUrl: 'https://example.com/program#apply',
+      consultedPages: [
+        {
+          url: 'https://example.com/program#dates',
+          role: 'dates',
+        },
+      ],
+    })
+  })
+
+  it.each([
+    'https://example.com/other#apply',
+    'https://example.com/program?year=2027#apply',
+    'https://apply.example.com/program#apply',
+    'http://example.com/program#apply',
+  ])(
+    'does not equate a different document with a fetched URL: %s',
+    (applicationUrl) => {
+      expect(
+        validateExtractionProvenance({
+          sourceUrl: 'https://example.com/program',
+          applicationUrl,
+          consultedPages: [],
+          visitedUrls: ['https://example.com/program'],
+        }).success
+      ).toBe(false)
+    }
+  )
+
   it('rejects an unfetched model-supplied application URL', () => {
     expect(
       validateExtractionProvenance({
@@ -370,6 +416,25 @@ describe('buildPrefetchPrompt', () => {
     expect(prompt).toContain('apply body')
   })
 
+  it('identifies the final URL and successful status after a redirect', () => {
+    const prompt = buildPrefetchPrompt('https://seed/', [
+      {
+        url: 'https://seed/',
+        role: 'main',
+        page: {
+          ok: true,
+          finalUrl: 'https://seed/program',
+          bodyText: 'program details',
+        },
+      },
+    ])
+    expect(prompt).toContain('Requested URL: https://seed/')
+    expect(prompt).toContain(
+      'Final URL: https://seed/program'
+    )
+    expect(prompt).toContain('Fetch status: successful')
+  })
+
   it('surfaces a fetch error inline rather than dropping the entry', () => {
     const prompt = buildPrefetchPrompt('https://seed/', [
       {
@@ -380,6 +445,8 @@ describe('buildPrefetchPrompt', () => {
     ])
     expect(prompt).toContain('https://seed/apply')
     expect(prompt).toContain('HTTP 503')
+    expect(prompt).toContain('Fetch status: failed')
+    expect(prompt).toContain('Exclude failed fetches')
   })
 
   it('handles an empty fetched list with a clear "no prior pages" note', () => {
@@ -390,6 +457,21 @@ describe('buildPrefetchPrompt', () => {
 })
 
 describe('buildExtractionSystemPrompt', () => {
+  it('states the same exact approved host set enforced by provenance', () => {
+    const prompt = buildExtractionSystemPrompt(
+      '2026-09-28',
+      'https://example.com/program',
+      [' APPLY.EXAMPLE.NET ', '']
+    )
+    expect(prompt).toContain(
+      'Approved source hosts: example.com, apply.example.net.'
+    )
+    expect(prompt).toContain('Hostnames must match exactly')
+    expect(prompt).toContain(
+      'Exclude failed fetches and unapproved redirect destinations'
+    )
+  })
+
   it('requires explicit participant dates for program dates', () => {
     const prompt = buildExtractionSystemPrompt('2026-09-02')
 

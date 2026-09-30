@@ -31,9 +31,12 @@ const { BROWSER_LAUNCH_OPTIONS } = moduleRequire(
 // handles real documents, scripts, redirects, origins, and local connections.
 function fixturePage(responses) {
   const requested = []
-  const request = async (url) => {
+  const request = async (url, options) => {
     requested.push(url)
-    const fixture = responses[url]
+    const fixture =
+      typeof responses[url] === 'function'
+        ? responses[url](options)
+        : responses[url]
     if (!fixture)
       throw new Error('The synthetic response is missing.')
     const response = new Response(fixture.body || null, {
@@ -123,6 +126,59 @@ afterAll(async () => {
 })
 
 describe('secure opportunity browser fetch', () => {
+  it('sends browser navigation headers before rendering a header-sensitive page', async () => {
+    const seenHeaders = []
+    const { fetchPage } = fixturePage({
+      'https://example.org/program': ({ headers }) => {
+        seenHeaders.push(headers)
+        const supported =
+          headers['user-agent']?.includes(
+            `Chrome/${browser.version()}`
+          ) &&
+          headers.accept?.includes('text/html') &&
+          headers['accept-language']?.includes('en-US')
+        return supported
+          ? {
+              body: '<h1>Application details</h1><p id="agent"></p><script>document.querySelector("#agent").textContent = navigator.userAgent</script>',
+            }
+          : { status: 406 }
+      },
+    })
+    const result = await fetchPage(
+      browser,
+      'https://example.org/program'
+    )
+    expect(result.ok).toBe(true)
+    expect(result.bodyMarkdown).toContain(
+      'Application details'
+    )
+    expect(
+      result.bodyMarkdown.replaceAll('\\_', '_')
+    ).toContain(seenHeaders[0]['user-agent'])
+    expect(seenHeaders[0]['accept-encoding']).toBe(
+      'identity'
+    )
+  })
+
+  it('preserves access-denied failures when browser headers do not help', async () => {
+    const { fetchPage, requested } = fixturePage({
+      'https://example.org/program': {
+        status: 403,
+        body: '<h1>Access denied</h1>',
+      },
+    })
+    const result = await fetchPage(
+      browser,
+      'https://example.org/program'
+    )
+    expect(result.ok).toBe(false)
+    expect(result.error).toContain('HTTP_403')
+    expect(result.bodyMarkdown).toBeUndefined()
+    expect(requested).toEqual([
+      'https://example.org/program',
+    ])
+  })
+
   it('rejects an initial redirect to a private endpoint before the browser receives content', async () => {
     const { fetchPage, requested } = fixturePage({
       'https://example.org/program': {

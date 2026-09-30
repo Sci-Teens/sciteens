@@ -133,6 +133,7 @@ async function runCli(sources, options = {}) {
     },
   })
   const browser = {
+    version: () => '145.0.0.0',
     async newContext() {
       let handler
       let currentUrl
@@ -231,12 +232,20 @@ async function runCli(sources, options = {}) {
       },
       GoogleGenAI: class {
         models = {
-          async generateContent({ contents }) {
+          async generateContent({ contents, config }) {
             const seed =
               contents[0].parts[0].text.match(
                 /Seed URL: (\S+)/
               )[1]
             modelSources.push(seed)
+            if (options.generateContent) {
+              return options.generateContent({
+                contents,
+                config,
+                seed,
+                extraction,
+              })
+            }
             return {
               functionCalls: [
                 {
@@ -276,7 +285,7 @@ async function runCli(sources, options = {}) {
         }
         return {
           ok: true,
-          url,
+          url: options.finalUrl || url,
           body: null,
           status: 200,
           headers: new Map(),
@@ -500,4 +509,190 @@ describe('scraper CLI failure handling', () => {
       ])
     }
   )
+})
+
+describe('scraper extraction recovery', () => {
+  it('feeds schema errors back to the model without accepting invalid fields', async () => {
+    let calls = 0
+    let feedback
+    const result = await runCli([source('schema')], {
+      generateContent({ contents, seed, extraction }) {
+        calls += 1
+        const data = extraction(seed)
+        if (calls === 1) {
+          data.fields = ['Aerospace Engineering']
+          delete data.contactEmail
+        } else {
+          feedback = JSON.stringify(contents.at(-1))
+        }
+        return {
+          functionCalls: [
+            { name: 'submit_extraction', args: data },
+          ],
+        }
+      },
+    })
+
+    expect(result.status).toBe(0)
+    expect(calls).toBe(2)
+    expect(feedback).toContain('fields')
+    expect(feedback).toContain('contactEmail')
+    expect(
+      result.opportunities.get('schema').fields
+    ).toEqual(['Computer Science'])
+  })
+
+  it('repairs an unfetched application link by resubmitting the verified program page', async () => {
+    let calls = 0
+    let feedback
+    const result = await runCli([source('provenance')], {
+      generateContent({ contents, seed, extraction }) {
+        calls += 1
+        const data = extraction(seed)
+        if (calls === 1)
+          data.applicationUrl =
+            'https://unapproved.example/apply'
+        else feedback = JSON.stringify(contents.at(-1))
+        return {
+          functionCalls: [
+            { name: 'submit_extraction', args: data },
+          ],
+        }
+      },
+    })
+
+    expect(result.status).toBe(0)
+    expect(calls).toBe(2)
+    expect(feedback).toContain(
+      'applicationUrl was not fetched'
+    )
+    expect(
+      result.opportunities.get('provenance').applicationUrl
+    ).toBe('https://example.com/provenance')
+    expect(result.fetched).not.toContain(
+      'https://unapproved.example/apply'
+    )
+  })
+
+  it('forces submission on the last exploration turn for prefetched sources', async () => {
+    let calls = 0
+    const entry = source('turn-limit', {
+      consultedPages: [
+        { url: 'https://example.com/dates', role: 'dates' },
+      ],
+    })
+    const result = await runCli([entry], {
+      generateContent({ config, seed, extraction }) {
+        calls += 1
+        if (
+          config.toolConfig.functionCallingConfig.allowedFunctionNames?.includes(
+            'submit_extraction'
+          )
+        ) {
+          return {
+            functionCalls: [
+              {
+                name: 'submit_extraction',
+                args: extraction(seed),
+              },
+            ],
+          }
+        }
+        return {
+          functionCalls: [
+            {
+              name: 'fetch_page',
+              args: {
+                url: `https://example.com/detail-${calls}`,
+              },
+            },
+          ],
+        }
+      },
+    })
+
+    expect(result.status).toBe(0)
+    expect(calls).toBe(4)
+    expect(result.fetched).toHaveLength(5)
+  })
+
+  it('keeps rejecting invalid provenance after bounded correction attempts', async () => {
+    const result = await runCli([source('unapproved')], {
+      applicationUrl: 'https://unapproved.example/apply',
+    })
+
+    expect(result.status).toBe(1)
+    expect(result.opportunities.size).toBe(0)
+    expect(result.modelSources).toHaveLength(6)
+    expect(
+      result.records.get('unapproved').lastError
+    ).toContain('applicationUrl was not fetched')
+  })
+
+  it('caps parallel fetch requests even if the model ignores the fetch budget', async () => {
+    let calls = 0
+    const result = await runCli([source('fetch-limit')], {
+      generateContent({ contents, seed, extraction }) {
+        calls += 1
+        if (calls === 1) {
+          return {
+            functionCalls: Array.from(
+              { length: 8 },
+              (_, i) => ({
+                name: 'fetch_page',
+                args: {
+                  url: `https://example.com/detail-${i}`,
+                },
+              })
+            ),
+          }
+        }
+        expect(JSON.stringify(contents.at(-1))).toContain(
+          'Fetch limit reached'
+        )
+        return {
+          functionCalls: [
+            {
+              name: 'submit_extraction',
+              args: extraction(seed),
+            },
+          ],
+        }
+      },
+    })
+
+    expect(result.status).toBe(0)
+    expect(result.fetched).toHaveLength(6)
+  })
+})
+
+describe('scraper redirect provenance', () => {
+  it.each([
+    'http://example.com/final',
+    'https://unapproved.example/final',
+  ])(
+    'rejects a requested HTTPS alias when the final page is %s',
+    async (finalUrl) => {
+      const result = await runCli([source('redirect')], {
+        finalUrl,
+      })
+      expect(result.status).toBe(1)
+      expect(result.opportunities.size).toBe(0)
+      expect(
+        result.records.get('redirect').lastError
+      ).toContain('applicationUrl was not fetched')
+    }
+  )
+
+  it('accepts a successfully fetched approved final URL', async () => {
+    const finalUrl = 'https://example.com/final'
+    const result = await runCli([source('redirect')], {
+      finalUrl,
+      applicationUrl: finalUrl,
+    })
+    expect(result.status).toBe(0)
+    expect(
+      result.opportunities.get('redirect').applicationUrl
+    ).toBe(finalUrl)
+  })
 })

@@ -7,6 +7,7 @@ const path = require('node:path')
 const { execFileSync } = require('node:child_process')
 
 const OPPORTUNITY_SOURCES_COLLECTION = 'opportunity-sources'
+const URL_MIGRATIONS = require('./data/opportunity-source-url-migrations.json')
 
 const SOURCES_DATA_FILE = path.join(
   __dirname,
@@ -156,8 +157,31 @@ async function createSourceIfMissing(db, source, execute) {
     .doc(source.slug)
   const existing = await ref.get()
   if (existing.exists) {
+    const migration = URL_MIGRATIONS.find(
+      ({ slug, from, to }) =>
+        slug === source.slug &&
+        from === existing.data().url &&
+        to === source.url
+    )
+    if (migration) {
+      console.log(
+        `  ${
+          execute
+            ? 'update URL'
+            : '[dry run] would update URL'
+        }: ${source.slug}`
+      )
+      if (execute) {
+        // A concurrent reviewer edit must never be overwritten.
+        await ref.update(
+          { url: migration.to },
+          { lastUpdateTime: existing.updateTime }
+        )
+      }
+      return 'updated'
+    }
     console.log(`  skip (already exists): ${source.slug}`)
-    return false
+    return 'skipped'
   }
 
   console.log(
@@ -185,7 +209,7 @@ async function createSourceIfMissing(db, source, execute) {
       consecutiveFailures: 0,
     })
   }
-  return true
+  return 'created'
 }
 
 async function main() {
@@ -213,28 +237,34 @@ async function main() {
 
   let created = 0
   let skipped = 0
+  let updated = 0
 
   for (const source of sources) {
-    const wasCreated = await createSourceIfMissing(
+    const action = await createSourceIfMissing(
       db,
       source,
       args.execute
     )
-    if (wasCreated) created += 1
+    if (action === 'created') created += 1
+    else if (action === 'updated') updated += 1
     else skipped += 1
   }
 
   console.log(
-    `\n${created} to create, ${skipped} already exist.`
+    `\n${created} to create, ${updated} URLs to update, ${skipped} already exist.`
   )
-  if (!args.execute && created > 0) {
+  if (!args.execute && created + updated > 0) {
     console.log(
       'Dry run only -- re-run with --execute to actually write these to Firestore.'
     )
   }
 }
 
-main().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})
+if (require.main === module) {
+  main().catch((err) => {
+    console.error(err)
+    process.exit(1)
+  })
+}
+
+module.exports = { createSourceIfMissing }
