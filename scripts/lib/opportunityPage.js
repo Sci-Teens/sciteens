@@ -103,6 +103,7 @@ async function fetchPage(browser, url) {
       error: 'Refused to fetch a non-public URL.',
     }
   }
+  const userAgent = `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${browser.version()} Safari/537.36`
   let context
   let navigationFailure
   const controllers = new Set()
@@ -118,7 +119,13 @@ async function fetchPage(browser, url) {
       // Follow each initial redirect through the pinned transport. Navigate to
       // the final URL, not the original origin with the final document's body.
       const response = await fetchPublicUrl(safeUrl, {
-        headers: { 'accept-encoding': 'identity' },
+        headers: {
+          'user-agent': userAgent,
+          accept:
+            'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'accept-language': 'en-US,en;q=0.9',
+          'accept-encoding': 'identity',
+        },
         signal: controller.signal,
       })
       if (!response.ok) {
@@ -141,6 +148,8 @@ async function fetchPage(browser, url) {
     // Offline mode blocks requests that do not pass through route fulfillment.
     // Service workers and WebSockets have separate browser network paths.
     context = await browser.newContext({
+      userAgent,
+      locale: 'en-US',
       offline: true,
       serviceWorkers: 'block',
       acceptDownloads: false,

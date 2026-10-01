@@ -192,7 +192,7 @@ const SUBMIT_TOOL = {
       applicationUrl: {
         type: 'string',
         description:
-          'The best direct URL for a student to start an application, or the program homepage if no dedicated apply page was found',
+          'A successfully fetched HTTPS URL on an approved host for starting an application. If the apply page cannot be fetched or its host is not approved, use a successfully fetched official program homepage.',
       },
       reasoning: {
         type: 'string',
@@ -202,7 +202,7 @@ const SUBMIT_TOOL = {
       consultedPages: {
         type: 'array',
         description:
-          'Provenance: every page supplied in this request and every fetch_page URL, each paired with a short role label describing the facts used from that page. Include the seed URL. We persist this as the seed set on the next run, so do not list any other pages.',
+          'Provenance: only successfully fetched pages on approved hosts, each paired with a short role label describing the facts used from that page. Exclude failed fetches and unapproved hosts.',
         items: {
           type: 'object',
           properties: {
@@ -481,7 +481,7 @@ function extractionToolConfig(atFetchLimit) {
         mode: FunctionCallingConfigMode.ANY,
         allowedFunctionNames: ['submit_extraction'],
       }
-    : { mode: FunctionCallingConfigMode.AUTO }
+    : { mode: FunctionCallingConfigMode.ANY }
 }
 
 function modelTurnContent(response, calls) {
@@ -510,23 +510,57 @@ function toFunctionResponsePart(call, result) {
   return { functionResponse }
 }
 
+function successfulPageUrls(requestedUrl, page, source) {
+  if (!page.ok) return []
+  const finalUrl = new URL(page.finalUrl || requestedUrl)
+  const allowedHosts = new Set([
+    new URL(source.url).hostname,
+    ...(Array.isArray(source.allowedExternalHosts)
+      ? source.allowedExternalHosts
+          .filter((host) => typeof host === 'string')
+          .map((host) => host.trim().toLowerCase())
+      : []),
+  ])
+  if (
+    finalUrl.protocol !== 'https:' ||
+    !allowedHosts.has(finalUrl.hostname)
+  )
+    return []
+  return [
+    ...new Set([requestedUrl, finalUrl.toString()]),
+  ].filter((url) => {
+    const parsed = new URL(url)
+    return (
+      parsed.protocol === 'https:' &&
+      allowedHosts.has(parsed.hostname)
+    )
+  })
+}
+
 async function runExtractionTurnLoop(
   browser,
   genai,
   contents,
   visited,
-  maxTurns
+  maxTurns,
+  source
 ) {
   let fetchCount = 0
-  for (let turn = 0; turn < maxTurns; turn++) {
+  let repairCount = 0
+  for (let turn = 0; turn < maxTurns + 2; turn++) {
     const atFetchLimit =
-      fetchCount >= MAX_FETCHES_PER_SOURCE
+      fetchCount >= MAX_FETCHES_PER_SOURCE ||
+      turn >= maxTurns - 1
     const response = await genai.models.generateContent({
       model: MODEL,
       contents,
       config: {
         systemInstruction: buildExtractionSystemPrompt(
-          new Date().toISOString().slice(0, 10)
+          new Date().toISOString().slice(0, 10),
+          source.url,
+          Array.isArray(source.allowedExternalHosts)
+            ? source.allowedExternalHosts
+            : []
         ),
         maxOutputTokens: MAX_OUTPUT_TOKENS,
         tools: [
@@ -557,25 +591,69 @@ async function runExtractionTurnLoop(
       const parsed = ExtractionSchema.safeParse(
         submitCall.args
       )
-      return {
+      const provenance = parsed.success
+        ? validateExtractionProvenance({
+            sourceUrl: source.url,
+            applicationUrl: parsed.data.applicationUrl,
+            consultedPages: parsed.data.consultedPages,
+            visitedUrls: visited,
+            allowedExternalHosts: Array.isArray(
+              source.allowedExternalHosts
+            )
+              ? source.allowedExternalHosts
+              : [],
+          })
+        : null
+      if (parsed.success && provenance.success) {
+        return {
+          visited,
+          valid: true,
+          data: {
+            ...parsed.data,
+            applicationUrl: provenance.applicationUrl,
+            consultedPages: provenance.consultedPages,
+          },
+        }
+      }
+      const failure = {
         visited,
-        valid: parsed.success,
-        data: parsed.success
-          ? parsed.data
-          : submitCall.args,
+        valid: false,
+        data: submitCall.args,
+        error: provenance?.error,
         zodError: parsed.success
           ? null
           : parsed.error.format(),
       }
+      if (repairCount >= 2) return failure
+      repairCount += 1
+      contents.push({
+        role: 'user',
+        parts: calls.map((call) =>
+          toFunctionResponsePart(call, {
+            error: extractionFailureMessage(failure),
+            instruction:
+              'Correct the rejected extraction and submit every required field. Use only the declared enum values. Use null for unknown nullable fields. Do not invent facts. For applicationUrl, use a successfully fetched approved program homepage if the application page is unavailable. Include only successfully fetched approved pages in consultedPages.',
+            successfullyFetchedUrls: visited,
+          })
+        ),
+      })
+      continue
     }
     const responseParts = []
     for (const call of calls) {
-      fetchCount += 1
       const url = call.args && call.args.url
-      const result = await fetchPage(browser, url)
-      if (result.ok) {
-        visited.push(new URL(url).toString())
-      }
+      const result =
+        fetchCount >= MAX_FETCHES_PER_SOURCE
+          ? {
+              ok: false,
+              error:
+                'Fetch limit reached. Submit the extraction from available evidence.',
+            }
+          : await fetchPage(browser, url)
+      fetchCount += 1
+      visited.push(
+        ...successfulPageUrls(url, result, source)
+      )
       responseParts.push(
         toFunctionResponsePart(call, result)
       )
@@ -588,7 +666,8 @@ async function runExtractionTurnLoop(
 async function runExtractionFromSeed(
   browser,
   genai,
-  seedUrl
+  seedUrl,
+  source
 ) {
   const fetched = await fetchConsultedPages(
     browser,
@@ -609,10 +688,11 @@ async function runExtractionFromSeed(
     browser,
     genai,
     contents,
-    fetched
-      .filter((entry) => entry.page.ok)
-      .map((entry) => new URL(entry.url).toString()),
-    8
+    fetched.flatMap((entry) =>
+      successfulPageUrls(entry.url, entry.page, source)
+    ),
+    8,
+    source
   )
 }
 
@@ -629,7 +709,8 @@ async function runExtractionFromHistory(
   browser,
   genai,
   seedUrl,
-  entries
+  entries,
+  source
 ) {
   const fetched = await fetchConsultedPages(
     browser,
@@ -650,10 +731,11 @@ async function runExtractionFromHistory(
     browser,
     genai,
     contents,
-    fetched
-      .filter((entry) => entry.page.ok)
-      .map((entry) => new URL(entry.url).toString()),
-    4
+    fetched.flatMap((entry) =>
+      successfulPageUrls(entry.url, entry.page, source)
+    ),
+    4,
+    source
   )
 }
 
@@ -978,8 +1060,15 @@ async function scrapeSource(runContext, source) {
     : []
   const extract = prior.length
     ? (u) =>
-        runExtractionFromHistory(browser, genai, u, prior)
-    : (u) => runExtractionFromSeed(browser, genai, u)
+        runExtractionFromHistory(
+          browser,
+          genai,
+          u,
+          prior,
+          source
+        )
+    : (u) =>
+        runExtractionFromSeed(browser, genai, u, source)
   const result = await runWithOneRetry(extract, url)
   const elapsed = ((Date.now() - startedAt) / 1000).toFixed(
     1
