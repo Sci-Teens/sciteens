@@ -29,7 +29,7 @@ const { BROWSER_LAUNCH_OPTIONS } = moduleRequire(
 
 // Only the pinned transport uses synthetic public responses. Chromium still
 // handles real documents, scripts, redirects, origins, and local connections.
-function fixturePage(responses) {
+function fixturePage(responses, retryOptions = {}) {
   const requested = []
   const request = async (url, options) => {
     requested.push(url)
@@ -65,6 +65,15 @@ function fixturePage(responses) {
               publicUrl.fetchPublicUrlOnce(url, {
                 ...options,
                 request,
+              }),
+          }
+        : name === './requestRetry'
+        ? {
+            ...moduleRequire(name),
+            createRequestRunner: (options) =>
+              moduleRequire(name).createRequestRunner({
+                ...options,
+                ...retryOptions,
               }),
           }
         : moduleRequire(name),
@@ -126,6 +135,58 @@ afterAll(async () => {
 })
 
 describe('secure opportunity browser fetch', () => {
+  it('recovers from a website 429 and honors Retry-After', async () => {
+    let attempts = 0
+    let clock = 0
+    const sleep = vi.fn(async (ms) => {
+      clock += ms
+    })
+    const url = 'https://public.example/program'
+    const { fetchPage, requested } = fixturePage(
+      {
+        [url]: () =>
+          ++attempts === 1
+            ? {
+                status: 429,
+                headers: { 'retry-after': '30' },
+              }
+            : {
+                body: '<title>Recovered</title><p>Program details</p>',
+              },
+      },
+      { sleep, now: () => clock, random: () => 1 }
+    )
+    const result = await fetchPage(browser, url)
+    expect(result.ok).toBe(true)
+    expect(result.title).toBe('Recovered')
+    expect(requested).toEqual([url, url])
+    expect(sleep).toHaveBeenCalledWith(30000)
+  })
+
+  it('stops after three website 429 attempts without extracting error content', async () => {
+    let clock = 0
+    const url = 'https://public.example/program'
+    const { fetchPage, requested } = fixturePage(
+      {
+        [url]: { status: 429, body: 'Rate limited' },
+      },
+      {
+        sleep: async (ms) => {
+          clock += ms
+        },
+        now: () => clock,
+      }
+    )
+    const result = await fetchPage(browser, url)
+    expect(result).toMatchObject({
+      ok: false,
+      retryExhausted: true,
+      error: 'Page fetch failed (HTTP_429).',
+    })
+    expect(requested).toEqual([url, url, url])
+    expect(result.bodyMarkdown).toBeUndefined()
+  })
+
   it('sends browser navigation headers before rendering a header-sensitive page', async () => {
     const seenHeaders = []
     const { fetchPage } = fixturePage({

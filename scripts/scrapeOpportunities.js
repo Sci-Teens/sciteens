@@ -7,6 +7,9 @@ const path = require('node:path')
 const { execFileSync } = require('node:child_process')
 const { chromium } = require('playwright')
 const {
+  createRequestRunner,
+} = require('./lib/requestRetry')
+const {
   BROWSER_LAUNCH_OPTIONS,
   fetchPage,
 } = require('./lib/opportunityPage')
@@ -41,6 +44,9 @@ const DEFAULT_VERTEX_LOCATION = 'global'
 const MAX_OUTPUT_TOKENS = 8192
 const MAX_FETCHES_PER_SOURCE = 5
 const CONCURRENCY = 3
+const modelRequest = createRequestRunner({
+  label: 'Vertex AI',
+})
 
 const IMAGE_FETCH_TIMEOUT_MS = 12000
 const MAX_IMAGE_RESPONSE_BYTES = 10 * 1024 * 1024
@@ -551,31 +557,33 @@ async function runExtractionTurnLoop(
     const atFetchLimit =
       fetchCount >= MAX_FETCHES_PER_SOURCE ||
       turn >= maxTurns - 1
-    const response = await genai.models.generateContent({
-      model: MODEL,
-      contents,
-      config: {
-        systemInstruction: buildExtractionSystemPrompt(
-          new Date().toISOString().slice(0, 10),
-          source.url,
-          Array.isArray(source.allowedExternalHosts)
-            ? source.allowedExternalHosts
-            : []
-        ),
-        maxOutputTokens: MAX_OUTPUT_TOKENS,
-        tools: [
-          {
-            functionDeclarations: atFetchLimit
-              ? [SUBMIT_TOOL]
-              : [FETCH_TOOL, SUBMIT_TOOL],
+    const response = await modelRequest(() =>
+      genai.models.generateContent({
+        model: MODEL,
+        contents,
+        config: {
+          systemInstruction: buildExtractionSystemPrompt(
+            new Date().toISOString().slice(0, 10),
+            source.url,
+            Array.isArray(source.allowedExternalHosts)
+              ? source.allowedExternalHosts
+              : []
+          ),
+          maxOutputTokens: MAX_OUTPUT_TOKENS,
+          tools: [
+            {
+              functionDeclarations: atFetchLimit
+                ? [SUBMIT_TOOL]
+                : [FETCH_TOOL, SUBMIT_TOOL],
+            },
+          ],
+          toolConfig: {
+            functionCallingConfig:
+              extractionToolConfig(atFetchLimit),
           },
-        ],
-        toolConfig: {
-          functionCallingConfig:
-            extractionToolConfig(atFetchLimit),
         },
-      },
-    })
+      })
+    )
     const calls = response.functionCalls || []
     if (calls.length === 0) {
       return {
@@ -674,7 +682,11 @@ async function runExtractionFromSeed(
     withSeedPage(seedUrl, [])
   )
   if (fetched.every((entry) => !entry.page.ok)) {
-    return { visited: [], error: fetched[0].page.error }
+    return {
+      visited: [],
+      error: fetched[0].page.error,
+      retryExhausted: fetched[0].page.retryExhausted,
+    }
   }
   const contents = [
     {
@@ -717,7 +729,11 @@ async function runExtractionFromHistory(
     withSeedPage(seedUrl, entries, MAX_FETCHES_PER_SOURCE)
   )
   if (fetched.every((entry) => !entry.page.ok)) {
-    return { visited: [], error: fetched[0].page.error }
+    return {
+      visited: [],
+      error: fetched[0].page.error,
+      retryExhausted: fetched[0].page.retryExhausted,
+    }
   }
   const contents = [
     {
@@ -744,6 +760,7 @@ async function runWithOneRetry(extract, url) {
     try {
       const result = await extract(url)
       if (!result.error && result.valid) return result
+      if (result.retryExhausted) return result
       if (attempt === 1) {
         result.retried = true
         result.firstAttemptError =
@@ -751,7 +768,7 @@ async function runWithOneRetry(extract, url) {
         return result
       }
     } catch (err) {
-      if (attempt === 1) {
+      if (attempt === 1 || err.retryExhausted) {
         return {
           visited: [],
           error: String(
@@ -1199,6 +1216,7 @@ async function main() {
     location:
       process.env.GOOGLE_CLOUD_LOCATION ||
       DEFAULT_VERTEX_LOCATION,
+    httpOptions: { retryOptions: { attempts: 1 } },
   })
 
   let sourcesSnap = await db
@@ -1284,6 +1302,9 @@ async function main() {
 
   console.log(
     `\nDone: ${succeeded} succeeded, ${failed} failed, out of ${sources.length}.`
+  )
+  console.log(
+    `Vertex AI requests: ${modelRequest.stats.requests}, retries: ${modelRequest.stats.retries}, exhausted: ${modelRequest.stats.exhausted}.`
   )
   if (failed > 0) process.exitCode = 1
 }

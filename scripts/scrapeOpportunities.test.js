@@ -216,6 +216,23 @@ async function runCli(sources, options = {}) {
     },
   }
   const mocks = {
+    './lib/requestRetry': {
+      createRequestRunner(options) {
+        let clock = 0
+        return scriptRequire(
+          './lib/requestRetry'
+        ).createRequestRunner({
+          ...options,
+          now: () => clock,
+          sleep: async (ms) => {
+            clock += ms
+          },
+          log: () => {},
+        })
+      },
+      retryableError: scriptRequire('./lib/requestRetry')
+        .retryableError,
+    },
     'node:fs': { existsSync: () => false },
     playwright: {
       chromium: { launch: async () => browser },
@@ -348,6 +365,51 @@ async function runCli(sources, options = {}) {
 }
 
 describe('scraper CLI failure handling', () => {
+  it('retries a model request without fetching the source again', async () => {
+    let attempts = 0
+    const result = await runCli([source('recover')], {
+      generateContent({ seed, extraction }) {
+        if (++attempts === 1)
+          throw Object.assign(new Error('Overloaded'), {
+            status: 429,
+          })
+        return {
+          functionCalls: [
+            {
+              name: 'submit_extraction',
+              args: extraction(seed),
+            },
+          ],
+        }
+      },
+    })
+    expect(result.status).toBe(0)
+    expect(attempts).toBe(2)
+    expect(result.fetched).toEqual([source('recover').url])
+    expect(result.output).toContain(
+      'retries: 1, exhausted: 0'
+    )
+  })
+
+  it('does not restart extraction after model retries are exhausted', async () => {
+    let attempts = 0
+    const result = await runCli([source('busy')], {
+      generateContent() {
+        attempts += 1
+        throw Object.assign(new Error('Overloaded'), {
+          status: 429,
+        })
+      },
+    })
+    expect(result.status).toBe(1)
+    expect(attempts).toBe(5)
+    expect(result.fetched).toEqual([source('busy').url])
+    expect(result.records.get('busy').lastError).toContain(
+      'Overloaded'
+    )
+    expect(result.output).toContain('exhausted: 1')
+  })
+
   it('finishes a mixed batch, saves partial results, and fails after browser cleanup', async () => {
     const sources = [
       'failed',

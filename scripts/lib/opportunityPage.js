@@ -3,6 +3,10 @@
 const cheerio = require('cheerio')
 const { extractPageMarkdown } = require('./pageContent')
 const {
+  createRequestRunner,
+  retryableError,
+} = require('./requestRetry')
+const {
   fetchPublicUrl,
   fetchPublicUrlOnce,
   isNonNetworkScheme,
@@ -63,7 +67,7 @@ function pageFetchFailure(error) {
   return `Page fetch failed (${reason}).`
 }
 
-function responseError(status) {
+function responseError(status, retryAfter) {
   const error = new Error(
     'The page response is not supported.'
   )
@@ -71,6 +75,8 @@ function responseError(status) {
     status >= 300 && status < 400
       ? 'UNSUPPORTED_REDIRECT'
       : `HTTP_${status}`
+  error.status = status
+  error.retryAfter = retryAfter
   return error
 }
 
@@ -95,7 +101,7 @@ async function browserResponse(response) {
   return { status: response.status, headers, body }
 }
 
-async function fetchPage(browser, url) {
+async function fetchPageOnce(browser, url) {
   const safeUrl = await publicHttpUrlOrNull(url)
   if (!safeUrl) {
     return {
@@ -130,7 +136,10 @@ async function fetchPage(browser, url) {
       })
       if (!response.ok) {
         await response.body?.cancel()
-        throw responseError(response.status)
+        throw responseError(
+          response.status,
+          response.headers.get('retry-after')
+        )
       }
       finalUrl = await publicHttpUrlOrNull(response.url)
       if (!finalUrl) {
@@ -263,10 +272,65 @@ async function fetchPage(browser, url) {
     return {
       ok: false,
       error: navigationFailure || pageFetchFailure(error),
+      retryStatus: error.status,
+      retryCode: error.code || error.cause?.code,
+      retryName: error.name,
+      retryAfter: error.retryAfter,
     }
   } finally {
     for (const controller of controllers) controller.abort()
     if (context) await context.close()
+  }
+}
+
+const pageRunners = new WeakMap()
+
+async function fetchPage(browser, url) {
+  const safeUrl = await publicHttpUrlOrNull(url)
+  if (!safeUrl)
+    return {
+      ok: false,
+      error: 'Refused to fetch a non-public URL.',
+    }
+  let hosts = pageRunners.get(browser)
+  if (!hosts) {
+    hosts = new Map()
+    pageRunners.set(browser, hosts)
+  }
+  const host = new URL(safeUrl).hostname
+  if (!hosts.has(host)) {
+    hosts.set(
+      host,
+      createRequestRunner({
+        label: `Website ${host}`,
+        maxAttempts: 3,
+      })
+    )
+  }
+  try {
+    return await hosts.get(host)(async () => {
+      const result = await fetchPageOnce(browser, safeUrl)
+      if (!result.ok) {
+        const error = Object.assign(
+          new Error(result.error),
+          {
+            status: result.retryStatus,
+            code: result.retryCode,
+            name: result.retryName,
+            retryAfter: result.retryAfter,
+            pageResult: result,
+          }
+        )
+        if (retryableError(error)) throw error
+      }
+      return result
+    })
+  } catch (error) {
+    if (!error.pageResult) throw error
+    return {
+      ...error.pageResult,
+      retryExhausted: error.retryExhausted,
+    }
   }
 }
 
