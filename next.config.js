@@ -170,6 +170,14 @@ module.exports = {
   experimental: {
     esmExternals: false,
   },
+  async rewrites() {
+    return [
+      {
+        source: '/metrics/:path*',
+        destination: '/api/tag-gateway/:path*',
+      },
+    ]
+  },
   async redirects() {
     return [
       {

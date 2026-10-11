@@ -35,7 +35,7 @@ const { sendGAEvent } = vi.hoisted(() => ({
   sendGAEvent: vi.fn(),
 }))
 
-vi.mock('@next/third-parties/google', () => ({
+vi.mock('@/lib/analytics', () => ({
   sendGAEvent,
 }))
 
