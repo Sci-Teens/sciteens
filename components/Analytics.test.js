@@ -28,13 +28,43 @@ vi.mock('../lib/firebase', () => ({
   app: { options: { measurementId: 'G-TEST' } },
 }))
 
+vi.mock('next/script', () => ({
+  default: ({ src }) => (
+    <div data-testid="gateway-script" data-src={src} />
+  ),
+}))
+
 afterEach(() => {
   cleanup()
   window.localStorage.clear()
   window.history.replaceState({}, '', '/')
+  delete window.dataLayer
+  delete window.gtag
+  vi.unstubAllEnvs()
 })
 
 describe('Analytics', () => {
+  it('loads the first-party script and queues GA configuration after consent', () => {
+    vi.stubEnv('NEXT_PUBLIC_GA_GATEWAY_ENABLED', 'true')
+    render(<Analytics />)
+    expect(
+      screen.queryByTestId('gateway-script')
+    ).toBeNull()
+    act(() => setConsent(true))
+    expect(
+      screen.getByTestId('gateway-script')
+    ).toHaveAttribute('data-src', '/metrics/')
+    expect(Array.from(window.dataLayer[1])).toEqual([
+      'config',
+      'G-TEST',
+    ])
+    act(() => setConsent(false))
+    expect(
+      screen.queryByTestId('gateway-script')
+    ).toBeNull()
+    expect(window['ga-disable-G-TEST']).toBe(true)
+  })
+
   it('does not load Google Analytics without consent', () => {
     render(<Analytics />)
 

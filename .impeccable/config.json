@@ -1,0 +1,15 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": ["pages/article/[slug].js"],
+        "createdAt": "2026-10-10T23:20:33.260Z",
+        "reason": "Codex reviewed: line 134 is a comment about plain img; the actual image uses article.cover.src validated by the build-time content pipeline."
+      }
+    ]
+  }
+}
