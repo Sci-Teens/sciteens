@@ -2872,5 +2872,245 @@
     "url": "https://www.uwyo.edu/ceps/resources/outreach/programs/esp.html",
     "label": "University of Wyoming Engineering Summer Program (ESP)",
     "category": "Wyoming"
+  },
+  {
+    "slug": "singapore-dsta-ydsp",
+    "url": "https://www.dsta.gov.sg/join-us/student/young-defence-scientists-programme",
+    "label": "DSTA Young Defence Scientists Programme (YDSP)",
+    "category": "Singapore"
+  },
+  {
+    "slug": "singapore-mathematical-olympiad",
+    "url": "https://sgmathsociety.org/singapore-mathematical-olympiad-smo/",
+    "label": "Singapore Mathematical Olympiad (SMO)",
+    "category": "Singapore"
+  },
+  {
+    "slug": "singapore-science-engineering-fair",
+    "url": "https://www.science.edu.sg/whats-on/for-schools/competitions/singapore-science-and-engineering-fair",
+    "label": "Singapore Science and Engineering Fair (SSEF)",
+    "category": "Singapore"
+  },
+  {
+    "slug": "germany-bundeswettbewerb-informatik",
+    "url": "https://bwinf.de/bundeswettbewerb/",
+    "label": "Bundeswettbewerb Informatik",
+    "category": "Germany"
+  },
+  {
+    "slug": "germany-fraunhofer-talent-schools",
+    "url": "https://www.fraunhofer.de/de/jobs-und-karriere/schueler/talentschools.html",
+    "label": "Fraunhofer Talent Schools",
+    "category": "Germany"
+  },
+  {
+    "slug": "germany-jugend-forscht",
+    "url": "https://www.jugend-forscht.de/teilnahme/wichtige-infos/teilnahmebedingungen.html",
+    "label": "Jugend forscht",
+    "category": "Germany"
+  },
+  {
+    "slug": "germany-junior-science-olympiad",
+    "url": "https://www.scienceolympiaden.de/ijso",
+    "label": "Internationale JuniorScienceOlympiade (German selection)",
+    "category": "Germany"
+  },
+  {
+    "slug": "canada-future-science-leaders",
+    "url": "https://www.scienceworld.ca/futurescienceleaders/",
+    "label": "Science World Future Science Leaders",
+    "category": "Canada"
+  },
+  {
+    "slug": "canada-shad",
+    "url": "https://www.shad.ca/apply/",
+    "label": "Shad Canada",
+    "category": "Canada"
+  },
+  {
+    "slug": "canada-verna-kirkness",
+    "url": "https://www.vernajkirkness.org/program/",
+    "label": "Verna J. Kirkness Science and Engineering Education Program",
+    "category": "Canada"
+  },
+  {
+    "slug": "uk-cambridge-stem-smart",
+    "url": "https://www.undergraduate.study.cam.ac.uk/find-out-more/widening-participation/stem-smart",
+    "label": "Cambridge STEM SMART",
+    "category": "United Kingdom"
+  },
+  {
+    "slug": "uk-promys-europe",
+    "url": "https://promys-europe.org/students/",
+    "label": "PROMYS Europe",
+    "category": "United Kingdom"
+  },
+  {
+    "slug": "india-hbcse-science-olympiads",
+    "url": "https://olympiads.hbcse.tifr.res.in/",
+    "label": "HBCSE National Science and Mathematics Olympiad Programme",
+    "category": "India"
+  },
+  {
+    "slug": "india-iarcs-computing-olympiad",
+    "url": "https://www.iarcs.org.in/inoi/current.php",
+    "label": "Indian Computing Olympiad",
+    "category": "India"
+  },
+  {
+    "slug": "india-isro-yuvika",
+    "url": "https://www.isro.gov.in/Young_Scientist_YUVIKA2026.html",
+    "label": "ISRO Young Scientist Programme (YUVIKA)",
+    "category": "India"
+  },
+  {
+    "slug": "france-animath-olympiad-training",
+    "url": "https://maths-olympiques.fr/?page_id=59",
+    "label": "Animath French Mathematical Olympiad Training (POFM)",
+    "category": "France"
+  },
+  {
+    "slug": "france-national-chemistry-olympiad",
+    "url": "https://www.olympiades-chimie.fr/concours-scientifique/",
+    "label": "Olympiades Nationales de la Chimie - Concours scientifique",
+    "category": "France"
+  },
+  {
+    "slug": "poland-adamed-smartup",
+    "url": "https://adamedsmartup.pl/2026/01/14/szansa-dla-mlodych-i-zdolnych-wystartowala-rekrutacja-do-12-edycji-programu-adamed-smartup/",
+    "label": "ADAMED SmartUP Science Camp",
+    "category": "Poland"
+  },
+  {
+    "slug": "poland-explory",
+    "url": "https://konkurs.explory.pl/",
+    "label": "Explory Science Competition",
+    "category": "Poland"
+  },
+  {
+    "slug": "china-yau-high-school-science-award",
+    "url": "https://yau-awards.com/page-rule.html",
+    "label": "S.-T. Yau High School Science Award (China)",
+    "category": "China"
+  },
+  {
+    "slug": "unc-charlotte-aeop-stem-research",
+    "url": "https://cstem.charlotte.edu/pk-20-students/stem-research-experience-program/",
+    "label": "UNC Charlotte AEOP High School STEM Research Program",
+    "category": "North Carolina"
+  },
+  {
+    "slug": "uchicago-after-school-stem-lab",
+    "url": "https://pme.uchicago.edu/academics/stem-education-community-outreach/k-12-student-programs/after-school-stem-lab-internship",
+    "label": "UChicago After-School STEM Lab Internship",
+    "category": "Illinois"
+  },
+  {
+    "slug": "umd-geographical-sciences-high-school-internship",
+    "url": "https://geog.umd.edu/high-school-hub/high-school-internship-program-hip",
+    "label": "UMD Geographical Sciences High School Internship Program",
+    "category": "Maryland"
+  },
+  {
+    "slug": "louisville-brown-cancer-high-school-research",
+    "url": "https://centers.louisville.edu/brown-cancer-center/prospective-students/summer-research-program",
+    "label": "University of Louisville Brown Cancer Center High School Summer Research Program",
+    "category": "Kentucky"
+  },
+  {
+    "slug": "northwestern-nurph",
+    "url": "https://sites.northwestern.edu/nurph/",
+    "label": "Northwestern University Research Program for High Schoolers (NURPH)",
+    "category": "Illinois"
+  },
+  {
+    "slug": "promys-boston",
+    "url": "https://promys.org/programs/promys/for-students/",
+    "label": "PROMYS at Boston University",
+    "category": "Massachusetts"
+  },
+  {
+    "slug": "ross-mathematics-program",
+    "url": "https://rossprogram.org/participants/",
+    "label": "Ross Mathematics Program",
+    "category": "Multi-state"
+  },
+  {
+    "slug": "mathily",
+    "url": "https://mathily.org/",
+    "label": "MathILy",
+    "category": "Pennsylvania"
+  },
+  {
+    "slug": "monell-science-apprenticeship",
+    "url": "https://monell.org/science-apprenticeship-program/",
+    "label": "Dr. Charis Eng Monell Science Apprenticeship Program",
+    "category": "Pennsylvania"
+  },
+  {
+    "slug": "wistar-high-school-biomedical-fellowship",
+    "url": "https://www.wistar.org/education-training/high-school-program-biomedical-research/",
+    "label": "Wistar High School Fellowship in Biomedical Research",
+    "category": "Pennsylvania"
+  },
+  {
+    "slug": "fox-chase-trip",
+    "url": "https://www.foxchase.org/research-training/education/research/high-school/trip-initiative",
+    "label": "Fox Chase Teen Research Internship Program (TRIP)",
+    "category": "Pennsylvania"
+  },
+  {
+    "slug": "roswell-park-sure-can",
+    "url": "https://www.roswellpark.org/education/high-school-undergrad/high-school-summer-research-program",
+    "label": "Roswell Park Summer Research Experience in Cancer (SURE-CAN)",
+    "category": "New York"
+  },
+  {
+    "slug": "jackson-laboratory-academic-year-fellowship",
+    "url": "https://www.jax.org/education-and-learning/high-school-students-and-undergraduates/academic-year-internships",
+    "label": "Jackson Laboratory Academic Year Research Fellowship",
+    "category": "Multi-state"
+  },
+  {
+    "slug": "penn-oer-high-school-summer-internship",
+    "url": "https://www.med.upenn.edu/evdresearch/oer-summer-internship-program/",
+    "label": "Penn OER High School Summer Research Internship",
+    "category": "Pennsylvania"
+  },
+  {
+    "slug": "mit-beaver-works-summer-institute",
+    "url": "https://www.ll.mit.edu/outreach/beaver-works-summer-institute",
+    "label": "MIT Beaver Works Summer Institute (BWSI)",
+    "category": "Massachusetts"
+  },
+  {
+    "slug": "cmu-ai-scholars",
+    "url": "https://www.cmu.edu/pre-college/academic-programs/ai_scholars.html",
+    "label": "Carnegie Mellon AI Scholars",
+    "category": "Pennsylvania"
+  },
+  {
+    "slug": "texas-state-honors-summer-math-camp",
+    "url": "https://www.txst.edu/mathworks/mathworks-camps/hsmc.html",
+    "label": "Texas State Honors Summer Math Camp",
+    "category": "Texas"
+  },
+  {
+    "slug": "usna-summer-stem",
+    "url": "https://www.usna.edu/Admissions/Programs/STEM.php",
+    "label": "U.S. Naval Academy Summer STEM",
+    "category": "Maryland"
+  },
+  {
+    "slug": "us-stockholm-junior-water-prize",
+    "url": "https://www.wef.org/community/u-s-stockholm-junior-water-prize/",
+    "label": "U.S. Stockholm Junior Water Prize",
+    "category": "Competitions"
+  },
+  {
+    "slug": "mit-llcipher",
+    "url": "https://www.ll.mit.edu/outreach/llcipher",
+    "label": "MIT Lincoln Laboratory LLCipher",
+    "category": "Massachusetts"
   }
 ]

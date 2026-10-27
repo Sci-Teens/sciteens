@@ -63,6 +63,31 @@ async function verify(genai, fetchPage) {
 }
 
 describe('verifyCandidate', () => {
+  it('allows local secondary-school programs without U.S. eligibility', async () => {
+    const genai = model([submit()])
+    const localEvidence =
+      'Example Science Academy accepts UK state-school Year 12 students only.'
+    const verdict = await verify(
+      genai,
+      vi
+        .fn()
+        .mockResolvedValue(
+          page(candidate.url, localEvidence)
+        )
+    )
+    const prompt =
+      genai.models.generateContent.mock.calls[0][0]
+        .contents[0].parts[0].text
+
+    expect(prompt).toContain(
+      'Local citizenship or residency restrictions are'
+    )
+    expect(prompt).toContain(
+      'eligibility for U.S. students is not required'
+    )
+    expect(verdict.verdict).toBe('publish')
+  })
+
   it('loads candidate evidence before the model can submit an immediate verdict', async () => {
     const finalUrl =
       'https://example.org/news/academy-current'

@@ -457,6 +457,26 @@ describe('buildPrefetchPrompt', () => {
 })
 
 describe('buildExtractionSystemPrompt', () => {
+  it('preserves international eligibility, school years, and currency', () => {
+    const prompt = buildExtractionSystemPrompt('2026-10-26')
+
+    expect(prompt).toContain(
+      'U.S. eligibility is not required'
+    )
+    expect(prompt).toContain(
+      'citizenship, residency, school type, language, and local school-year requirements in eligibilityNotes'
+    )
+    expect(prompt).toContain(
+      'Do not treat UK Year 12, Scottish S5, or other local school years as U.S. grade numbers'
+    )
+    expect(prompt).toContain(
+      'preserving the source currency without converting it to USD'
+    )
+    expect(prompt).toContain(
+      'city, state or province, and country when stated'
+    )
+  })
+
   it('states the same exact approved host set enforced by provenance', () => {
     const prompt = buildExtractionSystemPrompt(
       '2026-09-28',
