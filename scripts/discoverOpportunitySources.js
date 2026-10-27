@@ -422,7 +422,7 @@ function buildStructuringPrompt(
 ) {
   return `Below is a grounded summary, the evidence snippets it was built
 from, and the source chunks each snippet cites. Extract new candidate
-programs for a U.S. high school STEM opportunities site.
+programs for an international high school STEM opportunities site.
 
 Rules:
 - Each candidate must cite exactly one sourceChunkIndex, and that chunk
@@ -433,6 +433,8 @@ Rules:
 - Skip aggregator articles, rankings, news roundups, and anything that
   is a list of programs rather than a program.
 - Skip anything in the already-known list below.
+- Include programs for local secondary school students outside the U.S.;
+  U.S. citizenship or eligibility is not required.
 - If unsure which chunk backs a name, omit the candidate.
 
 Summary:
@@ -451,7 +453,7 @@ ${knownLabels.join('; ')}`
 function buildVerifyPrompt(candidate, today) {
   return `Today's date is ${today}.
 
-Evaluate this candidate program for a U.S. high school STEM
+Evaluate this candidate program for an international high school STEM
 opportunities website:
 Name: ${candidate.name}
 URL: ${candidate.url}
@@ -481,7 +483,9 @@ recurring program between cycles is exactly as legitimate as one
 accepting applications this week, and the site already re-checks and
 re-buckets deadlines automatically once a program is published):
 1. Currently operating (not defunct/archived/permanently discontinued)
-2. Open to U.S. high school students
+2. Open to high school or equivalent secondary school students in at
+   least one country. Local citizenship or residency restrictions are
+   acceptable; eligibility for U.S. students is not required.
 3. Legitimate: real institutional backing, no scam/pay-to-play patterns
 4. Has real extractable content (name, description, some eligibility
    info findable)

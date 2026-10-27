@@ -55,12 +55,40 @@ Name mismatches remain eligible for another discovery run, including
 previous mismatch rejection records. Discovery decisions use
 `discoveryReasoning` and `discoveryRedFlags`. Scraper updates retain them.
 
+International discovery follows the visitor-country order supplied by the
+site owner on October 26, 2026: Singapore, Germany, Canada, UK, India,
+France, Poland, and China. The United States remains covered by the
+existing sources and discovery queries. This order excludes the United
+States only from the international expansion.
+
+The Cloudflare dashboard required sign-in during this update, so this
+order uses the owner's ranking rather than an independently retrieved
+traffic report. Current GA country reports are unreliable; see
+[the analytics deployment limits](infra/analytics/README.md).
+
+Discovery accepts programs restricted to local secondary-school students.
+Extraction preserves residency rules, local school years, and currencies.
+It does not infer U.S. grade equivalents or convert costs to USD.
+
 # Scheduled opportunity scraper
 
 GitHub Actions schedules the opportunity scraper each Monday at 06:00 UTC.
 The scraper completes the batch and saves successful results even when
 another source fails. Any failed source gives the process a nonzero exit
 status, so GitHub Actions marks the run as failed.
+
+The workflow seeds new entries from
+[`opportunity-sources.json`](scripts/data/opportunity-sources.json)
+before each scrape. New source URLs passed the scraper's browser fetch
+on October 26, 2026. Full model extraction and publication still require
+an authenticated scrape after these changes reach the workflow.
+
+The October 26 expansion adds 20 international sources and 20 U.S.
+sources, for 518 curated entries in total. The U.S. additions include
+regional research internships, residential mathematics programs,
+engineering and cryptography workshops, and a water-science competition.
+Source checks exclude duplicate URLs and programs already in the list.
+A successful fetch does not establish that applications are open.
 
 If every prefetched page fails, the scraper stops extraction before the
 model call. When the transport supplies an error code, the failure record

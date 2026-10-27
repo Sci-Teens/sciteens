@@ -1,5 +1,37 @@
 [
   {
+    "category": "international-singapore",
+    "query": "Find official STEM research attachments, science camps, computing or mathematics enrichment programs, and research competitions for local secondary school and junior college students in Singapore. Prioritize free or funded opportunities with institutional or nonprofit backing and clear school-level eligibility. Search official sources in the local language as well as English. Exclude undergraduate-only programs and general college preparation or leadership camps. U.S. eligibility is not required."
+  },
+  {
+    "category": "international-germany",
+    "query": "Find official STEM research attachments, science camps, computing or mathematics enrichment programs, and research competitions for local secondary school students in Germany. Prioritize free or funded opportunities with institutional or nonprofit backing and clear school-level eligibility. Search official sources in the local language as well as English. Exclude undergraduate-only programs and general college preparation or leadership camps. U.S. eligibility is not required."
+  },
+  {
+    "category": "international-canada",
+    "query": "Find official STEM research attachments, science camps, computing or mathematics enrichment programs, and research competitions for local high school students in Canada. Prioritize free or funded opportunities with institutional or nonprofit backing and clear school-level eligibility. Search official sources in the local language as well as English. Exclude undergraduate-only programs and general college preparation or leadership camps. U.S. eligibility is not required."
+  },
+  {
+    "category": "international-uk",
+    "query": "Find official STEM research attachments, science camps, computing or mathematics enrichment programs, and research competitions for local secondary school and sixth-form students in the United Kingdom. Prioritize free or funded opportunities with institutional or nonprofit backing and clear school-level eligibility. Search official sources in the local language as well as English. Exclude undergraduate-only programs and general college preparation or leadership camps. U.S. eligibility is not required."
+  },
+  {
+    "category": "international-india",
+    "query": "Find official STEM research attachments, science camps, computing or mathematics enrichment programs, and research competitions for local secondary and higher secondary school students in India. Prioritize free or funded opportunities with institutional or nonprofit backing and clear school-level eligibility. Search official sources in the local language as well as English. Exclude undergraduate-only programs and general college preparation or leadership camps. U.S. eligibility is not required."
+  },
+  {
+    "category": "international-france",
+    "query": "Find official STEM research attachments, science camps, computing or mathematics enrichment programs, and research competitions for local collège and lycée students in France. Prioritize free or funded opportunities with institutional or nonprofit backing and clear school-level eligibility. Search official sources in the local language as well as English. Exclude undergraduate-only programs and general college preparation or leadership camps. U.S. eligibility is not required."
+  },
+  {
+    "category": "international-poland",
+    "query": "Find official STEM research attachments, science camps, computing or mathematics enrichment programs, and research competitions for local secondary school students in Poland. Prioritize free or funded opportunities with institutional or nonprofit backing and clear school-level eligibility. Search official sources in the local language as well as English. Exclude undergraduate-only programs and general college preparation or leadership camps. U.S. eligibility is not required."
+  },
+  {
+    "category": "international-china",
+    "query": "Find official STEM research attachments, science camps, computing or mathematics enrichment programs, and research competitions for local secondary and high school students in China. Prioritize free or funded opportunities with institutional or nonprofit backing and clear school-level eligibility. Search official sources in the local language as well as English. Exclude undergraduate-only programs and general college preparation or leadership camps. U.S. eligibility is not required."
+  },
+  {
     "category": "newly-launched",
     "query": "STEM summer program for high school students newly launched or first offered in 2026 or 2027, not affiliated with MIT, Ivy League, or other nationally famous universities"
   },
