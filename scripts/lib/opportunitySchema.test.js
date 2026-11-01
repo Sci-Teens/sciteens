@@ -457,6 +457,26 @@ describe('buildPrefetchPrompt', () => {
 })
 
 describe('buildExtractionSystemPrompt', () => {
+  it('selects the intended program from a shared official page', () => {
+    const label = 'UNLV Cyber Clinic Junior Member Program'
+    const prompt = buildExtractionSystemPrompt(
+      '2026-11-01',
+      'https://www.unlv.edu/early-outreach/young-rebels/high-school',
+      [],
+      label
+    )
+    expect(prompt).toContain(JSON.stringify(label))
+    expect(prompt).toContain(
+      'do not combine facts from other programs'
+    )
+    expect(prompt).toContain(
+      'instead of substituting another program'
+    )
+    expect(
+      buildExtractionSystemPrompt('2026-11-01')
+    ).not.toContain('Target program label')
+  })
+
   it('preserves international eligibility, school years, and currency', () => {
     const prompt = buildExtractionSystemPrompt('2026-10-26')
 

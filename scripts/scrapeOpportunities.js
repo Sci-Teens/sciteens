@@ -567,7 +567,8 @@ async function runExtractionTurnLoop(
             source.url,
             Array.isArray(source.allowedExternalHosts)
               ? source.allowedExternalHosts
-              : []
+              : [],
+            source.label
           ),
           maxOutputTokens: MAX_OUTPUT_TOKENS,
           tools: [

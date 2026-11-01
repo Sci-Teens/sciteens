@@ -365,6 +365,32 @@ async function runCli(sources, options = {}) {
 }
 
 describe('scraper CLI failure handling', () => {
+  it('passes the curated program label to extraction for shared pages', async () => {
+    const label = 'UNLV Cyber Clinic Junior Member Program'
+    let instruction
+    const result = await runCli(
+      [source('shared', { label })],
+      {
+        generateContent({ config, seed, extraction }) {
+          instruction = config.systemInstruction
+          return {
+            functionCalls: [
+              {
+                name: 'submit_extraction',
+                args: extraction(seed),
+              },
+            ],
+          }
+        },
+      }
+    )
+    expect(result.status).toBe(0)
+    expect(instruction).toContain(JSON.stringify(label))
+    expect(instruction).toContain(
+      'do not combine facts from other programs'
+    )
+  })
+
   it('retries a model request without fetching the source again', async () => {
     let attempts = 0
     const result = await runCli([source('recover')], {
