@@ -1,0 +1,107 @@
+{
+  "checkedAt": "2026-11-01T21:15:35.607Z",
+  "rows": [
+    {
+      "slug": "south-dakota-sanford-promise-scholars",
+      "sourceStatus": "not_processed",
+      "published": false,
+      "deadlineStatus": null
+    },
+    {
+      "slug": "tennessee-ornl-next-generation-stem-internship",
+      "sourceStatus": "not_processed",
+      "published": false,
+      "deadlineStatus": null
+    },
+    {
+      "slug": "mississippi-usm-project-seed",
+      "sourceStatus": "not_processed",
+      "published": false,
+      "deadlineStatus": null
+    },
+    {
+      "slug": "montana-msu-spectrum-high-school-internship",
+      "sourceStatus": "not_processed",
+      "published": false,
+      "deadlineStatus": null
+    },
+    {
+      "slug": "south-carolina-usca-summer-scholars-high-school",
+      "sourceStatus": "not_processed",
+      "published": false,
+      "deadlineStatus": null
+    },
+    {
+      "slug": "montana-tech-environmental-engineering-camp",
+      "sourceStatus": "not_processed",
+      "published": false,
+      "deadlineStatus": null
+    },
+    {
+      "slug": "montana-gallatin-cybersecurity-summer-initiative",
+      "sourceStatus": "not_processed",
+      "published": false,
+      "deadlineStatus": null
+    },
+    {
+      "slug": "nevada-unr-cbess-student-researcher",
+      "sourceStatus": "not_processed",
+      "published": false,
+      "deadlineStatus": null
+    },
+    {
+      "slug": "nevada-unlv-stem-institute",
+      "sourceStatus": "not_processed",
+      "published": false,
+      "deadlineStatus": null
+    },
+    {
+      "slug": "nevada-unlv-cyber-clinic-junior-member",
+      "sourceStatus": "not_processed",
+      "published": false,
+      "deadlineStatus": null
+    },
+    {
+      "slug": "alabama-uab-surgery-prism",
+      "sourceStatus": "not_processed",
+      "published": false,
+      "deadlineStatus": null
+    },
+    {
+      "slug": "alabama-ua-student-introduction-engineering",
+      "sourceStatus": "not_processed",
+      "published": false,
+      "deadlineStatus": null
+    },
+    {
+      "slug": "arkansas-uams-mash-enrichment-camp",
+      "sourceStatus": "not_processed",
+      "published": false,
+      "deadlineStatus": null
+    },
+    {
+      "slug": "arkansas-uams-pharmacy-summer-camp",
+      "sourceStatus": "not_processed",
+      "published": false,
+      "deadlineStatus": null
+    },
+    {
+      "slug": "arkansas-uams-summer-under-microscope",
+      "sourceStatus": "not_processed",
+      "published": false,
+      "deadlineStatus": null
+    },
+    {
+      "slug": "south-carolina-gssm-summer-research-interns",
+      "sourceStatus": "not_processed",
+      "published": false,
+      "deadlineStatus": null
+    },
+    {
+      "slug": "south-carolina-clemson-bioengineering-summer-science",
+      "sourceStatus": "not_processed",
+      "published": false,
+      "deadlineStatus": null
+    }
+  ]
+}

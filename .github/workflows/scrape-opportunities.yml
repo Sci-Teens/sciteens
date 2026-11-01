@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '0 6 * * 1'
   workflow_dispatch:
+    inputs:
+      slugs:
+        description: 'Optional space-separated source slugs. Blank refreshes all active sources.'
+        type: string
+        default: ''
 
 concurrency:
   group: scrape-opportunities
@@ -45,6 +50,17 @@ jobs:
           GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
 
       - name: Run scraper
-        run: node scripts/scrapeOpportunities.js --project "$GCP_PROJECT_ID"
+        shell: bash
+        run: |
+          normalized_slugs=${SOURCE_SLUGS//$'\n'/ }
+          read -r -a source_slugs <<< "$normalized_slugs"
+          for slug in "${source_slugs[@]}"; do
+            if [[ ! "$slug" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
+              echo "Invalid source slug: $slug" >&2
+              exit 1
+            fi
+          done
+          node scripts/scrapeOpportunities.js --project "$GCP_PROJECT_ID" "${source_slugs[@]}"
         env:
           GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+          SOURCE_SLUGS: ${{ inputs.slugs }}

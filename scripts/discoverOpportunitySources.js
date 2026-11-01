@@ -48,6 +48,9 @@ const {
   resolveFinalUrl,
   uniqueSlug,
 } = require('./lib/opportunityDiscovery')
+const {
+  buildUSQueries,
+} = require('./lib/usOpportunityCoverage')
 
 const OPPORTUNITY_SOURCES_COLLECTION = 'opportunity-sources'
 const MODEL = 'gemini-3.7-flash'
@@ -75,6 +78,9 @@ function parseArgs(argv) {
     offline: false,
     project: undefined,
     maxPerQuery: DEFAULT_MAX_PER_QUERY,
+    us: false,
+    listQueries: false,
+    queryOffset: 0,
   }
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]
@@ -84,6 +90,36 @@ function parseArgs(argv) {
       args.offline = true
     } else if (arg === '--project') {
       args.project = argv[++i]
+    } else if (arg === '--us') {
+      args.us = true
+    } else if (arg === '--list-queries') {
+      args.listQueries = true
+    } else if (
+      arg === '--jurisdiction' ||
+      arg === '--track'
+    ) {
+      const value = argv[++i]
+      if (!value || value.startsWith('--')) {
+        throw new Error(`${arg} requires a value`)
+      }
+      args[arg === '--track' ? 'track' : 'jurisdiction'] =
+        arg === '--track' ? value : value.toUpperCase()
+    } else if (
+      arg === '--query-offset' ||
+      arg === '--query-limit'
+    ) {
+      const value = Number(argv[++i])
+      const minimum = arg === '--query-limit' ? 1 : 0
+      if (!Number.isInteger(value) || value < minimum) {
+        throw new Error(
+          `${arg} must be an integer >= ${minimum}`
+        )
+      }
+      args[
+        arg === '--query-limit'
+          ? 'queryLimit'
+          : 'queryOffset'
+      ] = value
     } else if (arg === '--max-per-query') {
       args.maxPerQuery = Number(argv[++i])
       if (
@@ -101,6 +137,11 @@ function parseArgs(argv) {
   if (args.execute && args.offline) {
     throw new Error(
       '--offline cannot write: drop --execute or --offline.'
+    )
+  }
+  if (!args.us && (args.jurisdiction || args.track)) {
+    throw new Error(
+      '--jurisdiction and --track require --us'
     )
   }
   return args
@@ -228,10 +269,10 @@ function createGenAI(args, projectId) {
   })
 }
 
-function loadQueryTemplates() {
-  const templates = JSON.parse(
-    fs.readFileSync(QUERIES_DATA_FILE, 'utf8')
-  )
+function loadQueryTemplates(args = {}) {
+  const templates = args.us
+    ? buildUSQueries(args)
+    : JSON.parse(fs.readFileSync(QUERIES_DATA_FILE, 'utf8'))
   if (!Array.isArray(templates) || templates.length === 0) {
     throw new Error(
       `No queries found in ${QUERIES_DATA_FILE}`
@@ -246,7 +287,16 @@ function loadQueryTemplates() {
       )
     }
   }
-  return templates
+  const offset = args.queryOffset || 0
+  const limit =
+    args.queryLimit ?? (args.us ? 6 : templates.length)
+  const selected = templates.slice(offset, offset + limit)
+  if (selected.length === 0) {
+    throw new Error(
+      'No queries selected: query offset exceeds the selected query set'
+    )
+  }
+  return selected
 }
 
 // Reserve all document IDs, but do not globally exclude sources whose
@@ -486,7 +536,8 @@ re-buckets deadlines automatically once a program is published):
 2. Open to high school or equivalent secondary school students in at
    least one country. Local citizenship or residency restrictions are
    acceptable; eligibility for U.S. students is not required.
-3. Legitimate: real institutional backing, no scam/pay-to-play patterns
+3. Legitimate: real institutional backing, no scams or misleading credentials.
+   Tuition or a fee alone is not grounds for rejection.
 4. Has real extractable content (name, description, some eligibility
    info findable)
 5. STEM-focused: the program's core content is science, technology,
@@ -874,6 +925,11 @@ function sourceDocument(
 
 async function main() {
   const args = parseArgs(process.argv.slice(2))
+  const templates = loadQueryTemplates(args)
+  if (args.listQueries) {
+    console.log(JSON.stringify(templates, null, 2))
+    return
+  }
   loadEnvLocalWithoutDotenv(REPO_ROOT)
 
   const projectId =
@@ -909,7 +965,6 @@ async function main() {
   }
 
   const genai = createGenAI(args, projectId)
-  const templates = loadQueryTemplates()
   const known = await loadKnownSources(db)
   console.log(
     `Loaded ${known.urls.size} known source url(s) for dedup; ${templates.length} query template(s); cap ${args.maxPerQuery} per query.`
@@ -1048,6 +1103,7 @@ if (require.main === module) {
 module.exports = {
   chooseSourceUrl,
   loadKnownSources,
+  loadQueryTemplates,
   parseArgs,
   sourceDocument,
   verifyCandidate,

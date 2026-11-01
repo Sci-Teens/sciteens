@@ -31,6 +31,11 @@ Before you begin, make sure that you have both [Git](https://git-scm.com/downloa
 
 # Opportunity discovery
 
+The [U.S. program coverage plan](docs/us-program-coverage/README.md)
+defines the scope, provider inventory, discovery queue, and validation process.
+U.S. discovery prioritizes research, camps, internships, and school-year programs.
+Competitions remain a secondary track.
+
 The `Discover Opportunity Sources` GitHub Actions workflow runs only
 when an operator starts it. It has no scheduled trigger.
 

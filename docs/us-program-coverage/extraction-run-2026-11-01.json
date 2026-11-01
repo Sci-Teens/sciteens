@@ -1,0 +1,30 @@
+{
+  "runId": 41350884873,
+  "url": "https://github.com/Sci-Teens/sciteens/actions/runs/41350884873",
+  "workflow": "scrape-opportunities.yml",
+  "ref": "main",
+  "extractionModel": "gemini-3.1-flash-lite",
+  "discoveryMethod": "manual-official-page-review",
+  "status": "cancelled",
+  "manuallyAddedSourceSlugs": [
+    "south-dakota-sanford-promise-scholars",
+    "tennessee-ornl-next-generation-stem-internship",
+    "mississippi-usm-project-seed",
+    "montana-msu-spectrum-high-school-internship",
+    "south-carolina-usca-summer-scholars-high-school",
+    "montana-tech-environmental-engineering-camp",
+    "montana-gallatin-cybersecurity-summer-initiative",
+    "nevada-unr-cbess-student-researcher",
+    "nevada-unlv-stem-institute",
+    "nevada-unlv-cyber-clinic-junior-member",
+    "alabama-uab-surgery-prism",
+    "alabama-ua-student-introduction-engineering",
+    "arkansas-uams-mash-enrichment-camp",
+    "arkansas-uams-pharmacy-summer-camp",
+    "arkansas-uams-summer-under-microscope",
+    "south-carolina-gssm-summer-research-interns",
+    "south-carolina-clemson-bioengineering-summer-science"
+  ],
+  "publicationVerified": false,
+  "cancellationReason": "The scraper did not supply the target program label for pages with multiple programs. A source-label fix and a selected-source rerun will validate the new batch."
+}

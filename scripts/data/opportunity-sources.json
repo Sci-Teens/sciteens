@@ -3112,5 +3112,115 @@
     "url": "https://www.ll.mit.edu/outreach/llcipher",
     "label": "MIT Lincoln Laboratory LLCipher",
     "category": "Massachusetts"
+  },
+  {
+    "slug": "south-dakota-sanford-promise-scholars",
+    "url": "https://research.sanfordhealth.org/academic-programs/k-12-programs/high-school-research-scholars-program",
+    "label": "Sanford PROMISE Scholars Summer Internship",
+    "category": "South Dakota"
+  },
+  {
+    "slug": "tennessee-ornl-next-generation-stem-internship",
+    "url": "https://www.ornl.gov/next-generation-stem-internship/",
+    "label": "Oak Ridge Next Generation STEM Internship (NGSI)",
+    "category": "Tennessee"
+  },
+  {
+    "slug": "mississippi-usm-project-seed",
+    "url": "https://www.usm.edu/mathematics-natural-sciences/usm-project-seed.php",
+    "label": "University of Southern Mississippi Project SEED",
+    "category": "Mississippi"
+  },
+  {
+    "slug": "montana-msu-spectrum-high-school-internship",
+    "url": "https://spectrum.montana.edu/studentopportunities.html",
+    "label": "Montana State Spectrum Lab High School Internship",
+    "category": "Montana"
+  },
+  {
+    "slug": "south-carolina-usca-summer-scholars-high-school",
+    "url": "https://www.usca.edu/research/undergraduate-research/summer-scholars-institute-hs/",
+    "label": "USC Aiken Summer Scholars Institute High School Program",
+    "category": "South Carolina"
+  },
+  {
+    "slug": "montana-tech-environmental-engineering-camp",
+    "url": "https://www.mtech.edu/news/2026/02/montana-tech-to-host-free-summer-environmental-engineering-camp-for-high-school-students.html",
+    "label": "Montana Tech Summer Environmental Engineering Camp",
+    "category": "Montana"
+  },
+  {
+    "slug": "montana-gallatin-cybersecurity-summer-initiative",
+    "url": "https://ato.montana.edu/continuinged/youth/",
+    "label": "Gallatin College Cybersecurity Summer Initiative Camp",
+    "category": "Montana"
+  },
+  {
+    "slug": "nevada-unr-cbess-student-researcher",
+    "url": "https://www.unr.edu/raggio-center/educational-research/community-of-bilingual-english-spanish-speakers/student-researchers",
+    "label": "UNR CBESS High School Student Researcher Program",
+    "category": "Nevada"
+  },
+  {
+    "slug": "nevada-unlv-stem-institute",
+    "url": "https://www.unlv.edu/early-outreach/young-rebels/high-school",
+    "label": "UNLV STEM Institute",
+    "category": "Nevada"
+  },
+  {
+    "slug": "nevada-unlv-cyber-clinic-junior-member",
+    "url": "https://www.unlv.edu/early-outreach/young-rebels/high-school",
+    "label": "UNLV Cyber Clinic Junior Member Program",
+    "category": "Nevada",
+    "allowedExternalHosts": ["cyberclinicofficial.org"]
+  },
+  {
+    "slug": "alabama-uab-surgery-prism",
+    "url": "https://www.uab.edu/medicine/surgery/education/high-schoolers-and-undergraduates/pre-college-research-internship-for-students-for-scholarships-and-mentoring",
+    "label": "UAB Pre-College Research Internship for Scholarship and Mentoring (PRISM)",
+    "category": "Alabama"
+  },
+  {
+    "slug": "alabama-ua-student-introduction-engineering",
+    "url": "https://site.eng.ua.edu/",
+    "label": "University of Alabama Student Introduction to Engineering (SITE)",
+    "category": "Alabama"
+  },
+  {
+    "slug": "arkansas-uams-mash-enrichment-camp",
+    "url": "https://regionalcampuses.uams.edu/health-careers/high-school-students/mash/",
+    "label": "UAMS Medical Applications of Science for Health (MASH)",
+    "category": "Arkansas"
+  },
+  {
+    "slug": "arkansas-uams-pharmacy-summer-camp",
+    "url": "https://pharmacy.uams.edu/future-students/pharmacy-summer-camp/",
+    "label": "UAMS Pharmacy Summer Camp",
+    "category": "Arkansas"
+  },
+  {
+    "slug": "arkansas-uams-summer-under-microscope",
+    "url": "https://news.uams.edu/2026/03/24/register-now-for-uams-summer-under-the-microscope-camp/",
+    "label": "UAMS Summer Under the Microscope Camp",
+    "category": "Arkansas"
+  },
+  {
+    "slug": "south-carolina-gssm-summer-research-interns",
+    "url": "https://www.scgssm.org/research",
+    "label": "GSSM Summer Program for Research Interns (SPRI)",
+    "category": "South Carolina"
+  },
+  {
+    "slug": "south-carolina-clemson-bioengineering-summer-science",
+    "url": "https://www.clemson.edu/cecas/departments/bioe/academics/pre-college.html",
+    "label": "Clemson Bioengineering Summer Science for High School Students",
+    "category": "South Carolina"
+  },
+  {
+    "slug": "montana-tech-materials-science-summer-program",
+    "url": "https://www.mtech.edu/news/2026/02/applications-open-for-montana-techs-free-metallurgical-and-materials-engineering-summer-program-for-high-school-students.html",
+    "label": "Montana Tech Materials Science and Engineering Summer Program",
+    "category": "Montana",
+    "allowedExternalHosts": ["metcamp.givesmart.com"]
   }
 ]

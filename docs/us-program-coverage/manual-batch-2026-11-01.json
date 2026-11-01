@@ -1,0 +1,231 @@
+[
+  {
+    "slug": "montana-tech-materials-science-summer-program",
+    "label": "Montana Tech Materials Science and Engineering Summer Program",
+    "url": "https://www.mtech.edu/news/2026/02/applications-open-for-montana-techs-free-metallurgical-and-materials-engineering-summer-program-for-high-school-students.html",
+    "category": "Montana",
+    "track": "camps-courses",
+    "evidence": "A current university announcement confirms a free residential materials-engineering camp for rising high school juniors and seniors, with laboratory work and industrial visits. The specific announcement retains the intended content in the production extractor.",
+    "cycleNote": "The announcement lists June 21-26, 2026 and a March 31, 2026 deadline. Do not infer an upcoming cycle.",
+    "status": "curated-awaiting-extraction",
+    "checkedAt": "2026-11-01",
+    "discoveryMethod": "manual-official-page-review",
+    "scraperFetch": {
+      "ok": true,
+      "finalUrl": "https://www.mtech.edu/news/2026/02/applications-open-for-montana-techs-free-metallurgical-and-materials-engineering-summer-program-for-high-school-students.html"
+    },
+    "alternateUrl": "https://www.mtech.edu/metallurgical-materials-engineering/summer-program/index.html",
+    "resolvedBlocker": "Official web review establishes high school eligibility, but the production content extractor returns unrelated Life at Tech text.",
+    "resolution": "Use the specific 2026 official university announcement instead of the program page whose extracted text describes campus life."
+  },
+  {
+    "slug": "montana-tech-environmental-engineering-camp",
+    "label": "Montana Tech Summer Environmental Engineering Camp",
+    "url": "https://www.mtech.edu/news/2026/02/montana-tech-to-host-free-summer-environmental-engineering-camp-for-high-school-students.html",
+    "category": "Montana",
+    "track": "environment-agriculture",
+    "evidence": "The university announcement identifies a funded residential environmental engineering camp for students entering sophomore through senior years, with laboratory and field activities.",
+    "cycleNote": "The reviewed announcement describes the 2026 cycle. Do not infer a 2027 application window.",
+    "status": "active-source-awaiting-extraction",
+    "checkedAt": "2026-11-01",
+    "discoveryMethod": "manual-official-page-review",
+    "scraperFetch": {
+      "ok": true,
+      "finalUrl": "https://www.mtech.edu/news/2026/02/montana-tech-to-host-free-summer-environmental-engineering-camp-for-high-school-students.html"
+    },
+    "importedAt": "2026-11-01T21:13:04.060Z"
+  },
+  {
+    "slug": "montana-gallatin-cybersecurity-summer-initiative",
+    "label": "Gallatin College Cybersecurity Summer Initiative Camp",
+    "url": "https://ato.montana.edu/continuinged/youth/",
+    "category": "Montana",
+    "track": "engineering-computing-math",
+    "evidence": "The university youth page identifies a free cybersecurity camp for grades 6-12 with hands-on networking and security activities. Extract only the CSI program.",
+    "cycleNote": "The page lists June 15-19, 2026. Writing camps elsewhere on the page are outside scope.",
+    "status": "active-source-awaiting-extraction",
+    "checkedAt": "2026-11-01",
+    "discoveryMethod": "manual-official-page-review",
+    "scraperFetch": {
+      "ok": true,
+      "finalUrl": "https://ato.montana.edu/continuinged/youth/"
+    },
+    "importedAt": "2026-11-01T21:13:04.060Z"
+  },
+  {
+    "slug": "nevada-unr-cbess-student-researcher",
+    "label": "UNR CBESS High School Student Researcher Program",
+    "url": "https://www.unr.edu/raggio-center/educational-research/community-of-bilingual-english-spanish-speakers/student-researchers",
+    "category": "Nevada",
+    "track": "biomedical",
+    "evidence": "The university describes bilingual Northern Nevada high school juniors conducting community-health research, followed by senior-year mentoring and an outreach internship.",
+    "cycleNote": "The page has an interest form but no dated cycle. Current recruitment remains unconfirmed.",
+    "status": "active-source-awaiting-extraction",
+    "checkedAt": "2026-11-01",
+    "discoveryMethod": "manual-official-page-review",
+    "scraperFetch": {
+      "ok": true,
+      "finalUrl": "https://www.unr.edu/raggio-center/educational-research/community-of-bilingual-english-spanish-speakers/student-researchers"
+    },
+    "importedAt": "2026-11-01T21:13:04.060Z"
+  },
+  {
+    "slug": "nevada-unlv-stem-institute",
+    "label": "UNLV STEM Institute",
+    "url": "https://www.unlv.edu/early-outreach/young-rebels/high-school",
+    "category": "Nevada",
+    "track": "year-round",
+    "evidence": "The official high school outreach page describes engineering, computing, mathematics, and robotics workshops with summer and spring/fall sessions. Extract only STEM Institute details.",
+    "cycleNote": "No specific cycle dates are established. Other programs on the same page have different eligibility and application processes.",
+    "status": "active-source-awaiting-extraction",
+    "checkedAt": "2026-11-01",
+    "discoveryMethod": "manual-official-page-review",
+    "scraperFetch": {
+      "ok": true,
+      "finalUrl": "https://www.unlv.edu/early-outreach/young-rebels/high-school"
+    },
+    "importedAt": "2026-11-01T21:13:04.060Z"
+  },
+  {
+    "slug": "nevada-unlv-cyber-clinic-junior-member",
+    "label": "UNLV Cyber Clinic Junior Member Program",
+    "url": "https://www.unlv.edu/early-outreach/young-rebels/high-school",
+    "category": "Nevada",
+    "track": "year-round",
+    "evidence": "UNLV's official high school outreach page links the Cyber Clinic student site and describes free weekly online cybersecurity workshops for high school students.",
+    "evidenceUrls": [
+      "https://www.unlv.edu/early-outreach/young-rebels/high-school",
+      "https://cyberclinicofficial.org/students"
+    ],
+    "cycleNote": "Verify the junior track specifically. College membership is a separate track.",
+    "status": "active-source-awaiting-extraction",
+    "checkedAt": "2026-11-01",
+    "discoveryMethod": "manual-official-page-review",
+    "scraperFetch": {
+      "ok": true,
+      "finalUrl": "https://www.unlv.edu/early-outreach/young-rebels/high-school"
+    },
+    "alternateUrl": "https://cyberclinicofficial.org/students",
+    "sharedPageReason": "UNLV STEM Institute and Cyber Clinic Junior Member are distinct named programs with different delivery and application processes. Both appear on this official page. The Cyber Clinic student-page extractor omits junior eligibility, so use the UNLV section as source.",
+    "importedAt": "2026-11-01T21:13:04.060Z"
+  },
+  {
+    "slug": "alabama-uab-surgery-prism",
+    "label": "UAB Pre-College Research Internship for Scholarship and Mentoring (PRISM)",
+    "url": "https://www.uab.edu/medicine/surgery/education/high-schoolers-and-undergraduates/pre-college-research-internship-for-students-for-scholarships-and-mentoring",
+    "category": "Alabama",
+    "track": "research",
+    "evidence": "The surgery department describes a full-time mentored medical research internship for high school students, including research presentations, workshops, and a stipend. Sophomores must wait until junior year.",
+    "cycleNote": "The direct guarded fetch lists applications opening November 16, 2026 and closing January 18, 2027. Cached search content still described 2026. Use the current official page.",
+    "status": "active-source-awaiting-extraction",
+    "checkedAt": "2026-11-01",
+    "discoveryMethod": "manual-official-page-review",
+    "scraperFetch": {
+      "ok": true,
+      "finalUrl": "https://www.uab.edu/medicine/surgery/education/high-schoolers-and-undergraduates/pre-college-research-internship-for-students-for-scholarships-and-mentoring"
+    },
+    "importedAt": "2026-11-01T21:13:04.060Z"
+  },
+  {
+    "slug": "alabama-ua-student-introduction-engineering",
+    "label": "University of Alabama Student Introduction to Engineering (SITE)",
+    "url": "https://site.eng.ua.edu/",
+    "category": "Alabama",
+    "track": "camps-courses",
+    "evidence": "The official program page describes residential engineering projects and laboratory work for rising high school sophomores, juniors, seniors, and incoming freshmen.",
+    "cycleNote": "The page lists June 2027 sessions and says registration opens February 1, 2027. Its current interest form is not registration.",
+    "status": "active-source-awaiting-extraction",
+    "checkedAt": "2026-11-01",
+    "discoveryMethod": "manual-official-page-review",
+    "scraperFetch": {
+      "ok": true,
+      "finalUrl": "https://site.eng.ua.edu/"
+    },
+    "importedAt": "2026-11-01T21:13:04.060Z"
+  },
+  {
+    "slug": "arkansas-uams-mash-enrichment-camp",
+    "label": "UAMS Medical Applications of Science for Health (MASH)",
+    "url": "https://regionalcampuses.uams.edu/health-careers/high-school-students/mash/",
+    "category": "Arkansas",
+    "track": "camps-courses",
+    "evidence": "The official UAMS regional-campus page describes a free two-week medical science enrichment camp for high school students and links local camp locations.",
+    "cycleNote": "2026 applications are closed. This umbrella program does not certify that every local site is separately indexed.",
+    "status": "active-source-awaiting-extraction",
+    "checkedAt": "2026-11-01",
+    "discoveryMethod": "manual-official-page-review",
+    "scraperFetch": {
+      "ok": true,
+      "finalUrl": "https://regionalcampuses.uams.edu/health-careers/high-school-students/mash/"
+    },
+    "importedAt": "2026-11-01T21:13:04.060Z"
+  },
+  {
+    "slug": "arkansas-uams-pharmacy-summer-camp",
+    "label": "UAMS Pharmacy Summer Camp",
+    "url": "https://pharmacy.uams.edu/future-students/pharmacy-summer-camp/",
+    "category": "Arkansas",
+    "track": "camps-courses",
+    "evidence": "The pharmacy college identifies its summer program for high school juniors and seniors and links the 2026 camp recap.",
+    "cycleNote": "The direct guarded fetch lists June 7-9, 2027, with registration opening December 1, 2026. Cached search content still described 2026.",
+    "status": "active-source-awaiting-extraction",
+    "checkedAt": "2026-11-01",
+    "discoveryMethod": "manual-official-page-review",
+    "scraperFetch": {
+      "ok": true,
+      "finalUrl": "https://pharmacy.uams.edu/future-students/pharmacy-summer-camp/"
+    },
+    "importedAt": "2026-11-01T21:13:04.060Z"
+  },
+  {
+    "slug": "arkansas-uams-summer-under-microscope",
+    "label": "UAMS Summer Under the Microscope Camp",
+    "url": "https://news.uams.edu/2026/03/24/register-now-for-uams-summer-under-the-microscope-camp/",
+    "category": "Arkansas",
+    "track": "environment-agriculture",
+    "evidence": "The university announcement describes environmental health science activities for Arkansas high school students and recent graduates, with financial assistance available.",
+    "cycleNote": "This announcement establishes the inaugural 2026 program only. Recurrence and 2027 recruitment remain unconfirmed.",
+    "status": "active-source-awaiting-extraction",
+    "checkedAt": "2026-11-01",
+    "discoveryMethod": "manual-official-page-review",
+    "scraperFetch": {
+      "ok": true,
+      "finalUrl": "https://news.uams.edu/2026/03/24/register-now-for-uams-summer-under-the-microscope-camp/"
+    },
+    "importedAt": "2026-11-01T21:13:04.060Z"
+  },
+  {
+    "slug": "south-carolina-gssm-summer-research-interns",
+    "label": "GSSM Summer Program for Research Interns (SPRI)",
+    "url": "https://www.scgssm.org/research",
+    "category": "South Carolina",
+    "track": "research",
+    "evidence": "GSSM describes six weeks of mentored laboratory research between junior and senior years, followed by senior-year analysis and research presentation. Participation is restricted to enrolled GSSM students.",
+    "cycleNote": "Do not present SPRI as open to all South Carolina high school students. International RESP placements are a separate program.",
+    "status": "active-source-awaiting-extraction",
+    "checkedAt": "2026-11-01",
+    "discoveryMethod": "manual-official-page-review",
+    "scraperFetch": {
+      "ok": true,
+      "finalUrl": "https://www.scgssm.org/research"
+    },
+    "importedAt": "2026-11-01T21:13:04.060Z"
+  },
+  {
+    "slug": "south-carolina-clemson-bioengineering-summer-science",
+    "label": "Clemson Bioengineering Summer Science for High School Students",
+    "url": "https://www.clemson.edu/cecas/departments/bioe/academics/pre-college.html",
+    "category": "South Carolina",
+    "track": "camps-courses",
+    "evidence": "The bioengineering department describes a week-long high school course with biomedical instrumentation, cell culture, histology, and research-lab activities.",
+    "cycleNote": "No dated future cycle is established on the departmental page. Verify course availability rather than using unrelated Summer Scholars subjects.",
+    "status": "active-source-awaiting-extraction",
+    "checkedAt": "2026-11-01",
+    "discoveryMethod": "manual-official-page-review",
+    "scraperFetch": {
+      "ok": true,
+      "finalUrl": "https://www.clemson.edu/cecas/departments/bioe/academics/pre-college.html"
+    },
+    "importedAt": "2026-11-01T21:13:04.060Z"
+  }
+]

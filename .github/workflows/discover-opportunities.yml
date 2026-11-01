@@ -3,6 +3,29 @@ name: Discover Opportunity Sources
 on:
   workflow_dispatch:
     inputs:
+      scope:
+        description: 'Discovery query set'
+        type: choice
+        options:
+          - existing
+          - us
+        default: existing
+      jurisdiction:
+        description: 'U.S. code, for example MT, PR, or US. Blank selects all jurisdictions.'
+        type: string
+        default: ''
+      track:
+        description: 'Optional U.S. track. Blank selects the six primary tracks.'
+        type: string
+        default: ''
+      query_offset:
+        description: 'Starting query offset within the selected query set'
+        type: string
+        default: '0'
+      query_limit:
+        description: 'Maximum queries. Blank uses six U.S. queries or all existing queries.'
+        type: string
+        default: ''
       execute:
         description: 'Write discovery results to Firestore. Leave unchecked for a dry run.'
         type: boolean
@@ -43,7 +66,30 @@ jobs:
           service_account: ${{ vars.GCP_SCRAPER_SA }}
 
       - name: Discover new opportunity sources
-        run: node scripts/discoverOpportunitySources.js --project "$GCP_PROJECT_ID" $EXECUTE_FLAG
+        shell: bash
+        run: |
+          args=(--project "$GCP_PROJECT_ID" --query-offset "$QUERY_OFFSET")
+          if [[ -n "$QUERY_LIMIT" ]]; then
+            args+=(--query-limit "$QUERY_LIMIT")
+          fi
+          if [[ "$DISCOVERY_SCOPE" == "us" ]]; then
+            args+=(--us)
+          fi
+          if [[ -n "$JURISDICTION" ]]; then
+            args+=(--jurisdiction "$JURISDICTION")
+          fi
+          if [[ -n "$TRACK" ]]; then
+            args+=(--track "$TRACK")
+          fi
+          if [[ "$EXECUTE" == "true" ]]; then
+            args+=(--execute)
+          fi
+          node scripts/discoverOpportunitySources.js "${args[@]}"
         env:
           GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
-          EXECUTE_FLAG: ${{ inputs.execute == true && '--execute' || '' }}
+          DISCOVERY_SCOPE: ${{ inputs.scope }}
+          JURISDICTION: ${{ inputs.jurisdiction }}
+          TRACK: ${{ inputs.track }}
+          QUERY_OFFSET: ${{ inputs.query_offset }}
+          QUERY_LIMIT: ${{ inputs.query_limit }}
+          EXECUTE: ${{ inputs.execute }}
