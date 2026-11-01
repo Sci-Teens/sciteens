@@ -3222,5 +3222,59 @@
     "label": "Montana Tech Materials Science and Engineering Summer Program",
     "category": "Montana",
     "allowedExternalHosts": ["metcamp.givesmart.com"]
+  },
+  {
+    "slug": "nebraska-unmc-sharp",
+    "url": "https://www.unmc.edu/student-success/pathway-programs/sharp/index.html",
+    "label": "UNMC Summer High School Advanced Research Program (SHARP)",
+    "category": "Nebraska"
+  },
+  {
+    "slug": "new-hampshire-unh-hightech-bound",
+    "url": "https://www.iol.unh.edu/stem/hightech-bound",
+    "label": "UNH InterOperability Laboratory HighTech Bound Internship",
+    "category": "New Hampshire"
+  },
+  {
+    "slug": "west-virginia-wvu-tech-camp-stem",
+    "url": "https://www.wvutech.edu/camps/stem",
+    "label": "WVU Tech Camp STEM",
+    "category": "West Virginia"
+  },
+  {
+    "slug": "west-virginia-wvu-brain-camp",
+    "url": "https://medicine.hsc.wvu.edu/neuroscience/outreach/brain-camp/",
+    "label": "WVU Brain Camp",
+    "category": "West Virginia"
+  },
+  {
+    "slug": "kentucky-uk-high-school-computer-science-camp",
+    "url": "https://education.uky.edu/stem/camp",
+    "label": "University of Kentucky Computer Science Camp for High School Students",
+    "category": "Kentucky"
+  },
+  {
+    "slug": "kentucky-uk-high-school-chem-camp",
+    "url": "https://education.uky.edu/stem/camp",
+    "label": "University of Kentucky Chem Camp for High School Students",
+    "category": "Kentucky"
+  },
+  {
+    "slug": "maine-bigelow-keller-bloom",
+    "url": "https://www.bigelow.org/education/bloom.html",
+    "label": "Bigelow Laboratory Keller BLOOM Program",
+    "category": "Maine"
+  },
+  {
+    "slug": "maine-space-grant-merits",
+    "url": "https://msgc.org/students/internships/",
+    "label": "Maine Space Grant MERITS High School Internships",
+    "category": "Maine"
+  },
+  {
+    "slug": "illinois-uic-sharp-apprenticeship",
+    "url": "https://engineering.uic.edu/about/summer-special-programs/sharp-program/",
+    "label": "UIC Summer High School Apprenticeship Research Program (SHARP!)",
+    "category": "Illinois"
   }
 ]

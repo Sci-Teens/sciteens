@@ -7,6 +7,41 @@ import {
 } from './pageContent.js'
 
 describe('extractPageMarkdown', () => {
+  it.each([
+    'accordion-collapse collapse',
+    'js-accordion__panel',
+    'component-accordion__content--collapsed',
+  ])(
+    'preserves collapsed program panels (%s)',
+    (className) => {
+      const markdown = extractPageMarkdown(
+        `<html><body><main>
+        <h1>Internships</h1>
+        <p>${'Undergraduate research opportunities. '.repeat(
+          30
+        )}</p>
+        <div class="${className}" hidden aria-labelledby="merits-heading">
+          <h5 id="merits-heading">MERITS High School Internships</h5>
+          <p>Six weeks of paid research for Maine high school juniors.</p>
+          <p>Applicants must be Maine residents and U.S. citizens.</p>
+        </div>
+      </main><footer>Footer links</footer></body></html>`,
+        'https://example.org/internships/'
+      )
+
+      expect(markdown).toContain(
+        'MERITS High School Internships'
+      )
+      expect(markdown).toContain(
+        'Six weeks of paid research'
+      )
+      expect(markdown).toContain(
+        'Maine residents and U.S. citizens'
+      )
+      expect(markdown).not.toContain('Footer links')
+    }
+  )
+
   it('uses Readability to retain program content and remove page chrome', () => {
     const markdown = extractPageMarkdown(
       `

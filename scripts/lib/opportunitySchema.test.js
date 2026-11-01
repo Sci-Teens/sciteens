@@ -38,6 +38,39 @@ function validBase() {
   }
 }
 
+describe('ExtractionSchema dates', () => {
+  it.each([
+    'startDate',
+    'endDate',
+    'applicationDeadline',
+    'applicationOpensDate',
+  ])(
+    'requires a complete valid calendar date for %s',
+    (field) => {
+      for (const value of [
+        '2026-05-22, "startDate": "2026-05-17"',
+        '2027-02-29',
+        '2027-04-31',
+        'June 2027',
+        '',
+      ]) {
+        expect(
+          ExtractionSchema.safeParse({
+            ...validBase(),
+            [field]: value,
+          }).success
+        ).toBe(false)
+      }
+      expect(
+        ExtractionSchema.safeParse({
+          ...validBase(),
+          [field]: '2028-02-29',
+        }).success
+      ).toBe(true)
+    }
+  )
+})
+
 describe('ExtractionSchema consultedPages', () => {
   it('accepts a valid extraction with empty consultedPages', () => {
     const result = ExtractionSchema.safeParse({

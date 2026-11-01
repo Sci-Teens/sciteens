@@ -90,6 +90,18 @@ engineering and cryptography workshops, and a water-science competition.
 Source checks exclude duplicate URLs and programs already in the list.
 A successful fetch does not establish that applications are open.
 
+The November 1 updates add 27 more curated sources, bringing the total
+to 545. The latest nine cover UNMC SHARP, UNH HighTech Bound, WVU Tech
+Camp STEM, WVU Brain Camp, Kentucky's high school chemistry and computer
+science camps, Bigelow Keller BLOOM, Maine MERITS, and UIC SHARP!.
+All 27 completed authenticated extraction into Firestore. Program cycles
+vary; these counts do not imply that applications are currently open.
+
+Pages with accordions, tabs, or disclosure panels use structural text
+extraction so collapsed eligibility and schedule sections reach the model.
+Extraction requires valid YYYY-MM-DD dates or null, rejecting malformed
+model output before publication. Unknown dates remain null.
+
 If every prefetched page fails, the scraper stops extraction before the
 model call. When the transport supplies an error code, the failure record
 retains it. Public-address checks and URL provenance checks still apply.
