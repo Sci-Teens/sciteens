@@ -90,12 +90,19 @@ engineering and cryptography workshops, and a water-science competition.
 Source checks exclude duplicate URLs and programs already in the list.
 A successful fetch does not establish that applications are open.
 
-The November 1 updates add 27 more curated sources, bringing the total
-to 545. The latest nine cover UNMC SHARP, UNH HighTech Bound, WVU Tech
-Camp STEM, WVU Brain Camp, Kentucky's high school chemistry and computer
-science camps, Bigelow Keller BLOOM, Maine MERITS, and UIC SHARP!.
-All 27 completed authenticated extraction into Firestore. Program cycles
-vary; these counts do not imply that applications are currently open.
+The November 1 updates add 52 more curated sources, bringing the total
+to 570. The latest 25 expand coverage in Alaska, Arkansas, Colorado,
+Connecticut, Delaware, Hawaii, Idaho, Massachusetts, New Hampshire,
+New Mexico, and Oklahoma. They completed authenticated extraction into
+Firestore, along with 20 previously unpublished U.S. sources. The latest
+pass published 45 additional listings and checked them through public
+search. Program cycles vary; publication does not establish that
+applications are currently open.
+
+The [U.S. coverage snapshot](scripts/data/us-program-coverage.md) records
+state counts, reviewed official sources, blocked leads, and research
+priorities. No state is considered complete. Location counts exclude
+virtual, multiple-location, and unresolved records.
 
 Pages with accordions, tabs, or disclosure panels use structural text
 extraction so collapsed eligibility and schedule sections reach the model.

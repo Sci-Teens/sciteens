@@ -49,6 +49,8 @@ describe('ExtractionSchema dates', () => {
     (field) => {
       for (const value of [
         '2026-05-22, "startDate": "2026-05-17"',
+        '2026-04-05T23:59:00',
+        '2026-04-05T23:59:00Z',
         '2027-02-29',
         '2027-04-31',
         'June 2027',
@@ -490,6 +492,17 @@ describe('buildPrefetchPrompt', () => {
 })
 
 describe('buildExtractionSystemPrompt', () => {
+  it('requires date-only output even when a deadline includes a time', () => {
+    const prompt = buildExtractionSystemPrompt('2026-11-01')
+
+    expect(prompt).toContain(
+      'All four date fields (startDate, endDate, applicationDeadline, applicationOpensDate) must be valid YYYY-MM-DD calendar dates or null.'
+    )
+    expect(prompt).toContain(
+      'Never include a time or timezone in these fields, even when the source gives a deadline time.'
+    )
+  })
+
   it('selects the intended program from a shared official page', () => {
     const label = 'UNLV Cyber Clinic Junior Member Program'
     const prompt = buildExtractionSystemPrompt(
