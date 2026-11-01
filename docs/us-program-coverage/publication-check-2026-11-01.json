@@ -1,106 +1,148 @@
 {
-  "checkedAt": "2026-11-01T21:15:35.607Z",
+  "checkedAt": "2026-11-01T21:21:39.909Z",
   "rows": [
     {
       "slug": "south-dakota-sanford-promise-scholars",
+      "sourceExists": true,
       "sourceStatus": "not_processed",
       "published": false,
+      "publishedName": null,
       "deadlineStatus": null
     },
     {
       "slug": "tennessee-ornl-next-generation-stem-internship",
+      "sourceExists": true,
       "sourceStatus": "not_processed",
       "published": false,
+      "publishedName": null,
       "deadlineStatus": null
     },
     {
       "slug": "mississippi-usm-project-seed",
+      "sourceExists": true,
       "sourceStatus": "not_processed",
       "published": false,
+      "publishedName": null,
       "deadlineStatus": null
     },
     {
       "slug": "montana-msu-spectrum-high-school-internship",
+      "sourceExists": true,
       "sourceStatus": "not_processed",
       "published": false,
+      "publishedName": null,
       "deadlineStatus": null
     },
     {
       "slug": "south-carolina-usca-summer-scholars-high-school",
+      "sourceExists": true,
       "sourceStatus": "not_processed",
       "published": false,
+      "publishedName": null,
+      "deadlineStatus": null
+    },
+    {
+      "slug": "montana-tech-materials-science-summer-program",
+      "sourceExists": false,
+      "sourceStatus": "not_processed",
+      "published": false,
+      "publishedName": null,
       "deadlineStatus": null
     },
     {
       "slug": "montana-tech-environmental-engineering-camp",
+      "sourceExists": true,
       "sourceStatus": "not_processed",
       "published": false,
+      "publishedName": null,
       "deadlineStatus": null
     },
     {
       "slug": "montana-gallatin-cybersecurity-summer-initiative",
+      "sourceExists": true,
       "sourceStatus": "not_processed",
       "published": false,
+      "publishedName": null,
       "deadlineStatus": null
     },
     {
       "slug": "nevada-unr-cbess-student-researcher",
+      "sourceExists": true,
       "sourceStatus": "not_processed",
       "published": false,
+      "publishedName": null,
       "deadlineStatus": null
     },
     {
       "slug": "nevada-unlv-stem-institute",
+      "sourceExists": true,
       "sourceStatus": "not_processed",
       "published": false,
+      "publishedName": null,
       "deadlineStatus": null
     },
     {
       "slug": "nevada-unlv-cyber-clinic-junior-member",
+      "sourceExists": true,
       "sourceStatus": "not_processed",
       "published": false,
+      "publishedName": null,
       "deadlineStatus": null
     },
     {
       "slug": "alabama-uab-surgery-prism",
-      "sourceStatus": "not_processed",
-      "published": false,
-      "deadlineStatus": null
+      "sourceExists": true,
+      "sourceStatus": "ok",
+      "published": true,
+      "publishedName": "Pre-College Research Internship for Scholarship and Mentoring (PRISM)",
+      "deadlineStatus": "dated"
     },
     {
       "slug": "alabama-ua-student-introduction-engineering",
-      "sourceStatus": "not_processed",
-      "published": false,
-      "deadlineStatus": null
+      "sourceExists": true,
+      "sourceStatus": "ok",
+      "published": true,
+      "publishedName": "Student Introduction to Engineering (SITE)",
+      "deadlineStatus": "upcoming"
     },
     {
       "slug": "arkansas-uams-mash-enrichment-camp",
-      "sourceStatus": "not_processed",
-      "published": false,
-      "deadlineStatus": null
+      "sourceExists": true,
+      "sourceStatus": "ok",
+      "published": true,
+      "publishedName": "M*A*S*H* (Medical Applications of Science for Health)",
+      "deadlineStatus": "unclear"
     },
     {
       "slug": "arkansas-uams-pharmacy-summer-camp",
-      "sourceStatus": "not_processed",
-      "published": false,
-      "deadlineStatus": null
+      "sourceExists": true,
+      "sourceStatus": "ok",
+      "published": true,
+      "publishedName": "2026 Pharmacy Summer Camp (2027 Session)",
+      "deadlineStatus": "unclear"
     },
     {
       "slug": "arkansas-uams-summer-under-microscope",
-      "sourceStatus": "not_processed",
-      "published": false,
-      "deadlineStatus": null
+      "sourceExists": true,
+      "sourceStatus": "ok",
+      "published": true,
+      "publishedName": "Summer Under the Microscope camp",
+      "deadlineStatus": "dated"
     },
     {
       "slug": "south-carolina-gssm-summer-research-interns",
+      "sourceExists": true,
       "sourceStatus": "not_processed",
       "published": false,
+      "publishedName": null,
       "deadlineStatus": null
     },
     {
       "slug": "south-carolina-clemson-bioengineering-summer-science",
+      "sourceExists": true,
       "sourceStatus": "not_processed",
       "published": false,
+      "publishedName": null,
       "deadlineStatus": null
     }
   ]

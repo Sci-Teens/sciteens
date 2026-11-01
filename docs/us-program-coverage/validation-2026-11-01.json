@@ -1,0 +1,23 @@
+{
+  "checkedAt": "2026-11-01T21:20:45.406Z",
+  "lint": {
+    "command": "corepack pnpm lint",
+    "exitCode": 0,
+    "note": "Existing React hook warnings remain."
+  },
+  "unit": {
+    "command": "corepack pnpm test:unit",
+    "exitCode": 0,
+    "testFiles": 67,
+    "tests": 897
+  },
+  "build": {
+    "command": "timeout 180s corepack pnpm build",
+    "exitCode": 0
+  },
+  "sourceData": {
+    "command": "vitest run scripts/opportunitySources.test.js",
+    "exitCode": 0,
+    "tests": 7
+  }
+}

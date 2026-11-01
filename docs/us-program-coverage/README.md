@@ -21,14 +21,25 @@ All twelve passed the guarded browser fetch and retained the intended program co
 The [manual batch](manual-batch-2026-11-01.json) preserves official evidence and unresolved findings.
 The [import record](manual-import-2026-11-01.json) records seventeen newly created active sources.
 Existing source documents were preserved through transaction checks.
-The local curated file now contains 535 entries, including international programs.
+An alternate official announcement also resolved the Montana Tech materials camp extraction blocker.
+The local curated file now contains 536 entries, including international programs.
 
 The [provider review ledger](provider-reviews.csv) records the providers examined so far.
 All provider reviews remain partial. A few reviewed programs cannot establish complete provider coverage.
 
-The existing [GitHub scraper run](https://github.com/Sci-Teens/sciteens/actions/runs/41350884873) handles extraction.
-No automated opportunity discovery script was used for these seventeen source additions.
+The targeted [GitHub scraper trial](https://github.com/Sci-Teens/sciteens/actions/runs/41351447055) selected eighteen reviewed sources.
+It failed before extraction because Google Cloud workload identity only accepts the `main` branch.
+The verified provider condition requires `assertion.ref == 'refs/heads/main'`.
+The extraction fix must reach `main` before this workflow can use it.
+No identity permissions were changed.
+
+The corrected instructions include the source label, so shared pages identify the intended program.
+The workflow accepts optional source slugs. Scheduled runs still refresh all active sources.
+No automated opportunity discovery script was used for these eighteen source additions.
 Source creation remains separate from successful extraction and publication.
+
+The initial full-directory run was cancelled after inspection found that extraction omitted the target label.
+The [run record](extraction-run-2026-11-01.json) preserves both runs and the reason for the selected-source rerun.
 
 Live page review also found newer cycle information than cached search results.
 UAB PRISM lists a November 16, 2026 opening and January 18, 2027 deadline.
@@ -142,7 +153,8 @@ Additional frames must include national laboratories, hospitals outside NCI, fie
 State education departments, libraries, school districts, counselor lists, and local foundations provide further leads.
 County extension programs and local branches require separate review when they offer distinct programs.
 
-Each provider record needs a stable ID, official URL, inventory source, jurisdiction, provider type, review status, and next review date.
+Each provider record needs a stable ID, official URL, inventory source, jurisdiction, and provider type.
+It also needs a review status and next review date.
 Each program record needs a provider ID, canonical identity, official URLs, branch relationships, evidence, and review status.
 Source status must remain separate from application status and publication status.
 
