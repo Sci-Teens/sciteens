@@ -117,7 +117,7 @@
     "track": "research",
     "evidence": "The surgery department describes a full-time mentored medical research internship for high school students, including research presentations, workshops, and a stipend. Sophomores must wait until junior year.",
     "cycleNote": "The direct guarded fetch lists applications opening November 16, 2026 and closing January 18, 2027. Cached search content still described 2026. Use the current official page.",
-    "status": "published-in-firestore",
+    "status": "published-and-search-verified",
     "checkedAt": "2026-11-01",
     "discoveryMethod": "manual-official-page-review",
     "scraperFetch": {
@@ -126,7 +126,7 @@
     },
     "importedAt": "2026-11-01T21:13:04.060Z",
     "publishedName": "Pre-College Research Internship for Scholarship and Mentoring (PRISM)",
-    "searchIndexVerified": false
+    "searchIndexVerified": true
   },
   {
     "slug": "alabama-ua-student-introduction-engineering",
@@ -136,7 +136,7 @@
     "track": "camps-courses",
     "evidence": "The official program page describes residential engineering projects and laboratory work for rising high school sophomores, juniors, seniors, and incoming freshmen.",
     "cycleNote": "The page lists June 2027 sessions and says registration opens February 1, 2027. Its current interest form is not registration.",
-    "status": "published-in-firestore",
+    "status": "published-and-search-verified",
     "checkedAt": "2026-11-01",
     "discoveryMethod": "manual-official-page-review",
     "scraperFetch": {
@@ -145,7 +145,7 @@
     },
     "importedAt": "2026-11-01T21:13:04.060Z",
     "publishedName": "Student Introduction to Engineering (SITE)",
-    "searchIndexVerified": false
+    "searchIndexVerified": true
   },
   {
     "slug": "arkansas-uams-mash-enrichment-camp",
@@ -155,7 +155,7 @@
     "track": "camps-courses",
     "evidence": "The official UAMS regional-campus page describes a free two-week medical science enrichment camp for high school students and links local camp locations.",
     "cycleNote": "2026 applications are closed. This umbrella program does not certify that every local site is separately indexed.",
-    "status": "published-in-firestore",
+    "status": "published-and-search-verified",
     "checkedAt": "2026-11-01",
     "discoveryMethod": "manual-official-page-review",
     "scraperFetch": {
@@ -164,7 +164,7 @@
     },
     "importedAt": "2026-11-01T21:13:04.060Z",
     "publishedName": "M*A*S*H* (Medical Applications of Science for Health)",
-    "searchIndexVerified": false
+    "searchIndexVerified": true
   },
   {
     "slug": "arkansas-uams-pharmacy-summer-camp",
@@ -174,7 +174,7 @@
     "track": "camps-courses",
     "evidence": "The pharmacy college identifies its summer program for high school juniors and seniors and links the 2026 camp recap.",
     "cycleNote": "The direct guarded fetch lists June 7-9, 2027, with registration opening December 1, 2026. Cached search content still described 2026.",
-    "status": "published-in-firestore",
+    "status": "published-and-search-verified",
     "checkedAt": "2026-11-01",
     "discoveryMethod": "manual-official-page-review",
     "scraperFetch": {
@@ -183,7 +183,7 @@
     },
     "importedAt": "2026-11-01T21:13:04.060Z",
     "publishedName": "2026 Pharmacy Summer Camp (2027 Session)",
-    "searchIndexVerified": false,
+    "searchIndexVerified": true,
     "reviewNote": "The initial extraction classified the deadline as unclear despite the directly fetched page stating a December 1, 2026 opening. Recheck this record with the corrected extraction prompt."
   },
   {
@@ -194,7 +194,7 @@
     "track": "environment-agriculture",
     "evidence": "The university announcement describes environmental health science activities for Arkansas high school students and recent graduates, with financial assistance available.",
     "cycleNote": "This announcement establishes the inaugural 2026 program only. Recurrence and 2027 recruitment remain unconfirmed.",
-    "status": "published-in-firestore",
+    "status": "published-and-search-verified",
     "checkedAt": "2026-11-01",
     "discoveryMethod": "manual-official-page-review",
     "scraperFetch": {
@@ -203,7 +203,7 @@
     },
     "importedAt": "2026-11-01T21:13:04.060Z",
     "publishedName": "Summer Under the Microscope camp",
-    "searchIndexVerified": false
+    "searchIndexVerified": true
   },
   {
     "slug": "south-carolina-gssm-summer-research-interns",

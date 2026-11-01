@@ -38,6 +38,15 @@ The workflow accepts optional source slugs. Scheduled runs still refresh all act
 No automated opportunity discovery script was used for these eighteen source additions.
 Source creation remains separate from successful extraction and publication.
 
+Five additions are now verified in Firestore and through the public opportunity search API.
+They are UAB PRISM, Alabama SITE, UAMS MASH, UAMS Pharmacy, and UAMS Summer Under the Microscope.
+The [publication check](publication-check-2026-11-01.json) records the exact source IDs and search results.
+The pharmacy record needs its stated application-opening date rechecked.
+The remaining batch still needs the corrected extraction run.
+
+The [next manual research batch](next-manual-batch.json) records further leads separately from imported sources.
+These leads do not count as published programs or completed provider reviews.
+
 The initial full-directory run was cancelled after inspection found that extraction omitted the target label.
 The [run record](extraction-run-2026-11-01.json) preserves both runs and the reason for the selected-source rerun.
 
