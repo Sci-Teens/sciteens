@@ -3222,5 +3222,209 @@
     "label": "Montana Tech Materials Science and Engineering Summer Program",
     "category": "Montana",
     "allowedExternalHosts": ["metcamp.givesmart.com"]
+  },
+  {
+    "slug": "nebraska-unmc-sharp",
+    "url": "https://www.unmc.edu/student-success/pathway-programs/sharp/index.html",
+    "label": "UNMC Summer High School Advanced Research Program (SHARP)",
+    "category": "Nebraska"
+  },
+  {
+    "slug": "new-hampshire-unh-hightech-bound",
+    "url": "https://www.iol.unh.edu/stem/hightech-bound",
+    "label": "UNH InterOperability Laboratory HighTech Bound Internship",
+    "category": "New Hampshire"
+  },
+  {
+    "slug": "west-virginia-wvu-tech-camp-stem",
+    "url": "https://www.wvutech.edu/camps/stem",
+    "label": "WVU Tech Camp STEM",
+    "category": "West Virginia"
+  },
+  {
+    "slug": "west-virginia-wvu-brain-camp",
+    "url": "https://medicine.hsc.wvu.edu/neuroscience/outreach/brain-camp/",
+    "label": "WVU Brain Camp",
+    "category": "West Virginia"
+  },
+  {
+    "slug": "kentucky-uk-high-school-computer-science-camp",
+    "url": "https://education.uky.edu/stem/camp",
+    "label": "University of Kentucky Computer Science Camp for High School Students",
+    "category": "Kentucky"
+  },
+  {
+    "slug": "kentucky-uk-high-school-chem-camp",
+    "url": "https://education.uky.edu/stem/camp",
+    "label": "University of Kentucky Chem Camp for High School Students",
+    "category": "Kentucky"
+  },
+  {
+    "slug": "maine-bigelow-keller-bloom",
+    "url": "https://www.bigelow.org/education/bloom.html",
+    "label": "Bigelow Laboratory Keller BLOOM Program",
+    "category": "Maine"
+  },
+  {
+    "slug": "maine-space-grant-merits",
+    "url": "https://msgc.org/students/internships/",
+    "label": "Maine Space Grant MERITS High School Internships",
+    "category": "Maine"
+  },
+  {
+    "slug": "illinois-uic-sharp-apprenticeship",
+    "url": "https://engineering.uic.edu/about/summer-special-programs/sharp-program/",
+    "label": "UIC Summer High School Apprenticeship Research Program (SHARP!)",
+    "category": "Illinois"
+  },
+  {
+    "slug": "alaska-ansep-summer-acceleration",
+    "url": "https://www.ansep.net/component/acceleration-academy-summer/",
+    "label": "ANSEP Acceleration Academy Statewide Summer",
+    "category": "Alaska"
+  },
+  {
+    "slug": "hawaii-uh-ctahr-summer-research-institute",
+    "url": "https://cms.ctahr.hawaii.edu/mentoring/",
+    "label": "University of Hawaii CTAHR Summer Research Institute",
+    "category": "Hawaii"
+  },
+  {
+    "slug": "hawaii-stemworks-innovation-internship",
+    "url": "https://www.stemworkshawaii.org/internships",
+    "label": "STEMworks Innovation Internship",
+    "category": "Hawaii"
+  },
+  {
+    "slug": "hawaii-stemworks-maui-agriculture-internship",
+    "url": "https://www.stemworkshawaii.org/aginternships",
+    "label": "STEMworks Maui County Agriculture Internships",
+    "category": "Hawaii"
+  },
+  {
+    "slug": "hawaii-stemworks-maui-healthcare-internship",
+    "url": "https://www.stemworkshawaii.org/healthcare-internships",
+    "label": "STEMworks Maui County Healthcare Internships",
+    "category": "Hawaii"
+  },
+  {
+    "slug": "idaho-boise-state-stem-gems",
+    "url": "https://www.boisestate.edu/coen-mssc/community-outreach-recruitment/events-for-prospective-first-year-or-transfer-students/",
+    "label": "Boise State STEM Gems Summer Camp",
+    "category": "Idaho"
+  },
+  {
+    "slug": "idaho-boise-state-health-sciences-camp",
+    "url": "https://www.boisestate.edu/healthsciences/summer-camp/",
+    "label": "Boise State Health Sciences Camp",
+    "category": "Idaho"
+  },
+  {
+    "slug": "colorado-cu-enginearme",
+    "url": "https://www.colorado.edu/engineering/enginearme",
+    "label": "CU Boulder EngiNearMe",
+    "category": "Colorado"
+  },
+  {
+    "slug": "colorado-cu-stem-research-experience",
+    "url": "https://www.colorado.edu/sciencediscovery/programs/stem-research-experience",
+    "label": "CU Science Discovery STEM Research Experience",
+    "category": "Colorado"
+  },
+  {
+    "slug": "delaware-ud-neuroscience-precollege",
+    "url": "https://www.continuingstudies.udel.edu/neuroscience/",
+    "label": "University of Delaware Neuroscience Pre-College Summer Program",
+    "category": "Delaware"
+  },
+  {
+    "slug": "connecticut-yale-discovery-to-cure",
+    "url": "https://medicine.yale.edu/obgyn/education/discovery-to-cure/education/",
+    "label": "Yale Peter E. Schwartz Discovery to Cure High School Internship",
+    "category": "Connecticut"
+  },
+  {
+    "slug": "connecticut-yale-pathways-research-internships",
+    "url": "https://ssri.sites.yale.edu/",
+    "label": "Yale Pathways Research Internships",
+    "category": "Connecticut"
+  },
+  {
+    "slug": "connecticut-uconn-explore-engineering",
+    "url": "https://vergnano.institute.uconn.edu/programs-opportunities/k-12-programs/explore-engineering/",
+    "label": "UConn Explore Engineering",
+    "category": "Connecticut"
+  },
+  {
+    "slug": "oklahoma-ou-health-spark",
+    "url": "https://discover.ouhsc.edu/Events/Summer-Programs",
+    "label": "OU Health SPARK High School Summer Program",
+    "category": "Oklahoma"
+  },
+  {
+    "slug": "oklahoma-omrf-fleming-scholar",
+    "url": "https://omrf.org/training-outreach/summer-scholars/",
+    "label": "OMRF Sir Alexander Fleming Scholar Program",
+    "category": "Oklahoma"
+  },
+  {
+    "slug": "arkansas-asmsa-aviation-aerospace",
+    "url": "https://www.asmsa.org/outreach/summer-at-asmsa/",
+    "label": "Summer@ASMSA Aviation and Aerospace Engineering Camp",
+    "category": "Arkansas"
+  },
+  {
+    "slug": "arkansas-asmsa-computer-science",
+    "url": "https://www.asmsa.org/outreach/summer-at-asmsa/",
+    "label": "Summer@ASMSA Computer Science: Build, Play, Code",
+    "category": "Arkansas"
+  },
+  {
+    "slug": "arkansas-asmsa-environmental-biotechnology",
+    "url": "https://www.asmsa.org/outreach/summer-at-asmsa/",
+    "label": "Summer@ASMSA Environmental Science and Biotechnology Camp",
+    "category": "Arkansas"
+  },
+  {
+    "slug": "arkansas-asmsa-physics-motion",
+    "url": "https://www.asmsa.org/outreach/summer-at-asmsa/",
+    "label": "Summer@ASMSA Physics in Motion: Theme Park Thrills",
+    "category": "Arkansas"
+  },
+  {
+    "slug": "arkansas-onsc-water-wilderness-aegis",
+    "url": "https://www.onsc.us/aegis",
+    "label": "Ozark Natural Science Center Water and Wilderness AEGIS Camp",
+    "category": "Arkansas"
+  },
+  {
+    "slug": "arkansas-ualr-engineering-scholars",
+    "url": "https://ualr.edu/cstem/summer-programs/",
+    "label": "UA Little Rock Engineering Scholars Program",
+    "category": "Arkansas"
+  },
+  {
+    "slug": "arkansas-ualr-ai-healthtech-hackathon",
+    "url": "https://ualr.edu/cstem/summer-programs/",
+    "label": "UA Little Rock AI Hackathon and HealthTech Startup Week",
+    "category": "Arkansas"
+  },
+  {
+    "slug": "new-hampshire-dartmouth-mathland",
+    "url": "https://math.dartmouth.edu/~mathland/index.html",
+    "label": "Dartmouth Mathland",
+    "category": "New Hampshire"
+  },
+  {
+    "slug": "massachusetts-harvard-yes-for-cure",
+    "url": "https://www.hcc.harvard.edu/training/high-school-college-postbacc/yes-for-cure",
+    "label": "Harvard Cancer Consortium YES for CURE",
+    "category": "Massachusetts"
+  },
+  {
+    "slug": "new-mexico-sandia-qcamp-students",
+    "url": "https://www.sandia.gov/quantum/qcamp-students/",
+    "label": "Sandia QCaMP for Students",
+    "category": "New Mexico"
   }
 ]

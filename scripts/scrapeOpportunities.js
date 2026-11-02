@@ -114,12 +114,12 @@ const SUBMIT_TOOL = {
       applicationDeadline: {
         type: ['string', 'null'],
         description:
-          'Application deadline, ISO 8601, ONLY if deadlineStatus is "dated". Report the real deadline exactly as stated even if it looks like it has already passed -- do not judge freshness yourself, just report the true value. Otherwise null.',
+          'Application deadline as a valid YYYY-MM-DD calendar date without a time or timezone, ONLY if deadlineStatus is "dated". Report the real deadline even if it has already passed. Otherwise null.',
       },
       applicationOpensDate: {
         type: ['string', 'null'],
         description:
-          'Date applications open, ISO 8601, ONLY if deadlineStatus is "upcoming" (the page explicitly states a specific future date when applications will open, with no deadline stated yet). Otherwise null.',
+          'Date applications open as a valid YYYY-MM-DD calendar date without a time or timezone, ONLY if deadlineStatus is "upcoming" (the page explicitly states a specific future date when applications will open, with no deadline stated yet). Otherwise null.',
       },
       deadlineStatus: {
         type: 'string',

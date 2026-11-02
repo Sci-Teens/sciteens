@@ -109,7 +109,11 @@ function extractPageMarkdown(html, pageUrl) {
       }
     ).parse()
     const content =
-      article && article.content
+      article &&
+      article.content &&
+      !document.querySelector(
+        'details, [class*="accordion"], [role="tabpanel"]'
+      )
         ? article.content
         : structuralContent(document)
     const turndown = new TurndownService({
