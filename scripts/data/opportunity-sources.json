@@ -3426,5 +3426,143 @@
     "url": "https://www.sandia.gov/quantum/qcamp-students/",
     "label": "Sandia QCaMP for Students",
     "category": "New Mexico"
+  },
+  {
+    "slug": "mississippi-usm-sea-tech",
+    "url": "https://www.usm.edu/marine-education-center/art-marine-science-virtual-camp.php",
+    "label": "University of Southern Mississippi Sea Tech Camp",
+    "category": "Mississippi"
+  },
+  {
+    "slug": "mississippi-msu-senior-engineers",
+    "url": "https://www.guestservices.msstate.edu/camps/camp-participants/registration/senior-engineers",
+    "label": "Mississippi State Senior Engineers Camp",
+    "category": "Mississippi"
+  },
+  {
+    "slug": "mississippi-ole-miss-engineering-summer-college",
+    "url": "https://www.outreach.olemiss.edu/pre-college/summer-college/engineering.html",
+    "label": "Ole Miss Engineering Summer College",
+    "category": "Mississippi"
+  },
+  {
+    "slug": "north-dakota-und-aerospace-camp",
+    "url": "https://aero.und.edu/aerocamp.html",
+    "label": "University of North Dakota International Aerospace Camp",
+    "category": "North Dakota"
+  },
+  {
+    "slug": "vermont-uvm-robotics-design-testing",
+    "url": "https://www.uvm.edu/cems/cems-summer-camps",
+    "label": "UVM Robotics Design and Testing Camp (Grades 8 and 9)",
+    "category": "Vermont"
+  },
+  {
+    "slug": "vermont-uvm-makers-advanced",
+    "url": "https://www.uvm.edu/cems/cems-summer-camps",
+    "label": "UVM Makers II Advanced Design and Prototyping Camp",
+    "category": "Vermont"
+  },
+  {
+    "slug": "west-virginia-wvu-engineering-what-matters",
+    "url": "https://outreach.statler.wvu.edu/k-12-outreach-events/engineering-challenge-camps",
+    "label": "WVU Engineering Challenge Camps: Engineering What Matters (High School)",
+    "category": "West Virginia"
+  },
+  {
+    "slug": "west-virginia-wvu-mining-experience",
+    "url": "https://outreach.statler.wvu.edu/k-12-outreach-events/engineering-challenge-camps/mining-engineering-experience",
+    "label": "WVU Mining Engineering Experience",
+    "category": "West Virginia"
+  },
+  {
+    "slug": "west-virginia-wvu-mining-explosives-virtual",
+    "url": "https://outreach.statler.wvu.edu/k-12-outreach-events/engineering-challenge-camps",
+    "label": "WVU Mining and Explosives Virtual Camp",
+    "category": "West Virginia"
+  },
+  {
+    "slug": "west-virginia-wvu-space-mining-virtual",
+    "url": "https://outreach.statler.wvu.edu/k-12-outreach-events/engineering-challenge-camps",
+    "label": "WVU Space Mining Virtual Camp",
+    "category": "West Virginia"
+  },
+  {
+    "slug": "puerto-rico-uprm-pre-engineering",
+    "url": "https://www.uprm.edu/engineering/campamentos-de-verano/",
+    "label": "UPR Mayaguez Campamento de Pre-Ingenieria",
+    "category": "Puerto Rico"
+  },
+  {
+    "slug": "puerto-rico-uprm-pharmaceutical-engineering",
+    "url": "https://www.uprm.edu/engineering/campamentos-de-verano/",
+    "label": "UPR Mayaguez Pharmaceutical Engineering Summer Camp (PESCa)",
+    "category": "Puerto Rico"
+  },
+  {
+    "slug": "nebraska-unk-quasar",
+    "url": "https://unknews.unk.edu/2026/05/21/unk-invites-high-school-students-to-explore-space-science-this-summer/",
+    "label": "University of Nebraska at Kearney QUASAR Summer Camp",
+    "category": "Nebraska"
+  },
+  {
+    "slug": "montana-umt-high-school-explainers",
+    "url": "https://www.umt.edu/spectrum/education/projects/the-changing-brain.php",
+    "label": "University of Montana spectrUM High School Explainer Program",
+    "category": "Montana"
+  },
+  {
+    "slug": "puerto-rico-uprm-pbox-oceans",
+    "url": "https://www.uprm.edu/engineering/campamentos-de-verano/",
+    "label": "UPR Mayaguez Pre-Engineering in a Box (P-BOX) Oceans High School",
+    "category": "Puerto Rico"
+  },
+  {
+    "slug": "puerto-rico-uprm-cmat-rem",
+    "url": "https://www.uprm.edu/engineering/campamentos-de-verano/",
+    "label": "UPR Mayaguez CMaT Research Experience and Mentoring (REM) for High School Students",
+    "category": "Puerto Rico"
+  },
+  {
+    "slug": "north-carolina-unca-river-ecology",
+    "url": "https://www.unca.edu/precollege/river-ecology-pre-college-program/",
+    "label": "UNC Asheville River Ecology and Adventure Pre-College Summer Program",
+    "category": "North Carolina"
+  },
+  {
+    "slug": "north-carolina-unca-geology",
+    "url": "https://www.unca.edu/precollege/geology-pre-college-program/",
+    "label": "UNC Asheville Geology and Adventure Pre-College Summer Program",
+    "category": "North Carolina"
+  },
+  {
+    "slug": "north-carolina-unca-engineering",
+    "url": "https://www.unca.edu/precollege/engineering/",
+    "label": "UNC Asheville Engineering and Mechatronics Pre-College Summer Program",
+    "category": "North Carolina"
+  },
+  {
+    "slug": "north-carolina-unca-meteorology",
+    "url": "https://www.unca.edu/precollege/meteorology/",
+    "label": "UNC Asheville Meteorology Pre-College Summer Program",
+    "category": "North Carolina"
+  },
+  {
+    "slug": "north-carolina-unca-zoology",
+    "url": "https://www.unca.edu/precollege/wildlife-wonders/",
+    "label": "UNC Asheville Wildlife Wonders: Appalachian Zoology Pre-College Summer Program",
+    "category": "North Carolina"
+  },
+  {
+    "slug": "north-carolina-unca-game-design-ai",
+    "url": "https://www.unca.edu/precollege/game-design-pre-college-program/",
+    "label": "UNC Asheville Game Design and AI Pre-College Summer Program",
+    "category": "North Carolina"
+  },
+  {
+    "slug": "north-carolina-unca-pre-med",
+    "url": "https://www.unca.edu/precollege/pre-med-pre-college-program/",
+    "label": "UNC Asheville Pre-Med Pre-College Summer Program",
+    "category": "North Carolina"
   }
 ]
