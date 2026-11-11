@@ -35,6 +35,15 @@ function Carousel({
     {
       ...opts,
       axis: orientation === 'horizontal' ? 'x' : 'y',
+      breakpoints: {
+        ...opts?.breakpoints,
+        '(prefers-reduced-motion: reduce)': {
+          ...opts?.breakpoints?.[
+            '(prefers-reduced-motion: reduce)'
+          ],
+          duration: 0,
+        },
+      },
     },
     plugins
   )
@@ -57,17 +66,30 @@ function Carousel({
     api?.scrollNext()
   }, [api])
 
-  const handleKeyDown = React.useCallback(
+  const handleControlKeyDown = React.useCallback(
     (event) => {
-      if (event.key === 'ArrowLeft') {
+      if (
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey
+      )
+        return
+      const horizontal = orientation === 'horizontal'
+      if (
+        event.key === (horizontal ? 'ArrowLeft' : 'ArrowUp')
+      ) {
         event.preventDefault()
         scrollPrev()
-      } else if (event.key === 'ArrowRight') {
+      } else if (
+        event.key ===
+        (horizontal ? 'ArrowRight' : 'ArrowDown')
+      ) {
         event.preventDefault()
         scrollNext()
       }
     },
-    [scrollPrev, scrollNext]
+    [orientation, scrollPrev, scrollNext]
   )
 
   React.useEffect(() => {
@@ -82,7 +104,8 @@ function Carousel({
     api.on('select', onSelect)
 
     return () => {
-      api?.off('select', onSelect)
+      api.off('reInit', onSelect)
+      api.off('select', onSelect)
     }
   }, [api, onSelect])
 
@@ -97,12 +120,12 @@ function Carousel({
           (opts?.axis === 'y' ? 'vertical' : 'horizontal'),
         scrollPrev,
         scrollNext,
+        handleControlKeyDown,
         canScrollPrev,
         canScrollNext,
       }}
     >
       <div
-        onKeyDownCapture={handleKeyDown}
         className={cn('relative', className)}
         role="region"
         aria-roledescription="carousel"
@@ -162,8 +185,12 @@ function CarouselPrevious({
   size = 'icon-sm',
   ...props
 }) {
-  const { orientation, scrollPrev, canScrollPrev } =
-    useCarousel()
+  const {
+    orientation,
+    scrollPrev,
+    canScrollPrev,
+    handleControlKeyDown,
+  } = useCarousel()
 
   return (
     <Button
@@ -171,14 +198,16 @@ function CarouselPrevious({
       variant={variant}
       size={size}
       className={cn(
-        'absolute touch-manipulation rounded-full',
+        'aria-disabled:opacity-50 absolute z-20 touch-manipulation rounded-full',
         orientation === 'horizontal'
           ? 'inset-y-0 -left-12 my-auto'
           : '-top-12 left-1/2 -translate-x-1/2 rotate-90',
         className
       )}
       disabled={!canScrollPrev}
+      focusableWhenDisabled
       onClick={scrollPrev}
+      onKeyDown={handleControlKeyDown}
       {...props}
     >
       <ChevronLeftIcon />
@@ -193,8 +222,12 @@ function CarouselNext({
   size = 'icon-sm',
   ...props
 }) {
-  const { orientation, scrollNext, canScrollNext } =
-    useCarousel()
+  const {
+    orientation,
+    scrollNext,
+    canScrollNext,
+    handleControlKeyDown,
+  } = useCarousel()
 
   return (
     <Button
@@ -202,14 +235,16 @@ function CarouselNext({
       variant={variant}
       size={size}
       className={cn(
-        'absolute touch-manipulation rounded-full',
+        'aria-disabled:opacity-50 absolute z-20 touch-manipulation rounded-full',
         orientation === 'horizontal'
           ? 'inset-y-0 -right-12 my-auto'
           : '-bottom-12 left-1/2 -translate-x-1/2 rotate-90',
         className
       )}
       disabled={!canScrollNext}
+      focusableWhenDisabled
       onClick={scrollNext}
+      onKeyDown={handleControlKeyDown}
       {...props}
     >
       <ChevronRightIcon />

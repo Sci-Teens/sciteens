@@ -4,6 +4,8 @@
     "cool_video": "Voici une vidéo cool à regarder à la place"
   },
   "article": {
+    "previous_related": "Article associé précédent",
+    "next_related": "Article associé suivant",
     "about_the_author": "A propos de l'auteur",
     "interview": "Interview",
     "by": "Par",
@@ -21,6 +23,8 @@
     "link_text": "À lire ici"
   },
   "course": {
+    "open_notebook": "Ouvrir le carnet",
+    "open_lesson_notebook": "Ouvrir le carnet de {{lesson}}",
     "starts": "Départs",
     "enroll_by": "S'inscrire par",
     "lessons": "Cours",
@@ -85,6 +89,7 @@
     "placeholder": "Démarrez la conversation…",
     "cancel": "Annuler",
     "post": "Publier",
+    "post_failed": "Impossible de publier votre message. Réessayez.",
     "reply": "Répondre",
     "reply_label": "Répondre",
     "reply_placeholder": "Répondre…"
@@ -179,6 +184,7 @@
     "new_here": "Nouveau ici?",
     "sign_up": "S'inscrire",
     "reset_password": "réinitialiser le mot de passe",
+    "reset_failed": "Impossible d’envoyer le lien de réinitialisation. Vérifiez votre adresse e-mail et réessayez.",
     "why_reset_password": "Mot de passe oublié? Pas de soucis! Soumettez votre e-mail ci-dessous et nous vous enverrons un lien de réinitialisation.",
     "reset_message": "Nous venons de vous envoyer un lien pour réinitialiser votre mot de passe. Assurez-vous également de vérifier votre spam pour cet e-mail.",
     "reset_sent": "Consultez votre e-mail",
@@ -243,6 +249,7 @@
     "error_last_name": "Veuillez entrer uniquement votre nom de famille (ou le connecter avec des traits de traits)",
     "valid_institution": "Veuillez fournir une institution valide",
     "error_birthday": "Vous devez avoir 13 ans ou plus pour utiliser des sciteens",
+    "complete_recaptcha": "Complétez le reCAPTCHA pour créer votre compte.",
     "select_birthday": "Choisissez une date",
     "show_password": "Afficher le mot de passe",
     "hide_password": "Masquer le mot de passe"
@@ -538,7 +545,19 @@
     "space_science": "Science de l'espace",
     "fall_2022_science_fair": "Foire scientifique automne 2022"
   },
+  "legal_title": {
+    "gdpr": "Politique de cookies",
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d’utilisation"
+  },
+  "not_found": {
+    "title": "Page introuvable",
+    "description": "Cette page est peut-être inexistante ou a été supprimée.",
+    "return_home": "Retour à l’accueil"
+  },
   "navigation": {
+    "skip_to_content": "Aller au contenu principal",
+    "primary": "Principale",
     "home": "Maison",
     "about": "À propos de",
     "articles": "Des articles",

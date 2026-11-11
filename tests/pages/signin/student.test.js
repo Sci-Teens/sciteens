@@ -8,14 +8,7 @@ import {
 } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import StudentSignIn from '@/pages/signin/student'
-
-// Submit stays disabled until both fields (email + password) pass
-// their zod validation, driven through the real react-hook-form + zod
-// wiring rather than internal state.
-//
-// Lives under tests/pages/, not pages/signin/ — see the comment in
-// tests/pages/signup/student.test.js for why (Next's Pages Router
-// treats every `.js` under `pages/` as a route).
+import { signInWithEmailAndPassword } from '@firebase/auth'
 
 vi.mock('next/router', () => ({
   useRouter: () => ({ push: vi.fn(), query: {} }),
@@ -44,50 +37,64 @@ vi.mock('@firebase/auth', () => ({
   onAuthStateChanged: vi.fn(),
 }))
 
-afterEach(cleanup)
+afterEach(() => {
+  cleanup()
+  vi.clearAllMocks()
+})
 
 describe('StudentSignIn', () => {
-  it('keeps submit disabled until both email and password are valid', async () => {
+  it('focuses the first invalid field on submit and exposes its error description', async () => {
     const user = userEvent.setup()
     render(<StudentSignIn />)
 
     const submit = screen.getByRole('button', {
       name: 'auth.sign_in',
     })
-    expect(submit).toBeDisabled()
+    const email = screen.getByLabelText('auth.email')
 
-    // An invalid email keeps it disabled and surfaces the zod error.
-    await user.type(
-      screen.getByLabelText('auth.email'),
-      'not-an-email'
+    expect(submit).toBeEnabled()
+    expect(email).toHaveAttribute(
+      'autocomplete',
+      'username'
     )
-    await user.tab()
-    await waitFor(() =>
-      expect(screen.getByRole('alert')).toHaveTextContent(
-        'auth.valid_email'
-      )
-    )
-    expect(submit).toBeDisabled()
+    expect(
+      screen.queryByRole('alert')
+    ).not.toBeInTheDocument()
 
-    // A password missing the digit/symbol/uppercase requirements also
-    // keeps it disabled, even once the email above is fixed.
-    await user.clear(screen.getByLabelText('auth.email'))
-    await user.type(
-      screen.getByLabelText('auth.email'),
-      'student@example.com'
-    )
-    await user.type(
-      screen.getByLabelText('auth.password'),
-      'weak'
-    )
-    await waitFor(() => expect(submit).toBeDisabled())
+    await user.click(submit)
 
-    // A fully valid form enables it.
-    await user.clear(screen.getByLabelText('auth.password'))
+    await waitFor(() => expect(email).toHaveFocus())
+    expect(email).toHaveAccessibleDescription(
+      'auth.valid_email'
+    )
+    expect(
+      signInWithEmailAndPassword
+    ).not.toHaveBeenCalled()
+  })
+
+  it('keeps the entered email and links the server error to the field', async () => {
+    const user = userEvent.setup()
+    signInWithEmailAndPassword.mockRejectedValueOnce({
+      code: 'auth/wrong-password',
+    })
+    render(<StudentSignIn />)
+
+    const email = screen.getByLabelText('auth.email')
+    await user.type(email, 'student@example.com')
     await user.type(
       screen.getByLabelText('auth.password'),
       'Passw0rd!'
     )
-    await waitFor(() => expect(submit).toBeEnabled())
+    await user.click(
+      screen.getByRole('button', { name: 'auth.sign_in' })
+    )
+
+    await waitFor(() =>
+      expect(email).toHaveAccessibleDescription(
+        'auth.auth_wrong_password'
+      )
+    )
+    expect(email).toHaveValue('student@example.com')
+    expect(email).toHaveFocus()
   })
 })

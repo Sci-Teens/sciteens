@@ -145,7 +145,7 @@ export default function Unsubscribe() {
       <Head>
         <title>{t('unsubscribe.title')} | SciTeens</title>
       </Head>
-      <main className="mx-auto max-w-lg px-4 py-12 md:px-0">
+      <div className="mx-auto max-w-lg px-4 py-12 md:px-0">
         <PageHeading>{t('unsubscribe.title')}</PageHeading>
         <p className="text-muted-foreground mt-2 mb-6">
           {t('unsubscribe.intro')}
@@ -241,7 +241,7 @@ export default function Unsubscribe() {
               })}
             </div>
           )}
-      </main>
+      </div>
     </div>
   )
 }

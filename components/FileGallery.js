@@ -55,24 +55,36 @@ function classify(file) {
   return 'other'
 }
 
-// The image lightbox's own dialog body: an embla Carousel (shadcn's
-// wrapper) so slide state, keyboard arrow-key navigation, and the
-// prev/next buttons all come from the shared primitive instead of
-// bespoke state. Re-mounted fresh each time the dialog opens (the
-// parent only renders this once `lightboxIndex` is non-null), so
-// `startIndex` only has to be correct once.
+// Remounting the carousel on open keeps its start index tied to the selected thumbnail.
 function ImageLightbox({ images, startIndex }) {
   const { t } = useTranslation('common')
   const [api, setApi] = useState(null)
   const [current, setCurrent] = useState(startIndex)
+  const [settled, setSettled] = useState(null)
 
   useEffect(() => {
     if (!api) return
-    setCurrent(api.selectedScrollSnap())
-    api.on('select', () =>
+    const updateCurrent = () =>
       setCurrent(api.selectedScrollSnap())
-    )
-  }, [api])
+    const onSettle = () => {
+      // Embla emits settle before select for instant navigation.
+      queueMicrotask(() => {
+        const index = api.selectedScrollSnap()
+        setSettled((previous) =>
+          previous === null && index === startIndex
+            ? null
+            : index
+        )
+      })
+    }
+    updateCurrent()
+    api.on('select', updateCurrent)
+    api.on('settle', onSettle)
+    return () => {
+      api.off('select', updateCurrent)
+      api.off('settle', onSettle)
+    }
+  }, [api, startIndex])
 
   const file = images[current]?.file
 
@@ -85,6 +97,7 @@ function ImageLightbox({ images, startIndex }) {
         setApi={setApi}
         opts={{ startIndex, loop: images.length > 1 }}
         className="px-6 pt-6"
+        aria-label={t('file.images')}
       >
         <CarouselContent className="-ml-0">
           {images.map(({ file, key }) => (
@@ -125,6 +138,11 @@ function ImageLightbox({ images, startIndex }) {
           </span>
         )}
       </div>
+      {images.length > 1 && (
+        <span className="sr-only" role="status">
+          {images[settled]?.file.name}
+        </span>
+      )}
     </>
   )
 }
@@ -228,10 +246,10 @@ export default function FileGallery({ files }) {
                     fill
                     unoptimized
                     sizes="(min-width: 768px) 25vw, 50vw"
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="object-cover motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-105"
                   />
                   <span
-                    className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/70 to-transparent px-2 py-1 text-left text-xs text-white opacity-0 transition-opacity group-hover:opacity-100"
+                    className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/70 to-transparent px-2 py-1 text-left text-xs text-white opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 motion-safe:transition-opacity"
                     title={file?.name}
                   >
                     {file?.name}

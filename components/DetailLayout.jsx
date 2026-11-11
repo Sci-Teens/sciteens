@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils'
 // bind).
 export function DetailMain({ children, className }) {
   return (
-    <main
+    <div
       className={`${EDGE} pb-16 pt-10 md:pb-20 md:pt-16`}
     >
       <div
@@ -28,7 +28,7 @@ export function DetailMain({ children, className }) {
       >
         {children}
       </div>
-    </main>
+    </div>
   )
 }
 

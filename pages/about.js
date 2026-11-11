@@ -259,7 +259,7 @@ export default function About() {
         eyebrow="About"
         path="/about"
       />
-      <main>
+      <div>
         <section
           className={`${GUTTER} pb-16 pt-10 md:pb-20 md:pt-16`}
         >
@@ -364,7 +364,7 @@ export default function About() {
             </Button>
           </animated.div>
         </section>
-      </main>
+      </div>
     </div>
   )
 }

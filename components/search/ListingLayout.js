@@ -13,11 +13,12 @@ export default function ListingLayout({
   title,
   lede,
   actions,
+  toolbar,
   aside,
   children,
 }) {
   return (
-    <main className="text-foreground mx-auto mb-24 mt-8 min-h-screen w-full max-w-6xl px-4 md:px-6 lg:px-8">
+    <div className="text-foreground mx-auto mb-24 mt-8 min-h-screen w-full max-w-6xl px-4 md:px-6 lg:px-8">
       <header className="flex flex-col gap-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-8">
         <div className="min-w-0">
           <PageHeading className="text-left">
@@ -32,10 +33,15 @@ export default function ListingLayout({
         {actions}
       </header>
 
-      <div className="mt-4 flex flex-row items-start gap-8 xl:gap-12">
-        <div className="min-w-0 flex-1">{children}</div>
+      <div className="mt-4 lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:grid-rows-[auto_1fr] lg:gap-x-8 xl:gap-x-12">
+        <div className="min-w-0 lg:col-start-1 lg:row-start-1">
+          {toolbar}
+        </div>
         <FilterAside>{aside}</FilterAside>
+        <div className="min-w-0 lg:col-start-1 lg:row-start-2">
+          {children}
+        </div>
       </div>
-    </main>
+    </div>
   )
 }

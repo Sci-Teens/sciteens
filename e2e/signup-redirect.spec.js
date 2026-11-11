@@ -46,10 +46,9 @@ test.describe('resolveRefPath redirect end to end', () => {
     const submit = page.getByRole('button', {
       name: 'Create Account',
     })
-    // Gated on form validity plus the emulator-faked reCAPTCHA
-    // resolving (lib/firebase.js's
-    // appVerificationDisabledForTesting).
-    await expect(submit).toBeEnabled({ timeout: 15_000 })
+    await expect(
+      page.locator('#recaptcha-instruction')
+    ).toBeHidden({ timeout: 15_000 })
     await submit.click()
 
     await page.waitForURL('/', { timeout: 15_000 })

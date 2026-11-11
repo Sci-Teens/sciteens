@@ -53,43 +53,45 @@ const NAV_LINKS = [
     href: '/about',
     label: 'about',
     Icon: Info,
-    active: (p) => p.includes('about'),
+    active: (p) => p === '/about',
   },
   {
     href: '/articles',
     label: 'articles',
     Icon: Newspaper,
-    active: (p) => p.includes('articles'),
+    active: (p) =>
+      p === '/articles' || p.startsWith('/article/'),
   },
   {
     href: '/projects',
     label: 'projects',
     Icon: Folder,
-    active: (p) => p.includes('projects'),
+    active: (p) =>
+      p === '/projects' || p.startsWith('/project/'),
   },
   {
     href: '/opportunities',
     label: 'opportunities',
     Icon: Compass,
     active: (p) =>
-      p.includes('opportunities') || p.includes('program'),
+      p === '/opportunities' || p.startsWith('/program/'),
   },
   {
     href: '/get-involved',
     label: 'get_involved',
     Icon: Users,
-    active: (p) => p.includes('get-involved'),
+    active: (p) => p === '/get-involved',
   },
   {
     href: '/donate',
     label: 'donate',
     Icon: HandHeart,
-    active: (p) => p.includes('donate'),
+    active: (p) => p === '/donate',
   },
 ]
 
 const mobileRowClass = (isActive = false) =>
-  `flex flex-row items-center gap-4 rounded-lg px-3 py-3 ${
+  `flex flex-row items-center gap-4 rounded-lg px-3 py-3 wrap-anywhere ${
     isActive ? 'bg-muted underline' : ''
   }`
 
@@ -134,7 +136,7 @@ export default function NavBar() {
   }, [scrollDirection])
 
   return (
-    <nav suppressHydrationWarning={true}>
+    <nav aria-label={i18n?.t('navigation.primary')}>
       {i18n?.isInitialized && (
         <Sheet
           open={showMobileNav}
@@ -161,9 +163,14 @@ export default function NavBar() {
                 <Link
                   key={href}
                   href={href}
+                  aria-current={
+                    router.pathname === href
+                      ? 'page'
+                      : undefined
+                  }
                   className={`hover:bg-muted mr-2 hidden whitespace-nowrap rounded-lg p-2 hover:shadow-inner lg:block ${
                     active(router.pathname)
-                      ? 'text-sciteensGreen-regular underline'
+                      ? 'text-primary underline'
                       : 'text-muted-foreground'
                   }`}
                 >
@@ -175,7 +182,7 @@ export default function NavBar() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="mr-4 lg:hidden"
+                    className="size-11 lg:hidden"
                     aria-label={i18n.t('navigation.menu')}
                   >
                     <Menu className="h-5 w-5" />
@@ -248,45 +255,54 @@ export default function NavBar() {
             <SheetTitle className="sr-only">
               {i18n.t('navigation.menu')}
             </SheetTitle>
-            <div className="flex flex-1 flex-col gap-1 overflow-y-auto">
+            <nav
+              aria-label={i18n.t('navigation.primary')}
+              className="flex flex-1 flex-col gap-1 overflow-y-auto overscroll-contain"
+            >
               {NAV_LINKS.map(
                 ({ href, label, Icon, active }) => (
-                  <SheetClose
+                  <Link
                     key={href}
-                    render={
-                      <Link
-                        href={href}
-                        className={mobileRowClass(
-                          active(router.pathname)
-                        )}
-                      >
-                        <Icon className="text-muted-foreground h-6 w-6 shrink-0" />
-                        <span className="whitespace-nowrap">
-                          {i18n.t(`navigation.${label}`)}
-                        </span>
-                      </Link>
+                    href={href}
+                    onNavigate={() =>
+                      setShowMobileNav(false)
                     }
-                  />
+                    aria-current={
+                      router.pathname === href
+                        ? 'page'
+                        : undefined
+                    }
+                    className={mobileRowClass(
+                      active(router.pathname)
+                    )}
+                  >
+                    <Icon className="text-muted-foreground h-6 w-6 shrink-0" />
+                    <span>
+                      {i18n.t(`navigation.${label}`)}
+                    </span>
+                  </Link>
                 )
               )}
               {signInCheckResult?.signedIn === false && (
-                <SheetClose
-                  render={
-                    <Link
-                      href="/signup/student"
-                      className={mobileRowClass(
-                        router.pathname.includes('signup')
-                      )}
-                    >
-                      <UserPlus className="text-muted-foreground h-6 w-6 shrink-0" />
-                      <span className="whitespace-nowrap">
-                        {i18n.t('navigation.sign_up')}
-                      </span>
-                    </Link>
+                <Link
+                  href="/signup/student"
+                  onNavigate={() => setShowMobileNav(false)}
+                  aria-current={
+                    router.pathname === '/signup/student'
+                      ? 'page'
+                      : undefined
                   }
-                />
+                  className={mobileRowClass(
+                    router.pathname.startsWith('/signup/')
+                  )}
+                >
+                  <UserPlus className="text-muted-foreground h-6 w-6 shrink-0" />
+                  <span>
+                    {i18n.t('navigation.sign_up')}
+                  </span>
+                </Link>
               )}
-            </div>
+            </nav>
             {signedIn && (
               <div className="border-border/60 mt-4 flex shrink-0 flex-col gap-1 border-t pt-4">
                 <div className="flex flex-row items-center gap-4 px-3 py-2">
@@ -314,21 +330,18 @@ export default function NavBar() {
                     {signInCheckResult.user.displayName}
                   </p>
                 </div>
-                <SheetClose
-                  render={
-                    <Link
-                      href={profileHref}
-                      className={mobileRowClass(
-                        router.pathname.includes('profile')
-                      )}
-                    >
-                      <User className="text-muted-foreground h-6 w-6 shrink-0" />
-                      <span className="whitespace-nowrap">
-                        {i18n.t('navigation.profile')}
-                      </span>
-                    </Link>
-                  }
-                />
+                <Link
+                  href={profileHref}
+                  onNavigate={() => setShowMobileNav(false)}
+                  className={mobileRowClass(
+                    router.pathname.startsWith('/profile/')
+                  )}
+                >
+                  <User className="text-muted-foreground h-6 w-6 shrink-0" />
+                  <span>
+                    {i18n.t('navigation.profile')}
+                  </span>
+                </Link>
                 <SheetClose
                   render={
                     <button

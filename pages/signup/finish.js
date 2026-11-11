@@ -8,7 +8,6 @@ import { useUser } from '../../context/AuthContext'
 import { useRouter } from 'next/router'
 import moment from 'moment'
 import SocialMeta from '../../components/SocialMeta'
-import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { AppContext } from '../../context/context'
 import { createUniqueSlug } from '../../context/helpers'
@@ -23,7 +22,7 @@ import AuthCard from '@/components/AuthCard'
 import BirthdayField from '@/components/BirthdayField'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Checkbox } from '@/components/ui/checkbox'
+import TermsField from '@/components/TermsField'
 import {
   Select,
   SelectContent,
@@ -37,7 +36,6 @@ import {
   FieldGroup,
   FieldLabel,
 } from '@/components/ui/field'
-import { INLINE_LINK } from '@/lib/typography'
 
 export default function FinishSignUp() {
   const { t } = useTranslation('common')
@@ -99,7 +97,6 @@ export default function FinishSignUp() {
 
   const form = useForm({
     resolver: zodResolver(schema),
-    mode: 'onChange',
     defaultValues: {
       first_name: '',
       last_name: '',
@@ -185,10 +182,14 @@ export default function FinishSignUp() {
       router.push('/')
     } catch (error) {
       setLoading(false)
-      form.setError('first_name', {
-        type: 'server',
-        message: t('auth.sign_in_failed'),
-      })
+      form.setError(
+        'first_name',
+        {
+          type: 'server',
+          message: t('auth.unable_to_create'),
+        },
+        { shouldFocus: true }
+      )
       console.error(error)
     }
   }
@@ -206,7 +207,11 @@ export default function FinishSignUp() {
         title={t('auth.finish_signup')}
         subtitle={t('auth.why_finish_signup')}
       >
-        <form onSubmit={form.handleSubmit(finishSignUp)}>
+        <form
+          method="post"
+          noValidate
+          onSubmit={form.handleSubmit(finishSignUp)}
+        >
           <FieldGroup>
             <div className="grid gap-x-3 gap-y-5 sm:grid-cols-2">
               <Controller
@@ -222,11 +227,18 @@ export default function FinishSignUp() {
                       id="first_name"
                       type="text"
                       maxLength={50}
+                      required
                       autoComplete="given-name"
                       aria-invalid={fieldState.invalid}
+                      aria-describedby={
+                        fieldState.invalid
+                          ? 'first_name-error'
+                          : undefined
+                      }
                     />
                     {fieldState.invalid && (
                       <FieldError
+                        id="first_name-error"
                         errors={[fieldState.error]}
                       />
                     )}
@@ -246,11 +258,18 @@ export default function FinishSignUp() {
                       id="last_name"
                       type="text"
                       maxLength={50}
+                      required
                       autoComplete="family-name"
                       aria-invalid={fieldState.invalid}
+                      aria-describedby={
+                        fieldState.invalid
+                          ? 'last_name-error'
+                          : undefined
+                      }
                     />
                     {fieldState.invalid && (
                       <FieldError
+                        id="last_name-error"
                         errors={[fieldState.error]}
                       />
                     )}
@@ -344,44 +363,13 @@ export default function FinishSignUp() {
               )}
             />
 
-            <Controller
-              name="terms"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field
-                  orientation="horizontal"
-                  className="items-start"
-                  data-invalid={fieldState.invalid}
-                >
-                  <Checkbox
-                    id="terms"
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    aria-invalid={fieldState.invalid}
-                  />
-                  <FieldLabel
-                    htmlFor="terms"
-                    className="block font-normal"
-                  >
-                    {t('auth.terms')}&nbsp;
-                    <Link
-                      href="/legal/terms"
-                      className={INLINE_LINK}
-                    >
-                      {t('auth.terms_link')}
-                    </Link>
-                  </FieldLabel>
-                </Field>
-              )}
-            />
+            <TermsField control={form.control} />
             <Button
               type="submit"
               size="lg"
               className="h-11 w-full text-base"
               disabled={
-                loading ||
-                !form.formState.isValid ||
-                form.formState.isSubmitting
+                loading || form.formState.isSubmitting
               }
             >
               {t('auth.create_account')}

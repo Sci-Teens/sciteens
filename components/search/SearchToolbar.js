@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { useTranslation } from 'next-i18next'
 
 import { Filter, Search, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -19,6 +20,7 @@ export default function SearchToolbar({
   onClear,
   placeholder,
   searchLabel,
+  searchDescriptionId,
   submitLabel,
   clearSearchLabel,
   filtersLabel,
@@ -28,6 +30,7 @@ export default function SearchToolbar({
   filterPanel,
   children,
 }) {
+  const { t } = useTranslation('common')
   const inputRef = useRef(null)
 
   // The clear button only exists while the field has a value, so
@@ -43,9 +46,9 @@ export default function SearchToolbar({
       <form
         role="search"
         onSubmit={onSubmit}
-        className="flex flex-1 flex-row gap-2"
+        className="flex min-w-0 flex-1 flex-row gap-2"
       >
-        <div className="relative flex-1">
+        <div className="relative min-w-0 flex-1">
           <Search
             className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
             aria-hidden="true"
@@ -63,6 +66,7 @@ export default function SearchToolbar({
             maxLength="100"
             placeholder={placeholder}
             aria-label={searchLabel}
+            aria-describedby={searchDescriptionId}
             // The WebKit clear affordance sits at a different inset and
             // does not fire onClear, so the explicit button below owns it.
             className="bg-card [&::-webkit-search-cancel-button]:hidden touch-manipulation pl-9 pr-9 shadow-sm"
@@ -72,7 +76,7 @@ export default function SearchToolbar({
               type="button"
               onClick={handleClear}
               aria-label={clearSearchLabel}
-              className="text-muted-foreground hover:text-foreground absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 transition-colors"
+              className="text-muted-foreground hover:text-foreground size-7 absolute right-1 top-1/2 grid -translate-y-1/2 touch-manipulation place-items-center rounded-full transition-colors"
             >
               <X
                 className="h-3.5 w-3.5"
@@ -119,6 +123,7 @@ export default function SearchToolbar({
           <SheetContent
             side="right"
             className="data-[side=right]:!w-full max-w-sm overflow-y-auto overscroll-contain px-6 pt-16"
+            closeLabel={t('auth.close')}
           >
             <SheetTitle>{filtersLabel}</SheetTitle>
             <div className="mt-6">{filterPanel}</div>

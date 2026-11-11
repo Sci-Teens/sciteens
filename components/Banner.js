@@ -17,7 +17,7 @@ function Banner({ closeBanner }) {
     : null
 
   return (
-    <div className="bg-sciteensGreen-regular relative mx-auto flex w-full flex-row items-center justify-center gap-3 px-4 py-2.5 text-center text-sm text-white lg:text-base">
+    <div className="bg-primary text-primary-foreground relative mx-auto flex w-full flex-row items-center justify-center gap-3 px-4 py-2.5 text-center text-sm lg:text-base">
       <div className="m-1 w-11/12 break-words">
         {t('banner.message')}
         {href && (
@@ -36,7 +36,7 @@ function Banner({ closeBanner }) {
       </div>
       <button
         onClick={() => closeBanner()}
-        aria-label="Close"
+        aria-label={t('auth.close')}
         className="hover:bg-white/15 relative flex shrink-0 items-center justify-center rounded-full p-1.5 transition-colors"
       >
         <X className="h-4 w-4" />

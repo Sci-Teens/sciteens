@@ -39,8 +39,10 @@ import InfiniteScrollTrigger from '@/components/InfiniteScrollTrigger'
 import { normalizeProject } from '../lib/projects'
 import { formatMediumDate } from '../lib/formatDate'
 import { requiresSearchIndex } from '../lib/search'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import {
+  Button,
+  buttonVariants,
+} from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -626,67 +628,68 @@ function Projects({ cached_projects }) {
         lede={t('projects.lede')}
         aside={<FilterPanel {...filterPanelProps} />}
         actions={
-          <Button
-            variant="outline"
-            render={
-              <Link href="/project/create">
-                <PlusCircle
-                  className="h-4 w-4"
-                  aria-hidden="true"
-                />
-                {t('projects.create')}
-              </Link>
+          <Link
+            href="/project/create"
+            className={buttonVariants({
+              variant: 'outline',
+              className: 'touch-manipulation',
+            })}
+          >
+            <PlusCircle
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
+            {t('projects.create')}
+          </Link>
+        }
+        toolbar={
+          <SearchToolbar
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onSubmit={handleSearchSubmit}
+            onClear={handleClearSearch}
+            placeholder={t('projects.search_projects')}
+            searchLabel={t('projects.search')}
+            submitLabel={t('projects.search')}
+            clearSearchLabel={t('projects.clear_search')}
+            filtersLabel={t('projects.filters')}
+            hasActiveFilters={hasActiveFilters}
+            filtersOpen={filtersOpen}
+            onFiltersOpenChange={setFiltersOpen}
+            filterPanel={
+              <FilterPanel {...filterPanelProps} />
             }
-            className="shrink-0 touch-manipulation"
-          />
+          >
+            <Select
+              value={sort || 'relevance'}
+              onValueChange={handleSortChange}
+            >
+              <SelectTrigger
+                aria-label={t('projects.sort_by')}
+                className="bg-card w-full shadow-sm sm:w-44"
+              >
+                <SelectValue>
+                  {(value) => sortLabels[value]}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="relevance">
+                  {t('projects.sort_relevance')}
+                </SelectItem>
+                <SelectItem value="newest">
+                  {t('projects.sort_newest')}
+                </SelectItem>
+                <SelectItem value="oldest">
+                  {t('projects.sort_oldest')}
+                </SelectItem>
+                <SelectItem value="upvotes">
+                  {t('projects.sort_upvotes')}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </SearchToolbar>
         }
       >
-        <SearchToolbar
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onSubmit={handleSearchSubmit}
-          onClear={handleClearSearch}
-          placeholder={t('projects.search_projects')}
-          searchLabel={t('projects.search')}
-          submitLabel={t('projects.search')}
-          clearSearchLabel={t('projects.clear_search')}
-          filtersLabel={t('projects.filters')}
-          hasActiveFilters={hasActiveFilters}
-          filtersOpen={filtersOpen}
-          onFiltersOpenChange={setFiltersOpen}
-          filterPanel={
-            <FilterPanel {...filterPanelProps} />
-          }
-        >
-          <Select
-            value={sort || 'relevance'}
-            onValueChange={handleSortChange}
-          >
-            <SelectTrigger
-              aria-label={t('projects.sort_by')}
-              className="bg-card w-full shadow-sm sm:w-44"
-            >
-              <SelectValue>
-                {(value) => sortLabels[value]}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="relevance">
-                {t('projects.sort_relevance')}
-              </SelectItem>
-              <SelectItem value="newest">
-                {t('projects.sort_newest')}
-              </SelectItem>
-              <SelectItem value="oldest">
-                {t('projects.sort_oldest')}
-              </SelectItem>
-              <SelectItem value="upvotes">
-                {t('projects.sort_upvotes')}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </SearchToolbar>
-
         <ActiveFilters
           label={t('projects.active_filters')}
           filters={activeFilters}
@@ -695,7 +698,7 @@ function Projects({ cached_projects }) {
         />
 
         <ResultsCount>
-          {loading
+          {loading || projectsQuery.isPlaceholderData
             ? t('projects.loading')
             : !projectsQuery.isError &&
               typeof totalHits === 'number' &&
@@ -706,7 +709,7 @@ function Projects({ cached_projects }) {
 
         {projectsQuery.isError && (
           <div className="border-destructive/30 bg-destructive/5 rounded-xl border px-4 py-4 text-sm">
-            <p className="text-destructive">
+            <p role="alert" className="text-destructive">
               {t('projects.search_unavailable')}
             </p>
             <Button
@@ -747,34 +750,32 @@ function Projects({ cached_projects }) {
               }
               action={
                 hasActiveFilters ? undefined : (
-                  <Button
-                    variant="outline"
-                    className="mt-6"
-                    render={
-                      <Link href="/project/create">
-                        <PlusCircle
-                          className="h-4 w-4"
-                          aria-hidden="true"
-                        />
-                        {t('projects.create')}
-                      </Link>
-                    }
-                  />
+                  <Link
+                    href="/project/create"
+                    className={buttonVariants({
+                      variant: 'outline',
+                      className: 'mt-6',
+                    })}
+                  >
+                    <PlusCircle
+                      className="h-4 w-4"
+                      aria-hidden="true"
+                    />
+                    {t('projects.create')}
+                  </Link>
                 )
               }
             />
           )
         ) : (
-          <div
-            className={cn(
-              'w-full transition-opacity',
-              // Dim only while keepPreviousData holds a stale filter/sort page, not initial revalidation or next-page fetches.
-              projectsQuery.isPlaceholderData &&
-                'opacity-60'
-            )}
+          // eslint-disable-next-line jsx-a11y/no-redundant-roles -- Safari removes list semantics when markers are hidden.
+          <ul
+            role="list"
+            className="w-full"
+            aria-busy={projectsQuery.isPlaceholderData}
           >
             {projects.map((project) => (
-              <div
+              <li
                 key={project.id}
                 className="w-full pt-6 md:pt-8"
               >
@@ -785,9 +786,9 @@ function Projects({ cached_projects }) {
                     router.locale
                   )}
                 />
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
 
         {isFetchingNextPage && (

@@ -19,7 +19,9 @@ import {
 // `fields` values via `getFieldLabel`'s case-insensitive fallback.
 
 vi.mock('next-i18next', () => ({
-  useTranslation: () => ({ t: (key) => key }),
+  useTranslation: () => ({
+    t: (key) => (key === 'projects.by' ? 'By' : key),
+  }),
 }))
 
 // ProfilePhoto (rendered per member) reads Firestore directly.
@@ -103,6 +105,30 @@ describe('ProjectCard', () => {
     expect(
       screen.getByText(/Ada Lovelace/)
     ).toBeInTheDocument()
+  })
+
+  it('skips legacy members whose profile link would have no name', () => {
+    render(
+      <ProjectCard
+        project={{
+          id: 'p3',
+          title: 'Team Project',
+          member_arr: [
+            {
+              uid: 'u1',
+              slug: 'unnamed-member',
+              display: ' ',
+            },
+            { uid: 'u2', display: 'Ada Lovelace' },
+          ],
+        }}
+      />
+    )
+
+    expect(screen.getAllByRole('link')).toHaveLength(2)
+    expect(
+      screen.getByRole('link', { name: 'Ada Lovelace' })
+    ).toHaveAttribute('href', '/profile/u2')
   })
 
   it('resolves the same field badge label for legacy-lowercase and Title-Case values', () => {

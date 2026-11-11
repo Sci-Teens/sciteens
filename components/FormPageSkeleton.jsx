@@ -12,7 +12,7 @@ export default function FormPageSkeleton() {
   const { t } = useTranslation('common')
 
   return (
-    <main
+    <div
       className={`${EDGE} pb-16 pt-10 md:pb-20 md:pt-16`}
       aria-busy="true"
     >
@@ -23,6 +23,6 @@ export default function FormPageSkeleton() {
         <Skeleton className="mt-6 h-12 w-full max-w-[54ch]" />
         <Skeleton className="mt-8 h-96 w-full rounded-xl" />
       </div>
-    </main>
+    </div>
   )
 }

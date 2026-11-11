@@ -221,23 +221,24 @@ function Articles({ articles }) {
         title={t('articles.articles')}
         lede={t('articles.lede')}
         aside={filterPanel}
+        toolbar={
+          <SearchToolbar
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onSubmit={handleSearch}
+            onClear={handleClearSearch}
+            placeholder={t('articles.search_articles')}
+            searchLabel={t('articles.search')}
+            submitLabel={t('articles.search')}
+            clearSearchLabel={t('articles.clear_search')}
+            filtersLabel={t('articles.filters')}
+            hasActiveFilters={hasActiveFilters}
+            filtersOpen={filtersOpen}
+            onFiltersOpenChange={setFiltersOpen}
+            filterPanel={filterPanel}
+          />
+        }
       >
-        <SearchToolbar
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onSubmit={handleSearch}
-          onClear={handleClearSearch}
-          placeholder={t('articles.search_articles')}
-          searchLabel={t('articles.search')}
-          submitLabel={t('articles.search')}
-          clearSearchLabel={t('articles.clear_search')}
-          filtersLabel={t('articles.filters')}
-          hasActiveFilters={hasActiveFilters}
-          filtersOpen={filtersOpen}
-          onFiltersOpenChange={setFiltersOpen}
-          filterPanel={filterPanel}
-        />
-
         <ActiveFilters
           label={t('articles.active_filters')}
           filters={activeFilters}
@@ -275,9 +276,10 @@ function Articles({ articles }) {
             }
           />
         ) : (
-          <div className="w-full">
+          // eslint-disable-next-line jsx-a11y/no-redundant-roles -- Safari removes list semantics when markers are hidden.
+          <ul role="list" className="w-full">
             {visible.map((article, index) => (
-              <div
+              <li
                 key={article.slug}
                 className="w-full pt-6 md:pt-8"
               >
@@ -287,7 +289,6 @@ function Articles({ articles }) {
                   fallbackLabel={t('articles.untitled')}
                   description={article.description}
                   imageSrc={article.cover}
-                  imageAlt={article.title}
                   priority={index === 0}
                   byline={
                     <div className="mb-2 flex flex-row items-center gap-2">
@@ -319,9 +320,9 @@ function Articles({ articles }) {
                     .filter(Boolean)
                     .join(' · ')}
                 />
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
 
         <InfiniteScrollTrigger

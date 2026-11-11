@@ -46,6 +46,14 @@
   }
   html {
     @apply font-sans;
+    scroll-padding-block-start: 5.25rem;
+    scroll-padding-block-end: var(
+      --cookie-consent-height,
+      0px
+    );
+  }
+  #__next {
+    padding-block-end: var(--cookie-consent-height, 0px);
   }
   /* Archivo carries every heading role; Figtree carries text and UI.
      Grotesque display type needs the counter-tightening at size. */

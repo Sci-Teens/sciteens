@@ -100,7 +100,7 @@ export default function ProjectInvite() {
           {t('project_invite.title')} | SciTeens
         </title>
       </Head>
-      <main className="mx-auto flex min-h-[50vh] max-w-2xl items-center px-4 py-16 md:py-24">
+      <div className="mx-auto flex min-h-[50vh] max-w-2xl items-center px-4 py-16 md:py-24">
         <Card className="border-border/60 w-full shadow-sm">
           <CardContent className="p-6 md:p-8">
             <h1 className="font-heading text-3xl font-semibold tracking-tight">
@@ -151,7 +151,7 @@ export default function ProjectInvite() {
             )}
           </CardContent>
         </Card>
-      </main>
+      </div>
     </>
   )
 }

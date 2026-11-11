@@ -179,23 +179,24 @@ function Courses({ courses }) {
         title={t('courses.courses')}
         lede={t('courses.lede')}
         aside={filterPanel}
+        toolbar={
+          <SearchToolbar
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onSubmit={handleSearch}
+            onClear={handleClearSearch}
+            placeholder={t('courses.search_courses')}
+            searchLabel={t('courses.search')}
+            submitLabel={t('courses.search')}
+            clearSearchLabel={t('courses.clear_search')}
+            filtersLabel={t('courses.filters')}
+            hasActiveFilters={hasActiveFilters}
+            filtersOpen={filtersOpen}
+            onFiltersOpenChange={setFiltersOpen}
+            filterPanel={filterPanel}
+          />
+        }
       >
-        <SearchToolbar
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onSubmit={handleSearch}
-          onClear={handleClearSearch}
-          placeholder={t('courses.search_courses')}
-          searchLabel={t('courses.search')}
-          submitLabel={t('courses.search')}
-          clearSearchLabel={t('courses.clear_search')}
-          filtersLabel={t('courses.filters')}
-          hasActiveFilters={hasActiveFilters}
-          filtersOpen={filtersOpen}
-          onFiltersOpenChange={setFiltersOpen}
-          filterPanel={filterPanel}
-        />
-
         <ActiveFilters
           label={t('courses.active_filters')}
           filters={activeFilters}
@@ -229,9 +230,10 @@ function Courses({ courses }) {
             }
           />
         ) : (
-          <div className="w-full">
+          // eslint-disable-next-line jsx-a11y/no-redundant-roles -- Safari removes list semantics when markers are hidden.
+          <ul role="list" className="w-full">
             {visible.map((course, index) => (
-              <div
+              <li
                 key={course.slug}
                 className="w-full pt-6 md:pt-8"
               >
@@ -241,13 +243,12 @@ function Courses({ courses }) {
                   fallbackLabel={t('courses.untitled')}
                   description={course.description}
                   imageSrc={course.cover}
-                  imageAlt={course.title}
                   priority={index === 0}
                   meta={courseSchedule(course)}
                 />
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
 
         <InfiniteScrollTrigger

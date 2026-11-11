@@ -91,7 +91,7 @@ export default function GetInvolved() {
         eyebrow="Get Involved"
         path="/get-involved"
       />
-      <main>
+      <div>
         <section
           className={`${GUTTER} pb-14 pt-10 md:pb-16 md:pt-16`}
         >
@@ -175,7 +175,7 @@ export default function GetInvolved() {
             </p>
           </animated.div>
         </section>
-      </main>
+      </div>
     </div>
   )
 }

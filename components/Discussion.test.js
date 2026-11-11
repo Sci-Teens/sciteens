@@ -13,14 +13,16 @@ import {
   fireEvent,
   render,
   screen,
+  within,
 } from '@testing-library/react'
 import Discussion from './Discussion'
 import { MESSAGE_CODE } from '../lib/toxicity'
+import { addDoc } from 'firebase/firestore'
 
 // lib/toxicity.test.js covers the pure scoring logic in isolation; what it
 // can't reach without a real browser is the message-protocol wiring around
 // it — Discussion.js's debounced postMessage to lib/toxicityWorker.js and
-// its handling of RESPONSE_READY/MODEL_ERROR/INFERENCE_ERROR. A mocked
+// its handling of correlated classifier responses. A mocked
 // `Worker` global exercises that wiring directly, without loading the
 // actual ONNX model.
 
@@ -83,9 +85,21 @@ function latestWorker() {
   ]
 }
 
-function respond(worker, code, payload) {
+function respond(
+  worker,
+  code,
+  payload,
+  request = worker.postMessage.mock.lastCall?.[0]
+) {
   act(() => {
-    worker.onmessage({ data: { code, payload } })
+    worker.onmessage({
+      data: {
+        code,
+        payload,
+        id: request?.id,
+        isReply: request?.isReply,
+      },
+    })
   })
 }
 
@@ -130,9 +144,11 @@ describe('Discussion toxicity worker wiring', () => {
     act(() => {
       vi.advanceTimersByTime(500)
     })
-    expect(worker.postMessage).toHaveBeenCalledWith(
-      'This is a fine comment'
-    )
+    expect(worker.postMessage).toHaveBeenCalledWith({
+      id: expect.any(Number),
+      text: 'This is a fine comment',
+      isReply: false,
+    })
   })
 
   it('shows the required-field error on empty input without posting to the worker', () => {
@@ -198,7 +214,7 @@ describe('Discussion toxicity worker wiring', () => {
     ).toBeDisabled()
   })
 
-  it('clears the error on a non-toxic RESPONSE_READY result', () => {
+  it('clears the error after a clean edit is classified', () => {
     render(<Discussion type="project" item_id="p1" />)
     const worker = latestWorker()
 
@@ -210,6 +226,8 @@ describe('Discussion toxicity worker wiring', () => {
       isToxic: true,
       toxicityTypeList: 'toxic',
     })
+    typeComment('edited text')
+    act(() => vi.advanceTimersByTime(500))
     respond(worker, MESSAGE_CODE.RESPONSE_READY, {
       isToxic: false,
       toxicityTypeList: '',
@@ -227,37 +245,52 @@ describe('Discussion toxicity worker wiring', () => {
     ).not.toBeDisabled()
   })
 
-  it.each([
-    MESSAGE_CODE.MODEL_ERROR,
-    MESSAGE_CODE.INFERENCE_ERROR,
-  ])(
-    'fails open on %s instead of blocking the post',
-    (code) => {
-      render(<Discussion type="project" item_id="p1" />)
-      const worker = latestWorker()
+  it('fails open when the current draft cannot be classified', () => {
+    render(<Discussion type="project" item_id="p1" />)
+    const worker = latestWorker()
 
-      typeComment('some text')
-      act(() => {
-        vi.advanceTimersByTime(500)
-      })
-      respond(worker, MESSAGE_CODE.RESPONSE_READY, {
-        isToxic: true,
-        toxicityTypeList: 'toxic',
-      })
-      respond(worker, code, null)
+    typeComment('some text')
+    act(() => {
+      vi.advanceTimersByTime(500)
+    })
+    respond(worker, MESSAGE_CODE.INFERENCE_ERROR, null)
 
-      expect(
-        screen.queryByText(
-          'Please refrain from submitting inappropriate comments'
-        )
-      ).not.toBeInTheDocument()
-      expect(
-        screen.getByRole('button', {
-          name: /discussion\.post/,
-        })
-      ).not.toBeDisabled()
-    }
-  )
+    expect(
+      screen.getByRole('button', {
+        name: /discussion\.post/,
+      })
+    ).not.toBeDisabled()
+  })
+
+  it('ignores a clean result for an older draft while the latest draft is pending', () => {
+    render(<Discussion type="project" item_id="p1" />)
+    const worker = latestWorker()
+    const post = () =>
+      screen.getByRole('button', {
+        name: /discussion\.post/,
+      })
+
+    typeComment('older text')
+    act(() => vi.advanceTimersByTime(500))
+    const olderRequest = worker.postMessage.mock.lastCall[0]
+    typeComment('newer text')
+    act(() => vi.advanceTimersByTime(500))
+
+    respond(
+      worker,
+      MESSAGE_CODE.RESPONSE_READY,
+      { isToxic: false },
+      olderRequest
+    )
+    expect(post()).toBeDisabled()
+    respond(worker, MESSAGE_CODE.RESPONSE_READY, {
+      isToxic: true,
+    })
+    expect(post()).toBeDisabled()
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Please refrain from submitting inappropriate comments'
+    )
+  })
 })
 
 describe('Discussion author profile links', () => {
@@ -298,5 +331,154 @@ describe('Discussion author profile links', () => {
       'href',
       '/profile/author-2'
     )
+  })
+})
+
+describe('Discussion forms', () => {
+  beforeEach(() => {
+    discussionState.data = [
+      {
+        id: 'c1',
+        uid: 'author-1',
+        display: 'Ada Lovelace',
+        comment: 'Interesting project',
+        date: '2026-01-01T00:00:00.000Z',
+        reply_to_id: '',
+      },
+    ]
+    vi.mocked(addDoc).mockClear()
+  })
+
+  it('opens the reply field with focus and returns focus on cancel', () => {
+    render(<Discussion type="projects" item_id="p1" />)
+    const trigger = screen.getByRole('button', {
+      name: 'discussion.reply',
+    })
+    const replyField = () =>
+      screen.queryByRole('textbox', {
+        name: 'discussion.reply_label',
+      })
+
+    expect(replyField()).not.toBeInTheDocument()
+    fireEvent.click(trigger)
+    expect(replyField()).toHaveFocus()
+
+    fireEvent.click(
+      within(replyField().form).getByRole('button', {
+        name: 'discussion.cancel',
+      })
+    )
+    expect(replyField()).not.toBeInTheDocument()
+    expect(trigger).toHaveFocus()
+  })
+
+  it('submits the comment form as a new thread even while a reply is open', async () => {
+    render(<Discussion type="projects" item_id="p1" />)
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'discussion.reply',
+      })
+    )
+    typeComment('A new thread')
+    act(() => {
+      vi.advanceTimersByTime(500)
+    })
+    respond(latestWorker(), MESSAGE_CODE.RESPONSE_READY, {
+      isToxic: false,
+    })
+
+    const field = screen.getByRole('textbox', {
+      name: 'discussion.comment_label',
+    })
+    await act(async () => {
+      fireEvent.submit(field.form)
+    })
+    expect(addDoc).toHaveBeenCalledWith(
+      undefined,
+      expect.objectContaining({
+        comment: 'A new thread',
+        reply_to_id: '',
+      })
+    )
+    expect(field).toHaveValue('')
+  })
+
+  it('keeps a reply draft and announces a failed submission', async () => {
+    vi.mocked(addDoc).mockRejectedValueOnce(
+      new Error('Offline')
+    )
+    render(<Discussion type="projects" item_id="p1" />)
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'discussion.reply',
+      })
+    )
+    const field = screen.getByRole('textbox', {
+      name: 'discussion.reply_label',
+    })
+    fireEvent.change(field, {
+      target: { value: 'A reply' },
+    })
+    act(() => {
+      vi.advanceTimersByTime(500)
+    })
+    respond(latestWorker(), MESSAGE_CODE.RESPONSE_READY, {
+      isToxic: false,
+    })
+
+    await act(async () => {
+      fireEvent.submit(field.form)
+    })
+    expect(addDoc).toHaveBeenCalledWith(
+      undefined,
+      expect.objectContaining({
+        comment: 'A reply',
+        reply_to_id: 'c1',
+      })
+    )
+    expect(field).toHaveValue('A reply')
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'discussion.post_failed'
+    )
+  })
+
+  it('keeps a flagged comment blocked after checking a clean reply', () => {
+    render(<Discussion type="projects" item_id="p1" />)
+    const worker = latestWorker()
+    typeComment('flagged text')
+    act(() => vi.advanceTimersByTime(500))
+    respond(worker, MESSAGE_CODE.RESPONSE_READY, {
+      isToxic: true,
+    })
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'discussion.reply',
+      })
+    )
+    const reply = screen.getByRole('textbox', {
+      name: 'discussion.reply_label',
+    })
+    fireEvent.change(reply, {
+      target: { value: 'A clean reply' },
+    })
+    act(() => vi.advanceTimersByTime(500))
+    respond(worker, MESSAGE_CODE.RESPONSE_READY, {
+      isToxic: false,
+    })
+
+    const comment = screen.getByRole('textbox', {
+      name: 'discussion.comment_label',
+    })
+    expect(
+      within(comment.form).getByRole('button', {
+        name: 'discussion.post',
+      })
+    ).toBeDisabled()
+    expect(
+      within(reply.form).getByRole('button', {
+        name: 'discussion.post',
+      })
+    ).not.toBeDisabled()
   })
 })

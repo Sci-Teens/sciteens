@@ -81,142 +81,108 @@ export default function Discussion({ type, item_id }) {
     }
   )
 
-  const [loading, setLoading] = useState(false)
   const [comment, setComment] = useState('')
   const [reply, setReply] = useState('')
   const [replyingToId, setReplyingToId] = useState('')
   const [replyingToName, setReplyingToName] = useState('')
-  const [error_comment, setErrorComment] = useState('')
-  const [error_reply, setErrorReply] = useState('')
-  const [error_reply_index, setErrorReplyIndex] =
-    useState(0)
+  const [commentCheck, setCommentCheck] = useState(null)
+  const [replyCheck, setReplyCheck] = useState(null)
+  const [posting, setPosting] = useState(false)
+  const [postError, setPostError] = useState(null)
+  const replyTriggerRef = useRef(null)
+  const focusReply = useCallback(
+    (form) => form?.elements.namedItem('reply')?.focus(),
+    []
+  )
 
   // Web Worker running Xenova/toxic-bert (Transformers.js) fully
   // client-side — see lib/toxicityWorker.js. Created lazily so it only
   // exists in the browser (never during SSR), and terminated on unmount.
   const toxicityWorkerRef = useRef(null)
-  // Which field a classification result belongs to; set right before
-  // posting to the worker, read back when its response arrives.
-  const pendingToxicityRequestRef = useRef(null)
+  const checkSequence = useRef(0)
+  const scoreDraft = useCallback(
+    (request) =>
+      toxicityWorkerRef.current?.postMessage(request),
+    []
+  )
+  const scoreComment = useMemo(
+    () => debounce(scoreDraft, 500),
+    [scoreDraft]
+  )
+  const scoreReply = useMemo(
+    () => debounce(scoreDraft, 500),
+    [scoreDraft]
+  )
 
   useEffect(() => {
+    if (typeof Worker === 'undefined') return
     const worker = new Worker(
       new URL('../lib/toxicityWorker.js', import.meta.url),
       { type: 'module' }
     )
     worker.onmessage = (event) => {
-      const { code, payload } = event.data || {}
-      switch (code) {
-        case MESSAGE_CODE.RESPONSE_READY: {
-          const pending = pendingToxicityRequestRef.current
-          if (!pending) break
-          if (payload?.isToxic) {
-            const msg =
-              'Please refrain from submitting inappropriate comments'
-            if (pending.isComment) {
-              setErrorComment(msg)
-            } else {
-              setErrorReply(msg)
-              setErrorReplyIndex(pending.index)
-            }
-          } else {
-            setErrorComment('')
-            setErrorReply('')
-            setErrorReplyIndex(-1)
-          }
-          setLoading(false)
-          break
-        }
-        case MESSAGE_CODE.INFERENCE_ERROR:
-        case MESSAGE_CODE.MODEL_ERROR: {
-          // Model unavailable / inference failed — fail open, same as
-          // the old proxy's 5xx/network handling: never block posting
-          // over a classifier problem, only over actual toxicity.
-          setErrorComment('')
-          setErrorReply('')
-          setErrorReplyIndex(-1)
-          setLoading(false)
-          break
-        }
-        default:
-          break
-      }
+      const { code, payload, id, isReply } =
+        event.data || {}
+      if (
+        typeof id !== 'number' ||
+        (code !== MESSAGE_CODE.RESPONSE_READY &&
+          code !== MESSAGE_CODE.INFERENCE_ERROR)
+      )
+        return
+      const setCheck = isReply
+        ? setReplyCheck
+        : setCommentCheck
+      const error =
+        code === MESSAGE_CODE.RESPONSE_READY &&
+        payload?.isToxic
+          ? 'Please refrain from submitting inappropriate comments'
+          : ''
+      setCheck((current) =>
+        current?.id === id && current.pending
+          ? { id, error }
+          : current
+      )
     }
     toxicityWorkerRef.current = worker
     return () => {
+      scoreComment.cancel()
+      scoreReply.cancel()
       worker.terminate()
       toxicityWorkerRef.current = null
     }
-  }, [])
+  }, [scoreComment, scoreReply])
 
   const router = useRouter()
+  const commentError = commentCheck?.error
+  const replyError = replyCheck?.error
 
-  const onChange = async (e, isComment, index) => {
-    setLoading(true)
-    if (isComment) {
-      setComment(e.target.value)
+  const onChange = (value, isReply) => {
+    const setDraft = isReply ? setReply : setComment
+    const setCheck = isReply
+      ? setReplyCheck
+      : setCommentCheck
+    const score = isReply ? scoreReply : scoreComment
+    score.cancel()
+    setDraft(value)
+
+    const text = value.trim()
+    if (!value) {
+      setCheck({ error: 'Please submit a comment' })
+    } else if (!validateCommentText(text).valid) {
+      setCheck({
+        error:
+          'This comment could not be submitted; please shorten it and try again.',
+      })
+    } else if (toxicityWorkerRef.current) {
+      const id = ++checkSequence.current
+      setCheck({ id, pending: true })
+      score({ id, text, isReply })
     } else {
-      setReply(e.target.value)
-    }
-    if (e.target.value == '') {
-      if (isComment) {
-        setErrorComment('Please submit a comment')
-      } else {
-        setErrorReply('Please submit a comment')
-        setErrorReplyIndex(index)
-      }
-      setLoading(false)
-    } else {
-      setErrorComment('')
-      setErrorReply('')
-      setErrorReplyIndex(-1)
-      await getScores(
-        e.target.value.trim(),
-        isComment,
-        index
-      )
+      setCheck(null)
     }
   }
 
-  const getScores = useCallback(
-    debounce((userComment, isComment, index) => {
-      setLoading(true)
-
-      const validation = validateCommentText(userComment)
-      if (!validation.valid) {
-        // Missing/oversized text — block, mirroring the old proxy's
-        // 400 handling.
-        const msg =
-          'This comment could not be submitted; please shorten it and try again.'
-        if (isComment) {
-          setErrorComment(msg)
-        } else {
-          setErrorReply(msg)
-          setErrorReplyIndex(index)
-        }
-        setLoading(false)
-        return
-      }
-
-      if (!toxicityWorkerRef.current) {
-        // Worker not ready yet (e.g. unmounted) — fail open.
-        setErrorComment('')
-        setErrorReply('')
-        setErrorReplyIndex(-1)
-        setLoading(false)
-        return
-      }
-
-      pendingToxicityRequestRef.current = {
-        isComment,
-        index,
-      }
-      toxicityWorkerRef.current.postMessage(userComment)
-    }, 500),
-    []
-  )
-
-  const postComment = async (e) => {
+  const postComment = async (e, isReply = false) => {
     e.preventDefault()
     if (!signInCheckResult?.signedIn) {
       router.push({
@@ -225,36 +191,70 @@ export default function Discussion({ type, item_id }) {
       })
       return
     }
-    if (typeof window !== 'undefined') {
-      document
-        .getElementById('discussion-form')
-        .checkValidity()
-    }
-    e.preventDefault()
-    await addDoc(
-      collection(db, type, item_id, 'discussion'),
-      {
-        date: new Date().toISOString(),
-        uid: signInCheckResult.user.uid,
-        display: signInCheckResult.user.displayName,
-        comment: replyingToId
-          ? reply.trim()
-          : comment.trim(),
-        reply_to_id: replyingToId ? replyingToId : '',
-        reply_to_name: replyingToName ? replyingToName : '',
-      }
+    const text = (isReply ? reply : comment).trim()
+    const check = isReply ? replyCheck : commentCheck
+    if (
+      check?.pending ||
+      posting ||
+      check?.error ||
+      !validateCommentText(text).valid
     )
-    setComment('')
+      return
+
+    const form = e.currentTarget
+    setPosting(true)
+    setPostError(null)
+    try {
+      await addDoc(
+        collection(db, type, item_id, 'discussion'),
+        {
+          date: new Date().toISOString(),
+          uid: signInCheckResult.user.uid,
+          display: signInCheckResult.user.displayName,
+          comment: text,
+          reply_to_id: isReply ? replyingToId : '',
+          reply_to_name: isReply ? replyingToName : '',
+        }
+      )
+      const keepFocus = form.contains(
+        document.activeElement
+      )
+      if (isReply) {
+        closeReply(keepFocus)
+      } else {
+        setComment('')
+        if (keepFocus)
+          form.elements.namedItem('comment')?.focus()
+      }
+    } catch {
+      setPostError(isReply ? 'reply' : 'comment')
+    } finally {
+      setPosting(false)
+    }
+  }
+
+  function closeReply(keepFocus = true) {
     setReply('')
     setReplyingToId('')
     setReplyingToName('')
-    setLoading(false)
+    scoreReply.cancel()
+    setReplyCheck(null)
+    if (postError === 'reply') setPostError(null)
+    if (keepFocus) replyTriggerRef.current?.focus()
   }
 
-  const handleReplyTo = (c, key) => {
+  const handleReplyTo = (c, trigger) => {
+    replyTriggerRef.current = trigger
+    if (replyingToId === c.id) {
+      document.getElementById(`reply-${c.id}`)?.focus()
+      return
+    }
+    setReply('')
+    scoreReply.cancel()
+    setReplyCheck(null)
+    if (postError === 'reply') setPostError(null)
     setReplyingToId(c.id)
     setReplyingToName(c.display)
-    document.getElementById(`reply${key}`)?.focus()
   }
 
   return (
@@ -266,19 +266,25 @@ export default function Discussion({ type, item_id }) {
         onSubmit={(e) => postComment(e)}
         className="mb-6 mt-4"
       >
-        <Field data-invalid={!!error_comment}>
+        <Field data-invalid={!!commentError}>
           <FieldLabel htmlFor="comment" className="sr-only">
             {t('discussion.comment_label')}
           </FieldLabel>
           <Textarea
-            onChange={(e) => onChange(e, true, -1)}
+            onChange={(e) =>
+              onChange(e.target.value, false)
+            }
             value={comment}
+            readOnly={posting}
             name="comment"
             id="comment"
             required
             rows={3}
             className="bg-card"
-            aria-invalid={!!error_comment}
+            aria-invalid={!!commentError}
+            aria-describedby={
+              commentError ? 'comment-error' : undefined
+            }
             placeholder={
               discussion?.length
                 ? ''
@@ -287,8 +293,15 @@ export default function Discussion({ type, item_id }) {
             aria-label={t('discussion.comment_label')}
             maxLength={1000}
           />
-          {error_comment && (
-            <FieldError>{error_comment}</FieldError>
+          {commentError && (
+            <FieldError id="comment-error" role="alert">
+              {commentError}
+            </FieldError>
+          )}
+          {postError === 'comment' && (
+            <FieldError role="alert">
+              {t('discussion.post_failed')}
+            </FieldError>
           )}
         </Field>
         <div
@@ -298,10 +311,16 @@ export default function Discussion({ type, item_id }) {
         >
           <Button
             type="reset"
-            onClick={() => {
-              setReplyingToName('')
-              setReplyingToId('')
+            disabled={posting}
+            onClick={(event) => {
               setComment('')
+              scoreComment.cancel()
+              setCommentCheck(null)
+              if (postError === 'comment')
+                setPostError(null)
+              event.currentTarget.form.elements
+                .namedItem('comment')
+                ?.focus()
             }}
             variant="outline"
             className="mr-2"
@@ -310,16 +329,22 @@ export default function Discussion({ type, item_id }) {
           </Button>
           <Button
             type="submit"
-            disabled={loading || error_comment}
-            onClick={(e) => postComment(e)}
+            disabled={
+              commentCheck?.pending ||
+              posting ||
+              Boolean(commentError)
+            }
+            focusableWhenDisabled={posting}
           >
             {t('discussion.post')}
-            {loading && <LoadingSpinner />}
+            {(commentCheck?.pending || posting) && (
+              <LoadingSpinner />
+            )}
           </Button>
         </div>
       </form>
       {discussion?.length ? (
-        discussion.map((comment, key) => {
+        discussion.map((comment) => {
           if (comment.reply_to_id == '')
             return (
               <div key={comment.id}>
@@ -351,95 +376,113 @@ export default function Discussion({ type, item_id }) {
                           sameElse: 'MMMM DD, YYYY',
                         })}
                     </p>
-                    <p>{comment.comment}</p>
+                    <p className="wrap-anywhere">
+                      {comment.comment}
+                    </p>
                     <div className="flex justify-end">
                       <Button
                         variant="ghost"
-                        onClick={() =>
-                          handleReplyTo(comment, key)
+                        aria-disabled={posting || undefined}
+                        aria-expanded={
+                          replyingToId === comment.id
                         }
+                        onClick={(event) => {
+                          if (posting) return
+                          handleReplyTo(
+                            comment,
+                            event.currentTarget
+                          )
+                        }}
                       >
                         {t('discussion.reply')}
                       </Button>
                     </div>
                   </CardContent>
                 </Card>
-                <div
-                  className={`border-border/60 bg-card flex flex-row ${
-                    replyingToId === comment.id
-                      ? `rounded-b-xl border border-t-0 ${
-                          error_reply &&
-                          error_reply_index === key
-                            ? 'border-destructive'
-                            : ''
-                        }`
-                      : 'h-0 overflow-hidden rounded-lg'
-                  }`}
-                >
-                  <div className="flex w-full flex-col p-2">
-                    <FieldLabel
-                      htmlFor={`reply${key}`}
-                      className="sr-only"
-                    >
-                      {t('discussion.reply_label')}
-                    </FieldLabel>
-                    <Textarea
-                      onChange={(e) =>
-                        onChange(e, false, key)
-                      }
-                      name="reply"
-                      id={`reply${key}`}
-                      required
-                      rows={3}
-                      className="border-none shadow-none"
-                      aria-invalid={
-                        !!(
-                          error_reply &&
-                          error_reply_index === key
-                        )
-                      }
-                      placeholder={t(
-                        'discussion.reply_placeholder'
-                      )}
-                      aria-label={t(
-                        'discussion.reply_label'
-                      )}
-                      maxLength={1000}
-                    />
-                  </div>
-                  <div className="flex w-min flex-col gap-1 p-2">
-                    <Button
-                      type="reset"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setReplyingToName('')
-                        setReplyingToId('')
-                        setComment('')
-                      }}
-                    >
-                      {t('discussion.cancel')}
-                    </Button>
-                    <Button
-                      type="submit"
-                      size="sm"
-                      disabled={
-                        loading ||
-                        error_reply ||
-                        !signInCheckResult?.signedIn
-                      }
-                      onClick={(e) => postComment(e)}
-                    >
-                      {t('discussion.post')}
-                      {loading && <LoadingSpinner />}
-                    </Button>
-                  </div>
-                </div>
+                {replyingToId === comment.id && (
+                  <form
+                    ref={focusReply}
+                    onSubmit={(e) => postComment(e, true)}
+                    className={`border-border/60 bg-card flex flex-row rounded-b-xl border border-t-0 ${
+                      replyError ? 'border-destructive' : ''
+                    }`}
+                  >
+                    <div className="flex w-full flex-col p-2">
+                      <FieldLabel
+                        htmlFor={`reply-${comment.id}`}
+                        className="sr-only"
+                      >
+                        {t('discussion.reply_label')}
+                      </FieldLabel>
+                      <Textarea
+                        onChange={(e) =>
+                          onChange(e.target.value, true)
+                        }
+                        name="reply"
+                        id={`reply-${comment.id}`}
+                        value={reply}
+                        readOnly={posting}
+                        required
+                        rows={3}
+                        className="border-none shadow-none"
+                        aria-invalid={Boolean(replyError)}
+                        aria-describedby={
+                          replyError
+                            ? `reply-error-${comment.id}`
+                            : undefined
+                        }
+                        placeholder={t(
+                          'discussion.reply_placeholder'
+                        )}
+                        aria-label={t(
+                          'discussion.reply_label'
+                        )}
+                        maxLength={1000}
+                      />
+                    </div>
+                    <div className="flex w-min flex-col gap-1 p-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={posting}
+                        onClick={() => closeReply()}
+                      >
+                        {t('discussion.cancel')}
+                      </Button>
+                      <Button
+                        type="submit"
+                        size="sm"
+                        disabled={
+                          replyCheck?.pending ||
+                          posting ||
+                          Boolean(replyError) ||
+                          !signInCheckResult?.signedIn
+                        }
+                        focusableWhenDisabled={posting}
+                      >
+                        {t('discussion.post')}
+                        {(replyCheck?.pending ||
+                          posting) && <LoadingSpinner />}
+                      </Button>
+                    </div>
+                  </form>
+                )}
                 <div className="mb-7">
-                  {reply &&
-                    error_reply_index === key &&
+                  {replyError &&
                     replyingToId === comment.id && (
-                      <FieldError>{error_reply}</FieldError>
+                      <FieldError
+                        id={`reply-error-${comment.id}`}
+                        role="alert"
+                      >
+                        {replyError}
+                      </FieldError>
+                    )}
+                  {replyingToId === comment.id &&
+                    postError === 'reply' && (
+                      <FieldError role="alert">
+                        {t('discussion.post_failed')}
+                      </FieldError>
                     )}
                 </div>
                 <div className="-mt-4">
@@ -451,7 +494,7 @@ export default function Discussion({ type, item_id }) {
                           className="flex w-full flex-row"
                         >
                           <div className="bg-border ml-5 mr-5 w-[2px] md:ml-8 md:mr-8" />
-                          <div className="w-full">
+                          <div className="min-w-0 flex-1">
                             <Card
                               id={reply.id}
                               key={reply.date}
@@ -464,7 +507,9 @@ export default function Discussion({ type, item_id }) {
                                     display={reply.display}
                                   />
                                 </div>
-                                <p>{reply.comment}</p>
+                                <p className="wrap-anywhere">
+                                  {reply.comment}
+                                </p>
                                 <p className="text-muted-foreground absolute right-4 top-4 text-xs">
                                   {moment(reply.date)
                                     .locale(

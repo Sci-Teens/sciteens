@@ -199,7 +199,7 @@ export default function Home() {
   )
 
   return (
-    <main>
+    <div>
       <SocialMeta
         title={`SciTeens — ${t(
           'index.science_simplified'
@@ -499,7 +499,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   )
 }
 

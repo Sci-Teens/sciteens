@@ -4,6 +4,8 @@
     "cool_video": "Aquí hay un video genial para ver en su lugar"
   },
   "article": {
+    "previous_related": "Artículo relacionado anterior",
+    "next_related": "Artículo relacionado siguiente",
     "about_the_author": "Sobre el Autor",
     "interview": "Entrevista",
     "by": "Por",
@@ -21,6 +23,8 @@
     "link_text": "Léela aquí"
   },
   "course": {
+    "open_notebook": "Abrir cuaderno",
+    "open_lesson_notebook": "Abrir el cuaderno de {{lesson}}",
     "starts": "Empieza",
     "enroll_by": "Inscribir",
     "lessons": "Lecciones",
@@ -85,6 +89,7 @@
     "placeholder": "Inicia la conversación…",
     "cancel": "Cancelar",
     "post": "Publicar",
+    "post_failed": "No se pudo publicar tu mensaje. Inténtalo de nuevo.",
     "reply": "Responder",
     "reply_label": "Responder",
     "reply_placeholder": "Responder…"
@@ -179,6 +184,7 @@
     "new_here": "¿Nuevo aquí?",
     "sign_up": "Inscribirse",
     "reset_password": "Restablecer la contraseña",
+    "reset_failed": "No se pudo enviar el enlace de restablecimiento. Revisa tu correo electrónico e inténtalo de nuevo.",
     "why_reset_password": "¿Olvidaste tu contraseña? ¡Sin preocupaciones! Envíe su correo electrónico a continuación y le enviaremos un enlace de reinicio.",
     "reset_message": "Acabamos de enviarle un enlace para restablecer su contraseña. Asegúrese de consultar su spam para este correo electrónico también.",
     "reset_sent": "Revisa tu correo electrónico",
@@ -243,6 +249,7 @@
     "error_last_name": "Solo ingrese su apellido (o conéctelo con guiones)",
     "valid_institution": "Proporcione una institución válida",
     "error_birthday": "Debes tener 13 años o más para usar Sciteens",
+    "complete_recaptcha": "Completa el reCAPTCHA para crear tu cuenta.",
     "select_birthday": "Elige una fecha",
     "show_password": "Mostrar contraseña",
     "hide_password": "Ocultar contraseña"
@@ -538,7 +545,19 @@
     "space_science": "Ciencia espacial",
     "fall_2022_science_fair": "Otoño 2022 Feria de ciencias"
   },
+  "legal_title": {
+    "gdpr": "Política de cookies",
+    "privacy": "Política de privacidad",
+    "terms": "Condiciones de uso"
+  },
+  "not_found": {
+    "title": "Página no encontrada",
+    "description": "Es posible que esta página no exista o que se haya eliminado.",
+    "return_home": "Volver al inicio"
+  },
   "navigation": {
+    "skip_to_content": "Ir al contenido principal",
+    "primary": "Principal",
     "home": "Hogar",
     "about": "Sobre",
     "articles": "Artículos",

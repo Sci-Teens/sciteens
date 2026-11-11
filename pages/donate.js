@@ -33,7 +33,7 @@ export default function Donate() {
         eyebrow="Donate"
         path="/donate"
       />
-      <main>
+      <div>
         <section
           className={`${GUTTER} pb-16 pt-10 md:pb-20 md:pt-16`}
         >
@@ -143,7 +143,7 @@ export default function Donate() {
             </article>
           </animated.div>
         </section>
-      </main>
+      </div>
     </div>
   )
 }
