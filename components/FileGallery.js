@@ -64,24 +64,28 @@ function ImageLightbox({ images, startIndex }) {
 
   useEffect(() => {
     if (!api) return
-    const updateCurrent = () =>
-      setCurrent(api.selectedScrollSnap())
-    const onSettle = () => {
-      // Embla emits settle before select for instant navigation.
-      queueMicrotask(() => {
-        const index = api.selectedScrollSnap()
-        setSettled((previous) =>
-          previous === null && index === startIndex
-            ? null
-            : index
-        )
-      })
+    const reducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    )
+    const onSelect = () => {
+      const index = api.selectedScrollSnap()
+      setCurrent(index)
+      // Instant jumps do not emit Embla's settle event.
+      if (reducedMotion.matches) setSettled(index)
     }
-    updateCurrent()
-    api.on('select', updateCurrent)
+    const onSettle = () => {
+      const index = api.selectedScrollSnap()
+      setSettled((previous) =>
+        previous === null && index === startIndex
+          ? null
+          : index
+      )
+    }
+    setCurrent(api.selectedScrollSnap())
+    api.on('select', onSelect)
     api.on('settle', onSettle)
     return () => {
-      api.off('select', updateCurrent)
+      api.off('select', onSelect)
       api.off('settle', onSettle)
     }
   }, [api, startIndex])
