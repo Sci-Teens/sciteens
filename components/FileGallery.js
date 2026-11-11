@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
 import { useTranslation } from 'next-i18next'
@@ -201,6 +201,7 @@ export default function FileGallery({ files }) {
 
   const [lightboxIndex, setLightboxIndex] = useState(null)
   const [openPdf, setOpenPdf] = useState(null)
+  const dialogTriggerRef = useRef(null)
 
   // Embedding a PDF in an <iframe> is unreliable on touch/mobile
   // browsers — iOS Safari and Android Chrome frequently render a
@@ -210,7 +211,7 @@ export default function FileGallery({ files }) {
   // pointer devices skip the in-dialog viewer and get the same
   // reliable "open in the browser's own PDF handling" behavior as
   // the new-tab link inside that dialog.
-  function openPdfFile(file) {
+  function openPdfFile(file, trigger) {
     if (
       typeof window !== 'undefined' &&
       window.matchMedia?.('(pointer: coarse)')?.matches
@@ -222,6 +223,7 @@ export default function FileGallery({ files }) {
       )
       return
     }
+    dialogTriggerRef.current = trigger
     setOpenPdf(file)
   }
 
@@ -239,7 +241,11 @@ export default function FileGallery({ files }) {
               <button
                 key={key}
                 type="button"
-                onClick={() => setLightboxIndex(index)}
+                onClick={(event) => {
+                  dialogTriggerRef.current =
+                    event.currentTarget
+                  setLightboxIndex(index)
+                }}
                 aria-label={file?.name}
                 className="focus-visible:ring-ring group block"
               >
@@ -277,7 +283,9 @@ export default function FileGallery({ files }) {
               <button
                 key={key}
                 type="button"
-                onClick={() => openPdfFile(file)}
+                onClick={(event) =>
+                  openPdfFile(file, event.currentTarget)
+                }
                 className="group block text-left"
               >
                 <Card className="overflow-hidden p-0 transition hover:shadow-md">
@@ -330,6 +338,7 @@ export default function FileGallery({ files }) {
       >
         <DialogContent
           showCloseButton
+          finalFocus={dialogTriggerRef}
           className="max-w-3xl border-none p-0 shadow-none sm:max-w-3xl"
         >
           {lightboxIndex !== null && (
@@ -345,7 +354,10 @@ export default function FileGallery({ files }) {
         open={openPdf !== null}
         onOpenChange={(open) => !open && setOpenPdf(null)}
       >
-        <DialogContent className="flex h-[85vh] max-w-4xl flex-col sm:max-w-4xl">
+        <DialogContent
+          finalFocus={dialogTriggerRef}
+          className="flex h-[85vh] max-w-4xl flex-col sm:max-w-4xl"
+        >
           <div className="flex items-center justify-between gap-2 pr-8">
             <DialogTitle
               className="truncate text-base"
