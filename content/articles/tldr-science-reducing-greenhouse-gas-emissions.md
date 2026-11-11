@@ -23,7 +23,7 @@ author_bio: >-
 author_headshot: /content/media/261ddec-ac062415.webp
 ---
 
-Greenhouse gases have long been a topic of concern, and it is imperative that we address the ongoing climate crisis before it is too late. Before discussing how **we&#x20;**&#x63;an reduce greenhouse gas emissions, it is important to understand the science behind the greenhouse effect and each of the greenhouse gases themselves. You can learn more about that in parts [one](https://https://sciteens.org/article/tldr-science-the-greenhouse-effect) and [two](https://https://sciteens.org/article/tldr-science-greenhouse-gases) of this 3-part series on the greenhouse effect and greenhouse gases!
+Greenhouse gases have long been a topic of concern, and it is imperative that we address the ongoing climate crisis before it is too late. Before discussing how **we&#x20;**&#x63;an reduce greenhouse gas emissions, it is important to understand the science behind the greenhouse effect and each of the greenhouse gases themselves. You can learn more about that in parts [one](https://sciteens.org/article/tldr-science-the-greenhouse-effect) and [two](https://sciteens.org/article/tldr-science-greenhouse-gases) of this 3-part series on the greenhouse effect and greenhouse gases!
 
 Because there are so many greenhouse gases and so many sources of greenhouse gas emissions, we will not be diving deep into the details of all of them, but I’d like to introduce you to some of the most popular and impactful ways **you** can decrease greenhouse gas emissions. Of course if any of these interest you especially, feel free to research more in depth on your own!
 
@@ -33,7 +33,7 @@ Because there are so many greenhouse gases and so many sources of greenhouse gas
 
 Transportation makes up the largest portion of many countries’ greenhouse gas emissions. In fact, because of the Covid-19 pandemic, carbon emissions in many countries dipped down due to the decrease in transportation as they locked down.
 
-One of the most popular ways to decrease carbon emissions is by switching to electric vehicles. These are automobiles that do not burn unsustainable fossil fuels, but instead run on renewable electricity to run their engines. You may believe that individual people switching to electric vehicles may be ineffective, but carbon emissions from passenger cars actually made up the largest percentage of the transportation emissions in 2021. For more information, check out our article on electric vehicles [here](https://https://sciteens.org/article/tldr-science-electric-vehicles)!
+One of the most popular ways to decrease carbon emissions is by switching to electric vehicles. These are automobiles that do not burn unsustainable fossil fuels, but instead run on renewable electricity to run their engines. You may believe that individual people switching to electric vehicles may be ineffective, but carbon emissions from passenger cars actually made up the largest percentage of the transportation emissions in 2021. For more information, check out our article on electric vehicles [here](https://sciteens.org/article/tldr-science-electric-vehicles)!
 
 Some are skeptical to switch to electric vehicles because they aren’t sure if they are actually greener than conventional cars after considering the energy it takes to create electricity to begin with. However, many sources including the U.S. EPA, New York Times, and Forbes have done detailed research into this and all agree that electric cars are significantly greener than conventional cars, even after considering the cost of producing electricity.
 
@@ -43,7 +43,7 @@ Some are skeptical to switch to electric vehicles because they aren’t sure if 
 
 Solar has long been known as one of the most sustainable sources of renewable energy; after all, the Sun isn’t going to disappear any time soon. For this reason, many residential areas have been switching to solar energy to power their homes. Most houses use electricity as their primary source of energy, but, while electricity is renewable, the energy used to create that electricity frequently comes from fossil fuels. For this reason, solar is still considered more environmentally friendly.
 
-In areas where solar energy is practical (being those that receive large amounts of sunlight year-round), switching to solar can reduce household greenhouse gas emissions by up to 80%. Considering electricity and heat production makes up one of the biggest sectors of the world’s greenhouse gas emissions, switching to solar will directly contribute to reducing emissions and climate change. If you’re wondering about the details of solar panels and how they work, check out our article on solar panels [here](https://https://sciteens.org/article/tldr-science-solar-panels)!
+In areas where solar energy is practical (being those that receive large amounts of sunlight year-round), switching to solar can reduce household greenhouse gas emissions by up to 80%. Considering electricity and heat production makes up one of the biggest sectors of the world’s greenhouse gas emissions, switching to solar will directly contribute to reducing emissions and climate change. If you’re wondering about the details of solar panels and how they work, check out our article on solar panels [here](https://sciteens.org/article/tldr-science-solar-panels)!
 
 ### **Light Bulbs**
 

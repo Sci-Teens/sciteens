@@ -11,7 +11,7 @@ author_bio: Thomas is a student at Eastside High School.
 author_headshot: /content/media/92747f8-0ac6ffb7.webp
 ---
 
-When I finished the previous article about Probability (for a refresher, click this [link](https://https://sciteens.org/article/tldr-math-probability-pt.-1)), I was discussing the following law:
+When I finished the previous article about Probability (for a refresher, click this [link](https://sciteens.org/article/tldr-math-probability-pt.-1)), I was discussing the following law:
 
 P(A or B) = P(A) + P(B) - P(A and B) -or-  P(A ⋃ B) = P(A) + P(B) -P(A ∩ B)&#x20;
 

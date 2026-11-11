@@ -3,6 +3,10 @@ import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import SocialMeta from '../../components/SocialMeta'
+import StructuredData from '@/components/StructuredData'
+import { breadcrumbStructuredData } from '@/lib/structuredData'
+import Link from 'next/link'
+import { Badge } from '@/components/ui/badge'
 import FileGallery from '../../components/FileGallery'
 import Discussion from '../../components/Discussion'
 import MarkdownContent from '../../components/MarkdownContent'
@@ -73,19 +77,56 @@ function Course({ course }) {
         eyebrow="Course"
         path={router.asPath}
       />
+      <StructuredData
+        id="course-breadcrumbs"
+        data={breadcrumbStructuredData([
+          { name: t('navigation.home'), path: '/' },
+          { name: t('courses.courses'), path: '/courses' },
+          {
+            name: course.title,
+            path: `/course/${course.slug}`,
+          },
+        ])}
+      />
       <div>
         <article className="prose wrap-break-word lg:prose-lg mx-auto mt-8 overflow-hidden px-4">
+          <Link href="/courses" locale="en">
+            {t('seo.back_to_courses')}
+          </Link>
           <h1>{course.title}</h1>
-          {startDate ? (
+          {course.status === 'archived' ? (
+            <div className="not-prose mb-5">
+              <Badge variant="outline">
+                {t('seo.course_archive')}
+              </Badge>
+              <p className="text-muted-foreground mt-3 text-sm leading-relaxed">
+                {t('seo.course_archive_description')}
+              </p>
+              {course.updateNote && (
+                <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+                  {course.updateNote}
+                </p>
+              )}
+            </div>
+          ) : startDate ? (
             <p className="font-semibold">
-              {t('course.starts')} {startDate}, Ends{' '}
-              {endDate}
-              <br />
-              {t('course.enroll_by')} {enrollByDate}
+              {t('course.starts')} {startDate}
+              {endDate && (
+                <>
+                  {' '}
+                  · {t('seo.ends_on', { date: endDate })}
+                </>
+              )}
+              {enrollByDate && (
+                <>
+                  <br />
+                  {t('course.enroll_by')} {enrollByDate}
+                </>
+              )}
             </p>
           ) : (
             <p className="font-semibold">
-              Asynchronous course - no start or end dates
+              {t('courses.self_paced')}
             </p>
           )}
           {course.description && (

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight } from 'lucide-react'
 import SocialMeta from '../../components/SocialMeta'
+import { trackCompletedSignup } from '@/lib/analytics'
 import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
@@ -249,6 +250,7 @@ export default function StudentSignUp() {
         displayName: first_name + ' ' + last_name,
       })
       setProfile(profile)
+      trackCompletedSignup('email')
       const dest = resolveRefPath(router.query.ref)
       router.push(dest || '/')
     } catch (e) {

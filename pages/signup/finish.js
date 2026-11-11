@@ -8,6 +8,7 @@ import { useUser } from '../../context/AuthContext'
 import { useRouter } from 'next/router'
 import moment from 'moment'
 import SocialMeta from '../../components/SocialMeta'
+import { trackCompletedSignup } from '@/lib/analytics'
 import { ArrowRight } from 'lucide-react'
 import { AppContext } from '../../context/context'
 import { createUniqueSlug } from '../../context/helpers'
@@ -179,6 +180,7 @@ export default function FinishSignUp() {
         displayName: first_name + ' ' + last_name,
       })
       setProfile(profile)
+      trackCompletedSignup('google')
       router.push('/')
     } catch (error) {
       setLoading(false)

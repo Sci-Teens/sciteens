@@ -1,11 +1,10 @@
 ---
-title: Best STEM Programs for International Students
+title: 'STEM Programs for International Students: Eligibility and Costs'
 date: '2020-04-29'
 author: John Sutor
 description: >-
-  As an international student, it can be difficult to locate scientific
-  opportunities in America. Luckily, we have compiled some of the best STEM
-  programs open to international students.
+  Compare international eligibility and funding for RSI, Yale Young Global
+  Scholars, and PROMYS, then build an application shortlist.
 tags:
   - Chemistry
   - Medicine
@@ -20,36 +19,64 @@ tags:
   - Computer Science
   - Statistics
 cover: /content/media/sciteens-best-international-programs-99659e9c.webp
+updated: '2026-11-10'
+update_note: >-
+  AI-assisted editorial revision. The original student byline and publication
+  date are retained. Sources and practical guidance were updated.
 ---
 
-As an international student, it can be difficult to find great STEM opportunities located in the United States. However, there is a myriad of opportunities to participate in research/science programs as a student not residing in the United States. Today, we've compiled our top picks for the best STEM programs open to interested students around the globe. Please note that due to COVID-19, many of these programs have been canceled; however, they occur annually so be sure to stay tuned for next years' dates! Be sure to check them out on our website with the links provided. Note: The programs below are not sorted in any particular way.
+A program can welcome international students and still be unaffordable or unavailable to you. Citizenship, school year, and funding rules differ between programs.
+
+Start with the [international-student opportunity collection](/opportunities/international-students) for a shortlist. This guide explains how to read the requirements before you spend time on an application.
+
+## Check the application route first
+
+Some programs accept a direct application from any country. Others select international students through national partners. A past participant from your country does not prove that applications are open there this year.
+
+Write down your country of citizenship, where you attend school, and your expected graduation date. These details answer different eligibility questions. A program can restrict residence even when it accepts several citizenships.
+
+If the official page does not address your situation, contact the organizer. Ask one specific question: “I attend school in Kenya and graduate in November 2028. Am I eligible for this cycle?”
+
+## Three programs with different rules
 
 ### Research Science Institute
 
-The Research Science Institute is a multifaceted summer research program aimed at allowing students to take courses while simultaneously conducting STEM research. The program lasts six weeks and offers 11th-grade students a glimpse into how to conduct research at a professional level. Coursework is offered by MIT and covers topics ranging from category theory to cancer research. Students that participate in the program often go on to compete in renowned science programs such as the Intel Talent Search, the International Science and Engineering Fair, and the Siemens Science and Technology Competition. This program even offers opportunities for students to be published alongside their research mentors! The camp is free, and room and board are provided for free as well. To find out more, check out the link below.
+[RSI](/program/rsi) combines STEM coursework with a mentored research project. CEE describes it as cost-free to students. High school juniors are eligible, while seniors are not.
 
-<https://sciteens.org/program/research-science-institute>
+International applicants need to check their country's participation and selection process with CEE. Do not assume that the U.S. application route applies everywhere. CEE's [international outreach page](https://www.cee.org/programs/research-science-institute-rsi/international-outreach) explains how to find the appropriate national contact.
 
-### Yale Young Global Scholars Program
+Before applying, read the [official RSI overview](https://www.cee.org/programs/research-science-institute) and [application instructions](https://www.cee.org/programs/apply-rsi). Ask which travel or application expenses apply to your route.
 
-The Yale Young Global Scholars Program is a two-week-long academic summer program hosted at the prestigious Yale University. It is hosted in three sessions (June 31st to July 3rd, July 5th to July 17th, and July 19th to July 31st). Each session shares many of the same humanities programs, though the STEM programs offered in each session vary. Session one and two of the program offers a Biological and Biomedical Science program, which allows students with a passion for life sciences to take a deep dive into the topic. You can expect to discuss topics such as immunology, biochemistry, neuroscience, biomedical engineering, and molecular biology. Session three of the program offers an Applied Science and Engineering program. This program is best suited for students passionate about physical sciences and their applications to problem-solving. You can expect to learn about topics such as physics, chemistry, astronomy, and earth science. The program costs $6300, but Yale offers up to 100% need-based scholarships to cover tuition. To find out more, be sure to check out the link below.
+### Yale Young Global Scholars
 
-<https://sciteens.org/program/yale-young-global-scholars-program>
+YYGS is an academic enrichment program, rather than a placement in a research laboratory. It accepts applications from all countries. Students must meet its age, school-year, graduation-date, English-language, and first-time-participant requirements.
 
-### Boston Leadership Institute
+For the 2027 cycle, Yale lists a two-week residential tuition of $7,500. Need-based aid can cover up to the full tuition for domestic and international students. Travel is separate.
 
-The Boston Leadership Institute hosts a variety of sessions covering a broad variety of STEM topics. The programs range from topics such as Astrophysics and Neuroscience to Robotics and Bioengineering. The main draw of the program is its close proximity to some of the most prestigious universities in the world, namely Harvard and MIT. Many of the sessions offered by the Boston Leadership Institute have instructors from these institutions! Furthermore, students can work directly with facilities in Boston such as Logan International Airport and the Longwood Medical Campus to gain practical hands-on experience working directly with professionals. The camp costs anywhere between $599 and $2200 with residential fees between $599 and $1797 depending on if you participate in a one-week program or three-week program. To find out more, check out the link below or search for the "Boston Leadership Institute" on the SciTeens website.
+Read Yale's [eligibility requirements](https://globalscholars.yale.edu/eligibility) and [tuition and aid page](https://globalscholars.yale.edu/tuition). Check whether the academic session matches your interests before paying an application fee.
 
-<https://sciteens.org/program/boston-leadership-institute-neuroscience-program>
+### PROMYS
 
-### Stanford STARS Internship Program
+[PROMYS at Boston University](/program/promys-boston) is a six-week residential mathematics program. Its published requirements include being 14 to 18, completing ninth grade, and not yet attending college full time.
 
-The Stanford STARS Internship program is aimed at high school and undergraduate students with an interest in medicine and biomedical engineering. The program is hosted by Stanford Medicine during a seven-week period that typically starts in June and ends in August. You can expect to gain hands-on experience in the lab at least four days a week working alongside a professional research mentor. One day of each week is allotted for campus tours, team building activities, and touring the Bay Area. You can expect to learn about topics such as stem cell biology, regenerative medicine, and biomedical research. The program is free of charge to both high school and undergraduate students. To find out more, check out the link below.
+International students can apply, but admission and aid are separate decisions. PROMYS considers international financial aid case by case. Do not treat its income-based offer for domestic students as a guarantee for international applicants.
 
-<https://sciteens.org/program/stanford-science-technology-and-reconstructive-surgery>
+The [student overview](https://promys.org/programs/promys/for-students/) lists program requirements. The [international-student page](https://promys.org/programs/promys/for-students/for-international-students/) explains funding and application considerations. Its listed 2026 price is historical, so check the price for your intended summer.
 
-### Program in Mathematics for Young Scientists (PROMYS)
+## Work out the total cost
 
-The Program in Mathematics for Young Scientists hosts a six-week-long camp at Boston University each summer. Working alongside mentors from Harvard, MIT, and Princeton, students will get to experience firsthand the art of mathematical problem-solving. Each week also features guest speakers who discuss topics ranging from statistical inferencing to high dimensional mathematics. Furthermore, students are encouraged to create their own mathematical experiments that they can solve throughout the camp with help from camp counselors and mentors. You can expect to learn about virtually any mathematical topic in this camp, as well as have the opportunity to explore your own mathematical interests via experimentation. The program costs up to $5150, though it is free for students within a certain income bracket, and scholarships are offered as well. To find out more, check out the link below.
+Record tuition, housing, meals, travel, insurance, and application charges separately. Then record which costs an aid award actually covers.
 
-<https://sciteens.org/program/promys-program-in-mathematics-for-young-scientists>
+An award covering full tuition does not necessarily include flights. A free program can still leave you with travel costs. Request a fee waiver before you submit a paid application if the organizer offers one.
+
+Visa and entry requirements depend on your circumstances. Use the organizer's instructions and official government information. A program invitation does not guarantee permission to enter a country.
+
+## Build a shortlist you can use
+
+For each program, save the official source, your eligibility notes, the application deadline, and the date you checked it. Mark missing information as unknown.
+
+Choose programs with different purposes. A proof-based mathematics course, an interdisciplinary seminar, and a laboratory placement offer different experiences. None is automatically the best choice for every student.
+
+Keep one option that does not require international travel. The [virtual research collection](/opportunities/virtual-research-programs) can help you compare remote routes. You can also start with an [open-data project](/article/great-datasets) while applications are pending.
+
+The programs above were checked against their official pages on November 10, 2026. Rules and prices can change. The organizer's current instructions control your application.

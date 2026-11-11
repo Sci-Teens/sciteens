@@ -17,6 +17,9 @@ import {
 } from 'firebase/app'
 
 import SocialMeta from '@/components/SocialMeta'
+import StructuredData from '@/components/StructuredData'
+import { breadcrumbStructuredData } from '@/lib/structuredData'
+import { trackProgramApplication } from '@/lib/analytics'
 import PageHeading from '@/components/PageHeading'
 import OpportunityFieldIcons from '@/components/OpportunityFieldIcons'
 import ProjectCard from '@/components/ProjectCard'
@@ -368,6 +371,20 @@ function Program({
         eyebrow="Opportunity"
         path={`/program/${program.slug}`}
       />
+      <StructuredData
+        id="program-breadcrumbs"
+        data={breadcrumbStructuredData([
+          { name: t('navigation.home'), path: '/' },
+          {
+            name: t('opportunities.opportunities'),
+            path: '/opportunities',
+          },
+          {
+            name: program.name,
+            path: `/program/${program.slug}`,
+          },
+        ])}
+      />
       <DetailMain>
         <Link
           href="/opportunities"
@@ -445,6 +462,9 @@ function Program({
           render={
             <a
               href={program.applicationUrl}
+              onClick={() =>
+                trackProgramApplication(program.slug)
+              }
               target="_blank"
               rel="noreferrer"
             >

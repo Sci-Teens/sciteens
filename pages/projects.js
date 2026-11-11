@@ -36,6 +36,7 @@ import {
 import { PlusCircle } from 'lucide-react'
 import ProjectCard from '../components/ProjectCard'
 import InfiniteScrollTrigger from '@/components/InfiniteScrollTrigger'
+import CrawlPagination from '@/components/search/CrawlPagination'
 import { normalizeProject } from '../lib/projects'
 import { formatMediumDate } from '../lib/formatDate'
 import { requiresSearchIndex } from '../lib/search'
@@ -289,7 +290,10 @@ function FilterPanel({
   )
 }
 
-function Projects({ cached_projects }) {
+function Projects({
+  cached_projects,
+  hasArchivePage = false,
+}) {
   const router = useRouter()
   const { t } = useTranslation('common')
 
@@ -613,12 +617,8 @@ function Projects({ cached_projects }) {
   return (
     <>
       <SocialMeta
-        title={`${
-          field && field !== 'All' ? field + ' ' : ''
-        }Projects${
-          search ? ` related to ${search}` : ''
-        } | SciTeens`}
-        description="Real research projects built by teen scientists — get inspired, give feedback, or start your own."
+        title={t('seo.projects_title')}
+        description={t('seo.projects_description')}
         eyebrow="Projects"
         badge={field && field !== 'All' ? field : undefined}
         path="/projects"
@@ -801,6 +801,12 @@ function Projects({ cached_projects }) {
           onLoadMore={fetchNextPage}
           label={t('projects.load_more')}
         />
+        {!hasActiveFilters && (
+          <CrawlPagination
+            section="projects"
+            hasNextPage={hasArchivePage}
+          />
+        )}
       </ListingLayout>
     </>
   )
@@ -824,13 +830,13 @@ export async function getStaticProps({ locale }) {
   const projectsQuery = firebase_query(
     projectsCollection,
     orderBy('date', 'desc'),
-    limit(10)
+    limit(11)
   )
   const [translations, projectsRef] = await Promise.all([
     translationsPromise,
     getDocs(projectsQuery),
   ])
-  projectsRef.forEach((p) => {
+  projectsRef.docs.slice(0, 10).forEach((p) => {
     projects.push(
       normalizeProject({
         id: p.id,
@@ -839,7 +845,11 @@ export async function getStaticProps({ locale }) {
     )
   })
   return {
-    props: { cached_projects: projects, ...translations },
+    props: {
+      cached_projects: projects,
+      hasArchivePage: projectsRef.size > 10,
+      ...translations,
+    },
   }
 }
 

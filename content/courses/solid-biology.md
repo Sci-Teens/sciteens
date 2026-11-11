@@ -1,13 +1,8 @@
 ---
-title: 'SciTeens Online: Learning In Biological Datascience'
+title: 'Biological Data Science: Archived Course Materials'
 description: >-
-  In this exciting one-week course, you will explore Biological data,
-  specifically COVID-19 data, and learn the necessary techniques for analyzing
-  and processing open-source COVID-19 data to derive key insights into the
-  spread of the virus.
-start: '2021-03-15'
-end: '2021-02-19'
-enroll_by: '2021-02-15'
+  Archived 2021 lessons on Python, data processing, plotting, and statistical
+  testing, using biological data.
 tags:
   - Biology
   - Computer Science
@@ -30,15 +25,19 @@ lessons:
     link: >-
       https://colab.research.google.com/github/Sci-Teens/biology-program/blob/main/lessons/4_introduction_to_statistical_testing.ipynb
 files: []
+status: archived
+updated: '2026-11-10'
+update_note: >-
+  AI-assisted archive update. Historical course materials are retained and the
+  original live cohort is closed.
 ---
 
-In this exciting one-week course will learn data science through Python and its application to the COVID-19 pandemic. You will learn the skills necessary to conduct advanced research, data exploration techniques plotting, statistical testing, and data sorting. There is no charge for the camps, so all you need is a desire to learn to participate! Moreover, you do **NOT&#x20;**&#x6E;eed to know ANY programming to join us!
+These materials come from SciTeens' 2021 biological data science course. The original live cohort is closed. This page does not offer registration, live instruction, or a new course certificate.
 
-**Eligibility:**
-The program is designed for high-school students (grades 9-12) currently enrolled in a Florida school.
-**To be considered for acceptance, applicants must:&#xA;**• Be Currently enrolled in high school (grades 9-12) in a Florida school
-• Be able to commit for the entire week(s) of the program
-• Maintain a permanent resident in the state of FL
+The notebooks cover Python and Jupyter, data processing, plotting, and statistical testing. They use biological data, including historical COVID-19 data. Historical datasets do not describe current public-health conditions.
 
-Camps will run SYNCHRONOUSLY MONDAY TO FRIDAY FROM 4-6 PM EST via Zoom.
-Students can enroll in one or both sessions.
+You can inspect the linked notebooks to see the original exercises. Software dependencies and external services can change, so a notebook can need adjustments before it runs. Save your own copy before editing.
+
+The lesson dates below refer to the original course. They are not a schedule for a future cohort.
+
+For a current starting point, use the [open-datasets guide](/article/great-datasets). The [research-project planner](/resources/research-project-planner.txt) can help you record a question, source, and method.

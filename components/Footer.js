@@ -1,15 +1,17 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { useEffect, useRef, useState } from 'react'
-import { i18n } from 'next-i18next'
+import { useRef, useState } from 'react'
+import { useTranslation } from 'next-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { sendGAEvent } from '@/lib/analytics'
 
 const NEWSLETTER_ENDPOINT =
   'https://us-central1-directed-relic-266701.cloudfunctions.net/newsletter'
 export default function Footer() {
   const router = useRouter()
+  const { t, ready } = useTranslation('common')
   const [newsletterStatus, setNewsletterStatus] =
     useState('idle')
   const emailRef = useRef(null)
@@ -38,23 +40,17 @@ export default function Footer() {
 
       emailRef.current.value = ''
       setNewsletterStatus('success')
+      sendGAEvent('event', 'newsletter_signup_request', {
+        form_location: 'footer',
+      })
     } catch {
       setNewsletterStatus('error')
     }
   }
 
-  useEffect(() => {
-    if (router.isReady && i18n?.isInitialized) {
-      // Empty bundle on purpose: this only marks the namespace as
-      // present for a client-only mount. i18next throws outright when
-      // `resources` is omitted, so the argument is not optional.
-      i18n.addResourceBundle(router.locale, 'common', {})
-    }
-  }, [router])
-
   return (
-    <footer suppressHydrationWarning={true}>
-      {i18n?.isInitialized && (
+    <footer>
+      {ready && (
         <>
           <svg
             viewBox="0 0 900 40"
@@ -96,10 +92,10 @@ export default function Footer() {
                   id="newsletter-heading"
                   className="font-heading text-2xl font-semibold tracking-tight text-white"
                 >
-                  {i18n.t('footer.newsletter_heading')}
+                  {t('footer.newsletter_heading')}
                 </h2>
                 <p className="mt-2 max-w-xl text-sm leading-6">
-                  {i18n.t('footer.newsletter_description')}
+                  {t('footer.newsletter_description')}
                 </p>
               </div>
               <form
@@ -110,7 +106,7 @@ export default function Footer() {
                   className="sr-only"
                   htmlFor="footer-newsletter-email"
                 >
-                  {i18n.t('footer.newsletter_email_label')}
+                  {t('footer.newsletter_email_label')}
                 </label>
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Input
@@ -123,7 +119,7 @@ export default function Footer() {
                     disabled={
                       newsletterStatus === 'submitting'
                     }
-                    placeholder={i18n.t(
+                    placeholder={t(
                       'footer.newsletter_placeholder'
                     )}
                     aria-describedby="newsletter-consent newsletter-status"
@@ -149,26 +145,20 @@ export default function Footer() {
                     className="text-sciteensGreen-dark h-10 w-full bg-white px-4 hover:bg-white/90 sm:w-auto"
                   >
                     {newsletterStatus === 'submitting'
-                      ? i18n.t(
-                          'footer.newsletter_submitting'
-                        )
-                      : i18n.t('footer.newsletter_submit')}
+                      ? t('footer.newsletter_submitting')
+                      : t('footer.newsletter_submit')}
                   </Button>
                 </div>
                 <p
                   id="newsletter-consent"
                   className="mt-2 text-xs leading-5"
                 >
-                  {i18n.t(
-                    'footer.newsletter_privacy_prefix'
-                  )}{' '}
+                  {t('footer.newsletter_privacy_prefix')}{' '}
                   <Link
                     href="/legal/privacy"
                     className="text-white underline underline-offset-4 hover:no-underline"
                   >
-                    {i18n.t(
-                      'footer.newsletter_privacy_link'
-                    )}
+                    {t('footer.newsletter_privacy_link')}
                   </Link>
                   .
                 </p>
@@ -183,11 +173,11 @@ export default function Footer() {
                   }
                 >
                   {newsletterStatus === 'success'
-                    ? i18n.t(
+                    ? t(
                         'footer.newsletter_confirmation_sent'
                       )
                     : newsletterStatus === 'error'
-                    ? i18n.t('footer.newsletter_error')
+                    ? t('footer.newsletter_error')
                     : null}
                 </p>
               </form>
@@ -195,17 +185,22 @@ export default function Footer() {
             <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
               <div className="w-full">
                 <p className="mb-1 font-semibold text-white md:mb-2">
-                  {i18n.t('footer.organization')}
+                  {t('footer.organization')}
                 </p>
                 <ul>
                   <li>
                     <Link href="/about">
-                      {i18n.t('footer.about')}
+                      {t('footer.about')}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/editorial-policy">
+                      {t('seo.editorial_link')}
                     </Link>
                   </li>
                   <li>
                     <Link href="/signup/student">
-                      {i18n.t('footer.get_started')}
+                      {t('footer.get_started')}
                     </Link>
                   </li>
                   <li>
@@ -214,12 +209,12 @@ export default function Footer() {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      {i18n.t('footer.contact')}
+                      {t('footer.contact')}
                     </a>
                   </li>
                   <li>
                     <Link href="/get-involved">
-                      {i18n.t('footer.get_involved')}
+                      {t('footer.get_involved')}
                     </Link>
                   </li>
                   <li>
@@ -228,36 +223,36 @@ export default function Footer() {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      {i18n.t('footer.feedback')}
+                      {t('footer.feedback')}
                     </a>
                   </li>
                 </ul>
               </div>
               <div className="w-full">
                 <p className="mb-1 font-semibold text-white md:mb-2">
-                  {i18n.t('footer.legal')}
+                  {t('footer.legal')}
                 </p>
                 <ul>
                   <li>
                     <Link href="/legal/privacy">
-                      {i18n.t('footer.privacy')}
+                      {t('footer.privacy')}
                     </Link>
                   </li>
                   <li>
                     <Link href="/legal/terms">
-                      {i18n.t('footer.terms')}
+                      {t('footer.terms')}
                     </Link>
                   </li>
                   <li>
                     <Link href="/legal/gdpr">
-                      {i18n.t('footer.cookies')}
+                      {t('footer.cookies')}
                     </Link>
                   </li>
                 </ul>
               </div>
               <div className="w-full">
                 <p className="mb-1 font-semibold text-white md:mb-2">
-                  {i18n.t('footer.language')}
+                  {t('footer.language')}
                 </p>
                 <ul>
                   <li>
@@ -296,7 +291,7 @@ export default function Footer() {
               </div>
               <div className="w-full">
                 <p className="mb-2 font-semibold text-white">
-                  {i18n.t('footer.follow_us')}
+                  {t('footer.follow_us')}
                 </p>
                 <div className="flex flex-row gap-4">
                   <a

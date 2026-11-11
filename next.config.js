@@ -1,4 +1,7 @@
 const { i18n } = require('./next-i18next.config')
+const {
+  getLegacyRedirects,
+} = require('./lib/legacyRoutes.cjs')
 const CompressionPlugin = require('compression-webpack-plugin')
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -213,6 +216,7 @@ module.exports = {
         destination: 'https://sciteens.org/:path*',
         permanent: true,
       },
+      ...getLegacyRedirects(),
       {
         source: '/getinvolved',
         destination: '/get-involved',

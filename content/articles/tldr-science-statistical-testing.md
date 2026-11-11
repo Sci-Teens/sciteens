@@ -34,7 +34,7 @@ Multiple Linear Regression explores how multiple independent variables affect on
 
 ![](/content/media/sciteens-multivariate-test-score-51dc64cc.webp)
 
-In research, you’ll likely find many cases where there isn’t a linear relationship between data. Not to fear, you can instead use different forms of regression. The easiest way to determine what type of regression to use for your data is to plot your data (we discuss [here](https://sciteens.org/blog/tldr-science-figures)**&#x20;**&#x68;ow to make figures if you’re unsure of the best practices of doing so). Once you can visualize your data, it’s easy to determine whether you should use a Linear Regression, a Logarithmic Regression, an Exponential Regression, or any other type of applicable regression.
+In research, you’ll likely find many cases where there isn’t a linear relationship between data. Not to fear, you can instead use different forms of regression. The easiest way to determine what type of regression to use for your data is to plot your data (we discuss [here](/article/tldr-science-figures)**&#x20;**&#x68;ow to make figures if you’re unsure of the best practices of doing so). Once you can visualize your data, it’s easy to determine whether you should use a Linear Regression, a Logarithmic Regression, an Exponential Regression, or any other type of applicable regression.
 
 ### Correlation Testing
 

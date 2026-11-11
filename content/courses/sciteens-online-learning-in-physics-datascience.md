@@ -1,37 +1,29 @@
 ---
-title: 'SciTeens Online: Learning in Physics Datascience'
+title: 'Physics Data Science: Archived Course Materials'
 description: >-
-  In this immersive two-week course, the student will explore introductory
-  topics in Physics and data science through one-dimensional kinematics, and
-  learn the necessary techniques for analyzing formulas to derive key concepts
-  in this branch of physical science. SciTeens will lead the student through a
-  framework for project development, providing three hours of online
-  instruction, feedback on project ideas, and assistance in the coding process.
-  The SOLID Physics Course will culminate in a virtual project showcase where
-  the student will present their work to the class, serving as an opportunity
-  for students to document personal progress.
+  Archived July 2021 course materials covering kinematics, Python, dataframes,
+  and plotting, with original notebooks and lesson files.
 start: '2021-07-12'
 end: '2021-07-23'
-enroll_by: '2021-07-12'
 tags: []
 cover: /content/media/robin-pierre-dpgpoiuiixk-unsplash-cb46c22b.webp
 lessons:
   - date: '2021-07-12T13:00:00+0000'
     title: Intro to Physics Concepts
     link: >-
-      https://jupyter.sciteens.org/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Faarti2626%2FSci-Teens-physics-program&urlpath=tree%2FSci-Teens-physics-program%2Flesson_1%2Fstudent%2Flesson_1.ipynb&branch=main
+      https://github.com/aarti2626/Sci-Teens-physics-program/blob/main/lesson_1/student/lesson_1.ipynb
   - date: '2021-07-14T13:00:00+0000'
     title: One-Dimensional Kinematics in Python
     link: >-
-      https://jupyter.sciteens.org/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Faarti2626%2FSci-Teens-physics-program&urlpath=tree%2FSci-Teens-physics-program%2Flesson_2%2Fstudent%2Flesson_2.ipynb&branch=main
+      https://github.com/aarti2626/Sci-Teens-physics-program/blob/main/lesson_2/student/lesson_2.ipynb
   - date: '2021-07-16T13:00:00+0000'
     title: Dataframes & Packages
     link: >-
-      https://jupyter.sciteens.org/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Faarti2626%2FSci-Teens-physics-program&urlpath=tree%2FSci-Teens-physics-program%2Flesson_3.ipynb&branch=main
+      https://github.com/aarti2626/Sci-Teens-physics-program/blob/main/lesson_3.ipynb
   - date: '2021-07-19T13:00:00+0000'
     title: Plotting Functions in Python
     link: >-
-      https://jupyter.sciteens.org/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Faarti2626%2FSci-Teens-physics-program&urlpath=tree%2FSci-Teens-physics-program%2Flesson_4.ipynb&branch=main
+      https://github.com/aarti2626/Sci-Teens-physics-program/blob/main/lesson_4.ipynb
 files:
   - name: Day 1.pdf
     path: /content/files/day-1-13c2b917.pdf
@@ -39,6 +31,17 @@ files:
     path: /content/files/day-2pdf-f9d5940d.pdf
   - name: Day 3.pdf
     path: /content/files/day-3-20afffc8.pdf
+status: archived
+updated: '2026-11-10'
+update_note: >-
+  AI-assisted archive update. Historical course materials are retained and the
+  original live cohort is closed.
 ---
 
-In this immersive two-week course, the student will explore introductory topics in Physics and data science through one-dimensional kinematics, and learn the necessary techniques for analyzing formulas to derive key concepts in this branch of physical science. SciTeens will lead the student through a framework for project development, providing three hours of online instruction, feedback on project ideas, and assistance in the coding process. The SOLID Physics Course will culminate in a virtual project showcase where the student will present their work to the class, serving as an opportunity for students to document personal progress.
+These materials come from SciTeens' July 2021 physics data science course. The original live cohort is closed. This page does not offer registration, live instruction, or a new course certificate.
+
+The lessons cover introductory physics, one-dimensional kinematics in Python, dataframes, and plotting. Original PDF lesson files remain available alongside the notebooks.
+
+Open the original GitHub notebooks to inspect or download each lesson. Their software dependencies can need adjustments before they run.
+
+Use the [research-project planner](/resources/research-project-planner.txt) to plan a small investigation. The [STEM-paper guide](/article/how-to-write--a-stem-paper) explains how to report measurements and their limits.

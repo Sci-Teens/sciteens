@@ -95,3 +95,8 @@ override.tf.json
 *_override.tf.json
 .terraformrc
 terraform.rc
+# Local screenshots from interface review
+.impeccable/review/
+
+# Private SEO measurements and experiment notes
+/SEO-PROGRESS.md

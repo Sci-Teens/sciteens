@@ -23,7 +23,7 @@ You have likely heard of the greenhouse effect before, but do you know what it a
 
 ### **What It Is**
 
-The greenhouse effect is the trapping of the sun’s heat in a planet’s lower atmosphere, causing the overall heating of the planet. This occurs because of differing interactions between the atmosphere and various wavelengths of light. If you don’t have a basic understanding of the electromagnetic spectrum, we recommend reading up about it in our article about light [here!](https://https://sciteens.org/article/tldr-science-properties-of-light)
+The greenhouse effect is the trapping of the sun’s heat in a planet’s lower atmosphere, causing the overall heating of the planet. This occurs because of differing interactions between the atmosphere and various wavelengths of light. If you don’t have a basic understanding of the electromagnetic spectrum, we recommend reading up about it in our article about light [here!](https://sciteens.org/article/tldr-science-properties-of-light)
 
 ### **How It Works**
 

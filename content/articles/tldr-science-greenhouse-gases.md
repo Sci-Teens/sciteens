@@ -21,7 +21,7 @@ author_bio: >-
 author_headshot: /content/media/261ddec-ac062415.webp
 ---
 
-As climate change worsens, sea levels rise, and global temperatures increase, greenhouse gases have become a common topic of discussion. But what are they really? What makes them greenhouse gases, and how could this knowledge be useful in reducing their influence on the greenhouse effect? This week, I’ll be answering all of these questions in part 2 of a 3-part series on the greenhouse effect and greenhouse gases. Before reading, we recommend that you check out part 1 in last month’s article [here](https://https://sciteens.org/article/tldr-science-the-greenhouse-effect)!
+As climate change worsens, sea levels rise, and global temperatures increase, greenhouse gases have become a common topic of discussion. But what are they really? What makes them greenhouse gases, and how could this knowledge be useful in reducing their influence on the greenhouse effect? This week, I’ll be answering all of these questions in part 2 of a 3-part series on the greenhouse effect and greenhouse gases. Before reading, we recommend that you check out part 1 in last month’s article [here](https://sciteens.org/article/tldr-science-the-greenhouse-effect)!
 
 ### **What They Are**
 

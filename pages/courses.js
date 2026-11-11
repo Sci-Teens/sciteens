@@ -108,6 +108,8 @@ function Courses({ courses }) {
   }
 
   function courseSchedule(course) {
+    if (course.status === 'archived')
+      return t('seo.course_archive')
     const start = formatMediumDate(
       course.start,
       router.locale
@@ -165,12 +167,8 @@ function Courses({ courses }) {
   return (
     <>
       <SocialMeta
-        title={`${
-          field && field !== 'All' ? field + ' ' : ''
-        }Courses${
-          search ? ` related to ${search}` : ''
-        } | SciTeens`}
-        description="Free, project-based science courses taught by and for teens — biology, physics, data science, and more."
+        title={t('seo.courses_title')}
+        description={t('seo.courses_description')}
         eyebrow="Courses"
         badge={field && field !== 'All' ? field : undefined}
         path="/courses"
