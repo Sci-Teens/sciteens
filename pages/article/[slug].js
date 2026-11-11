@@ -269,6 +269,8 @@ function Article({ article, recommendations }) {
             <Carousel
               opts={{ align: 'start' }}
               className="mt-4"
+              role="group"
+              aria-label={t('article.related')}
             >
               <CarouselContent>
                 {recommendations.map((recommendation) => (
@@ -320,8 +322,14 @@ function Article({ article, recommendations }) {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="left-2 lg:-left-12" />
-              <CarouselNext className="right-2 lg:-right-12" />
+              <CarouselPrevious
+                aria-label={t('article.previous_related')}
+                className="left-2 lg:-left-12"
+              />
+              <CarouselNext
+                aria-label={t('article.next_related')}
+                className="right-2 lg:-right-12"
+              />
             </Carousel>
           </DetailSection>
         )}

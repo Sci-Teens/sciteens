@@ -75,7 +75,11 @@ export default function ProjectCard({
   const members = Array.isArray(
     normalizedProject?.member_arr
   )
-    ? normalizedProject.member_arr
+    ? normalizedProject.member_arr.filter(
+        (member) =>
+          typeof member?.display === 'string' &&
+          member.display.trim()
+      )
     : []
   const visibleFieldCount = fieldLimit(fields)
   const translatedFields = getTranslatedFieldsDict(t)
@@ -146,13 +150,11 @@ export default function ProjectCard({
                       </div>
                     ))}
                   </div>
-                  <p className="min-w-0">
-                    By&nbsp;
+                  <p className="wrap-anywhere min-w-0">
+                    {t('projects.by')}{' '}
                     {members.map((member) => {
                       const href = getProfileHref(member)
-                      const label = `${
-                        member.display || ''
-                      } `
+                      const label = `${member.display.trim()} `
 
                       if (showMemberLinks && href) {
                         return (
@@ -161,7 +163,7 @@ export default function ProjectCard({
                               member.uid || member.display
                             }
                             href={href}
-                            className="text-sciteensGreen-regular hover:text-sciteensGreen-dark relative z-20 font-bold no-underline"
+                            className="text-sciteensGreen-dark relative z-20 font-bold underline underline-offset-2"
                           >
                             {label}
                           </a>

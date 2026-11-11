@@ -10,7 +10,7 @@ import { formatMediumDate } from '../../lib/formatDate'
 import { isSafeContentUrl } from '../../lib/contentUrls.mjs'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 
 function Course({ course }) {
   const [files, setFiles] = useState([])
@@ -73,7 +73,7 @@ function Course({ course }) {
         eyebrow="Course"
         path={router.asPath}
       />
-      <main>
+      <div>
         <article className="prose wrap-break-word lg:prose-lg mx-auto mt-8 overflow-hidden px-4">
           <h1>{course.title}</h1>
           {startDate ? (
@@ -110,21 +110,36 @@ function Course({ course }) {
         <div className="mx-auto w-full max-w-prose px-4">
           {course.lessons.length > 0 && (
             <>
-              <h2 className="mb-2 text-lg font-semibold">
+              <h2
+                id="course-lessons"
+                className="mb-2 text-lg font-semibold"
+              >
                 {t('course.lessons')}
               </h2>
               <Card className="border-border/60 mb-8 overflow-hidden">
                 <CardContent className="p-0">
-                  <table className="w-full table-auto text-sm">
+                  <table
+                    aria-labelledby="course-lessons"
+                    className="w-full table-auto text-sm"
+                  >
                     <thead>
-                      <tr className="border-border bg-muted text-muted-foreground border-b text-center text-xs font-semibold uppercase tracking-wide">
-                        <th className="p-3">
+                      <tr className="border-border bg-muted text-foreground border-b text-center text-xs font-semibold uppercase tracking-wide">
+                        <th
+                          scope="col"
+                          className="px-1 py-3 sm:px-3"
+                        >
                           {t('course.date')}
                         </th>
-                        <th className="p-3">
+                        <th
+                          scope="col"
+                          className="px-1 py-3 sm:px-3"
+                        >
                           {t('course.lesson')}
                         </th>
-                        <th className="p-3">
+                        <th
+                          scope="col"
+                          className="px-1 py-3 sm:px-3"
+                        >
                           {t('course.notebook')}
                         </th>
                       </tr>
@@ -136,33 +151,45 @@ function Course({ course }) {
                             key={`${lesson.title}-${index}`}
                             className="hover:bg-muted/50 transition-colors"
                           >
-                            <td className="p-3 text-center">
+                            <td className="px-1 py-3 text-center sm:px-3">
                               {formatMediumDate(
                                 lesson.date,
                                 router?.locale
                               ) || 'N/A'}
                             </td>
-                            <td className="p-3 font-medium">
+                            <th
+                              scope="row"
+                              className="wrap-anywhere px-1 py-3 text-left font-medium sm:px-3"
+                            >
                               {lesson.title}
-                            </td>
-                            <td className="p-3 text-center">
+                            </th>
+                            <td className="px-1 py-3 text-center sm:px-3">
                               {isSafeContentUrl(
                                 lesson.link
                               ) && (
-                                <Button
-                                  variant="link"
-                                  size="sm"
-                                  render={
-                                    <a
-                                      href={lesson.link}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      aria-label="View"
-                                    />
-                                  }
+                                <a
+                                  href={lesson.link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  aria-label={t(
+                                    'course.open_lesson_notebook',
+                                    {
+                                      lesson: lesson.title,
+                                    }
+                                  )}
+                                  className={buttonVariants(
+                                    {
+                                      variant: 'link',
+                                      size: 'sm',
+                                      className:
+                                        'h-auto whitespace-normal py-1',
+                                    }
+                                  )}
                                 >
-                                  View
-                                </Button>
+                                  {t(
+                                    'course.open_notebook'
+                                  )}
+                                </a>
                               )}
                             </td>
                           </tr>
@@ -182,18 +209,14 @@ function Course({ course }) {
               <FileGallery files={files} />
             </>
           )}
-          {/* Discussion no longer carries its own outer margins;
-              this page keeps the spacing it used to supply. */}
-          {typeof window !== 'undefined' && (
-            <div className="mb-12 mt-6">
-              <Discussion
-                type={'course'}
-                item_id={router.query.slug}
-              />
-            </div>
-          )}
+          <div className="mb-12 mt-6">
+            <Discussion
+              type="course"
+              item_id={course.slug}
+            />
+          </div>
         </div>
-      </main>
+      </div>
     </>
   )
 }

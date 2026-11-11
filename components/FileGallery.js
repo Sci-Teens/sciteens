@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
 import { useTranslation } from 'next-i18next'
@@ -55,24 +55,40 @@ function classify(file) {
   return 'other'
 }
 
-// The image lightbox's own dialog body: an embla Carousel (shadcn's
-// wrapper) so slide state, keyboard arrow-key navigation, and the
-// prev/next buttons all come from the shared primitive instead of
-// bespoke state. Re-mounted fresh each time the dialog opens (the
-// parent only renders this once `lightboxIndex` is non-null), so
-// `startIndex` only has to be correct once.
+// Remounting the carousel on open keeps its start index tied to the selected thumbnail.
 function ImageLightbox({ images, startIndex }) {
   const { t } = useTranslation('common')
   const [api, setApi] = useState(null)
   const [current, setCurrent] = useState(startIndex)
+  const [settled, setSettled] = useState(null)
 
   useEffect(() => {
     if (!api) return
-    setCurrent(api.selectedScrollSnap())
-    api.on('select', () =>
-      setCurrent(api.selectedScrollSnap())
+    const reducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
     )
-  }, [api])
+    const onSelect = () => {
+      const index = api.selectedScrollSnap()
+      setCurrent(index)
+      // Instant jumps do not emit Embla's settle event.
+      if (reducedMotion.matches) setSettled(index)
+    }
+    const onSettle = () => {
+      const index = api.selectedScrollSnap()
+      setSettled((previous) =>
+        previous === null && index === startIndex
+          ? null
+          : index
+      )
+    }
+    setCurrent(api.selectedScrollSnap())
+    api.on('select', onSelect)
+    api.on('settle', onSettle)
+    return () => {
+      api.off('select', onSelect)
+      api.off('settle', onSettle)
+    }
+  }, [api, startIndex])
 
   const file = images[current]?.file
 
@@ -85,6 +101,7 @@ function ImageLightbox({ images, startIndex }) {
         setApi={setApi}
         opts={{ startIndex, loop: images.length > 1 }}
         className="px-6 pt-6"
+        aria-label={t('file.images')}
       >
         <CarouselContent className="-ml-0">
           {images.map(({ file, key }) => (
@@ -125,6 +142,11 @@ function ImageLightbox({ images, startIndex }) {
           </span>
         )}
       </div>
+      {images.length > 1 && (
+        <span className="sr-only" role="status">
+          {images[settled]?.file.name}
+        </span>
+      )}
     </>
   )
 }
@@ -179,6 +201,7 @@ export default function FileGallery({ files }) {
 
   const [lightboxIndex, setLightboxIndex] = useState(null)
   const [openPdf, setOpenPdf] = useState(null)
+  const dialogTriggerRef = useRef(null)
 
   // Embedding a PDF in an <iframe> is unreliable on touch/mobile
   // browsers — iOS Safari and Android Chrome frequently render a
@@ -188,7 +211,7 @@ export default function FileGallery({ files }) {
   // pointer devices skip the in-dialog viewer and get the same
   // reliable "open in the browser's own PDF handling" behavior as
   // the new-tab link inside that dialog.
-  function openPdfFile(file) {
+  function openPdfFile(file, trigger) {
     if (
       typeof window !== 'undefined' &&
       window.matchMedia?.('(pointer: coarse)')?.matches
@@ -200,6 +223,7 @@ export default function FileGallery({ files }) {
       )
       return
     }
+    dialogTriggerRef.current = trigger
     setOpenPdf(file)
   }
 
@@ -217,7 +241,11 @@ export default function FileGallery({ files }) {
               <button
                 key={key}
                 type="button"
-                onClick={() => setLightboxIndex(index)}
+                onClick={(event) => {
+                  dialogTriggerRef.current =
+                    event.currentTarget
+                  setLightboxIndex(index)
+                }}
                 aria-label={file?.name}
                 className="focus-visible:ring-ring group block"
               >
@@ -228,10 +256,10 @@ export default function FileGallery({ files }) {
                     fill
                     unoptimized
                     sizes="(min-width: 768px) 25vw, 50vw"
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="object-cover motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-105"
                   />
                   <span
-                    className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/70 to-transparent px-2 py-1 text-left text-xs text-white opacity-0 transition-opacity group-hover:opacity-100"
+                    className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/70 to-transparent px-2 py-1 text-left text-xs text-white opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 motion-safe:transition-opacity"
                     title={file?.name}
                   >
                     {file?.name}
@@ -255,7 +283,9 @@ export default function FileGallery({ files }) {
               <button
                 key={key}
                 type="button"
-                onClick={() => openPdfFile(file)}
+                onClick={(event) =>
+                  openPdfFile(file, event.currentTarget)
+                }
                 className="group block text-left"
               >
                 <Card className="overflow-hidden p-0 transition hover:shadow-md">
@@ -308,6 +338,7 @@ export default function FileGallery({ files }) {
       >
         <DialogContent
           showCloseButton
+          finalFocus={dialogTriggerRef}
           className="max-w-3xl border-none p-0 shadow-none sm:max-w-3xl"
         >
           {lightboxIndex !== null && (
@@ -323,7 +354,10 @@ export default function FileGallery({ files }) {
         open={openPdf !== null}
         onOpenChange={(open) => !open && setOpenPdf(null)}
       >
-        <DialogContent className="flex h-[85vh] max-w-4xl flex-col sm:max-w-4xl">
+        <DialogContent
+          finalFocus={dialogTriggerRef}
+          className="flex h-[85vh] max-w-4xl flex-col sm:max-w-4xl"
+        >
           <div className="flex items-center justify-between gap-2 pr-8">
             <DialogTitle
               className="truncate text-base"

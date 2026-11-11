@@ -44,9 +44,17 @@ export default function PasswordField({
               id={name}
               type={visible ? 'text' : 'password'}
               autoComplete={autoComplete}
+              required
+              autoCapitalize="none"
+              autoCorrect="off"
               spellCheck={false}
               disabled={disabled}
               aria-invalid={fieldState.invalid}
+              aria-describedby={
+                fieldState.invalid
+                  ? `${name}-error`
+                  : undefined
+              }
               className="pr-9"
             />
             <Button
@@ -70,7 +78,10 @@ export default function PasswordField({
             </Button>
           </div>
           {fieldState.invalid && (
-            <FieldError errors={[fieldState.error]} />
+            <FieldError
+              id={`${name}-error`}
+              errors={[fieldState.error]}
+            />
           )}
         </Field>
       )}

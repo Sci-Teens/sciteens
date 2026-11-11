@@ -65,7 +65,6 @@ export default function MentorSignIn() {
 
   const form = useForm({
     resolver: zodResolver(schema),
-    mode: 'onChange',
     defaultValues: { email: '', password: '' },
   })
 
@@ -84,13 +83,16 @@ export default function MentorSignIn() {
       router.push(dest || '/')
     } catch (e) {
       console.log(e.code)
-      form.setValue('email', '')
-      form.setError('email', {
-        type: 'server',
-        message:
-          f_signin_errors[e.code] ||
-          t('auth.sign_in_failed'),
-      })
+      form.setError(
+        'email',
+        {
+          type: 'server',
+          message:
+            f_signin_errors[e.code] ||
+            t('auth.sign_in_failed'),
+        },
+        { shouldFocus: true }
+      )
     }
   }
 
@@ -138,7 +140,11 @@ export default function MentorSignIn() {
           </>
         }
       >
-        <form onSubmit={form.handleSubmit(emailSignIn)}>
+        <form
+          method="post"
+          noValidate
+          onSubmit={form.handleSubmit(emailSignIn)}
+        >
           <FieldGroup>
             <Controller
               name="email"
@@ -152,13 +158,22 @@ export default function MentorSignIn() {
                     {...field}
                     id="email"
                     type="email"
+                    required
+                    autoCapitalize="none"
+                    autoCorrect="off"
                     inputMode="email"
-                    autoComplete="email"
+                    autoComplete="username"
                     spellCheck={false}
                     aria-invalid={fieldState.invalid}
+                    aria-describedby={
+                      fieldState.invalid
+                        ? 'email-error'
+                        : undefined
+                    }
                   />
                   {fieldState.invalid && (
                     <FieldError
+                      id="email-error"
                       errors={[fieldState.error]}
                     />
                   )}
@@ -181,10 +196,7 @@ export default function MentorSignIn() {
               type="submit"
               size="lg"
               className="h-11 w-full text-base"
-              disabled={
-                !form.formState.isValid ||
-                form.formState.isSubmitting
-              }
+              disabled={form.formState.isSubmitting}
             >
               {t('auth.sign_in')}
               {form.formState.isSubmitting ? (

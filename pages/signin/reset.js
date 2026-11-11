@@ -34,7 +34,6 @@ export default function Reset() {
 
   const form = useForm({
     resolver: zodResolver(schema),
-    mode: 'onChange',
     defaultValues: { email: '' },
   })
 
@@ -42,12 +41,15 @@ export default function Reset() {
     try {
       await sendPasswordResetEmail(auth, email)
       router.push('/signin/resetsent')
-    } catch (e) {
-      form.setValue('email', '')
-      form.setError('email', {
-        type: 'server',
-        message: e?.message,
-      })
+    } catch {
+      form.setError(
+        'email',
+        {
+          type: 'server',
+          message: t('auth.reset_failed'),
+        },
+        { shouldFocus: true }
+      )
     }
   }
 
@@ -64,6 +66,8 @@ export default function Reset() {
         subtitle={t('auth.why_reset_password')}
       >
         <form
+          method="post"
+          noValidate
           onSubmit={form.handleSubmit(submitForgotPassword)}
         >
           <FieldGroup>
@@ -79,13 +83,22 @@ export default function Reset() {
                     {...field}
                     id="email"
                     type="email"
+                    required
+                    autoCapitalize="none"
+                    autoCorrect="off"
                     inputMode="email"
                     autoComplete="email"
                     spellCheck={false}
                     aria-invalid={fieldState.invalid}
+                    aria-describedby={
+                      fieldState.invalid
+                        ? 'email-error'
+                        : undefined
+                    }
                   />
                   {fieldState.invalid && (
                     <FieldError
+                      id="email-error"
                       errors={[fieldState.error]}
                     />
                   )}
@@ -96,10 +109,7 @@ export default function Reset() {
               type="submit"
               size="lg"
               className="h-11 w-full text-base"
-              disabled={
-                !form.formState.isValid ||
-                form.formState.isSubmitting
-              }
+              disabled={form.formState.isSubmitting}
             >
               {t('auth.reset_password')}
               {form.formState.isSubmitting ? (

@@ -1,18 +1,22 @@
 import Head from 'next/head'
+import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import PageHeading from '@/components/PageHeading'
 
-export default function privacy() {
+export default function Privacy() {
+  const { t } = useTranslation('common')
   return (
     <div>
       <Head>
-        <title>Policies, Terms, GDPR | SciTeens</title>
+        <title>{`${t(
+          'legal_title.privacy'
+        )} | SciTeens`}</title>
       </Head>
 
-      <main>
+      <div lang="en">
         <div className="flex flex-row justify-evenly py-8">
           <div className="hidden w-1/4 lg:flex lg:flex-col">
-            <div className="sticky top-1/2 -translate-y-1/2 transform ">
+            <div className="sticky top-24 max-h-[calc(100dvh-6rem-var(--cookie-consent-height,0px))] overflow-y-auto overscroll-contain p-1">
               <h2 className="mb-1 text-xl font-semibold">
                 Table of Contents
               </h2>
@@ -20,7 +24,7 @@ export default function privacy() {
                 <li>
                   <a
                     href="#privacy1"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     What Information Do We Collect?
                   </a>
@@ -28,7 +32,7 @@ export default function privacy() {
                 <li>
                   <a
                     href="#privacy2"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     How Do We use Your Information?
                   </a>
@@ -36,7 +40,7 @@ export default function privacy() {
                 <li>
                   <a
                     href="#privacy3"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Will Your Information Be Shared With
                     Anyone?
@@ -45,7 +49,7 @@ export default function privacy() {
                 <li>
                   <a
                     href="#privacy4"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Who Will Your Information Be Shared
                     With?
@@ -54,7 +58,7 @@ export default function privacy() {
                 <li>
                   <a
                     href="#privacy5"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Do We Use Cookies and Other Tracking
                     Technologies?
@@ -63,7 +67,7 @@ export default function privacy() {
                 <li>
                   <a
                     href="#privacy6"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Do We Use Google Maps?
                   </a>
@@ -71,7 +75,7 @@ export default function privacy() {
                 <li>
                   <a
                     href="#privacy7"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     How Do We Handle Your Social Logins?
                   </a>
@@ -79,7 +83,7 @@ export default function privacy() {
                 <li>
                   <a
                     href="#privacy8"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     How Long Do We Keep Your Information?
                   </a>
@@ -87,7 +91,7 @@ export default function privacy() {
                 <li>
                   <a
                     href="#privacy9"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     How Do We Keep Your Information Safe?
                   </a>
@@ -95,7 +99,7 @@ export default function privacy() {
                 <li>
                   <a
                     href="#privacy10"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     What Are Your Privacy Rights?
                   </a>
@@ -103,7 +107,7 @@ export default function privacy() {
                 <li>
                   <a
                     href="#privacy11"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Data Breach
                   </a>
@@ -111,7 +115,7 @@ export default function privacy() {
                 <li>
                   <a
                     href="#privacy12"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Controls For Do Not Track Features
                   </a>
@@ -119,7 +123,7 @@ export default function privacy() {
                 <li>
                   <a
                     href="#privacy13"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Do California Residents Have Specific
                     Privacy Rights?
@@ -128,7 +132,7 @@ export default function privacy() {
                 <li>
                   <a
                     href="#privacy14"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Do We Make Updates To This Policy?
                   </a>
@@ -136,7 +140,7 @@ export default function privacy() {
                 <li>
                   <a
                     href="#privacy15"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     How Can You Review, Update, or Delete
                     The Data We Collect From You?
@@ -145,7 +149,7 @@ export default function privacy() {
                 <li>
                   <a
                     href="#privacy16"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     How Can You Contact Us About This
                     Policy?
@@ -927,7 +931,7 @@ export default function privacy() {
                 Officer (DPO), John Sutor, by email at
                 john@sciteens.org, or by post to:
               </p>
-              <p className="text-sciteensGreen-regular my-4">
+              <p className="text-primary my-4">
                 SciTeens Inc.
                 <br />
                 John Sutor
@@ -943,7 +947,7 @@ export default function privacy() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   )
 }

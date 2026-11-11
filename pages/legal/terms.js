@@ -1,18 +1,22 @@
 import Head from 'next/head'
+import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import PageHeading from '@/components/PageHeading'
 
-export default function terms() {
+export default function Terms() {
+  const { t } = useTranslation('common')
   return (
     <div>
       <Head>
-        <title>Policies, Terms, GDPR | SciTeens</title>
+        <title>{`${t(
+          'legal_title.terms'
+        )} | SciTeens`}</title>
       </Head>
 
-      <main>
+      <div lang="en">
         <div className="flex flex-row justify-evenly py-8">
           <div className="hidden w-1/4 lg:flex lg:flex-col">
-            <div className="sticky top-1/2 -translate-y-1/2 transform ">
+            <div className="sticky top-24 max-h-[calc(100dvh-6rem-var(--cookie-consent-height,0px))] overflow-y-auto overscroll-contain p-1">
               <h2 className="mb-1 text-xl font-semibold">
                 Table of Contents
               </h2>
@@ -20,7 +24,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term1"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Agreement To Terms
                   </a>
@@ -28,7 +32,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term2"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Intellectual Property Rights
                   </a>
@@ -36,7 +40,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term3"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     User Representations
                   </a>
@@ -44,7 +48,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term4"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     User Registration
                   </a>
@@ -52,7 +56,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term5"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Prohibited Activities
                   </a>
@@ -60,7 +64,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term6"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     User Generated Contributions
                   </a>
@@ -68,7 +72,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term7"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Contribution License
                   </a>
@@ -76,7 +80,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term8"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Submissions
                   </a>
@@ -84,7 +88,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term9"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Third-Party Website and Content
                   </a>
@@ -92,7 +96,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term10"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Site Management
                   </a>
@@ -100,7 +104,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term11"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Privacy Policy
                   </a>
@@ -108,7 +112,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term12"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Copyright Infringements
                   </a>
@@ -116,7 +120,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term13"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Term and Termination
                   </a>
@@ -124,7 +128,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term14"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Modifications and Interruptions
                   </a>
@@ -132,7 +136,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term15"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Governing Law
                   </a>
@@ -140,7 +144,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term16"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Dispute Resolution
                   </a>
@@ -148,7 +152,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term17"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Corrections
                   </a>
@@ -156,7 +160,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term18"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Disclaimer
                   </a>
@@ -164,7 +168,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term19"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Limitations Of Liability
                   </a>
@@ -172,7 +176,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term20"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Indemnification
                   </a>
@@ -180,7 +184,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term21"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     User Data
                   </a>
@@ -188,7 +192,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term22"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Electronic Communications, Transactions,
                     and Signatures
@@ -197,7 +201,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term23"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     California Users and Residents
                   </a>
@@ -205,7 +209,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term24"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Miscellaneous
                   </a>
@@ -213,7 +217,7 @@ export default function terms() {
                 <li>
                   <a
                     href="#term25"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Contact Us
                   </a>
@@ -1469,7 +1473,7 @@ export default function terms() {
                 regarding use of the Site, please contact us
                 at:
               </p>
-              <p className="text-sciteensGreen-regular my-4">
+              <p className="text-primary my-4">
                 SciTeens Inc.
                 <br />
                 John Sutor
@@ -1485,7 +1489,7 @@ export default function terms() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   )
 }

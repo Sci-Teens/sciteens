@@ -1,20 +1,25 @@
 import Head from 'next/head'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import PageHeading from '@/components/PageHeading'
 
 export default function FourOhFour() {
+  const { t } = useTranslation('common')
   return (
     <>
       <Head>
+        <title>{`${t(
+          'not_found.title'
+        )} | SciTeens`}</title>
         <meta
           key="robots"
           name="robots"
           content="noindex, nofollow"
         />
       </Head>
-      <div className="mx-auto mt-20 min-h-screen w-full text-center">
+      <div className="mx-auto mt-20 min-h-screen w-full px-4 text-center">
         <Image
           src="/assets/404.png"
           alt="404"
@@ -23,27 +28,17 @@ export default function FourOhFour() {
           className="mx-auto h-auto w-1/2"
         />
         <PageHeading className="py-4">
-          Page not found
+          {t('not_found.title')}
         </PageHeading>
         <p className="mb-6 text-xl">
-          This page may not exist or may have been deleted.
+          {t('not_found.description')}
         </p>
         <Link
           href="/"
           className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg px-4 py-2 text-xl shadow-sm"
         >
-          Return Home
+          {t('not_found.return_home')}
         </Link>
-        {/* <iframe
-              width="500"
-              height="300"
-              src="https://www.youtube.com/embed/wiDpO99BT3w"
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="mx-auto overflow-hidden max-w-full">
-          </iframe> */}
       </div>
     </>
   )

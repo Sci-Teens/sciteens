@@ -1,18 +1,22 @@
 import Head from 'next/head'
+import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import PageHeading from '@/components/PageHeading'
 
-export default function gdpr() {
+export default function Gdpr() {
+  const { t } = useTranslation('common')
   return (
     <div>
       <Head>
-        <title>Policies, Terms, GDPR | SciTeens</title>
+        <title>{`${t(
+          'legal_title.gdpr'
+        )} | SciTeens`}</title>
       </Head>
 
-      <main>
+      <div lang="en">
         <div className="flex flex-row justify-evenly py-8">
           <div className="hidden w-1/4 lg:flex lg:flex-col">
-            <div className="sticky top-1/2 -translate-y-1/2 transform ">
+            <div className="sticky top-24 max-h-[calc(100dvh-6rem-var(--cookie-consent-height,0px))] overflow-y-auto overscroll-contain p-1">
               <h2 className="mb-1 text-xl font-semibold">
                 Table of Contents
               </h2>
@@ -20,7 +24,7 @@ export default function gdpr() {
                 <li>
                   <a
                     href="#policy1"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     What Are Cookies?
                   </a>
@@ -28,7 +32,7 @@ export default function gdpr() {
                 <li>
                   <a
                     href="#policy2"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Why Do We Use Cookies?
                   </a>
@@ -36,7 +40,7 @@ export default function gdpr() {
                 <li>
                   <a
                     href="#policy3"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     How Can I Control Cookies?
                   </a>
@@ -44,7 +48,7 @@ export default function gdpr() {
                 <li>
                   <a
                     href="#policy4"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     What About Other Tracking Technologies?
                   </a>
@@ -52,7 +56,7 @@ export default function gdpr() {
                 <li>
                   <a
                     href="#policy5"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Do We Use Flash Cookies Or Local Shared
                     Objects?
@@ -61,7 +65,7 @@ export default function gdpr() {
                 <li>
                   <a
                     href="#policy6"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Do We Serve Targeted Advertising
                   </a>
@@ -69,7 +73,7 @@ export default function gdpr() {
                 <li>
                   <a
                     href="#policy7"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     How Often Will We Update This Cookie
                     Policy
@@ -78,7 +82,7 @@ export default function gdpr() {
                 <li>
                   <a
                     href="#policy8"
-                    className="hover:underline"
+                    className="min-h-6 block py-0.5 hover:underline"
                   >
                     Contact Us
                   </a>
@@ -371,7 +375,7 @@ export default function gdpr() {
                 cookies or other technologies, please email
                 us at support@sciteens.org or by post to:
               </p>
-              <p className="text-sciteensGreen-regular my-4">
+              <p className="text-primary my-4">
                 SciTeens Inc.
                 <br />
                 John Sutor
@@ -387,7 +391,7 @@ export default function gdpr() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   )
 }

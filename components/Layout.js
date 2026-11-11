@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
+import { useTranslation } from 'next-i18next'
 import Banner from '../components/Banner'
 import Analytics from './Analytics'
 import { useScrollDirection } from '../lib/useScrollDirection'
@@ -22,6 +23,7 @@ const CookieConsent = dynamic(
 const DEFAULT_NAV_HEIGHT = 76
 
 export default function Layout({ children }) {
+  const { t, ready } = useTranslation('common')
   const [visibleBanner, setVisibleBanner] = useState(true)
   const navWrapRef = useRef(null)
   const [navHeight, setNavHeight] = useState(
@@ -58,23 +60,35 @@ export default function Layout({ children }) {
 
   return (
     <>
-      <div
+      {ready && (
+        <a
+          href="#main-content"
+          className="focus:bg-card focus:text-foreground sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[60] focus:rounded-lg focus:px-4 focus:py-2"
+        >
+          {t('navigation.skip_to_content')}
+        </a>
+      )}
+      <header
         ref={navWrapRef}
-        className={`fixed z-50 w-full transform transition-all duration-300 ${
-          visibleNav ? 'translate-y-0' : '-translate-y-32'
+        className={`fixed inset-x-0 top-0 z-50 w-full motion-safe:transition-transform motion-safe:duration-300 ${
+          visibleNav
+            ? 'translate-y-0'
+            : 'has-[:focus-visible]:translate-y-0 has-[:focus-visible]:transition-none -translate-y-full'
         }`}
       >
         {visibleBanner && (
           <Banner closeBanner={closeBanner} />
         )}
         <NavBar />
-      </div>
-      <div
+      </header>
+      <main
+        id="main-content"
+        tabIndex={-1}
         className="flex-1"
         style={{ paddingTop: navHeight }}
       >
         {children}
-      </div>
+      </main>
       <Footer />
       <CookieConsent />
       <Analytics />

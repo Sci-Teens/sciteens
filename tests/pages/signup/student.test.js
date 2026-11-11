@@ -16,18 +16,7 @@ import {
 import userEvent from '@testing-library/user-event'
 import moment from 'moment'
 import StudentSignUp from '@/pages/signup/student'
-
-// Covers the submit button's gated-disabled logic (form validity AND,
-// on this page, a solved reCAPTCHA) and the birthday-under-13 zod
-// rejection, all driven through real react-hook-form + zod validation
-// rather than asserting on internal state.
-//
-// Lives under tests/pages/ rather than pages/signup/ — Next's Pages
-// Router treats every `.js` file under `pages/` as a route, so a
-// colocated `*.test.js` there breaks `next build` (it tries to render
-// the test file itself as a page). `vi.mock` below targets the same
-// modules via the `@/*` alias so it still intercepts what
-// pages/signup/student.js imports, regardless of this file's location.
+import { createUserWithEmailAndPassword } from '@firebase/auth'
 
 vi.mock('next/router', () => ({
   useRouter: () => ({ push: vi.fn(), query: {} }),
@@ -114,7 +103,10 @@ async function pickBirthday(user, momentDate) {
   )
 }
 
-async function fillValidForm(user) {
+async function fillValidForm(
+  user,
+  { acceptTerms = true } = {}
+) {
   await user.type(
     screen.getByLabelText('auth.first_name'),
     validFields.first_name
@@ -136,9 +128,11 @@ async function fillValidForm(user) {
     user,
     moment(validFields.birthday, 'YYYY-MM-DD')
   )
-  await user.click(
-    screen.getByRole('checkbox', { name: /auth\.terms/ })
-  )
+  if (acceptTerms) {
+    await user.click(
+      screen.getByRole('checkbox', { name: /auth\.terms/ })
+    )
+  }
 }
 
 describe('StudentSignUp', () => {
@@ -147,19 +141,28 @@ describe('StudentSignUp', () => {
     mockRecaptchaRender.mockClear()
   })
 
-  it('keeps submit disabled until every field is valid', async () => {
+  it('focuses unaccepted terms and exposes the localized error on submit', async () => {
     mockRecaptchaVerify.mockResolvedValue('solved-token')
     const user = userEvent.setup()
     render(<StudentSignUp />)
 
-    const submit = screen.getByRole('button', {
-      name: 'auth.create_account',
+    await fillValidForm(user, { acceptTerms: false })
+    await user.click(
+      screen.getByRole('button', {
+        name: 'auth.create_account',
+      })
+    )
+
+    const terms = screen.getByRole('checkbox', {
+      name: /auth\.terms/,
     })
-    expect(submit).toBeDisabled()
-
-    await fillValidForm(user)
-
-    await waitFor(() => expect(submit).toBeEnabled())
+    await waitFor(() => expect(terms).toHaveFocus())
+    expect(terms).toHaveAccessibleDescription(
+      'auth.error_terms'
+    )
+    expect(
+      createUserWithEmailAndPassword
+    ).not.toHaveBeenCalled()
   })
 
   it('rejects a birthday under 13 years old with the expected zod error', async () => {
@@ -169,6 +172,11 @@ describe('StudentSignUp', () => {
     const birthday = screen.getByLabelText('auth.birthday')
     await user.click(birthday)
     await pickBirthday(user, moment().subtract(5, 'years'))
+    await user.click(
+      screen.getByRole('button', {
+        name: 'auth.create_account',
+      })
+    )
 
     await waitFor(() => {
       expect(birthday).toHaveAttribute(
@@ -176,8 +184,8 @@ describe('StudentSignUp', () => {
         'true'
       )
     })
-    expect(screen.getByRole('alert')).toHaveTextContent(
-      'auth.error_birthday'
+    expect(birthday).toHaveAccessibleDescription(
+      /auth\.error_birthday/
     )
 
     await user.click(birthday)
@@ -189,27 +197,29 @@ describe('StudentSignUp', () => {
         'false'
       )
     })
-    expect(
-      screen.queryByRole('alert')
-    ).not.toBeInTheDocument()
+    expect(birthday).toHaveAccessibleDescription(
+      /auth\.birthday_info/
+    )
   })
 
-  it('keeps submit disabled while the reCAPTCHA is unsolved, even with an otherwise-valid form', async () => {
-    // Default beforeEach resolves verify() to '' (unsolved).
+  it('requires a solved reCAPTCHA before creating an account', async () => {
     const user = userEvent.setup()
     render(<StudentSignUp />)
 
-    const submit = screen.getByRole('button', {
-      name: 'auth.create_account',
-    })
-
     await fillValidForm(user)
-
-    // Give any pending recaptcha microtasks a chance to flush; it must
-    // still be disabled because verify() resolved empty.
-    await waitFor(() =>
-      expect(mockRecaptchaRender).toHaveBeenCalled()
+    await user.click(
+      screen.getByRole('button', {
+        name: 'auth.create_account',
+      })
     )
-    expect(submit).toBeDisabled()
+
+    await waitFor(() =>
+      expect(
+        screen.getByText('auth.complete_recaptcha')
+      ).toHaveFocus()
+    )
+    expect(
+      createUserWithEmailAndPassword
+    ).not.toHaveBeenCalled()
   })
 })

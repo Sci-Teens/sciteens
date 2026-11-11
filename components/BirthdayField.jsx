@@ -33,7 +33,7 @@ const EARLIEST_BIRTH_YEAR = moment()
 // Popover + Calendar date picker wired to react-hook-form, storing the
 // same YYYY-MM-DD string the previous native date input produced.
 export default function BirthdayField({ control }) {
-  const { t } = useTranslation('common')
+  const { t, i18n } = useTranslation('common')
   const [open, setOpen] = useState(false)
 
   return (
@@ -54,21 +54,35 @@ export default function BirthdayField({ control }) {
               <PopoverTrigger
                 render={
                   <Button
+                    ref={field.ref}
                     id="birthday"
                     type="button"
                     variant="outline"
                     aria-invalid={fieldState.invalid}
+                    aria-describedby={[
+                      selected && 'birthday-value',
+                      fieldState.invalid
+                        ? 'birthday-error'
+                        : 'birthday-description',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
                     className={cn(
                       'w-full justify-start font-normal',
                       !selected && 'text-muted-foreground'
                     )}
                   >
                     <CalendarIcon className="size-4" />
-                    {selected
-                      ? moment(selected).format(
-                          'MMMM D, YYYY'
-                        )
-                      : t('auth.select_birthday')}
+                    <span id="birthday-value">
+                      {selected
+                        ? new Intl.DateTimeFormat(
+                            i18n?.language,
+                            {
+                              dateStyle: 'long',
+                            }
+                          ).format(selected)
+                        : t('auth.select_birthday')}
+                    </span>
                   </Button>
                 }
               />
@@ -98,9 +112,12 @@ export default function BirthdayField({ control }) {
               </PopoverContent>
             </Popover>
             {fieldState.invalid ? (
-              <FieldError errors={[fieldState.error]} />
+              <FieldError
+                id="birthday-error"
+                errors={[fieldState.error]}
+              />
             ) : (
-              <FieldDescription>
+              <FieldDescription id="birthday-description">
                 {t('auth.birthday_info')}
               </FieldDescription>
             )}

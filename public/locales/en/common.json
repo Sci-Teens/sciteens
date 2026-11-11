@@ -4,6 +4,8 @@
     "cool_video": "Here's a cool video to watch instead"
   },
   "article": {
+    "previous_related": "Previous related article",
+    "next_related": "Next related article",
     "about_the_author": "About The Author",
     "interview": "Interview",
     "by": "By",
@@ -21,6 +23,8 @@
     "link_text": "Read it here"
   },
   "course": {
+    "open_notebook": "Open notebook",
+    "open_lesson_notebook": "Open notebook for {{lesson}}",
     "starts": "Starts",
     "enroll_by": "Enroll By",
     "lessons": "Lessons",
@@ -85,6 +89,7 @@
     "placeholder": "Start the conversation…",
     "cancel": "Cancel",
     "post": "Post",
+    "post_failed": "Could not post your message. Please try again.",
     "reply": "Reply",
     "reply_label": "Reply",
     "reply_placeholder": "Reply…"
@@ -179,6 +184,7 @@
     "new_here": "New Here?",
     "sign_up": "Sign Up",
     "reset_password": "Reset Password",
+    "reset_failed": "Could not send a reset link. Check your email address and try again.",
     "why_reset_password": "Forgot your password? No worries! Submit your email below, and we’ll send you a reset link.",
     "reset_message": "We just sent you a link to reset your password. Be sure to check your spam for this email as well.",
     "reset_sent": "Check Your Email",
@@ -243,6 +249,7 @@
     "error_last_name": "Please only enter your last name (or connect it with hyphens)",
     "valid_institution": "Please provide a valid institution",
     "error_birthday": "You must be 13 years old or older to use SciTeens",
+    "complete_recaptcha": "Complete the reCAPTCHA to create your account.",
     "select_birthday": "Pick a date",
     "show_password": "Show password",
     "hide_password": "Hide password"
@@ -538,7 +545,19 @@
     "space_science": "Space Science",
     "fall_2022_science_fair": "Fall 2022 Science Fair"
   },
+  "legal_title": {
+    "gdpr": "Cookie Policy",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Use"
+  },
+  "not_found": {
+    "title": "Page not found",
+    "description": "This page may not exist or may have been deleted.",
+    "return_home": "Return home"
+  },
   "navigation": {
+    "skip_to_content": "Skip to main content",
+    "primary": "Primary",
     "home": "Home",
     "about": "About",
     "articles": "Articles",

@@ -25,7 +25,10 @@ import ListingSkeleton from '@/components/search/ListingSkeleton'
 import ResultsCount from '@/components/search/ResultsCount'
 import SearchToolbar from '@/components/search/SearchToolbar'
 import TopicsList from '@/components/search/TopicsList'
-import { Button } from '@/components/ui/button'
+import {
+  Button,
+  buttonVariants,
+} from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -253,7 +256,6 @@ function OpportunityCard({
   program,
   meta,
   translatedFields,
-  muted,
   priority,
 }) {
   return (
@@ -262,7 +264,6 @@ function OpportunityCard({
       title={program.name}
       description={program.about}
       imageSrc={program.imageUrl}
-      imageAlt=""
       imageFit={program.imageFit}
       priority={priority}
       media={
@@ -277,10 +278,6 @@ function OpportunityCard({
           translatedFields={translatedFields}
         />
       }
-      className={cn(
-        'opportunity-card',
-        muted && 'opacity-70'
-      )}
     />
   )
 }
@@ -473,6 +470,7 @@ function Opportunities({
   initialOpenNow,
   initialOpenNowTotal,
 }) {
+  const searchDescriptionId = useId()
   const router = useRouter()
   const { t } = useTranslation('common')
   const [search, setSearch] = useState('')
@@ -720,7 +718,6 @@ function Opportunities({
     closed_recently: pastDeadlineMeta,
     deadline_unknown: deadlineUnknownMeta,
   }[statusParam]
-  const muted = statusParam === 'closed_recently'
 
   const activeFilters = []
   if (searchParam) {
@@ -857,66 +854,72 @@ function Opportunities({
         title={t('opportunities.opportunities')}
         lede={t('opportunities.lede')}
         actions={
-          <Button
-            variant="outline"
-            className="shrink-0"
-            render={
-              <a
-                href={`mailto:${OPPORTUNITIES_EMAIL}`}
-                aria-label={t(
-                  'opportunities.suggest_opportunity'
-                )}
-              />
-            }
+          <a
+            href={`mailto:${OPPORTUNITIES_EMAIL}`}
+            className={buttonVariants({
+              variant: 'outline',
+            })}
           >
             {t('opportunities.suggest_opportunity')}
-          </Button>
+          </a>
         }
         aside={<FilterPanel {...filterPanelProps} />}
-      >
-        <SearchToolbar
-          value={search}
-          onChange={(event) =>
-            setSearch(event.target.value)
-          }
-          onSubmit={handleSearchSubmit}
-          onClear={handleClearSearch}
-          placeholder={t(
-            'opportunities.search_opportunities'
-          )}
-          searchLabel={t('opportunities.search')}
-          submitLabel={t('opportunities.search')}
-          clearSearchLabel={t('opportunities.clear_search')}
-          filtersLabel={t('opportunities.filters')}
-          hasActiveFilters={hasActiveFilters}
-          filtersOpen={filtersOpen}
-          onFiltersOpenChange={setFiltersOpen}
-          filterPanel={
-            <FilterPanel {...filterPanelProps} />
-          }
-        >
-          <Select
-            value={statusParam}
-            onValueChange={handleStatusChange}
+        toolbar={
+          <SearchToolbar
+            value={search}
+            onChange={(event) =>
+              setSearch(event.target.value)
+            }
+            onSubmit={handleSearchSubmit}
+            onClear={handleClearSearch}
+            placeholder={t(
+              'opportunities.search_opportunities'
+            )}
+            searchLabel={t('opportunities.search')}
+            searchDescriptionId={searchDescriptionId}
+            submitLabel={t('opportunities.search')}
+            clearSearchLabel={t(
+              'opportunities.clear_search'
+            )}
+            filtersLabel={t('opportunities.filters')}
+            hasActiveFilters={hasActiveFilters}
+            filtersOpen={filtersOpen}
+            onFiltersOpenChange={setFiltersOpen}
+            filterPanel={
+              <FilterPanel {...filterPanelProps} />
+            }
           >
-            <SelectTrigger
-              aria-label={t('opportunities.status_filter')}
-              className="bg-card w-full shadow-sm sm:w-52"
+            <Select
+              value={statusParam}
+              onValueChange={handleStatusChange}
             >
-              <SelectValue>
-                {(value) => statusLabels[value]}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {OPPORTUNITY_STATUS_OPTIONS.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {statusLabels[option]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </SearchToolbar>
-        <p className="text-muted-foreground mt-2 text-xs">
+              <SelectTrigger
+                aria-label={t(
+                  'opportunities.status_filter'
+                )}
+                className="bg-card w-full shadow-sm sm:w-52"
+              >
+                <SelectValue>
+                  {(value) => statusLabels[value]}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {OPPORTUNITY_STATUS_OPTIONS.map(
+                  (option) => (
+                    <SelectItem key={option} value={option}>
+                      {statusLabels[option]}
+                    </SelectItem>
+                  )
+                )}
+              </SelectContent>
+            </Select>
+          </SearchToolbar>
+        }
+      >
+        <p
+          id={searchDescriptionId}
+          className="text-muted-foreground mt-2 text-xs"
+        >
           <Trans
             i18nKey="opportunities.location_search_hint"
             components={{
@@ -944,7 +947,7 @@ function Opportunities({
         />
 
         <ResultsCount>
-          {loading
+          {loading || opportunitiesQuery.isPlaceholderData
             ? t('opportunities.loading')
             : !opportunitiesQuery.isError &&
               typeof totalHits === 'number' &&
@@ -954,11 +957,8 @@ function Opportunities({
         </ResultsCount>
 
         {opportunitiesQuery.isError && (
-          <div
-            role="alert"
-            className="border-destructive/30 bg-destructive/5 rounded-xl border px-4 py-4 text-sm"
-          >
-            <p className="text-destructive">
+          <div className="border-destructive/30 bg-destructive/5 rounded-xl border px-4 py-4 text-sm">
+            <p role="alert" className="text-destructive">
               {t('opportunities.search_unavailable')}
             </p>
             <Button
@@ -997,15 +997,14 @@ function Opportunities({
             />
           )
         ) : (
-          <div
-            className={cn(
-              'w-full transition-opacity',
-              opportunitiesQuery.isPlaceholderData &&
-                'opacity-60'
-            )}
+          // eslint-disable-next-line jsx-a11y/no-redundant-roles -- Safari removes list semantics when markers are hidden.
+          <ul
+            role="list"
+            className="w-full"
+            aria-busy={opportunitiesQuery.isPlaceholderData}
           >
             {opportunities.map((program, index) => (
-              <div
+              <li
                 key={program.slug}
                 className="w-full pt-6 md:pt-8"
               >
@@ -1017,16 +1016,11 @@ function Opportunities({
                     t
                   )}
                   translatedFields={translatedFields}
-                  muted={
-                    muted ||
-                    (statusParam === 'all' &&
-                      isPastDeadline(program))
-                  }
                   priority={index < 2}
                 />
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
 
         {isFetchingNextPage && (

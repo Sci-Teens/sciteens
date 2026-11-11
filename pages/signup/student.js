@@ -40,7 +40,7 @@ import BirthdayField from '@/components/BirthdayField'
 import PasswordField from '@/components/PasswordField'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Checkbox } from '@/components/ui/checkbox'
+import TermsField from '@/components/TermsField'
 import {
   Select,
   SelectContent,
@@ -137,7 +137,6 @@ export default function StudentSignUp() {
 
   const form = useForm({
     resolver: zodResolver(schema),
-    mode: 'onChange',
     defaultValues: {
       first_name: '',
       last_name: '',
@@ -152,17 +151,18 @@ export default function StudentSignUp() {
 
   useEffect(() => {
     async function setupRecaptcha() {
-      if (
-        typeof window !== 'undefined' &&
-        !document
-          .getElementById('recaptcha-container')
-          .hasChildNodes()
-      ) {
+      const container = document.getElementById(
+        'recaptcha-container'
+      )
+      if (container && !container.hasChildNodes()) {
         const recaptchaVerifier = new RecaptchaVerifier(
           auth,
           'recaptcha-container',
           {
-            size: 'normal',
+            size:
+              container.clientWidth < 304
+                ? 'compact'
+                : 'normal',
             callback: () => {
               setRecaptchaSolved(true)
             },
@@ -182,6 +182,13 @@ export default function StudentSignUp() {
   }, [])
 
   async function emailSignUp(values) {
+    if (!recaptchaSolved) {
+      document
+        .getElementById('recaptcha-instruction')
+        ?.focus()
+      return
+    }
+
     setLoading(true)
     const first_name = values.first_name.trim()
     const last_name = values.last_name.trim()
@@ -246,13 +253,16 @@ export default function StudentSignUp() {
       router.push(dest || '/')
     } catch (e) {
       console.log(e)
-      form.setValue('email', '')
-      form.setError('email', {
-        type: 'server',
-        message:
-          f_signup_errors[e.code] ||
-          t('auth.sign_in_failed'),
-      })
+      form.setError(
+        'email',
+        {
+          type: 'server',
+          message:
+            f_signup_errors[e.code] ||
+            t('auth.unable_to_create'),
+        },
+        { shouldFocus: true }
+      )
       setLoading(false)
     }
   }
@@ -285,7 +295,11 @@ export default function StudentSignUp() {
           </>
         }
       >
-        <form onSubmit={form.handleSubmit(emailSignUp)}>
+        <form
+          method="post"
+          noValidate
+          onSubmit={form.handleSubmit(emailSignUp)}
+        >
           <FieldGroup>
             <div className="grid gap-x-3 gap-y-5 sm:grid-cols-2">
               <Controller
@@ -301,11 +315,18 @@ export default function StudentSignUp() {
                       id="first_name"
                       type="text"
                       maxLength={50}
+                      required
                       autoComplete="given-name"
                       aria-invalid={fieldState.invalid}
+                      aria-describedby={
+                        fieldState.invalid
+                          ? 'first_name-error'
+                          : undefined
+                      }
                     />
                     {fieldState.invalid && (
                       <FieldError
+                        id="first_name-error"
                         errors={[fieldState.error]}
                       />
                     )}
@@ -325,11 +346,18 @@ export default function StudentSignUp() {
                       id="last_name"
                       type="text"
                       maxLength={50}
+                      required
                       autoComplete="family-name"
                       aria-invalid={fieldState.invalid}
+                      aria-describedby={
+                        fieldState.invalid
+                          ? 'last_name-error'
+                          : undefined
+                      }
                     />
                     {fieldState.invalid && (
                       <FieldError
+                        id="last_name-error"
                         errors={[fieldState.error]}
                       />
                     )}
@@ -350,13 +378,22 @@ export default function StudentSignUp() {
                     {...field}
                     id="email"
                     type="email"
+                    required
+                    autoCapitalize="none"
+                    autoCorrect="off"
                     inputMode="email"
-                    autoComplete="email"
+                    autoComplete="username"
                     spellCheck={false}
                     aria-invalid={fieldState.invalid}
+                    aria-describedby={
+                      fieldState.invalid
+                        ? 'email-error'
+                        : undefined
+                    }
                   />
                   {fieldState.invalid && (
                     <FieldError
+                      id="email-error"
                       errors={[fieldState.error]}
                     />
                   )}
@@ -454,51 +491,28 @@ export default function StudentSignUp() {
               )}
             />
 
+            {!recaptchaSolved && (
+              <p
+                id="recaptcha-instruction"
+                tabIndex={-1}
+                className="text-muted-foreground text-sm"
+              >
+                {t('auth.complete_recaptcha')}
+              </p>
+            )}
             <div
               id="recaptcha-container"
               className="flex w-full justify-center"
             ></div>
 
-            <Controller
-              name="terms"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field
-                  orientation="horizontal"
-                  className="items-start"
-                  data-invalid={fieldState.invalid}
-                >
-                  <Checkbox
-                    id="terms"
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    aria-invalid={fieldState.invalid}
-                  />
-                  <FieldLabel
-                    htmlFor="terms"
-                    className="block font-normal"
-                  >
-                    {t('auth.terms')}&nbsp;
-                    <Link
-                      href="/legal/terms"
-                      className={INLINE_LINK}
-                    >
-                      {t('auth.terms_link')}
-                    </Link>
-                  </FieldLabel>
-                </Field>
-              )}
-            />
+            <TermsField control={form.control} />
 
             <Button
               type="submit"
               size="lg"
               className="h-11 w-full text-base"
               disabled={
-                !form.formState.isValid ||
-                form.formState.isSubmitting ||
-                loading ||
-                !recaptchaSolved
+                form.formState.isSubmitting || loading
               }
             >
               {t('auth.create_account')}
