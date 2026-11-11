@@ -319,7 +319,7 @@
     "topics": "Topics",
     "filters": "Filters",
     "clear_filters": "Clear filters",
-    "lede": "Free, project-based science courses you can take at your own pace or alongside a cohort.",
+    "lede": "Lesson materials from past SciTeens courses. Enrollment is closed; notebooks and resources remain available.",
     "clear_search": "Clear search",
     "active_filters": "Active filters",
     "remove_filter": "Remove filter: {{filter}}",
@@ -664,5 +664,188 @@
   "form": {
     "loading": "Loading…",
     "unsaved_changes": "You have unsaved changes. Leave this page and lose them?"
+  },
+  "seo": {
+    "home_title": "STEM Opportunities & Student Research | SciTeens",
+    "home_description": "Find STEM programs, compare eligibility and costs, and read projects by high school students. SciTeens is free to browse, with no account required.",
+    "browse_opportunities": "Find STEM opportunities",
+    "explore_resources": "Explore SciTeens",
+    "breadcrumb": "Page location",
+    "back_to_articles": "Back to articles",
+    "back_to_courses": "Back to courses",
+    "updated_on": "Updated {{date}}",
+    "ends_on": "Ends {{date}}",
+    "course_archive": "Archived course",
+    "course_archive_description": "This course ran in 2021. Enrollment is closed. The lesson links and materials remain available as a reference.",
+    "courses_title": "Science Course Archives & Notebooks | SciTeens",
+    "courses_description": "Explore archived SciTeens science courses and Python notebooks. These materials come from past cohorts; enrollment is closed.",
+    "collections_heading": "Find a program that fits",
+    "collections_description": "Start with the cost, location, or eligibility requirement that matters to you. Each guide links to official program information.",
+    "free_programs": "Free research programs",
+    "free_programs_description": "Check tuition, application fees, travel, and financial support.",
+    "virtual_programs": "Virtual research programs",
+    "virtual_programs_description": "Compare remote options and where you need to live to apply.",
+    "international_programs": "Programs for international students",
+    "international_programs_description": "Check citizenship rules, application routes, and funding.",
+    "editorial_title": "Editorial Standards | SciTeens",
+    "editorial_heading": "How we publish and update resources",
+    "editorial_description": "Read how SciTeens handles sources, student authorship, editorial updates, and corrections.",
+    "editorial_authorship_heading": "Student authorship and updates",
+    "editorial_authorship": "Original articles keep their student bylines and publication dates. Substantial revisions carry an update date and a note identifying AI-assisted editing. A revision is not a new student submission.",
+    "editorial_sources_heading": "Sources and program facts",
+    "editorial_sources": "Program guides link to official sources. Costs, eligibility, and deadlines can change. An unknown date stays unknown until the program publishes it. A listing does not imply a partnership or endorsement.",
+    "editorial_science_heading": "Science articles",
+    "editorial_science": "Science articles explain ideas for students. They are not peer-reviewed research or medical advice. References let readers check the explanation and continue reading.",
+    "editorial_corrections_heading": "Corrections",
+    "editorial_corrections": "Found an error or a broken link? Send the page URL and the correction to info@sciteens.org. For a program listing, include its official source.",
+    "editorial_link": "Editorial standards",
+    "articles_title": "Science Articles for Teens | SciTeens",
+    "articles_description": "Student science articles and updated research guides. Read biology, chemistry, physics, and practical advice for your next project.",
+    "projects_title": "Student Science & Research Projects | SciTeens",
+    "projects_description": "Explore science projects by students. Read their research, compare methods, and share your own project.",
+    "opportunities_title": "STEM Programs & Research Opportunities for High School Students | SciTeens",
+    "opportunities_description": "Find STEM programs, competitions, and research opportunities for high school students. Compare grade requirements, locations, and application deadlines.",
+    "pagination": {
+      "label": "Browse listing pages",
+      "browse": "Browse all pages",
+      "page": "Page {{page}}",
+      "title": "{{section}}: page {{page}}",
+      "previous": "Previous page",
+      "next": "Next page",
+      "back": "Search and filter {{section}}",
+      "all_opportunities": "All STEM opportunities"
+    }
+  },
+  "opportunity_collections": {
+    "browse_heading": "Browse by student need",
+    "breadcrumb": "Page location",
+    "all_opportunities": "Browse all opportunities",
+    "reviewed": "Sources checked {{date}}",
+    "compare_heading": "Compare the programs",
+    "source_note": "This is a selected list, not a ranking. Fees and eligibility come from the linked program sources. Check current dates before applying.",
+    "scroll_table": "Scroll across the table to compare eligibility, costs, and project work.",
+    "program": "Program and sources",
+    "eligibility": "Who can apply",
+    "cost": "Costs to check",
+    "work": "What you will work on",
+    "details": "Program details on SciTeens",
+    "official_source": "Program source {{number}}",
+    "selection_heading": "How this list was selected",
+    "before_apply": "Before you apply",
+    "independent_note": "SciTeens does not run these programs or decide admissions. A listing does not mean applications are currently open.",
+    "prepare_heading": "Prepare for your project",
+    "paper_guide": "Write a research paper (English)",
+    "datasets_guide": "Find a dataset (English)",
+    "club_guide": "Start a STEM club (English)",
+    "formats": {
+      "residential": "Residential research",
+      "remote_research": "Remote mentored research",
+      "campus_research": "Research on campus",
+      "collaborative_research": "Online collaborative research",
+      "self_paced": "Self-paced coding projects",
+      "coding_camp": "Virtual and in-person coding",
+      "remote_outreach": "Online physics and coding"
+    },
+    "pages": {
+      "free": {
+        "label": "Free research programs",
+        "title": "Free research programs for high school students",
+        "description": "Compare research programs with no tuition. Application fees, travel, meals, and housing can still add to your budget.",
+        "selection": "Each program below states that accepted students pay no tuition. We include application fees and living costs when the source identifies them.",
+        "advice": "Ask about fee waivers before paying an application fee. For a residential program, calculate transport, meals, housing, and any required insurance separately."
+      },
+      "virtual": {
+        "label": "Virtual research programs",
+        "title": "Virtual research opportunities for high school students",
+        "description": "Research from home can mean a year of weekly mentor meetings or a short team project. Compare the time commitment and eligibility first.",
+        "selection": "These programs describe remote research or online collaboration. They differ in selection, subject, cost, and the amount of individual guidance.",
+        "advice": "Convert meeting times to your local time zone. Ask what computer access you need and what you must finish outside scheduled sessions."
+      },
+      "international": {
+        "label": "International students",
+        "title": "STEM programs for international high school students",
+        "description": "Find programs whose sources explicitly welcome international applicants. Country selection, age rules, and financial aid can still restrict eligibility.",
+        "selection": "The linked sources state that international students can participate. RSI uses participating-country selection; online access alone does not remove those restrictions.",
+        "advice": "Confirm your country’s application route before requesting recommendations. For travel programs, ask about visas, a guardian, housing, and whether aid covers international transport."
+      },
+      "biology": {
+        "label": "Biology research",
+        "title": "Biology research programs for high school students",
+        "description": "Compare laboratory research, genomics projects, and health-data research. A coding project and a wet-lab placement require different preparation.",
+        "selection": "This list includes programs with biological research or health-data projects described by the provider. A particular lab or research topic is not guaranteed.",
+        "advice": "Read the prerequisites for your chosen track. Ask whether your work involves lab experiments, existing data, or literature, and who supervises it."
+      },
+      "computing": {
+        "label": "Computer science",
+        "title": "Computer science programs for high school students",
+        "description": "Choose between learning to code and investigating a research question. These programs range from beginner projects to mentored mathematical and health AI research.",
+        "selection": "We separate skill-building courses from research placements. Beginner courses can prepare you for research, but completing one is not the same as doing original research.",
+        "advice": "Match the course to your current skills. If it requires independent programming, finish a small project first and document how you tested it."
+      },
+      "summer": {
+        "label": "Summer research",
+        "title": "Summer research programs for high school students",
+        "description": "Compare campus research programs before you plan your summer. Grade requirements, school nominations, and full-time attendance can narrow your options.",
+        "selection": "These providers describe a summer research experience with supervision and a defined project. This list includes both tuition-free programs and paid programs with aid.",
+        "advice": "Start with eligibility, then record the application and recommendation deadlines separately. Check the full attendance dates before booking travel or accepting another commitment."
+      }
+    },
+    "programs": {
+      "rsi": {
+        "eligibility": "High school juniors, age 16 by July 1. International applicants need a participating-country route.",
+        "cost": "Tuition, housing, and meals are covered. The application fee is US$75; need-based waivers may be available. Confirm travel costs.",
+        "work": "Six weeks of classes and mentored research, ending with a written report and presentation."
+      },
+      "primes": {
+        "eligibility": "Grades 10–11, living in the United States outside Greater Boston. This is the remote PRIMES-USA section.",
+        "cost": "No program tuition. A computer, webcam, and reliable internet connection are required.",
+        "work": "Year-long mathematics and bioinformatics research. Applied projects can include theoretical computer science. Expect at least 10 hours weekly in research phases."
+      },
+      "simons": {
+        "eligibility": "Grade 11; U.S. citizens or permanent residents; age 16 by the program start. A school nomination is required.",
+        "cost": "No tuition. Application fee: US$75, with need-based waivers. Students pay housing, meals, transport, and personal expenses as applicable.",
+        "work": "Six weeks in a Stony Brook research group. Biology-related placements depend on the available mentors; students present a research poster."
+      },
+      "foundation": {
+        "eligibility": "Low-income high school students worldwide. The foundation FAQ emphasizes seniors; confirm the current cohort criteria before applying.",
+        "cost": "Accepted Breakthrough Scholars pay no program fee. This is the nonprofit foundation program, not the paid Lumiere Research Scholar Program.",
+        "work": "A 12-week research paper with individual mentor meetings. Confirm the available subjects and meeting schedule for your cohort."
+      },
+      "crowdmath": {
+        "eligibility": "High school and college students worldwide. Participation is collaborative rather than an individual lab placement.",
+        "cost": "The reviewed MIT overview does not specify fees. Check the current CrowdMath project and account requirements.",
+        "work": "A year-long online mathematics research project with shared problem solving. Check the project page for the current research question."
+      },
+      "aimi": {
+        "eligibility": "For 2027: entering grades 9–12, older than 14 at the start, with strong independent programming skills. International applicants are welcome.",
+        "cost": "2027 tuition: US$3,000. Need-based aid is available to eligible U.S. residents; do not assume international aid is available.",
+        "work": "Two weeks of virtual team research using health data and AI. Live sessions follow Pacific time, with additional independent project work."
+      },
+      "ssp": {
+        "eligibility": "Current high school juniors, age 15–18 during the program, with the required science and mathematics courses. International applicants are eligible.",
+        "cost": "Paid program with need-based aid, including for international students. The 2027 fee is not yet published; aid can include travel.",
+        "work": "Residential team research in astrophysics, biochemistry, bacterial genomics, or cell biology. Each track has its own course prerequisites."
+      },
+      "rockefeller": {
+        "eligibility": "Current high school juniors and seniors; age 16 or older by the start. Full-time attendance in New York City is required.",
+        "cost": "The reviewed program overview does not specify fees, housing, or travel support. Ask the provider before making a budget.",
+        "work": "Team-based laboratory research, followed by data analysis and a poster. The provider lists about 35 hours per week."
+      },
+      "gwc": {
+        "eligibility": "Grades 9–12, including rising ninth graders and graduating seniors; girls and nonbinary students worldwide.",
+        "cost": "Free. Check computer and internet requirements for the online activities.",
+        "work": "Self-paced projects in game design, data science, AI, cybersecurity, or web development. This is skill-building, not a research internship."
+      },
+      "kwk": {
+        "eligibility": "Young women and gender-expansive students ages 13–18. No previous coding experience is required for onboarding programs.",
+        "cost": "Free. Virtual and in-person options vary by program; check travel and equipment needs for the session you choose.",
+        "work": "Build coding projects in web development, AI, or data science. Program options include two-day workshops and two-week camps."
+      },
+      "spinwip": {
+        "eligibility": "The last published cohort accepted grades 9–11, all genders, and international students. The 2027 application details are not yet published.",
+        "cost": "The last published program was free. Confirm the next cohort’s terms when applications reopen.",
+        "work": "Virtual physics outreach with Python projects, lectures, and small-group work. This is research preparation, not a laboratory placement."
+      }
+    }
   }
 }

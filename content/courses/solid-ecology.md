@@ -1,13 +1,8 @@
 ---
-title: 'SciTeens Online: Learning in Ecological DataScience'
+title: 'Ecological Data Science: Archived Course Materials'
 description: >-
-  In this exciting one-week course, you will explore Ecological data,
-  specifically data provided by the National Ecological Observatory Network, and
-  learn the necessary techniques for analyzing and processing open-source
-  Ecological data to derive key insights into the Florida climate.
-start: '2021-02-22'
-end: '2021-02-26'
-enroll_by: '2021-02-15'
+  Archived 2021 lessons on Python and ecological data, with exercises in
+  processing, plotting, and statistical testing.
 tags:
   - Environmental Science
   - Earth Science
@@ -31,16 +26,19 @@ lessons:
     link: >-
       https://colab.research.google.com/github/Sci-Teens/ecology-program/blob/main/lessons/4_introduction_to_statistical_testing.ipynb
 files: []
+status: archived
+updated: '2026-11-10'
+update_note: >-
+  AI-assisted archive update. Historical course materials are retained and the
+  original live cohort is closed.
 ---
 
-In this exciting one-week course, you will explore Ecological data, specifically data provided by the National Ecological Observatory Network, and learn the necessary techniques for analyzing and processing open-source Ecological data to derive key insights into the Florida climate. There is no charge for the camps, so all you need is a desire to learn to participate! Moreover, you do **NOT&#xA0;**&#x6E;eed to know ANY programming to join us!
+These materials come from SciTeens' 2021 ecological data science course. The original live cohort is closed. This page does not offer registration, live instruction, or a new course certificate.
 
-**Eligibility:**
-The program is designed for high-school students (grades 9-12) currently enrolled in a Florida school.
+The notebooks introduce Python and Jupyter, data processing, plotting, and statistical testing using ecological data. They reflect the tools and exercises used for the original course.
 
-**To be considered for acceptance, applicants must:&#xA;**• Be Currently enrolled in high school (grades 9-12) in a Florida school
-• Be able to commit for the entire week(s) of the program
-• Maintain a permanent resident in the state of FL
+You can inspect the linked notebooks and adapt an exercise for independent study. Software dependencies and external services can change. Check the dataset documentation before interpreting an old example.
 
-Camps will run SYNCHRONOUSLY MONDAY TO FRIDAY FROM 4-6 PM EST via Zoom.
-Students can enroll in one or both sessions.
+The lesson dates below refer to the original course. They are not a schedule for a future cohort.
+
+For current data access and documentation, use [NEON's data resources](https://www.neonscience.org/data). Our [datasets guide](/article/great-datasets) explains how to choose a manageable data project.

@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 import {
   getCanonicalUrl,
   getOgImageUrl,
@@ -18,13 +19,16 @@ export default function SocialMeta({
   badge,
   keywords,
 }) {
+  const router = useRouter()
   const image = getOgImageUrl({
     title,
     description,
     eyebrow,
     badge,
   })
-  const url = path ? getCanonicalUrl(path) : undefined
+  const url = path
+    ? getCanonicalUrl(path, router?.locale)
+    : undefined
 
   return (
     <Head>

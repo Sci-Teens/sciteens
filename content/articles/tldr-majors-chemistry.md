@@ -1,13 +1,10 @@
 ---
-title: 'TLDR; Majors: Chemistry'
+title: 'What Is a Chemistry Major? Courses, Research, and Careers'
 date: '2020-07-30'
 author: Shang Chen
 description: >-
-  Amazed by the world around you? Are you curious about what makes up the
-  building blocks of life? Do you want to keep your options open as you go
-  through college majoring in a useful and flexible field? Chemistry is a
-  fantastic major for those that are looking to work in a variety of fields be
-  it pharmaceutical development, research, or even the government!
+  Explore chemistry coursework, laboratory research, and career paths, with
+  questions to ask a college department and a student interview.
 tags:
   - Chemistry
 cover: /content/media/chem-48aa49fd.webp
@@ -17,33 +14,62 @@ author_bio: >-
   being bad at chess. Feel free to reach out to him with comments, questions,
   and future article recommendations at Shang@SciTeens.org.
 author_headshot: /content/media/6a804f82-d62a-4a6e-93c2-7a2718ebb2d8-67011bed.webp
+updated: '2026-11-10'
+update_note: >-
+  AI-assisted editorial revision. The original student byline and publication
+  date are retained. The author biography describes the original publication
+  period. Sources and practical guidance were updated.
 ---
 
-subCapping off the TL;DR Majors series, this week, we're going to be discussing chemistry. Back in high school, chemistry was one of my favorite courses because I was excited about the idea of being able to perform experiments and learning about the elements that made up the world around us. A college-level education in chemistry will include things like hands-on experiments and learning about the different aspects, while also requiring its students to understand and sometimes memorize complex chemical structures and formulas.
+Chemistry students study matter, its properties, and the reactions that change it. Students learn through calculations, laboratory work, and the interpretation of measurements.
 
-### **What does the average Chemistry course load look like?**
+If you like school chemistry, look beyond the course title when comparing colleges. Find out how much laboratory time a degree includes and when undergraduates can begin research.
 
-The coursework for chemistry majors will vary depending on whether you are looking to go into medicine or planning to continue your education with a master's degree. Still, these are the four pillars of an undergraduate chemistry education:
+## What will you study?
 
-1. Chemistry - Most universities/colleges will break up your chemistry coursework into two sections. The first classes you will take are, in general, the more basic and introductory chemistry subjects. Things like understanding basic chemical terms like compounds, exothermic reactions, etc. As you progress, you will reach more advanced chemical topics with classes like Organic Chemistry being one of the more infamous classes (Seriously, ask anybody who majored in chemistry how O. Chem went for them)
+Chemistry programs commonly include analytical, inorganic, organic, and physical chemistry, along with biochemistry. Mathematics and physics support the work. Exact requirements differ by institution and degree track.
 
-2. Biology - Although chemistry and biology are distinct majors, the reality is you cannot make much headway in learning about one of the subjects without a solid foundation in the other. Most chemistry majors will have to take a few introductory biology courses along with their chemistry coursework. For those looking to go into specific fields of chemistry, namely those looking to go down the pre-med track, biology and chemistry probably go hand-in-hand. Even for those that are looking to go into a more research-oriented job, chances are that if you are going to be working with people or living organisms, a deeper understanding of biology will not hurt.
+The [American Chemical Society's degree guidelines](https://www.acs.org/education/policies/acs-approval-program/guidelines.html) describe requirements for ACS-approved programs and certified degrees. That is one useful reference, rather than a requirement shared by every chemistry degree worldwide.
 
-3. Mathematics - Although chemistry may not be as heavy on math as things like physics and computer science, an understanding of math concepts up to calculus is pretty much expected nowadays. Concepts like stoichiometry require some pretty good attention to detail as well as careful basic arithmetic.
+Read a department's course descriptions and sample degree plan. A title such as “physical chemistry” does not tell you which mathematics courses precede it or how the laboratory component works.
 
-4. Research - Pretty much every job you can get with chemistry will require some hands-on projects. Designing experiments, surveying patients, and working in a lab are all essential skills that you should be building as a chemistry major. Some institutes even accept applications for high school students to help work in their labs for a summer. To find out more about some local programs that you can participate in, check out https://sciteens.org/home/programs, or ask your high school guidance counselor for more information.
+## Chemistry and chemical engineering are different degrees
 
-### **What jobs can I get with Chemistry?**
+Chemistry focuses on the composition, properties, and reactions of substances. Chemical engineering also uses chemistry, but emphasizes the design and operation of processes.
 
-Here at SciTeens, we believe that you should pursue any field you are passionate about. Still, if the subject you love so also happens to be filled with a bunch of well-paying jobs, what's holding you back! Chemistry is one of those majors that is in the sweet spot of being interesting as well as very competitive. Chemistry is often referred to as the "central science" because it connects the physical, life, and applied sciences. A major in chemistry is extraordinarily diverse and opens up dozens of job fields. In general, you can group the types of jobs you can get after majoring in chemistry into five sectors: industry, academia, government, non-profit, and entrepreneurship. Through these five sectors, you will have access to a very diverse set of jobs, meaning you can do almost anything you want with a major in chemistry.
+The interview below comes from the original student contribution. Ashleigh Teygong described studying chemical engineering at MIT. Her experience offers one perspective, not a description of every chemistry degree.
 
-### **The Chemistry Experience**
+Compare both departments if you enjoy chemistry and want to understand which kind of work interests you. Ask how their required courses and student projects differ.
 
-You know the drill, we hit up a current undergraduate at universities across the United States to get an in-depth look at what's like to major in a particular field. I hope these interviews were helpful to anybody who wanted to know from a student's perspective what the different majors entailed.
+## What does undergraduate research involve?
 
-### **TLDR;**
+Research can include preparing samples, using instruments, analyzing measurements, or developing a computational method. The work depends on the laboratory and the student's preparation.
 
-Chemistry is a fantastic major that allows students to prepare for an advanced job in a variety of sectors without necessarily locking them into a particular field. Chemistry majors should have a keen eye for detail and a desire to unravel the building blocks of life. Chemistry students should be prepared to take a mix of both chemistry and biology courses as well as some introductory mathematics courses. After majoring in chemistry, you will be able to tackle a variety of fields with a strong foundation of the "central" science under your belt.
+Ask a department when students can join a research group, whether positions are paid or carry course credit, and how supervision works. Ask about access during the academic year as well as the summer.
+
+High school students can explore [research opportunities](/opportunities/free-research-programs) before choosing a degree. A public-data project also offers practice with measurement, uncertainty, and scientific writing without requiring access to a chemistry laboratory.
+
+## What careers can follow?
+
+Chemists work in research, analysis, manufacturing, and other settings. The qualification needed depends on the role. Some research positions require a graduate degree.
+
+The [U.S. Bureau of Labor Statistics career profile](https://www.bls.gov/ooh/life-physical-and-social-science/chemists-and-materials-scientists.htm) describes work and education for chemists and materials scientists. It is a U.S. reference. Local training and employment requirements differ elsewhere.
+
+Avoid choosing a degree from a single salary figure. Read job descriptions for work that interests you and note the skills and qualifications they request.
+
+## Questions to ask before applying
+
+- Which laboratory courses do all students take?
+- Can undergraduates use research instruments, and with what supervision?
+- How do students find research groups?
+- Which mathematics and physics courses are required?
+- How does the chemistry degree differ from chemical engineering here?
+
+Try explaining a school experiment in a short report. The [STEM-paper guide](/article/how-to-write--a-stem-paper) covers how to describe a method and its limits. That task gives you a sample of the careful communication a chemistry course requires.
+
+## Original student interview
+
+The interview is retained from the original article. References to the student's university and plans describe that interview period.
 
 :::interview{name="Ashleigh Teygong - Massachusetts Institute of Technology" headshot="/content/media/img-4600-2-ashleigh-teygong-a4fa9038.webp"}
 _Tell us a bit about yourself!_

@@ -1,29 +1,72 @@
 ---
-title: Finding Great Datasets
+title: 'Open Datasets for Student Research: Where to Start'
 date: '2020-05-13'
 author: John Sutor
 description: >-
-  Data is what makes great projects great; after all, you've gotta conduct a
-  t-test on something! We'll help you figure out where to locate superb data to
-  help fuel your next amazing project.
+  Find open environmental, climate, and population data, then check
+  documentation, missing values, and reuse terms before starting a project.
 tags: []
 cover: /content/media/sciteens-finding-great-datasets-249ff579.webp
+updated: '2026-11-10'
+update_note: >-
+  AI-assisted editorial revision. The original student byline and publication
+  date are retained. Sources and practical guidance were updated.
 ---
 
-"Data is like garbage. You better know what you're going to do with it before you collect it." - Mark Twain. While it can be argued that this quote is more applicable to [planning and beginning a project](https://https://sciteens.org/blog/taking-action-to-plan-a-project), this blog is concerned with finding and locating great datasets. After all, every great research project was built around quality data. Typically, a research project involves you collecting your own data through experimentation. However, this may be difficult in some contexts. Getting involved in a state-of-the-art cancer research laboratory is no walk in the park when you're only a high school student. Furthermore, collecting atmospheric data isn't as simple as walking around in your background while holding a thermometer. Given these limitations, openly available datasets are the move for exploring data that you are unable to collect yourself. Therefore, we'll help you get started with locating some phenomenal openly-available datasets online.&#x20;
+You do not need to collect every measurement yourself to investigate a science question. Public datasets let students study observations that would otherwise require equipment or access to a research site.
 
-### Finding Great Data
+Choose a question first, then find data that can answer it. A large download is not automatically a useful project.
 
-Okay, you're probably thinking "why can't I just Google 'great dataset' and click the first link that comes up? Bam! I'll be ready to start my own project." By all means, if you want to do this, feel free! But are you sure that the data that you're working with is "clean" (not a pain in the neck to work with)? Are you confident that you understand how the data is labeled? Just because a dataset is openly available online doesn't necessarily mean that it's easy to work with. Luckily, there are great websites and resources that provide easy-to-use open data that you can quickly get up and running with.&#x20;
+## Three sources to explore
 
-Our first highly recommended resource for open-source data is NEON (National Ecological Observatory Network). At <https://data.neonscience.org/>, you can find a myriad of data related to the atmosphere, biogeochemistry (that's a mouthful), ecohydrology, land processes, and organisms/communities. You can further refine this data to include the location where it was collected, when the data was collected, and the type of data that was collected. The majority of the data is available in a time series format, which means that you can identify trends in the dataset that you're working with over a period of time. Perhaps the best part about the NEON platform is the in-depth tutorials for how to work with their datasets. These videos cover everything from how the data is collected, to loading the data onto your computer, to examining the data yourself. While many of these tutorials and examples are currently supported for the R programming language, NEON is currently working on data tutorials in the Python language as well. You can find these tutorials and workshops at <https://www.neonscience.org/resources>.&#x20;
+### NEON: ecosystems and environmental measurements
 
-Another phenomenal source of data is Kaggle. At <https://www.kaggle.com/datasets>, you can find thousands of datasets ranging from topics such as image recognition to medical data. You can search for datasets and filter them by the data format, the size of the dataset, and even how openly available the dataset is. One great feature about Kaggle datasets that we appreciate is how they are assigned a "usability" score ranging from 1 to 10. This will allow you to determine the usability level of data that you are comfortable working with and potentially spend less time organizing and "cleaning" your data rather than actually diving in and exploring your data. Furthermore, you can see how other Kaggle users worked with the open data in their own code by clicking the Kernels tab on each dataset. There, you can see user submissions sorted by popularity that will allow you to get quickly up and running using the data.&#x20;
+The [National Ecological Observatory Network](https://www.neonscience.org/data) provides free, open ecological data. Its portal includes documentation for individual data products and collection methods.
 
-If you want to work with data provided by a certain country, be sure to check out Open Government Data websites at <https://www.data.gov/open-gov/>. For the United States Government (as in, ALL data provided by the United States Government), simply access <https://www.data.gov/>. With hundreds of thousands of open-source datasets from departments such as the National Science Foundation and the National Aeronautics and Space Administration, you can find virtually all of the data you would ever need for creating a great research project. You can even further narrow down the data to topics such as agriculture, energy, ecosystems, climate, and the ocean. While there are many more datasets offered through this data portal, they do not include tutorials on how to work with the data similar to those NEON and Kaggle provide. However, if you're willing to dig in and figure out how to work with the data yourself, the sheer amount of datasets available is a huge plus to anyone. Similarly, you can access all of India's open data at <https://data.gov.in/>, South Korea's open data at <http://data.seoul.go.kr/>, and Brazil's open data at <http://www.dados.gov.br/> to name a few.&#x20;
+For a first project, choose one data product, one site, and a limited period. For example, investigate how a recorded environmental measurement varies within a month. Check the product's units and quality flags before comparing observations.
 
-Finally, we recommend checking out the GitHub page <https://github.com/awesomedata/awesome-public-datasets> to find public datasets across virtually all subject areas. This page is open source and maintained by GitHub collaborators eager to share the amazing datasets that they have found. The datasets are constantly monitored to determine whether they are being actively maintained or need to be fixed, so you don't have to worry about working with antiquated or unreliable data. The one downside, as similar to the United States Government Data Portal, is that there is a lack of tutorials offered for investigating the provided data. However, you can explore this data on your own and figure out how to use it for the thrill of the adventure.&#x20;
+NEON's [tutorial library](https://www.neonscience.org/resources/learning-hub/tutorials) includes R and Python resources. Start with a tutorial that uses your data product rather than an unrelated example.
 
-### Moving Forward
+### NASA GISTEMP: surface temperature change
 
-Once you've found a great dataset, it's time to get to work! If you don't know where to start, feel free to check out some of our other blogs for help. From posts discussing [how to create a hypothesis ](https://sciteens.org/blog/tldr-science-hypothesis)to [formulating a method](https://sciteens.org/blog/tldr-science-method) for your research to follow, we've got you covered. If you think we missed any great resources, let us know! Click the feedback link below to let us know what you found useful or how we can improve. We're always updating our website with more great resources, so stay tuned for useful posts to come. If you're currently working on a project or plan to work on a project in the near future, be sure to sign up for our website! Once signed up, you can request mentorship, ask questions, share your work, and receive feedback for your project! If you want to make sure that your science research or project doesn't go unnoticed, be sure to share it on our website for all to see.&#x20;
+[NASA's GISTEMP page](https://data.giss.nasa.gov/gistemp/) provides temperature-anomaly data and explains the analysis. An anomaly expresses a difference from a reference period, rather than the absolute temperature on a particular day.
+
+A manageable project is to plot the annual series for a selected period. State the reference period and explain what a single annual value represents. Compare a short interval with a longer one to see how the chosen period changes the pattern you describe.
+
+Download the data through NASA's links. Keep a copy and record the access date because the analysis can incorporate later corrections. Follow NASA's data-citation instructions in your report.
+
+### U.S. Census Bureau: population and community estimates
+
+The [American Community Survey five-year data](https://www.census.gov/data/developers/data-sets/acs-5year.html) covers population, housing, and other community characteristics. Its estimates include uncertainty and represent a period, not a single-day census count.
+
+A first project can compare one measure across a few places from the same release. Keep the geography and time period consistent. Include the relevant margin of error rather than ranking places as if every estimate were exact.
+
+The Census API currently requires a key. You can also explore the Bureau's linked data-access options. Do not publish your key in a project notebook.
+
+## Check the data before committing to the project
+
+Download a small sample and read its documentation. Find out what one row represents and what the column names mean.
+
+Record the units, collection period, and geographic coverage. Find the code used for missing values. A missing measurement must not silently become a zero.
+
+Check reuse and citation terms, even when a download is free. Save the dataset's version or identifier where available. A second-hand copy without documentation can make these checks harder.
+
+## Try a small analysis first
+
+1. Open one file in a spreadsheet or notebook.
+2. Identify a numeric column and its unit.
+3. Count the rows with missing values in that column.
+4. Make one plot with a descriptive title and labeled axes.
+5. Write what the plot shows and what it cannot establish.
+
+For the NASA example, a plot can describe changes in the annual anomaly series. That plot alone does not test a new explanation for those changes.
+
+For the Census example, an association between community measures does not establish an individual cause. Keep your claim at the level the data supports.
+
+## Keep the work reproducible
+
+Save the original download separately from the edited file. Record filters, exclusions, and calculations in a notebook or a short methods document.
+
+Use the [research-project planner](/resources/research-project-planner.txt) to record decisions as you make them. The [research-questions guide](/article/tldr-science-research-questions) can help you narrow an unclear question.
+
+Once you can explain the data and your method, use the [STEM-paper guide](/article/how-to-write--a-stem-paper) to report the work. Share the original source and enough detail for another student to repeat the analysis.

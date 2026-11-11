@@ -52,10 +52,10 @@ In fact based on these actions, you should have developed some of your scientifi
 
 ### Other Resources
 
-Abstracts: <https://sciteens.org/blog/tldr-science-abstracts>
+[Abstracts](/article/tldr-science-abstracts)
 
-Method: <https://sciteens.org/blog/tldr-science-method>
+[Method](/article/tldr-science-method)
 
-Figures: <https://sciteens.org/blog/tldr-science-figures>
+[Figures](/article/tldr-science-figures)
 
-Conclusion: <https://sciteens.org/blog/tldr-science-conclusion>
+[Conclusion](/article/tldr-science-conclusion)

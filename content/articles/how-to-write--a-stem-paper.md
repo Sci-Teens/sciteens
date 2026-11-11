@@ -1,12 +1,10 @@
 ---
-title: A Brief Guide to how to Write a STEM Paper
+title: 'How to Write a STEM Paper: Sections and Examples'
 date: '2020-11-18'
 author: Thomas P.
 description: >-
-  Looking for a quick and easy guide on how to write a scientific paper? You've
-  come to the right place. We touch on every part of a successful research paper
-  in this article so you too can ace your science classes and as well as your
-  science fair projects.
+  A section-by-section guide to a student STEM paper, with an example research
+  question, figure captions, and a revision checklist.
 tags:
   - Biology
   - Chemistry
@@ -23,86 +21,79 @@ tags:
 cover: /content/media/sciteens-research-paper-2244a192.webp
 author_bio: Thomas is a high school student at Eastside High.
 author_headshot: /content/media/92747f8-0ac6ffb7.webp
+updated: '2026-11-10'
+update_note: >-
+  AI-assisted editorial revision. The original student byline and publication
+  date are retained. The author biography describes the original publication
+  period. Sources and practical guidance were updated.
 ---
 
-So, you’ve come to your conclusion! You’re done with your project! But, not really; because if you don’t communicate your results well enough, your results will never get through to the STEM community! When you communicate your results, you will either write a lab report or a scientific article/paper. The two are similar, but not the same. This article will help in writing both of these.
+A STEM paper explains a question, the work you did, and what the evidence supports. Your teacher, competition, or intended journal sets the required format.
 
-### **What is the difference between a lab report and a research paper?&#xA0;**
+This guide focuses on the sections of a paper reporting an experiment or data analysis. For the steps before drafting, use [How to Plan Your First Research Paper](/article/tldr-science-how-to-write-a-research-paper).
 
-The main difference between a lab report and a research paper is that lab reports are typically directed towards a teacher, classmate, or professor, while a research paper is directed towards the STEM community in general. Thus, to a certain extent, lab reports are more preliminary as well as briefer than research papers, especially if they are not peer-reviewed.
+## Use one question to organize the paper
 
-## _The Title -_
+Consider this example: “How does daily light exposure affect the height of bean seedlings over two weeks?” This is an illustrative question, not a completed SciTeens experiment.
 
-The title of your paper should be concise, yet descriptive of the experiment you conducted and/or the conclusion you came to. When coming up with a title for your paper, consider the implications of search engines. For example, if your paper is about how “Y effects X”, then people searching about “Y”, “X”, or the “Effects of Y” will see your article. When choosing a title it is important to know your audience; for example, if you want a researcher of “X” to read your paper, you might want to have as many keywords that researchers of “X” search for.
+The paper needs to explain how light exposure was measured, how seedlings were assigned to groups, and how growth was recorded. It also needs to acknowledge limits. A result from one bean variety does not establish how every plant responds.
 
-## _The Abstract -&#xA0;_
+## Title
 
-The Abstract of your paper is much similar to the introduction of an essay in English class. Much of the time, readers will only read the abstract of the article. This is why the abstract can only have the key points of what you wrote. It is best to write the abstract of your paper last because it will usually contain the results and conclusions of your paper and study. Writing it first will result in the abstract being incomplete.
+State the topic and the comparison. “Daily Light Exposure and Bean Seedling Growth” is more informative than “My Biology Experiment.”
 
-When writing your abstract consider:
+Do not put a conclusion in the title unless the results support it. Avoid claims such as “The Best Way to Grow Plants” for a small experiment.
 
-1. What do I want my reader to know about this paper if they just want to get a general idea of it?
+## Abstract
 
-- This should include the following: the most crucial results that were found in the study, a summary of the implications of the results, and the most crucial conclusions you came to.
+Write the abstract after the main paper. Summarize the question, method, main result, and the interpretation within the required length.
 
-1. Keep it brief - your abstract usually should not be longer than 250 - 300 words (which is about a paragraph long). This word count is not set in stone, though.
+A planning template is: “We investigated [question]. We measured [outcome] under [conditions]. The results showed [actual finding]. This suggests [limited interpretation].” Replace every bracket with information from your work.
 
-2. Your abstract is NOT your introduction! If you have other background information that you wish to give the reader, do so in the next section.
+Do not invent a result to complete the template. Keep background detail and citations in the main text unless your required format says otherwise. The [abstract guide](/article/tldr-science-abstracts) covers this section in more detail.
 
-## _The Introduction -&#xA0;_
+## Introduction
 
-The Introduction is usually where you will provide some background information on your study area or the problem you are examining. Although it is important to consider your audience, it is not a bad idea to offer some context as to what the issue is you are researching for clarification purposes. This is where you will cite any precursor research done in years past, using literature that can be found.
+Explain what readers need to know before they can understand the question. Use sources to describe relevant prior work, then identify the question your project addresses.
 
-Your introduction should contain the purpose of your research. It should also state why your study is important (similar to what was done in the abstract, but in more detail). Make sure to connect the purpose of your research to the previous literature so that it is evident what contributions you made to your field of research.
+For the seedling example, explain why light exposure matters and define the outcome you measured. Cite the source of any scientific claim. Distinguish the hypothesis from an established fact.
 
-## _Methods and Materials -_
+## Methods
 
-In this section, you’ll need to provide the steps that other researchers can replicate if they were to recreate your experiment.  First, create a list that has specific amounts of every item used in the experiment. For example, if you are conducting an experiment that would test whether a plant grows faster when next to music, you might have this list of materials:
+Describe what another student needs to repeat the work. Include the materials, sample size, measurement units, dates or duration, and analysis steps.
 
-1. 5 sunflowers grown in a home garden
+For a data project, name the dataset and its version or access date. Record which rows you excluded and why. Keep the original file so a reader can follow your decisions.
 
-2. 1 Clay Flower pot
+For the seedling example, “We watered the plants regularly” is incomplete. The method needs the amount, schedule, and way you kept watering consistent between groups. Include the measurement instrument and how you defined seedling height.
 
-3. 1 speaker for playing music capable of playing 60 decibels.
+Read the [methods guide](/article/tldr-science-method) before you write this section from memory. Your notebook is a better source than your recollection.
 
-Next, in your methods section, you will have to identify the steps the reader will have to take to replicate the experiment. When you state your steps, you will have to be very specific as to what you did; if you leave any step out, your reader will not be able to replicate your experiment. If you are not sure whether your plan is specific enough, consider recreating your experiment using your own steps.
+## Results
 
-## _Results -_
+Report what you observed before you explain why it happened. Include measurements that conflict with the expected pattern.
 
-In this section, you are going to want to explain your findings in word form, as well as using pictures to guide the reader. Explain your most important findings in this section, and leave other more trivial findings for the reader to see in the accompanying figures (which should be labeled “Figure N” \[where N is the number]).
+Choose a figure that answers the question. For repeated height measurements, a line plot can show growth over time. Label the axes with units and explain what each line represents.
 
-Mistakes that could be made in this section include:
+A useful caption template is: “Figure 1. [Outcome] across [groups] during [period]. Points show [individual measurements or summaries]. Error bars represent [stated quantity].” Omit error bars if you did not calculate them.
 
-- Overstating or restating findings already presented.
+Do not label a difference “significant” without an appropriate analysis. The [figures guide](/article/tldr-science-figures) can help you make a readable chart.
 
-- Explaining the significance of the findings (which should be left to the next section).
+## Discussion
 
-- Attempting to elaborate on trivial findings.
+Answer the research question using the results. Explain whether the evidence supports your hypothesis and which alternatives remain possible.
 
-## _Discussion/Conclusion -&#xA0;_
+Describe limits that affect the interpretation. A small sample, inconsistent measurements, or a short observation period can restrict the claim. State the restriction directly instead of adding a vague sentence about “human error.”
 
-This section should reflect upon your findings and how they either tied into your hypothesis or how your initial hypothesis was incorrect. Here, you should discuss the limitations of your experiment; for example, using the sunflower experiment above, not all plants may be affected by music as much or little as sunflower. It is also necessary to restate the implications and importance of your findings (as it was done in the introduction). Your contributions here should be evident in the subsection on the implications of the study.
+Propose a next experiment that addresses a specific limit. For example, testing another plant variety answers a different question from increasing the number of seedlings.
 
-Your discussion section should also invite other researchers to replicate your study. Here are some questions you might want to answer in this portion of your paper:
+## References and final checks
 
-- Why are your principal findings significant?
+Credit the sources of ideas, data, code, and images. Use the citation style your assignment requires. A copied passage needs a quotation and citation, not just an entry in the reference list.
 
-- Explain why you might have obtained the results of your experiment.
+Before submitting, ask a reader to find the question, the main result, and the main limit. Revise any section that makes those difficult to identify.
 
-- What are the possible limitations of this experiment?
+Keep a copy of the paper, analysis files, and the [project planner](/resources/research-project-planner.txt). You can then share the work on [SciTeens Projects](/projects) with enough context for useful feedback.
 
-- How could this experiment be improved in the future by you or other researchers?
+## Writing resources
 
-**Sources:**
-
-<https://www.ndsu.edu/fileadmin/cfwriters/Graduate_Student_Writing_Resources/Lab_Reports_and_Scientific_Papers.doc#:~:text=Lab%20Reports%20and%20Scientific%20Papers&text=Lab%20reports%20and%20scientific%20papers%20document%20the%20results,experimentation%20and%20communicate%20its%20significance.&text=The%20major%20difference%20between%20lab,typically%20a%20teacher%20and%20classmates.> (File Download, a very useful)
-
-<http://www.fefonline.org/s/materials/RK.pdf>
-
-<https://guides.libraries.indiana.edu/c.php?g=992698&p=7182656>
-
-<https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7004368/> (Example article)
-
-<https://www.verywellmind.com/how-to-write-an-abstract-2794845#:~:text=An%20abstract%20should%20be%20between,so%20be%20sure%20to%20ask>.
-
-<https://owl.purdue.edu/owl/general_writing/common_writing_assignments/research_papers/where_do_i_begin.html>
+[Columbia University's guide to scientific papers](https://www.columbia.edu/cu/biology/ug/research/paper.html) explains common scientific-paper sections. [UC Berkeley's writing process guide](https://slc.berkeley.edu/writing-worksheets-and-other-writing-resources/process-approach-writing-research-papers) covers planning and revision. Your assignment's instructions take precedence over a general template.

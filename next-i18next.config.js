@@ -21,6 +21,8 @@ module.exports = {
     localeDetection: false,
   },
   localePath: path.resolve('./public/locales'),
+  // Locale key parity is tested, so translated pages need only their own bundle.
+  fallbackLng: false,
   // Off by default; e2e/i18n-smoke.spec.js sets
   // NEXT_PUBLIC_I18NEXT_DEBUG=true so a missing key logs a warning
   // instead of silently rendering the raw key.

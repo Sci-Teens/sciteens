@@ -8,7 +8,7 @@ import { useContext, useState, useEffect } from 'react'
 import { AppContext } from '../context/context'
 import { signOut } from '@firebase/auth'
 
-import { i18n, useTranslation } from 'next-i18next'
+import { useTranslation } from 'next-i18next'
 
 import {
   Home,
@@ -120,13 +120,7 @@ export default function NavBar() {
     signOut(auth)
   }
 
-  useTranslation('common')
-
-  useEffect(() => {
-    if (router.isReady && i18n?.isInitialized)
-      // See Footer.js: i18next rejects an omitted `resources`.
-      i18n.addResourceBundle(router.locale, 'common', {})
-  }, [router])
+  const { t, ready } = useTranslation('common')
 
   const scrollDirection = useScrollDirection()
   useEffect(() => {
@@ -136,8 +130,8 @@ export default function NavBar() {
   }, [scrollDirection])
 
   return (
-    <nav aria-label={i18n?.t('navigation.primary')}>
-      {i18n?.isInitialized && (
+    <nav aria-label={t('navigation.primary')}>
+      {ready && (
         <Sheet
           open={showMobileNav}
           onOpenChange={setShowMobileNav}
@@ -174,7 +168,7 @@ export default function NavBar() {
                       : 'text-muted-foreground'
                   }`}
                 >
-                  {i18n.t(`navigation.${label}`)}
+                  {t(`navigation.${label}`)}
                 </Link>
               ))}
               <SheetTrigger
@@ -183,7 +177,7 @@ export default function NavBar() {
                     variant="ghost"
                     size="icon"
                     className="size-11 lg:hidden"
-                    aria-label={i18n.t('navigation.menu')}
+                    aria-label={t('navigation.menu')}
                   >
                     <Menu className="h-5 w-5" />
                   </Button>
@@ -195,7 +189,7 @@ export default function NavBar() {
                     <DropdownMenuTrigger
                       render={
                         <button
-                          aria-label={i18n.t(
+                          aria-label={t(
                             'navigation.profile'
                           )}
                           className="border-background hover:border-muted relative h-10 w-10 overflow-hidden rounded-full border-4 hover:shadow-inner"
@@ -225,14 +219,14 @@ export default function NavBar() {
                       <DropdownMenuItem
                         render={
                           <Link href={profileHref}>
-                            {i18n.t('navigation.profile')}
+                            {t('navigation.profile')}
                           </Link>
                         }
                       />
                       <DropdownMenuItem
                         onClick={handleSignOut}
                       >
-                        {i18n.t('navigation.sign_out')}
+                        {t('navigation.sign_out')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -241,7 +235,7 @@ export default function NavBar() {
                     href="/signup/student"
                     className="bg-primary text-primary-foreground hover:bg-primary/90 mr-2 hidden whitespace-nowrap rounded-lg p-2 shadow-sm lg:block"
                   >
-                    {i18n.t('navigation.sign_up')}
+                    {t('navigation.sign_up')}
                   </Link>
                 )}
               </div>
@@ -250,13 +244,13 @@ export default function NavBar() {
           <SheetContent
             side="right"
             className="text-foreground gap-0 px-4 pb-6 pt-16 text-lg"
-            closeLabel={i18n.t('auth.close')}
+            closeLabel={t('auth.close')}
           >
             <SheetTitle className="sr-only">
-              {i18n.t('navigation.menu')}
+              {t('navigation.menu')}
             </SheetTitle>
             <nav
-              aria-label={i18n.t('navigation.primary')}
+              aria-label={t('navigation.primary')}
               className="flex flex-1 flex-col gap-1 overflow-y-auto overscroll-contain"
             >
               {NAV_LINKS.map(
@@ -277,9 +271,7 @@ export default function NavBar() {
                     )}
                   >
                     <Icon className="text-muted-foreground h-6 w-6 shrink-0" />
-                    <span>
-                      {i18n.t(`navigation.${label}`)}
-                    </span>
+                    <span>{t(`navigation.${label}`)}</span>
                   </Link>
                 )
               )}
@@ -297,9 +289,7 @@ export default function NavBar() {
                   )}
                 >
                   <UserPlus className="text-muted-foreground h-6 w-6 shrink-0" />
-                  <span>
-                    {i18n.t('navigation.sign_up')}
-                  </span>
+                  <span>{t('navigation.sign_up')}</span>
                 </Link>
               )}
             </nav>
@@ -338,9 +328,7 @@ export default function NavBar() {
                   )}
                 >
                   <User className="text-muted-foreground h-6 w-6 shrink-0" />
-                  <span>
-                    {i18n.t('navigation.profile')}
-                  </span>
+                  <span>{t('navigation.profile')}</span>
                 </Link>
                 <SheetClose
                   render={
@@ -350,7 +338,7 @@ export default function NavBar() {
                     >
                       <LogOut className="text-muted-foreground h-6 w-6 shrink-0" />
                       <span className="whitespace-nowrap">
-                        {i18n.t('navigation.sign_out')}
+                        {t('navigation.sign_out')}
                       </span>
                     </button>
                   }

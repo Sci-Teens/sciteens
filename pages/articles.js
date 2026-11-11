@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useTranslation } from 'next-i18next'
 import InfiniteScrollTrigger from '@/components/InfiniteScrollTrigger'
+import CrawlPagination from '@/components/search/CrawlPagination'
 
 import {
   getFieldLabel,
@@ -207,12 +208,8 @@ function Articles({ articles }) {
   return (
     <>
       <SocialMeta
-        title={`${
-          field && field !== 'All' ? field + ' ' : ''
-        }Articles${
-          search ? ` related to ${search}` : ''
-        } | SciTeens`}
-        description="Read science articles written by teens, for teens — explore biology, chemistry, physics, and more."
+        title={t('seo.articles_title')}
+        description={t('seo.articles_description')}
         eyebrow="Articles"
         badge={field && field !== 'All' ? field : undefined}
         path="/articles"
@@ -335,6 +332,14 @@ function Articles({ articles }) {
           }
           label={t('articles.load_more')}
         />
+        {!hasActiveFilters && (
+          <CrawlPagination
+            section="articles"
+            hasNextPage={
+              articles.length > ARTICLES_PAGE_SIZE
+            }
+          />
+        )}
       </ListingLayout>
     </>
   )

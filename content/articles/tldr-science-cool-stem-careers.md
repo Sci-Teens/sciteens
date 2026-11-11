@@ -24,7 +24,7 @@ We’ll start off strong with snake milkers. Yes, you read that right. Now what 
 
 **Why Withdraw Venom from Snakes?**
 
-Snake venom has several major biomedical uses. The first being the venom is used to create an anti-venom. If a person has been bitten by a snake, it is imperative that the person is taken to a hospital and given the anti-venom. Furthermore, [biomedical research](https://https://www.sciencedirect.com/science/article/pii/S2589909020300435) has shown that certain proteins in the snake venom have anticoagulant properties, meaning these proteins, when modified, could prevent blood clots from forming and causing a heart attack or stroke.&#x20;
+Snake venom has several major biomedical uses. The first being the venom is used to create an anti-venom. If a person has been bitten by a snake, it is imperative that the person is taken to a hospital and given the anti-venom. Furthermore, [biomedical research](https://www.sciencedirect.com/science/article/pii/S2589909020300435) has shown that certain proteins in the snake venom have anticoagulant properties, meaning these proteins, when modified, could prevent blood clots from forming and causing a heart attack or stroke.&#x20;
 
 **Job Outline**
 

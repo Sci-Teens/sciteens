@@ -1,0 +1,69 @@
+SciTeens student research-project planner
+
+Copy this sheet or print it. Use a new copy when the question changes.
+
+Project title: _________________________________________________
+Name or group: ________________________________________________
+Date: __________________  Target completion date: ______________
+
+THE QUESTION
+What do you want to find out?
+______________________________________________________________
+______________________________________________________________
+Why can your chosen data or experiment answer that question?
+______________________________________________________________
+
+WHAT YOU NEED
+Data source or materials: ______________________________________
+Official source link or dataset identifier: ____________________
+Dataset version and date accessed: _____________________________
+Permissions, supervision, or school approval needed: ____________
+Estimated cost and who provides materials: _____________________
+
+THE METHOD
+What does one measurement or data row represent?
+______________________________________________________________
+What will you measure, and in which units?
+______________________________________________________________
+What will you compare or keep constant?
+______________________________________________________________
+How will you handle missing values or unusable measurements?
+______________________________________________________________
+
+SOURCE NOTES
+For each source, record its author/organization, date, link,
+and what it supports. Mark copied quotations as quotations.
+1. ___________________________________________________________
+2. ___________________________________________________________
+3. ___________________________________________________________
+
+TASKS
+Task                         Person              Due date
+___________________________  __________________  _____________
+___________________________  __________________  _____________
+___________________________  __________________  _____________
+
+RESULTS
+Which figure or table answers the question?
+______________________________________________________________
+What did you observe, including unexpected results?
+______________________________________________________________
+
+LIMITS
+What can these results support?
+______________________________________________________________
+What can they not establish?
+______________________________________________________________
+What change would improve the next investigation?
+______________________________________________________________
+
+BEFORE SHARING
+[ ] Keep the original data and a record of changes.
+[ ] Label figure axes and units.
+[ ] Cite data, code, ideas, and images from other sources.
+[ ] Remove private information from public files.
+[ ] Explain the method and at least one limitation.
+[ ] Follow your school or competition's rules for assistance.
+
+More student resources: https://sciteens.org/articles
+Share student work: https://sciteens.org/projects

@@ -319,7 +319,7 @@
     "topics": "Sujets",
     "filters": "Filtres",
     "clear_filters": "Effacer les filtres",
-    "lede": "Des cours de science gratuits et fondés sur des projets, à votre rythme ou avec un groupe.",
+    "lede": "Supports des anciens cours SciTeens. Les inscriptions sont closes ; les notebooks et ressources restent disponibles.",
     "clear_search": "Effacer la recherche",
     "active_filters": "Filtres actifs",
     "remove_filter": "Retirer le filtre : {{filter}}",
@@ -664,5 +664,188 @@
   "form": {
     "loading": "Chargement…",
     "unsaved_changes": "Vous avez des modifications non enregistrées. Quitter cette page et les perdre ?"
+  },
+  "seo": {
+    "home_title": "Opportunités STEM et recherche étudiante | SciTeens",
+    "home_description": "Trouvez des programmes STEM, comparez les critères et les coûts, et lisez des projets de lycéens. SciTeens se consulte gratuitement, sans compte.",
+    "browse_opportunities": "Trouver des opportunités STEM",
+    "explore_resources": "Explorer SciTeens",
+    "breadcrumb": "Emplacement de la page",
+    "back_to_articles": "Retour aux articles",
+    "back_to_courses": "Retour aux cours",
+    "updated_on": "Mis à jour le {{date}}",
+    "ends_on": "Fin le {{date}}",
+    "course_archive": "Cours archivé",
+    "course_archive_description": "Ce cours a eu lieu en 2021. Les inscriptions sont closes. Les liens vers les leçons et les supports restent disponibles à titre de référence.",
+    "courses_title": "Archives de cours de sciences et notebooks | SciTeens",
+    "courses_description": "Consultez les anciens cours de sciences et notebooks Python de SciTeens. Ces supports proviennent de sessions passées ; les inscriptions sont closes.",
+    "collections_heading": "Trouvez un programme qui vous convient",
+    "collections_description": "Commencez par le coût, le lieu ou le critère qui compte pour vous. Chaque guide renvoie aux informations officielles.",
+    "free_programs": "Programmes de recherche gratuits",
+    "free_programs_description": "Vérifiez les frais de formation, de candidature, de déplacement et les aides.",
+    "virtual_programs": "Programmes de recherche à distance",
+    "virtual_programs_description": "Comparez les possibilités à distance et les conditions de résidence.",
+    "international_programs": "Programmes pour les élèves internationaux",
+    "international_programs_description": "Vérifiez les conditions de nationalité, les candidatures et le financement.",
+    "editorial_title": "Règles éditoriales | SciTeens",
+    "editorial_heading": "Comment nous publions et actualisons les ressources",
+    "editorial_description": "Découvrez comment SciTeens traite les sources, les auteurs étudiants, les mises à jour et les corrections.",
+    "editorial_authorship_heading": "Auteurs étudiants et mises à jour",
+    "editorial_authorship": "Les articles conservent leur auteur et leur date de publication d’origine. Les révisions importantes portent une date et une note signalant l’aide de l’IA à la rédaction. Une révision ne constitue pas une nouvelle contribution étudiante.",
+    "editorial_sources_heading": "Sources et informations sur les programmes",
+    "editorial_sources": "Les guides renvoient aux sources officielles. Les coûts, critères et échéances peuvent changer. Une date inconnue reste non confirmée jusqu’à sa publication par le programme. Une fiche ne signifie ni partenariat ni recommandation officielle.",
+    "editorial_science_heading": "Articles scientifiques",
+    "editorial_science": "Les articles expliquent des notions aux élèves. Ce ne sont ni des travaux évalués par les pairs ni des conseils médicaux. Les références permettent de vérifier les explications et de poursuivre la lecture.",
+    "editorial_corrections_heading": "Corrections",
+    "editorial_corrections": "Vous avez trouvé une erreur ou un lien cassé ? Envoyez l’URL et la correction à info@sciteens.org. Pour un programme, ajoutez la source officielle.",
+    "editorial_link": "Règles éditoriales",
+    "articles_title": "Articles de sciences pour les adolescents | SciTeens",
+    "articles_description": "Articles scientifiques d’élèves et guides de recherche actualisés. Découvrez la biologie, la chimie, la physique et des conseils pour votre projet.",
+    "projects_title": "Projets scientifiques et recherche étudiante | SciTeens",
+    "projects_description": "Explorez des projets scientifiques d’élèves. Lisez leurs recherches, comparez les méthodes et partagez votre projet.",
+    "opportunities_title": "Programmes STEM et recherche pour les lycéens | SciTeens",
+    "opportunities_description": "Trouvez des programmes STEM, concours et possibilités de recherche pour les lycéens. Comparez les critères scolaires, les lieux et les échéances.",
+    "pagination": {
+      "label": "Parcourir les pages de résultats",
+      "browse": "Parcourir toutes les pages",
+      "page": "Page {{page}}",
+      "title": "{{section}} : page {{page}}",
+      "previous": "Page précédente",
+      "next": "Page suivante",
+      "back": "Rechercher et filtrer {{section}}",
+      "all_opportunities": "Toutes les opportunités STEM"
+    }
+  },
+  "opportunity_collections": {
+    "browse_heading": "Explorer selon vos besoins",
+    "breadcrumb": "Position de la page",
+    "all_opportunities": "Voir toutes les possibilités",
+    "reviewed": "Sources consultées le {{date}}",
+    "compare_heading": "Comparer les programmes",
+    "source_note": "Cette sélection ne constitue pas un classement. Les frais et les critères proviennent des sources indiquées. Vérifiez les dates avant de postuler.",
+    "scroll_table": "Faites défiler le tableau pour comparer les critères, les frais et les projets.",
+    "program": "Programme et sources",
+    "eligibility": "Qui peut postuler",
+    "cost": "Frais à vérifier",
+    "work": "Travail proposé",
+    "details": "Fiche sur SciTeens",
+    "official_source": "Source du programme {{number}}",
+    "selection_heading": "Comment cette liste a été établie",
+    "before_apply": "Avant de postuler",
+    "independent_note": "SciTeens ne gère pas ces programmes et ne décide pas des admissions. Leur présence ici ne signifie pas que les candidatures sont ouvertes.",
+    "prepare_heading": "Préparer votre projet",
+    "paper_guide": "Rédiger un article scientifique (en anglais)",
+    "datasets_guide": "Trouver un jeu de données (en anglais)",
+    "club_guide": "Créer un club STEM (en anglais)",
+    "formats": {
+      "residential": "Recherche en résidence",
+      "remote_research": "Recherche à distance avec mentorat",
+      "campus_research": "Recherche sur campus",
+      "collaborative_research": "Recherche collaborative en ligne",
+      "self_paced": "Projets de programmation à votre rythme",
+      "coding_camp": "Programmation en ligne et en présentiel",
+      "remote_outreach": "Physique et programmation en ligne"
+    },
+    "pages": {
+      "free": {
+        "label": "Recherche sans frais de scolarité",
+        "title": "Programmes de recherche sans frais de scolarité pour les lycéens",
+        "description": "Comparez des programmes de recherche sans frais de scolarité. Les candidatures, le transport, les repas et le logement peuvent rester payants.",
+        "selection": "Ces programmes indiquent que les élèves admis ne paient pas de frais de scolarité. Les autres frais connus figurent dans le tableau.",
+        "advice": "Demandez une exonération avant de payer les frais de candidature. Pour un séjour sur campus, calculez aussi le transport, les repas, le logement et les assurances."
+      },
+      "virtual": {
+        "label": "Recherche à distance",
+        "title": "Possibilités de recherche à distance pour les lycéens",
+        "description": "La recherche à domicile peut durer une année avec un mentor ou quelques semaines en équipe. Comparez d’abord l’engagement et les critères.",
+        "selection": "Ces programmes proposent de la recherche à distance ou une collaboration en ligne. La sélection, les sujets, les frais et le mentorat varient.",
+        "advice": "Convertissez les horaires dans votre fuseau. Demandez quel équipement est nécessaire et quel travail est prévu en dehors des séances."
+      },
+      "international": {
+        "label": "Élèves internationaux",
+        "title": "Programmes STEM pour les lycéens internationaux",
+        "description": "Découvrez des programmes ouverts aux candidatures internationales. Le pays, l’âge et les conditions d’aide peuvent encore limiter l’admissibilité.",
+        "selection": "Les sources autorisent la participation internationale. RSI passe par des pays partenaires. Un accès en ligne ne supprime pas les restrictions.",
+        "advice": "Confirmez la procédure de votre pays avant de demander des recommandations. Pour un séjour, renseignez-vous sur les visas, les responsables légaux, le logement et le transport."
+      },
+      "biology": {
+        "label": "Recherche en biologie",
+        "title": "Programmes de recherche en biologie pour les lycéens",
+        "description": "Comparez la recherche en laboratoire, en génomique et sur les données de santé. Un projet informatique et un stage en laboratoire demandent des préparations différentes.",
+        "selection": "Les organisateurs décrivent des recherches biologiques ou des projets sur les données de santé. Aucun laboratoire ni sujet particulier n’est garanti.",
+        "advice": "Lisez les prérequis du parcours choisi. Demandez si vous étudierez des expériences, des données existantes ou des publications, et qui vous encadrera."
+      },
+      "computing": {
+        "label": "Informatique",
+        "title": "Programmes d’informatique pour les lycéens",
+        "description": "Choisissez entre apprendre à programmer et étudier une question de recherche. Ces programmes vont des projets débutants à la recherche mathématique et en IA médicale.",
+        "selection": "Nous distinguons la formation des stages de recherche. Un cours débutant prépare à la recherche, mais son achèvement ne constitue pas une recherche originale.",
+        "advice": "Choisissez selon votre niveau actuel. Si le programme exige de coder en autonomie, terminez un petit projet et expliquez comment vous l’avez testé."
+      },
+      "summer": {
+        "label": "Recherche d’été",
+        "title": "Programmes de recherche d’été pour les lycéens",
+        "description": "Comparez les programmes sur campus avant de prévoir votre été. Le niveau scolaire, la nomination par l’établissement et la présence à temps plein limitent les choix.",
+        "selection": "Ces organismes proposent une recherche d’été encadrée avec un projet défini. La sélection comprend des programmes gratuits et des programmes payants avec aide.",
+        "advice": "Vérifiez les critères, puis notez séparément les dates de candidature et de recommandation. Vérifiez toute la période de présence avant de réserver un voyage."
+      }
+    },
+    "programs": {
+      "rsi": {
+        "eligibility": "Élèves en avant-dernière année du secondaire, âgés de 16 ans au 1er juillet. Sélection internationale par pays partenaire.",
+        "cost": "Scolarité, logement et repas pris en charge. Candidature : 75 USD, avec exonération possible selon les ressources. Vérifiez les frais de transport.",
+        "work": "Six semaines de cours et de recherche encadrée, avec un rapport écrit et une présentation finale."
+      },
+      "primes": {
+        "eligibility": "Élèves des grades 10 et 11 résidant aux États-Unis hors du Grand Boston. Il s’agit de la section à distance PRIMES-USA.",
+        "cost": "Aucun frais de scolarité. Ordinateur, webcam et connexion Internet fiable nécessaires.",
+        "work": "Recherche annuelle en mathématiques et bio-informatique, dont l’informatique théorique appliquée. Au moins 10 heures par semaine durant les phases de recherche."
+      },
+      "simons": {
+        "eligibility": "Grade 11 ; citoyenneté américaine ou résidence permanente ; 16 ans au début du programme. Nomination par l’établissement obligatoire.",
+        "cost": "Aucun frais de scolarité. Candidature : 75 USD, avec exonération possible. Logement, repas, transport et dépenses personnelles restent à prévoir.",
+        "work": "Six semaines dans une équipe de Stony Brook. Les places en biologie dépendent des mentors disponibles. Présentation d’une affiche scientifique."
+      },
+      "foundation": {
+        "eligibility": "Lycéens à faibles revenus dans le monde entier. La FAQ privilégie la dernière année du secondaire ; vérifiez les critères de la session.",
+        "cost": "Aucun frais pour les élèves admis à Breakthrough. Il s’agit du programme de la fondation, distinct du programme payant Lumiere Research Scholar.",
+        "work": "Un article de recherche en 12 semaines avec un mentor individuel. Vérifiez les sujets disponibles et le calendrier de votre session."
+      },
+      "crowdmath": {
+        "eligibility": "Élèves du secondaire et étudiants du monde entier. Travail collaboratif, sans stage individuel en laboratoire.",
+        "cost": "La page MIT consultée ne précise pas les frais. Vérifiez le projet CrowdMath actuel et les conditions du compte.",
+        "work": "Un projet annuel de recherche mathématique en ligne et de résolution collective. Consultez la question étudiée sur la page du projet."
+      },
+      "aimi": {
+        "eligibility": "Pour 2027 : entrée en grades 9 à 12, plus de 14 ans au début et bonne autonomie en programmation. Candidatures internationales acceptées.",
+        "cost": "Scolarité 2027 : 3 000 USD. Aide selon les ressources pour certains résidents américains ; ne présumez pas d’une aide internationale.",
+        "work": "Deux semaines de recherche en équipe sur les données de santé et l’IA. Séances à l’heure du Pacifique et travail personnel supplémentaire."
+      },
+      "ssp": {
+        "eligibility": "Avant-dernière année du secondaire, 15 à 18 ans pendant le programme, avec les cours scientifiques requis. Candidatures internationales acceptées.",
+        "cost": "Programme payant avec aide selon les ressources, y compris pour les élèves internationaux. Tarif 2027 non publié ; aide au transport possible.",
+        "work": "Recherche en résidence en astrophysique, biochimie, génomique bactérienne ou biologie cellulaire. Chaque parcours a ses propres prérequis."
+      },
+      "rockefeller": {
+        "eligibility": "Deux dernières années du secondaire ; 16 ans au début. Présence à temps plein à New York obligatoire.",
+        "cost": "La présentation consultée ne précise ni frais, ni logement, ni aide au transport. Contactez l’organisateur avant de calculer votre budget.",
+        "work": "Recherche en laboratoire en équipe, analyse de données et affiche. L’organisateur prévoit environ 35 heures par semaine."
+      },
+      "gwc": {
+        "eligibility": "Grades 9 à 12, y compris avant l’entrée au grade 9 et en fin de secondaire ; filles et personnes non binaires du monde entier.",
+        "cost": "Gratuit. Vérifiez les besoins en ordinateur et en connexion pour les activités en ligne.",
+        "work": "Projets à votre rythme en jeux, données, IA, cybersécurité ou développement web. Formation pratique, sans stage de recherche."
+      },
+      "kwk": {
+        "eligibility": "Jeunes femmes et personnes de genres divers, de 13 à 18 ans. Aucune expérience en programmation exigée pour les programmes d’accueil.",
+        "cost": "Gratuit. Les formats varient selon le programme ; vérifiez le transport et l’équipement nécessaires pour votre session.",
+        "work": "Projets en développement web, IA ou science des données. Ateliers de deux jours et stages de deux semaines proposés."
+      },
+      "spinwip": {
+        "eligibility": "La dernière session publiée acceptait les grades 9 à 11, tous genres et pays. Les conditions de candidature 2027 ne sont pas encore publiées.",
+        "cost": "La dernière session publiée était gratuite. Confirmez les conditions de la prochaine session à l’ouverture des candidatures.",
+        "work": "Initiation à la physique en ligne avec Python, cours et petits groupes. Préparation à la recherche, sans stage en laboratoire."
+      }
+    }
   }
 }

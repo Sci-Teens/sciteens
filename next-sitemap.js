@@ -10,10 +10,45 @@ const {
 } = require('firebase/firestore')
 const {
   createDocumentPaths,
+  createArchivePaths,
   isIndexableSitemapPath,
+  toLastmod,
 } = require('./lib/sitemap.cjs')
+const fs = require('node:fs')
+const path = require('node:path')
 
 const SITE_URL = 'https://sciteens.org'
+
+async function contentLastmod(route) {
+  const collection = route.match(
+    /^\/(?:es\/|fr\/|hi\/)?opportunities\/([^/]+)$/
+  )
+  if (collection) {
+    const { getOpportunityCollection } = await import(
+      './lib/opportunityCollections.js'
+    )
+    const entry = getOpportunityCollection(collection[1])
+    if (entry) return toLastmod(entry.reviewedAt)
+  }
+  const match = route.match(
+    /^\/(?:es\/|fr\/|hi\/)?(article|course)\/([a-z0-9.-]+)$/
+  )
+  if (!match) return undefined
+  const file = path.join(
+    __dirname,
+    'content',
+    `${match[1]}s`,
+    `${match[2]}.md`
+  )
+  if (!fs.existsSync(file)) return undefined
+  const { parseFrontmatter } = await import(
+    './lib/markdown.mjs'
+  )
+  const { data } = parseFrontmatter(
+    fs.readFileSync(file, 'utf8')
+  )
+  return toLastmod(data.updated || data.date)
+}
 
 function getFirebaseConfig() {
   const projectId = process.env.NEXT_PUBLIC_FB_PROJECT_ID
@@ -42,22 +77,34 @@ async function getDynamicPaths(config) {
     getDocs(collection(firestore, 'projects')),
     getDocs(collection(firestore, 'opportunities')),
   ])
+  const projectRecords = projects.docs.map((document) => ({
+    ...document.data(),
+    id: document.id,
+  }))
+  const programPaths = createDocumentPaths(
+    opportunities.docs.map((document) => ({
+      ...document.data(),
+      id: document.id,
+    })),
+    'program',
+    'slug'
+  )
+  const articleCount = fs
+    .readdirSync(path.join(__dirname, 'content/articles'))
+    .filter((file) => file.endsWith('.md')).length
   const paths = [
-    ...createDocumentPaths(
-      projects.docs.map((document) => ({
-        ...document.data(),
-        id: document.id,
-      })),
-      'project',
-      'id'
+    ...createDocumentPaths(projectRecords, 'project', 'id'),
+    ...programPaths,
+    ...createArchivePaths('articles', articleCount),
+    ...createArchivePaths(
+      'projects',
+      projectRecords.filter(
+        (record) => record.date !== undefined
+      ).length
     ),
-    ...createDocumentPaths(
-      opportunities.docs.map((document) => ({
-        ...document.data(),
-        id: document.id,
-      })),
-      'program',
-      'slug'
+    ...createArchivePaths(
+      'opportunities',
+      programPaths.length
     ),
   ]
 
@@ -76,10 +123,10 @@ module.exports = {
   siteUrl: SITE_URL,
   transform: async (_config, path) => {
     if (!isIndexableSitemapPath(path)) return null
+    const lastmod = await contentLastmod(path)
     return {
-      changefreq: 'weekly',
       loc: path,
-      priority: 0.7,
+      ...(lastmod ? { lastmod } : {}),
     }
   },
 }

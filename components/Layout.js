@@ -5,13 +5,8 @@ import Banner from '../components/Banner'
 import Analytics from './Analytics'
 import { useScrollDirection } from '../lib/useScrollDirection'
 
-const NavBar = dynamic(() => import('./NavBar'), {
-  ssr: false,
-})
-
-const Footer = dynamic(() => import('./Footer'), {
-  ssr: false,
-})
+const NavBar = dynamic(() => import('./NavBar'))
+const Footer = dynamic(() => import('./Footer'))
 
 const CookieConsent = dynamic(
   () => import('./CookieConsent'),

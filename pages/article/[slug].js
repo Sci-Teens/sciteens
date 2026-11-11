@@ -3,6 +3,11 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ThumbsDown, ThumbsUp } from 'lucide-react'
 import SocialMeta from '../../components/SocialMeta'
+import StructuredData from '@/components/StructuredData'
+import {
+  articleStructuredData,
+  breadcrumbStructuredData,
+} from '@/lib/structuredData'
 import Discussion from '../../components/Discussion'
 import MarkdownContent from '../../components/MarkdownContent'
 import { useRouter } from 'next/router'
@@ -85,8 +90,38 @@ function Article({ article, recommendations }) {
         eyebrow="Article"
         badge={article.author}
         path={router.asPath}
+        type="article"
+      />
+      <StructuredData
+        id="article-structured-data"
+        data={[
+          articleStructuredData(article),
+          breadcrumbStructuredData([
+            { name: t('navigation.home'), path: '/' },
+            {
+              name: t('articles.articles'),
+              path: '/articles',
+            },
+            {
+              name: article.title,
+              path: `/article/${article.slug}`,
+            },
+          ]),
+        ]}
       />
       <DetailMain>
+        <nav
+          aria-label={t('seo.breadcrumb')}
+          className="mb-5 text-sm"
+        >
+          <Link
+            href="/articles"
+            locale="en"
+            className={INLINE_LINK}
+          >
+            {t('seo.back_to_articles')}
+          </Link>
+        </nav>
         <PageHeading>{article.title}</PageHeading>
         <HeadingRule />
 
@@ -102,8 +137,24 @@ function Article({ article, recommendations }) {
                 minutes: article.minutes,
               })}
             </p>
+            {article.updated && (
+              <p className="text-muted-foreground mt-1">
+                {t('seo.updated_on', {
+                  date: formatMediumDate(
+                    article.updated,
+                    router?.locale
+                  ),
+                })}
+              </p>
+            )}
           </div>
         </div>
+
+        {article.updateNote && (
+          <p className="border-border/60 text-muted-foreground mt-5 border-l-2 pl-4 text-sm leading-relaxed">
+            {article.updateNote}
+          </p>
+        )}
 
         {article.description && (
           <p className="text-muted-foreground text-pretty mt-6 text-base leading-relaxed md:mt-7 md:text-lg">

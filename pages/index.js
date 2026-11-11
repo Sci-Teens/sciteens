@@ -1,4 +1,6 @@
 import SocialMeta from '@/components/SocialMeta'
+import StructuredData from '@/components/StructuredData'
+import { organizationStructuredData } from '@/lib/structuredData'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -201,11 +203,13 @@ export default function Home() {
   return (
     <div>
       <SocialMeta
-        title={`SciTeens — ${t(
-          'index.science_simplified'
-        )}`}
-        description={t('index.share_work')}
+        title={t('seo.home_title')}
+        description={t('seo.home_description')}
         path="/"
+      />
+      <StructuredData
+        id="organization"
+        data={organizationStructuredData}
       />
 
       <section
@@ -224,9 +228,9 @@ export default function Home() {
               <Button
                 size="lg"
                 className="h-11 px-6 text-base"
-                render={<Link href="/signup/student" />}
+                render={<Link href="/opportunities" />}
               >
-                {t('index.get_started')}
+                {t('seo.browse_opportunities')}
                 <ArrowRight className="group-hover/button:translate-x-0.5 transition-transform" />
               </Button>
               <Button
@@ -238,6 +242,29 @@ export default function Home() {
                 {t('navigation.about')}
               </Button>
             </div>
+            <nav
+              aria-label={t('seo.explore_resources')}
+              className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm"
+            >
+              <Link
+                href="/projects"
+                className="underline underline-offset-4"
+              >
+                {t('projects.projects')}
+              </Link>
+              <Link
+                href="/articles"
+                className="underline underline-offset-4"
+              >
+                {t('articles.articles')}
+              </Link>
+              <Link
+                href="/courses"
+                className="underline underline-offset-4"
+              >
+                {t('courses.courses')}
+              </Link>
+            </nav>
           </div>
 
           <nav aria-label={t('projects.topics')}>
@@ -284,6 +311,53 @@ export default function Home() {
               )}
             </div>
           </nav>
+        </div>
+      </section>
+
+      <section
+        className={`${GUTTER} pb-12 md:pb-16`}
+        aria-labelledby="opportunity-guides-heading"
+      >
+        <h2
+          id="opportunity-guides-heading"
+          className="text-balance text-2xl font-bold tracking-tight md:text-3xl"
+        >
+          {t('seo.collections_heading')}
+        </h2>
+        <p className="text-muted-foreground mt-3 max-w-2xl leading-relaxed">
+          {t('seo.collections_description')}
+        </p>
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
+          {[
+            ['free-research-programs', 'free_programs'],
+            [
+              'virtual-research-programs',
+              'virtual_programs',
+            ],
+            [
+              'international-students',
+              'international_programs',
+            ],
+          ].map(([slug, key]) => (
+            <Card
+              key={slug}
+              className="border-border/60 h-full shadow-sm"
+            >
+              <CardContent className="p-5 md:p-6">
+                <h3 className="text-lg font-semibold">
+                  <Link
+                    href={`/opportunities/${slug}`}
+                    className="underline-offset-4 hover:underline"
+                  >
+                    {t(`seo.${key}`)}
+                  </Link>
+                </h3>
+                <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+                  {t(`seo.${key}_description`)}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </section>
 

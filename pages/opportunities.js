@@ -15,6 +15,8 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { useRouter } from 'next/router'
 
 import InfiniteScrollTrigger from '@/components/InfiniteScrollTrigger'
+import CrawlPagination from '@/components/search/CrawlPagination'
+import OpportunityCollectionLinks from '@/components/OpportunityCollectionLinks'
 import OpportunityFieldIcons from '@/components/OpportunityFieldIcons'
 import SocialMeta from '@/components/SocialMeta'
 import ActiveFilters from '@/components/search/ActiveFilters'
@@ -845,8 +847,8 @@ function Opportunities({
   return (
     <>
       <SocialMeta
-        title="Opportunities | SciTeens"
-        description="STEM programs, competitions, and research opportunities for high school students."
+        title={t('seo.opportunities_title')}
+        description={t('seo.opportunities_description')}
         eyebrow="Opportunities"
         path="/opportunities"
       />
@@ -1027,6 +1029,15 @@ function Opportunities({
           <ListingSkeleton count={2} />
         )}
 
+        {!hasActiveFilters && (
+          <section className="border-border/60 mt-8 border-t pt-6">
+            <h2 className="mb-4 text-lg font-semibold">
+              {t('opportunity_collections.browse_heading')}
+            </h2>
+            <OpportunityCollectionLinks />
+          </section>
+        )}
+
         <InfiniteScrollTrigger
           hasNextPage={
             hasNextPage && !opportunitiesQuery.isError
@@ -1035,6 +1046,12 @@ function Opportunities({
           onLoadMore={fetchNextPage}
           label={t('opportunities.load_more')}
         />
+        {!hasActiveFilters && (
+          <CrawlPagination
+            section="opportunities"
+            archiveLink
+          />
+        )}
       </ListingLayout>
     </>
   )
