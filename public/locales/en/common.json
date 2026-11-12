@@ -722,7 +722,9 @@
     "browse_heading": "Browse by student need",
     "breadcrumb": "Page location",
     "all_opportunities": "Browse all opportunities",
-    "reviewed": "Sources checked {{date}}",
+    "last_updated": "Last updated {{date}}",
+    "image_source": "Source",
+    "image_source_label": "View image source for {{program}}",
     "compare_heading": "Compare the programs",
     "source_note": "This is a selected list, not a ranking. Fees and eligibility come from the linked program sources. Check current dates before applying.",
     "scroll_table": "Scroll across the table to compare eligibility, costs, and project work.",
@@ -850,15 +852,27 @@
       }
     },
     "images": {
-      "primes": "PRIMES-USA student Ritesh Ragavender at MIT, 2013. MIT Mathematics.",
-      "foundation": "Dennis, a Lumiere Foundation Breakthrough Scholar. Lumiere Foundation.",
+      "primes": "PRIMES mentor Adela Zhang and alumna Jakin Ng. Ken Richardson / MIT.",
+      "foundation": "Lumiere Research Inclusion Foundation.",
       "crowdmath": "Art of Problem Solving, co-host of CrowdMath.",
-      "spinwip": "SPINWIP organizers, 2021. Photo courtesy of Beatriz Yankelevich, via The Stanford Daily.",
-      "rsi": "RSI participants. Center for Excellence in Education.",
+      "spinwip": "KIPAC, co-host of SPINWIP.",
+      "rsi": "Research workshop at RSI. Center for Excellence in Education.",
       "simons": "A Simons Fellow presents research to a mentor, 2026. Stony Brook University.",
       "ssp": "Summer Science Program laboratory work. SSP International.",
       "rockefeller": "SSRP students discuss a research project, 2022. The Rockefeller University.",
-      "gwc": "Girls Who Code hackathon, 2019. Girls Who Code."
+      "gwc": "Girls Who Code hackathon, 2019. Girls Who Code.",
+      "aimi": "Student research and poster presentations.",
+      "kwk": "Learning to code together."
+    },
+    "image_alt": {
+      "rsi": "An RSI student beside a milling machine.",
+      "primes": "PRIMES mentor Adela Zhang and alumna Jakin Ng at MIT.",
+      "simons": "A Simons research student explaining a poster to a mentor.",
+      "ssp": "Summer Science Program students working with laboratory equipment.",
+      "rockefeller": "Rockefeller SSRP students discussing a student-built fly arena.",
+      "gwc": "Girls Who Code participants collaborating at a hackathon.",
+      "aimi": "A student presenting a research poster.",
+      "kwk": "Students collaborating on laptop computers."
     }
   }
 }

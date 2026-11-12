@@ -4,43 +4,77 @@ import Link from 'next/link'
 import { useTranslation } from 'next-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import { INLINE_LINK } from '@/lib/typography'
+import { ArrowUpRight } from 'lucide-react'
 
-export default function CollectionProgramCard({ program }) {
+export default function CollectionProgramCard({
+  program,
+  priority = false,
+}) {
   const { t } = useTranslation('common')
   const [imageFailed, setImageFailed] = useState(false)
 
   return (
-    <Card className="border-border/60 h-full overflow-hidden shadow-sm">
+    <Card className="border-border/60 overflow-hidden shadow-sm">
       {program.imageUrl && !imageFailed && (
         <figure>
-          <div className="bg-muted relative aspect-[16/9]">
+          <div
+            className={
+              program.imageKind === 'logo'
+                ? 'relative mx-6 mt-6 h-12 w-40'
+                : 'bg-muted relative aspect-[16/9]'
+            }
+          >
             <Image
               src={program.imageUrl}
-              alt=""
-              fill
-              sizes="(min-width: 1024px) 552px, (min-width: 768px) 90vw, 100vw"
-              className={
-                program.imageFit === 'cover'
-                  ? 'object-cover'
-                  : 'object-scale-down p-6'
+              priority={priority}
+              alt={
+                program.imageAltKey
+                  ? t(program.imageAltKey)
+                  : ''
               }
+              fill
+              sizes={
+                program.imageKind === 'logo'
+                  ? '160px'
+                  : '(min-width: 1184px) 562px, (min-width: 1024px) calc(50vw - 30px), calc(100vw - 34px)'
+              }
+              className={
+                program.imageKind === 'logo'
+                  ? 'object-contain object-left'
+                  : 'object-cover'
+              }
+              style={{
+                objectPosition: program.imagePosition,
+              }}
               onError={() => setImageFailed(true)}
             />
           </div>
-          {program.imageSource &&
-            program.imageCaptionKey && (
-              <figcaption className="text-muted-foreground px-6 pt-3 text-xs leading-relaxed">
+          {program.imageCaptionKey && (
+            <figcaption className="text-muted-foreground flex items-start justify-between gap-3 px-6 pt-3 text-xs leading-relaxed">
+              <span>{t(program.imageCaptionKey)}</span>
+              {program.imageSource && (
                 <a
                   href={program.imageSource}
-                  className="underline underline-offset-4"
+                  aria-label={t(
+                    'opportunity_collections.image_source_label',
+                    { program: program.name }
+                  )}
+                  className="hover:text-foreground min-h-6 focus-visible:ring-ring inline-flex shrink-0 items-center gap-1 rounded-lg px-1 font-medium outline-none focus-visible:ring-2"
                 >
-                  {t(program.imageCaptionKey)}
+                  {t(
+                    'opportunity_collections.image_source'
+                  )}
+                  <ArrowUpRight
+                    aria-hidden="true"
+                    className="size-3"
+                  />
                 </a>
-              </figcaption>
-            )}
+              )}
+            </figcaption>
+          )}
         </figure>
       )}
-      <CardContent className="flex flex-1 flex-col p-6">
+      <CardContent className="p-6">
         <h3 className="text-pretty text-xl font-semibold">
           {program.slug ? (
             <Link
@@ -72,7 +106,7 @@ export default function CollectionProgramCard({ program }) {
             </div>
           ))}
         </dl>
-        <div className="mt-auto pt-6">
+        <div className="pt-6">
           {program.slug && (
             <Link
               href={`/program/${program.slug}`}

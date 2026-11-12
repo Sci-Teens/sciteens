@@ -28,7 +28,7 @@ async function contentLastmod(route) {
       './lib/opportunityCollections.js'
     )
     const entry = getOpportunityCollection(collection[1])
-    if (entry) return toLastmod(entry.reviewedAt)
+    if (entry) return toLastmod(entry.updatedAt)
   }
   const match = route.match(
     /^\/(?:es\/|fr\/|hi\/)?(article|course)\/([a-z0-9.-]+)$/

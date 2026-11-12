@@ -722,7 +722,9 @@
     "browse_heading": "अपनी ज़रूरत के अनुसार खोजें",
     "breadcrumb": "पेज का स्थान",
     "all_opportunities": "सभी अवसर देखें",
-    "reviewed": "स्रोत जाँचे गए: {{date}}",
+    "last_updated": "अंतिम अपडेट: {{date}}",
+    "image_source": "स्रोत",
+    "image_source_label": "{{program}} की छवि का स्रोत देखें",
     "compare_heading": "कार्यक्रमों की तुलना करें",
     "source_note": "यह चुनी हुई सूची है, रैंकिंग नहीं। शुल्क और पात्रता की जानकारी दिए गए कार्यक्रम स्रोतों से ली गई है। आवेदन से पहले मौजूदा तारीखें देखें।",
     "scroll_table": "पात्रता, खर्च और परियोजना कार्य की तुलना करने के लिए तालिका को दाएँ-बाएँ स्क्रॉल करें।",
@@ -850,15 +852,27 @@
       }
     },
     "images": {
-      "primes": "PRIMES-USA के छात्र Ritesh Ragavender, MIT में, 2013। MIT Mathematics।",
-      "foundation": "Dennis, Lumiere Foundation के Breakthrough छात्रवृत्ति प्राप्तकर्ता। Lumiere Foundation।",
+      "primes": "PRIMES की मेंटर Adela Zhang और पूर्व छात्रा Jakin Ng। Ken Richardson / MIT.",
+      "foundation": "Lumiere Research Inclusion Foundation.",
       "crowdmath": "Art of Problem Solving, CrowdMath का सह-आयोजक।",
-      "spinwip": "SPINWIP के आयोजक, 2021। Beatriz Yankelevich के सौजन्य से फोटो, The Stanford Daily के माध्यम से।",
-      "rsi": "RSI के प्रतिभागी। Center for Excellence in Education।",
+      "spinwip": "KIPAC, SPINWIP का सह-आयोजक।",
+      "rsi": "RSI की शोध कार्यशाला। Center for Excellence in Education.",
       "simons": "Simons की एक प्रतिभागी अपने मार्गदर्शक को शोध प्रस्तुत करती है, 2026। Stony Brook University।",
       "ssp": "Summer Science Program में प्रयोगशाला कार्य। SSP International।",
       "rockefeller": "SSRP के छात्र एक शोध परियोजना पर चर्चा करते हुए, 2022। The Rockefeller University।",
-      "gwc": "Girls Who Code हैकाथॉन, 2019। Girls Who Code।"
+      "gwc": "Girls Who Code हैकाथॉन, 2019। Girls Who Code।",
+      "aimi": "छात्रों का शोध और पोस्टर प्रस्तुतियाँ।",
+      "kwk": "साथ मिलकर कोडिंग सीखना।"
+    },
+    "image_alt": {
+      "rsi": "मिलिंग मशीन के पास RSI का एक छात्र।",
+      "primes": "MIT में PRIMES की मेंटर Adela Zhang और पूर्व छात्रा Jakin Ng।",
+      "simons": "Simons का एक छात्र मेंटर को शोध का पोस्टर समझाता हुआ।",
+      "ssp": "Summer Science Program के छात्र प्रयोगशाला के उपकरणों के साथ काम करते हुए।",
+      "rockefeller": "Rockefeller SSRP के छात्र एक छात्र द्वारा बनाए गए मक्खियों के परीक्षण क्षेत्र पर चर्चा करते हुए।",
+      "gwc": "हैकाथॉन में साथ काम करते Girls Who Code के प्रतिभागी।",
+      "aimi": "एक छात्र शोध का पोस्टर प्रस्तुत करता हुआ।",
+      "kwk": "लैपटॉप पर साथ काम करते छात्र।"
     }
   }
 }
