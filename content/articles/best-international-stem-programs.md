@@ -20,9 +20,6 @@ tags:
   - Statistics
 cover: /content/media/sciteens-best-international-programs-99659e9c.webp
 updated: '2026-11-10'
-update_note: >-
-  AI-assisted editorial revision. The original student byline and publication
-  date are retained. Sources and practical guidance were updated.
 ---
 
 A program can welcome international students and still be unaffordable or unavailable to you. Citizenship, school year, and funding rules differ between programs.

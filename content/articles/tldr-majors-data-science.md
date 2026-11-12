@@ -16,10 +16,6 @@ author_bio: >-
   and future article recommendations at Shang@SciTeens.org.
 author_headshot: /content/media/6a804f82-d62a-4a6e-93c2-7a2718ebb2d8-67011bed.webp
 updated: '2026-11-10'
-update_note: >-
-  AI-assisted editorial revision. The original student byline and publication
-  date are retained. The author biography describes the original publication
-  period. Sources and practical guidance were updated.
 ---
 
 Data science uses data to investigate questions and support decisions. The work includes deciding what to measure, writing code, checking data quality, and explaining what an analysis can support.

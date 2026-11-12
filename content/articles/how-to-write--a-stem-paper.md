@@ -22,10 +22,6 @@ cover: /content/media/sciteens-research-paper-2244a192.webp
 author_bio: Thomas is a high school student at Eastside High.
 author_headshot: /content/media/92747f8-0ac6ffb7.webp
 updated: '2026-11-10'
-update_note: >-
-  AI-assisted editorial revision. The original student byline and publication
-  date are retained. The author biography describes the original publication
-  period. Sources and practical guidance were updated.
 ---
 
 A STEM paper explains a question, the work you did, and what the evidence supports. Your teacher, competition, or intended journal sets the required format.

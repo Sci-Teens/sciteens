@@ -34,8 +34,8 @@ files:
 status: archived
 updated: '2026-11-10'
 update_note: >-
-  AI-assisted archive update. Historical course materials are retained and the
-  original live cohort is closed.
+  Historical course materials are retained and the original live cohort is
+  closed.
 ---
 
 These materials come from SciTeens' July 2021 physics data science course. The original live cohort is closed. This page does not offer registration, live instruction, or a new course certificate.

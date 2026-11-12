@@ -8,9 +8,6 @@ description: >-
 tags: []
 cover: /content/media/annie-spratt-bgdiuiyn3rs-unsplash-cd9f6b38.webp
 updated: '2026-11-10'
-update_note: >-
-  AI-assisted editorial revision. The original student byline and publication
-  date are retained. Sources and practical guidance were updated.
 ---
 
 Before writing a paper, decide what kind of work it reports. A review of published research needs a different plan from an experiment or an analysis of public data.
