@@ -706,6 +706,8 @@
     "opportunities_title": "स्कूली छात्रों के लिए STEM और अनुसंधान कार्यक्रम | SciTeens",
     "opportunities_description": "स्कूली छात्रों के लिए STEM कार्यक्रम, प्रतियोगिताएँ और अनुसंधान अवसर खोजें। कक्षा, स्थान और आवेदन की अंतिम तारीख की तुलना करें।",
     "pagination": {
+      "browse_older": "पुराने {{section}} पृष्ठ के अनुसार देखें",
+      "browse_all": "बंद कार्यक्रमों सहित सभी अवसर देखें",
       "label": "सूची के पृष्ठ देखें",
       "browse": "सभी पृष्ठ देखें",
       "page": "पृष्ठ {{page}}",
@@ -846,6 +848,17 @@
         "cost": "पिछला प्रकाशित कार्यक्रम निःशुल्क था। अगले समूह के आवेदन खुलने पर शर्तें जाँचें।",
         "work": "Python परियोजनाओं, व्याख्यानों और छोटे समूहों के साथ ऑनलाइन भौतिकी प्रशिक्षण। यह शोध की तैयारी है, प्रयोगशाला में शोध नियुक्ति नहीं।"
       }
+    },
+    "images": {
+      "primes": "PRIMES-USA के छात्र Ritesh Ragavender, MIT में, 2013। MIT Mathematics।",
+      "foundation": "Dennis, Lumiere Foundation के Breakthrough छात्रवृत्ति प्राप्तकर्ता। Lumiere Foundation।",
+      "crowdmath": "Art of Problem Solving, CrowdMath का सह-आयोजक।",
+      "spinwip": "SPINWIP के आयोजक, 2021। Beatriz Yankelevich के सौजन्य से फोटो, The Stanford Daily के माध्यम से।",
+      "rsi": "RSI के प्रतिभागी। Center for Excellence in Education।",
+      "simons": "Simons की एक प्रतिभागी अपने मार्गदर्शक को शोध प्रस्तुत करती है, 2026। Stony Brook University।",
+      "ssp": "Summer Science Program में प्रयोगशाला कार्य। SSP International।",
+      "rockefeller": "SSRP के छात्र एक शोध परियोजना पर चर्चा करते हुए, 2022। The Rockefeller University।",
+      "gwc": "Girls Who Code हैकाथॉन, 2019। Girls Who Code।"
     }
   }
 }

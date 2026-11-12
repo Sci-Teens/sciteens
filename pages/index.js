@@ -242,29 +242,6 @@ export default function Home() {
                 {t('navigation.about')}
               </Button>
             </div>
-            <nav
-              aria-label={t('seo.explore_resources')}
-              className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm"
-            >
-              <Link
-                href="/projects"
-                className="underline underline-offset-4"
-              >
-                {t('projects.projects')}
-              </Link>
-              <Link
-                href="/articles"
-                className="underline underline-offset-4"
-              >
-                {t('articles.articles')}
-              </Link>
-              <Link
-                href="/courses"
-                className="underline underline-offset-4"
-              >
-                {t('courses.courses')}
-              </Link>
-            </nav>
           </div>
 
           <nav aria-label={t('projects.topics')}>

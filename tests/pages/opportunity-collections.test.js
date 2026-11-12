@@ -6,6 +6,16 @@ vi.mock('next-i18next/serverSideTranslations', () => ({
   })),
 }))
 
+vi.mock('@/lib/opportunityCollectionImages', () => ({
+  fetchCollectionProgramImages: vi.fn(async (programs) =>
+    programs.map((program) => ({
+      ...program,
+      imageUrl: '/program-photo.webp',
+      imageFit: 'contain',
+    }))
+  ),
+}))
+
 import {
   getStaticPaths,
   getStaticProps,
@@ -42,6 +52,9 @@ describe('opportunity collection routes', () => {
     expect(props.collection.programs).toHaveLength(4)
     expect(props.collection.programs[0].sources[0]).toMatch(
       /^https:\/\//
+    )
+    expect(props.collection.programs[0].imageUrl).toBe(
+      '/program-photo.webp'
     )
   })
 })

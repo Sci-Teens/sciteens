@@ -7,12 +7,14 @@ export default function InfiniteScrollTrigger({
   isLoading,
   onLoadMore,
   label,
+  autoLoad = false,
 }) {
   const triggerRef = useRef(null)
 
   useEffect(() => {
     const trigger = triggerRef.current
     if (
+      !autoLoad ||
       !trigger ||
       !hasNextPage ||
       isLoading ||
@@ -30,7 +32,7 @@ export default function InfiniteScrollTrigger({
     observer.observe(trigger)
 
     return () => observer.disconnect()
-  }, [hasNextPage, isLoading, onLoadMore])
+  }, [autoLoad, hasNextPage, isLoading, onLoadMore])
 
   if (!hasNextPage) return null
 

@@ -60,21 +60,27 @@ const NAV_LINKS = [
     label: 'articles',
     Icon: Newspaper,
     active: (p) =>
-      p === '/articles' || p.startsWith('/article/'),
+      p === '/articles' ||
+      p.startsWith('/articles/') ||
+      p.startsWith('/article/'),
   },
   {
     href: '/projects',
     label: 'projects',
     Icon: Folder,
     active: (p) =>
-      p === '/projects' || p.startsWith('/project/'),
+      p === '/projects' ||
+      p.startsWith('/projects/') ||
+      p.startsWith('/project/'),
   },
   {
     href: '/opportunities',
     label: 'opportunities',
     Icon: Compass,
     active: (p) =>
-      p === '/opportunities' || p.startsWith('/program/'),
+      p === '/opportunities' ||
+      p.startsWith('/opportunities/') ||
+      p.startsWith('/program/'),
   },
   {
     href: '/get-involved',

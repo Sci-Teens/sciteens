@@ -53,7 +53,39 @@ it('opens the full opportunity archive without hiding closed programs', () => {
   )
   expect(
     screen.getByRole('link', {
-      name: 'seo.pagination.browse',
+      name: 'seo.pagination.browse_all',
     })
   ).toHaveAttribute('href', '/opportunities/page/1')
+})
+
+it('separates older-page browsing from loading more results', () => {
+  render(
+    <CrawlPagination
+      section="articles"
+      hasNextPage
+      archiveLink
+    />
+  )
+  expect(
+    screen.getByRole('link', {
+      name: 'seo.pagination.browse_older',
+    })
+  ).toHaveAttribute('href', '/articles/page/2')
+  expect(
+    screen.queryByText('seo.pagination.page')
+  ).toBeNull()
+  expect(
+    screen.queryByText('seo.pagination.next')
+  ).toBeNull()
+})
+
+it('does not offer an archive for a one-page list', () => {
+  render(
+    <CrawlPagination
+      section="articles"
+      hasNextPage={false}
+      archiveLink
+    />
+  )
+  expect(screen.queryByRole('navigation')).toBeNull()
 })
