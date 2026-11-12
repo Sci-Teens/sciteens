@@ -1029,20 +1029,14 @@ function Opportunities({
           <ListingSkeleton count={2} />
         )}
 
-        {!hasActiveFilters && (
-          <section className="border-border/60 mt-8 border-t pt-6">
-            <h2 className="mb-4 text-lg font-semibold">
-              {t('opportunity_collections.browse_heading')}
-            </h2>
-            <OpportunityCollectionLinks />
-          </section>
-        )}
-
         <InfiniteScrollTrigger
           hasNextPage={
             hasNextPage && !opportunitiesQuery.isError
           }
-          isLoading={isFetchingNextPage}
+          isLoading={
+            isFetchingNextPage ||
+            opportunitiesQuery.isPlaceholderData
+          }
           onLoadMore={fetchNextPage}
           label={t('opportunities.load_more')}
         />
@@ -1051,6 +1045,14 @@ function Opportunities({
             section="opportunities"
             archiveLink
           />
+        )}
+        {!hasActiveFilters && (
+          <section className="border-border/60 mt-8 border-t pt-6">
+            <h2 className="mb-4 text-lg font-semibold">
+              {t('opportunity_collections.browse_heading')}
+            </h2>
+            <OpportunityCollectionLinks />
+          </section>
         )}
       </ListingLayout>
     </>

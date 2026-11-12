@@ -706,6 +706,8 @@
     "opportunities_title": "STEM Programs & Research Opportunities for High School Students | SciTeens",
     "opportunities_description": "Find STEM programs, competitions, and research opportunities for high school students. Compare grade requirements, locations, and application deadlines.",
     "pagination": {
+      "browse_older": "Browse older {{section}} by page",
+      "browse_all": "Browse all opportunities, including closed programs",
       "label": "Browse listing pages",
       "browse": "Browse all pages",
       "page": "Page {{page}}",
@@ -846,6 +848,17 @@
         "cost": "The last published program was free. Confirm the next cohort’s terms when applications reopen.",
         "work": "Virtual physics outreach with Python projects, lectures, and small-group work. This is research preparation, not a laboratory placement."
       }
+    },
+    "images": {
+      "primes": "PRIMES-USA student Ritesh Ragavender at MIT, 2013. MIT Mathematics.",
+      "foundation": "Dennis, a Lumiere Foundation Breakthrough Scholar. Lumiere Foundation.",
+      "crowdmath": "Art of Problem Solving, co-host of CrowdMath.",
+      "spinwip": "SPINWIP organizers, 2021. Photo courtesy of Beatriz Yankelevich, via The Stanford Daily.",
+      "rsi": "RSI participants. Center for Excellence in Education.",
+      "simons": "A Simons Fellow presents research to a mentor, 2026. Stony Brook University.",
+      "ssp": "Summer Science Program laboratory work. SSP International.",
+      "rockefeller": "SSRP students discuss a research project, 2022. The Rockefeller University.",
+      "gwc": "Girls Who Code hackathon, 2019. Girls Who Code."
     }
   }
 }

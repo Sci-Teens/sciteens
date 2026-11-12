@@ -706,6 +706,8 @@
     "opportunities_title": "Programas STEM e investigación para estudiantes de secundaria | SciTeens",
     "opportunities_description": "Encuentra programas STEM, concursos e investigación para estudiantes de secundaria. Compara cursos escolares, ubicaciones y plazos.",
     "pagination": {
+      "browse_older": "Explorar {{section}} anteriores por página",
+      "browse_all": "Explorar todas las oportunidades, incluidos los programas cerrados",
       "label": "Explorar páginas de resultados",
       "browse": "Explorar todas las páginas",
       "page": "Página {{page}}",
@@ -846,6 +848,17 @@
         "cost": "El último programa publicado era gratuito. Confirma las condiciones de la próxima convocatoria cuando abra.",
         "work": "Divulgación virtual de física con proyectos de Python, clases y grupos pequeños. Prepara para investigar; no es una estancia de laboratorio."
       }
+    },
+    "images": {
+      "primes": "Ritesh Ragavender, estudiante de PRIMES-USA, en MIT, 2013. MIT Mathematics.",
+      "foundation": "Dennis, becario Breakthrough de Lumiere Foundation. Lumiere Foundation.",
+      "crowdmath": "Art of Problem Solving, coorganizador de CrowdMath.",
+      "spinwip": "Organizadoras de SPINWIP, 2021. Foto cortesía de Beatriz Yankelevich, a través de The Stanford Daily.",
+      "rsi": "Participantes de RSI. Center for Excellence in Education.",
+      "simons": "Una participante de Simons presenta su investigación a una mentora, 2026. Stony Brook University.",
+      "ssp": "Trabajo de laboratorio del Summer Science Program. SSP International.",
+      "rockefeller": "Estudiantes de SSRP comentan un proyecto de investigación, 2022. The Rockefeller University.",
+      "gwc": "Hackatón de Girls Who Code, 2019. Girls Who Code."
     }
   }
 }

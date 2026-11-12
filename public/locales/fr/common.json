@@ -706,6 +706,8 @@
     "opportunities_title": "Programmes STEM et recherche pour les lycéens | SciTeens",
     "opportunities_description": "Trouvez des programmes STEM, concours et possibilités de recherche pour les lycéens. Comparez les critères scolaires, les lieux et les échéances.",
     "pagination": {
+      "browse_older": "Parcourir les {{section}} plus anciens par page",
+      "browse_all": "Voir toutes les opportunités, y compris les programmes fermés",
       "label": "Parcourir les pages de résultats",
       "browse": "Parcourir toutes les pages",
       "page": "Page {{page}}",
@@ -846,6 +848,17 @@
         "cost": "La dernière session publiée était gratuite. Confirmez les conditions de la prochaine session à l’ouverture des candidatures.",
         "work": "Initiation à la physique en ligne avec Python, cours et petits groupes. Préparation à la recherche, sans stage en laboratoire."
       }
+    },
+    "images": {
+      "primes": "Ritesh Ragavender, élève de PRIMES-USA, au MIT en 2013. MIT Mathematics.",
+      "foundation": "Dennis, boursier Breakthrough de Lumiere Foundation. Lumiere Foundation.",
+      "crowdmath": "Art of Problem Solving, coorganisateur de CrowdMath.",
+      "spinwip": "Organisatrices de SPINWIP, 2021. Photo fournie par Beatriz Yankelevich, via The Stanford Daily.",
+      "rsi": "Participants de RSI. Center for Excellence in Education.",
+      "simons": "Une participante de Simons présente ses recherches à une mentore, 2026. Stony Brook University.",
+      "ssp": "Travail en laboratoire au Summer Science Program. SSP International.",
+      "rockefeller": "Des élèves de SSRP discutent d’un projet de recherche, 2022. The Rockefeller University.",
+      "gwc": "Hackathon de Girls Who Code, 2019. Girls Who Code."
     }
   }
 }

@@ -6,7 +6,7 @@ import StructuredData from '@/components/StructuredData'
 import PageHeading from '@/components/PageHeading'
 import HeadingRule from '@/components/HeadingRule'
 import OpportunityCollectionLinks from '@/components/OpportunityCollectionLinks'
-import { Card, CardContent } from '@/components/ui/card'
+import CollectionProgramCard from '@/components/CollectionProgramCard'
 import { buttonVariants } from '@/components/ui/button'
 import { formatMediumDate } from '@/lib/formatDate'
 import { INLINE_LINK } from '@/lib/typography'
@@ -87,134 +87,15 @@ export default function OpportunityCollection({
             <p className="text-muted-foreground mt-3 max-w-3xl text-sm leading-relaxed">
               {t('opportunity_collections.source_note')}
             </p>
-            <p className="text-muted-foreground mt-3 text-sm md:hidden">
-              {t('opportunity_collections.scroll_table')}
-            </p>
-            <Card className="border-border/60 mt-5 overflow-hidden shadow-sm">
-              <CardContent className="p-0">
-                {/* eslint-disable jsx-a11y/no-noninteractive-tabindex -- Keyboard users need focus to scroll the comparison table. */}
-                <div
-                  className="overflow-x-auto"
-                  role="region"
-                  aria-labelledby="collection-comparison"
-                  tabIndex={0}
-                >
-                  <table className="w-full min-w-[48rem] text-left text-sm leading-relaxed">
-                    <caption className="sr-only">
-                      {t(`${prefix}.title`)}
-                    </caption>
-                    <thead className="bg-muted border-border/60 border-b">
-                      <tr>
-                        <th
-                          scope="col"
-                          className="w-1/4 p-4 font-semibold"
-                        >
-                          {t(
-                            'opportunity_collections.program'
-                          )}
-                        </th>
-                        <th
-                          scope="col"
-                          className="w-1/4 p-4 font-semibold"
-                        >
-                          {t(
-                            'opportunity_collections.eligibility'
-                          )}
-                        </th>
-                        <th
-                          scope="col"
-                          className="w-1/4 p-4 font-semibold"
-                        >
-                          {t(
-                            'opportunity_collections.cost'
-                          )}
-                        </th>
-                        <th
-                          scope="col"
-                          className="w-1/4 p-4 font-semibold"
-                        >
-                          {t(
-                            'opportunity_collections.work'
-                          )}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-border/60 divide-y">
-                      {collection.programs.map(
-                        (program) => (
-                          <tr
-                            key={program.id}
-                            className="align-top"
-                          >
-                            <th
-                              scope="row"
-                              className="p-4 font-normal"
-                            >
-                              <p className="font-semibold">
-                                {program.name}
-                              </p>
-                              <p className="text-muted-foreground mt-2">
-                                {t(
-                                  `opportunity_collections.formats.${program.format}`
-                                )}
-                              </p>
-                              {program.slug && (
-                                <Link
-                                  href={`/program/${program.slug}`}
-                                  className={`${INLINE_LINK} mt-3 inline-block`}
-                                >
-                                  {t(
-                                    'opportunity_collections.details'
-                                  )}
-                                </Link>
-                              )}
-                              <ul className="mt-3 space-y-1">
-                                {program.sources.map(
-                                  (source, index) => (
-                                    <li key={source}>
-                                      <a
-                                        href={source}
-                                        className={
-                                          INLINE_LINK
-                                        }
-                                      >
-                                        {t(
-                                          'opportunity_collections.official_source',
-                                          {
-                                            number:
-                                              index + 1,
-                                          }
-                                        )}
-                                      </a>
-                                    </li>
-                                  )
-                                )}
-                              </ul>
-                            </th>
-                            <td className="p-4">
-                              {t(
-                                `opportunity_collections.programs.${program.id}.eligibility`
-                              )}
-                            </td>
-                            <td className="p-4">
-                              {t(
-                                `opportunity_collections.programs.${program.id}.cost`
-                              )}
-                            </td>
-                            <td className="p-4">
-                              {t(
-                                `opportunity_collections.programs.${program.id}.work`
-                              )}
-                            </td>
-                          </tr>
-                        )
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-                {/* eslint-enable jsx-a11y/no-noninteractive-tabindex */}
-              </CardContent>
-            </Card>
+            <ul className="mt-6 grid gap-6 lg:grid-cols-2">
+              {collection.programs.map((program) => (
+                <li key={program.id} className="min-w-0">
+                  <CollectionProgramCard
+                    program={program}
+                  />
+                </li>
+              ))}
+            </ul>
           </section>
 
           <section
@@ -326,11 +207,20 @@ export async function getStaticProps({ params, locale }) {
   )
   if (!collection) return { notFound: true }
 
+  const { fetchCollectionProgramImages } = await import(
+    '@/lib/opportunityCollectionImages'
+  )
+  const [programs, translations] = await Promise.all([
+    fetchCollectionProgramImages(collection.programs),
+    serverSideTranslations(locale, ['common']),
+  ])
+
   return {
+    revalidate: 86400,
     props: {
-      collection,
+      collection: { ...collection, programs },
       locale,
-      ...(await serverSideTranslations(locale, ['common'])),
+      ...translations,
     },
   }
 }

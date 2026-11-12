@@ -54,7 +54,7 @@ function Articles({ articles }) {
 
   // `?page=N` is the paging contract the Prismic listing published, and
   // bookmarks still carry it. It seeds how much of the list is revealed;
-  // infinite scroll takes over from there.
+  // the load-more control reveals subsequent batches.
   const pageParam = Number.parseInt(router.query?.page, 10)
   const initialCount =
     Number.isInteger(pageParam) && pageParam > 1
@@ -335,6 +335,7 @@ function Articles({ articles }) {
         {!hasActiveFilters && (
           <CrawlPagination
             section="articles"
+            archiveLink
             hasNextPage={
               articles.length > ARTICLES_PAGE_SIZE
             }

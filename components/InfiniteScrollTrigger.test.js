@@ -31,7 +31,7 @@ afterEach(() => {
 })
 
 describe('InfiniteScrollTrigger', () => {
-  it('loads the next page before the trigger reaches the viewport', () => {
+  it('supports automatic loading only when explicitly enabled', () => {
     vi.stubGlobal(
       'IntersectionObserver',
       MockIntersectionObserver
@@ -41,6 +41,7 @@ describe('InfiniteScrollTrigger', () => {
     render(
       <InfiniteScrollTrigger
         hasNextPage
+        autoLoad
         isLoading={false}
         onLoadMore={onLoadMore}
         label="Load more"
@@ -59,8 +60,11 @@ describe('InfiniteScrollTrigger', () => {
     expect(onLoadMore).toHaveBeenCalledOnce()
   })
 
-  it('keeps a manual load button when IntersectionObserver is unavailable', () => {
-    vi.stubGlobal('IntersectionObserver', undefined)
+  it('waits for an explicit click even when IntersectionObserver is available', () => {
+    vi.stubGlobal(
+      'IntersectionObserver',
+      MockIntersectionObserver
+    )
     const onLoadMore = vi.fn()
 
     render(
@@ -72,13 +76,18 @@ describe('InfiniteScrollTrigger', () => {
       />
     )
 
+    expect(MockIntersectionObserver.instances).toHaveLength(
+      0
+    )
+    expect(onLoadMore).not.toHaveBeenCalled()
+
     fireEvent.click(
       screen.getByRole('button', { name: 'Load more' })
     )
     expect(onLoadMore).toHaveBeenCalledOnce()
   })
 
-  it('disconnects the observer and disables loading twice while a request is active', () => {
+  it('disables the load button while a request is active', () => {
     vi.stubGlobal(
       'IntersectionObserver',
       MockIntersectionObserver
@@ -92,8 +101,6 @@ describe('InfiniteScrollTrigger', () => {
         label="Load more"
       />
     )
-    const observer = MockIntersectionObserver.instances[0]
-
     rerender(
       <InfiniteScrollTrigger
         hasNextPage
@@ -103,7 +110,6 @@ describe('InfiniteScrollTrigger', () => {
       />
     )
 
-    expect(observer.disconnect).toHaveBeenCalledOnce()
     expect(
       screen.getByRole('button', { name: /Load more/ })
     ).toBeDisabled()

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { useTranslation } from 'next-i18next'
 import { buttonVariants } from '@/components/ui/button'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { getListingPagePath } from '@/lib/crawlPagination'
 
 export default function CrawlPagination({
@@ -10,7 +11,11 @@ export default function CrawlPagination({
   archiveLink = false,
 }) {
   const { t } = useTranslation('common')
-  if (!archiveLink && page === 1 && !hasNextPage)
+  if (
+    page === 1 &&
+    !hasNextPage &&
+    !(archiveLink && section === 'opportunities')
+  )
     return null
 
   return (
@@ -20,10 +25,22 @@ export default function CrawlPagination({
     >
       {archiveLink ? (
         <Link
-          href={getListingPagePath(section, 1)}
-          className={buttonVariants({ variant: 'outline' })}
+          href={getListingPagePath(
+            section,
+            section === 'opportunities' ? 1 : 2
+          )}
+          className={buttonVariants({
+            variant: 'link',
+            className:
+              'h-auto whitespace-normal px-0 text-left',
+          })}
         >
-          {t('seo.pagination.browse')}
+          {t(
+            section === 'opportunities'
+              ? 'seo.pagination.browse_all'
+              : 'seo.pagination.browse_older',
+            { section: t(`${section}.${section}`) }
+          )}
         </Link>
       ) : (
         <>
@@ -35,6 +52,10 @@ export default function CrawlPagination({
                 variant: 'outline',
               })}
             >
+              <ArrowLeft
+                aria-hidden="true"
+                className="size-4 mr-2"
+              />
               {t('seo.pagination.previous')}
             </Link>
           ) : (
@@ -55,6 +76,10 @@ export default function CrawlPagination({
               })}
             >
               {t('seo.pagination.next')}
+              <ArrowRight
+                aria-hidden="true"
+                className="size-4 ml-2"
+              />
             </Link>
           ) : (
             <span />

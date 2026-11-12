@@ -182,7 +182,7 @@ export default function Footer() {
                 </p>
               </form>
             </section>
-            <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
               <div className="w-full">
                 <p className="mb-1 font-semibold text-white md:mb-2">
                   {t('footer.organization')}
@@ -230,6 +230,28 @@ export default function Footer() {
               </div>
               <div className="w-full">
                 <p className="mb-1 font-semibold text-white md:mb-2">
+                  {t('seo.explore_resources')}
+                </p>
+                <ul>
+                  {[
+                    [
+                      'opportunities',
+                      'navigation.opportunities',
+                    ],
+                    ['projects', 'projects.projects'],
+                    ['articles', 'articles.articles'],
+                    ['courses', 'courses.courses'],
+                  ].map(([path, label]) => (
+                    <li key={path}>
+                      <Link href={`/${path}`}>
+                        {t(label)}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="w-full">
+                <p className="mb-1 font-semibold text-white md:mb-2">
                   {t('footer.legal')}
                 </p>
                 <ul>
@@ -256,34 +278,22 @@ export default function Footer() {
                 </p>
                 <ul>
                   <li>
-                    <Link
-                      href={router.pathname}
-                      locale="en"
-                    >
+                    <Link href={router.asPath} locale="en">
                       English
                     </Link>
                   </li>
                   <li>
-                    <Link
-                      href={router.pathname}
-                      locale="es"
-                    >
+                    <Link href={router.asPath} locale="es">
                       Español
                     </Link>
                   </li>
                   <li>
-                    <Link
-                      href={router.pathname}
-                      locale="fr"
-                    >
+                    <Link href={router.asPath} locale="fr">
                       Français
                     </Link>
                   </li>
                   <li>
-                    <Link
-                      href={router.pathname}
-                      locale="hi"
-                    >
+                    <Link href={router.asPath} locale="hi">
                       नहीं
                     </Link>
                   </li>

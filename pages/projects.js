@@ -797,13 +797,17 @@ function Projects({
 
         <InfiniteScrollTrigger
           hasNextPage={hasNextPage}
-          isLoading={isFetchingNextPage}
+          isLoading={
+            isFetchingNextPage ||
+            projectsQuery.isPlaceholderData
+          }
           onLoadMore={fetchNextPage}
           label={t('projects.load_more')}
         />
         {!hasActiveFilters && (
           <CrawlPagination
             section="projects"
+            archiveLink
             hasNextPage={hasArchivePage}
           />
         )}
