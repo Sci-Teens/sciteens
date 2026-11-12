@@ -17,10 +17,6 @@ author_bio: >-
   team.
 author_headshot: /content/media/92747f8-0ac6ffb7.webp
 updated: '2026-11-10'
-update_note: >-
-  AI-assisted editorial revision. The original student byline and publication
-  date are retained. The author biography describes the original publication
-  period. Sources and practical guidance were updated.
 ---
 
 A STEM club needs a reason to meet. Start with a task students want to do together: prepare for a competition, investigate a local question, or learn to code.

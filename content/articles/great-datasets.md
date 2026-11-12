@@ -8,9 +8,6 @@ description: >-
 tags: []
 cover: /content/media/sciteens-finding-great-datasets-249ff579.webp
 updated: '2026-11-10'
-update_note: >-
-  AI-assisted editorial revision. The original student byline and publication
-  date are retained. Sources and practical guidance were updated.
 ---
 
 You do not need to collect every measurement yourself to investigate a science question. Public datasets let students study observations that would otherwise require equipment or access to a research site.

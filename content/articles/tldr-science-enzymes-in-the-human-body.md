@@ -11,10 +11,6 @@ cover: /content/media/screen-shot-2022-11-04-at-60630-pm-63672c2e.webp
 author_bio: "Srishti Swaminathan is a high school sophomore interested in STEM and writing.\_ She enjoys reading, listening to music, and watching movies.\_ If you have any comments or questions regarding this article, feel free to contact her at srishti@sciteens.org."
 author_headshot: /content/media/screen-shot-2022-10-13-at-114159-am-2673bbe2.webp
 updated: '2026-11-10'
-update_note: >-
-  AI-assisted editorial revision. The original student byline and publication
-  date are retained. The author biography describes the original publication
-  period. Sources and practical guidance were updated.
 ---
 
 An enzyme is a biological catalyst: it speeds up a chemical reaction without being consumed by that reaction. Most enzymes are proteins. Some RNA molecules also act as catalysts.
