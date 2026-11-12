@@ -65,12 +65,14 @@ export default function OpportunityCollection({
               {t(`${prefix}.description`)}
             </p>
             <p className="text-muted-foreground mt-4 text-sm">
-              {t('opportunity_collections.reviewed', {
-                date: formatMediumDate(
-                  collection.reviewedAt,
-                  locale
-                ),
-              })}
+              <time dateTime={collection.updatedAt}>
+                {t('opportunity_collections.last_updated', {
+                  date: formatMediumDate(
+                    collection.updatedAt,
+                    locale
+                  ),
+                })}
+              </time>
             </p>
           </div>
 
@@ -87,11 +89,12 @@ export default function OpportunityCollection({
             <p className="text-muted-foreground mt-3 max-w-3xl text-sm leading-relaxed">
               {t('opportunity_collections.source_note')}
             </p>
-            <ul className="mt-6 grid gap-6 lg:grid-cols-2">
-              {collection.programs.map((program) => (
+            <ul className="mt-6 grid items-start gap-6 lg:grid-cols-2">
+              {collection.programs.map((program, index) => (
                 <li key={program.id} className="min-w-0">
                   <CollectionProgramCard
                     program={program}
+                    priority={index === 0}
                   />
                 </li>
               ))}

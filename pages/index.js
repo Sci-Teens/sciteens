@@ -316,24 +316,30 @@ export default function Home() {
               'international_programs',
             ],
           ].map(([slug, key]) => (
-            <Card
+            <Link
               key={slug}
-              className="border-border/60 h-full shadow-sm"
+              href={`/opportunities/${slug}`}
+              aria-labelledby={`guide-${slug}`}
+              className="focus-visible:ring-ring group block h-full rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             >
-              <CardContent className="p-5 md:p-6">
-                <h3 className="text-lg font-semibold">
-                  <Link
-                    href={`/opportunities/${slug}`}
-                    className="underline-offset-4 hover:underline"
+              <Card className="border-border/60 group-hover:border-primary/60 h-full shadow-sm transition-colors">
+                <CardContent className="p-5 md:p-6">
+                  <h3
+                    id={`guide-${slug}`}
+                    className="flex items-start justify-between gap-3 text-lg font-semibold"
                   >
                     {t(`seo.${key}`)}
-                  </Link>
-                </h3>
-                <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-                  {t(`seo.${key}_description`)}
-                </p>
-              </CardContent>
-            </Card>
+                    <ArrowRight
+                      aria-hidden="true"
+                      className="size-4 mt-1 shrink-0 transition-transform group-hover:translate-x-1 motion-reduce:transform-none"
+                    />
+                  </h3>
+                  <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+                    {t(`seo.${key}_description`)}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       </section>

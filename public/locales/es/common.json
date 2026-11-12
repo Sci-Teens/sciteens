@@ -722,7 +722,9 @@
     "browse_heading": "Explora según tus necesidades",
     "breadcrumb": "Ubicación de la página",
     "all_opportunities": "Ver todas las oportunidades",
-    "reviewed": "Fuentes revisadas el {{date}}",
+    "last_updated": "Última actualización: {{date}}",
+    "image_source": "Fuente",
+    "image_source_label": "Ver la fuente de la imagen de {{program}}",
     "compare_heading": "Compara los programas",
     "source_note": "Esta es una selección, no una clasificación. Los costes y requisitos proceden de las fuentes enlazadas. Comprueba las fechas antes de solicitar plaza.",
     "scroll_table": "Desplaza la tabla para comparar requisitos, costes y proyectos.",
@@ -850,15 +852,27 @@
       }
     },
     "images": {
-      "primes": "Ritesh Ragavender, estudiante de PRIMES-USA, en MIT, 2013. MIT Mathematics.",
-      "foundation": "Dennis, becario Breakthrough de Lumiere Foundation. Lumiere Foundation.",
+      "primes": "Adela Zhang, mentora de PRIMES, y Jakin Ng, exalumna. Ken Richardson / MIT.",
+      "foundation": "Lumiere Research Inclusion Foundation.",
       "crowdmath": "Art of Problem Solving, coorganizador de CrowdMath.",
-      "spinwip": "Organizadoras de SPINWIP, 2021. Foto cortesía de Beatriz Yankelevich, a través de The Stanford Daily.",
-      "rsi": "Participantes de RSI. Center for Excellence in Education.",
+      "spinwip": "KIPAC, coorganizador de SPINWIP.",
+      "rsi": "Taller de investigación de RSI. Center for Excellence in Education.",
       "simons": "Una participante de Simons presenta su investigación a una mentora, 2026. Stony Brook University.",
       "ssp": "Trabajo de laboratorio del Summer Science Program. SSP International.",
       "rockefeller": "Estudiantes de SSRP comentan un proyecto de investigación, 2022. The Rockefeller University.",
-      "gwc": "Hackatón de Girls Who Code, 2019. Girls Who Code."
+      "gwc": "Hackatón de Girls Who Code, 2019. Girls Who Code.",
+      "aimi": "Investigación estudiantil y presentación de pósteres.",
+      "kwk": "Aprender a programar en equipo."
+    },
+    "image_alt": {
+      "rsi": "Un estudiante de RSI junto a una fresadora.",
+      "primes": "Adela Zhang, mentora de PRIMES, y Jakin Ng, exalumna, en el MIT.",
+      "simons": "Un estudiante de Simons explica un póster a un mentor.",
+      "ssp": "Estudiantes del Summer Science Program trabajan con equipo de laboratorio.",
+      "rockefeller": "Estudiantes de Rockefeller SSRP comentan un recinto para moscas creado por un estudiante.",
+      "gwc": "Participantes de Girls Who Code colaboran en un hackatón.",
+      "aimi": "Un estudiante presenta un póster de investigación.",
+      "kwk": "Estudiantes colaboran con computadoras portátiles."
     }
   }
 }
