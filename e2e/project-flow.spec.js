@@ -9,6 +9,7 @@
 const { test, expect } = require('@playwright/test')
 const {
   seedStudent,
+  seedProject,
   getProject,
   getProjectInvite,
   setProjectFields,
@@ -110,4 +111,66 @@ test.describe('project create -> invite -> edit', () => {
       page.getByRole('checkbox', { name: 'Biology' })
     ).toBeChecked()
   })
+})
+
+test('opportunity names fit on one line on create and edit forms', async ({
+  page,
+}) => {
+  const owner = await seedStudent({ password: PASSWORD })
+  const projectId = await seedProject({
+    title: 'Opportunity Dropdown Project',
+    abstract: 'Checking the opportunity dropdown layout.',
+    fields: [],
+    member_arr: [
+      {
+        uid: owner.uid,
+        display: owner.displayName,
+        slug: owner.slug,
+      },
+    ],
+    member_uids: [owner.uid],
+  })
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.route('**/api/opportunity-options', (route) =>
+    route.fulfill({
+      json: {
+        opportunities: [
+          { id: 'research-week', name: 'Research Week' },
+        ],
+      },
+    })
+  )
+
+  const input = page.locator('#opportunity-id')
+  async function checkOpportunity() {
+    await input.click()
+    const option = page.getByRole('option', {
+      name: 'Research Week',
+    })
+    await expect(option).toBeVisible()
+    const lineCount = await option
+      .getByText('Research Week', { exact: true })
+      .evaluate((label) => {
+        const range = document.createRange()
+        range.selectNodeContents(label)
+        return range.getClientRects().length
+      })
+    expect(lineCount).toBe(1)
+    await option.click()
+    await expect(input).toHaveValue('Research Week')
+  }
+
+  await signIn(page, owner, 'project|create')
+  await page.waitForURL('/project/create')
+  await checkOpportunity()
+  await page
+    .getByRole('button', { name: 'Clear opportunity' })
+    .click()
+  await expect(input).toBeEmpty()
+
+  await page.goto(`/project/${projectId}/edit`)
+  await expect(page.locator('#title')).toHaveValue(
+    'Opportunity Dropdown Project'
+  )
+  await checkOpportunity()
 })
