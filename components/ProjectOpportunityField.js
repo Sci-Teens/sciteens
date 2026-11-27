@@ -169,13 +169,13 @@ export default function ProjectOpportunityField({
                             value={opportunity}
                             className="data-highlighted:bg-accent data-highlighted:text-accent-foreground grid cursor-default grid-cols-[1rem_minmax(0,1fr)] items-start gap-2 rounded-md px-2 py-1.5 text-sm outline-none"
                           >
-                            <Combobox.ItemIndicator className="mt-0.5">
+                            <Combobox.ItemIndicator className="col-start-1 row-start-1 mt-0.5">
                               <Check
                                 className="size-4"
                                 aria-hidden="true"
                               />
                             </Combobox.ItemIndicator>
-                            <span className="min-w-0 break-words">
+                            <span className="col-start-2 row-start-1 min-w-0 break-words">
                               {opportunity.name}
                             </span>
                           </Combobox.Item>
